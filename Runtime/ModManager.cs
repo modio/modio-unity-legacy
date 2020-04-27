@@ -1,7 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using Path = System.IO.Path;
 
 using UnityEngine;
 
@@ -83,7 +83,7 @@ namespace ModIO
             Debug.Assert(modId != ModProfile.NULL_ID);
 
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
-            if(!File.Exists(zipFilePath))
+            if(!LocalDataStorage.GetFileExists(zipFilePath))
             {
                 Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
                                  + "\nMod Binary ZipFile [" + zipFilePath + "] does not exist.");
@@ -91,16 +91,12 @@ namespace ModIO
             }
 
             // extract
-            string tempLocation = Path.Combine(CacheClient.GenerateModBinariesDirectoryPath(modId),
-                                               modfileId.ToString());
+            string tempLocation = IOUtilities.CombinePath(CacheClient.GenerateModBinariesDirectoryPath(modId),
+                                                          modfileId.ToString());
             try
             {
-                if(Directory.Exists(tempLocation))
-                {
-                    Directory.Delete(tempLocation, true);
-                }
-
-                Directory.CreateDirectory(tempLocation);
+                LocalDataStorage.DeleteDirectory(tempLocation);
+                LocalDataStorage.CreateDirectory(tempLocation);
 
                 using (var zip = Ionic.Zip.ZipFile.Read(zipFilePath))
                 {
@@ -136,16 +132,9 @@ namespace ModIO
                                                                         modfileId);
             try
             {
-                if(Directory.Exists(installDirectory))
-                {
-                    Directory.Delete(installDirectory, true);
-                }
-                else
-                {
-                    Directory.CreateDirectory(ModManager.installationDirectory);
-                }
-
-                Directory.Move(tempLocation, installDirectory);
+                LocalDataStorage.DeleteDirectory(installDirectory);
+                LocalDataStorage.CreateDirectory(ModManager.installationDirectory);
+                LocalDataStorage.MoveDirectory(tempLocation, installDirectory);
             }
             catch(Exception e)
             {
@@ -284,21 +273,10 @@ namespace ModIO
         /// <summary>Returns the data of all the mods installed.</summary>
         public static IEnumerable<KeyValuePair<ModfileIdPair, string>> IterateInstalledMods(IList<int> modIdFilter)
         {
-            string[] modDirectories = new string[0];
-            try
+            IList<string> modDirectories = LocalDataStorage.GetDirectories(ModManager.installationDirectory);
+            if(modDirectories == null)
             {
-                if(Directory.Exists(ModManager.installationDirectory))
-                {
-                    modDirectories = Directory.GetDirectories(ModManager.installationDirectory);
-                }
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to read mod installation directory."
-                                      + "\nDirectory: " + ModManager.installationDirectory + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
+                yield break;
             }
 
             foreach(string modDirectory in modDirectories)
@@ -359,9 +337,8 @@ namespace ModIO
                 modfile = p.currentBuild;
 
                 installDir = ModManager.GetModInstallDirectory(p.id, modfile.id);
-                zipFilePath = CacheClient.GenerateModBinaryZipFilePath(p.id, modfile.id);
 
-                if(Directory.Exists(installDir))
+                if(System.IO.Directory.Exists(installDir))
                 {
                     if(onSuccess != null)
                     {
@@ -374,6 +351,7 @@ namespace ModIO
                     Int64 binarySize;
                     string binaryHash;
 
+                    zipFilePath = CacheClient.GenerateModBinaryZipFilePath(p.id, modfile.id);
                     fileExists = LocalDataStorage.GetFileSizeAndHash(zipFilePath,
                                                                      out binarySize,
                                                                      out binaryHash);
@@ -1238,7 +1216,7 @@ namespace ModIO
             {
                 error = WebRequestError.GenerateLocal("Mod Profile needs to be given a summary before it can be uploaded");
             }
-            else if(!File.Exists(newModProfile.logoLocator.value.url))
+            else if(!LocalDataStorage.GetFileExists(newModProfile.logoLocator.value.url))
             {
                 error = WebRequestError.GenerateLocal("Mod Profile needs to be assigned a logo before it can be uploaded");
             }
@@ -1250,11 +1228,14 @@ namespace ModIO
             }
 
             // - Initial Mod Submission -
+            byte[] data;
+            LocalDataStorage.ReadFile(newModProfile.logoLocator.value.url, out data);
+
             var parameters = new AddModParameters();
             parameters.name = newModProfile.name.value;
             parameters.summary = newModProfile.summary.value;
-            parameters.logo = BinaryUpload.Create(Path.GetFileName(newModProfile.logoLocator.value.url),
-                                                      File.ReadAllBytes(newModProfile.logoLocator.value.url));
+            parameters.logo = BinaryUpload.Create(Path.GetFileName(newModProfile.logoLocator.value.url), data);
+
             if(newModProfile.visibility.isDirty)
             {
                 parameters.visibility = newModProfile.visibility.value;
@@ -1406,10 +1387,12 @@ namespace ModIO
                 var deleteMediaParameters = new DeleteModMediaParameters();
 
                 if(modEdits.logoLocator.isDirty
-                   && File.Exists(modEdits.logoLocator.value.url))
+                   && LocalDataStorage.GetFileExists(modEdits.logoLocator.value.url))
                 {
-                    addMediaParameters.logo = BinaryUpload.Create(Path.GetFileName(modEdits.logoLocator.value.url),
-                                                                  File.ReadAllBytes(modEdits.logoLocator.value.url));
+                    byte[] data;
+                    LocalDataStorage.ReadFile(modEdits.logoLocator.value.url, out data);
+
+                    addMediaParameters.logo = BinaryUpload.Create(Path.GetFileName(modEdits.logoLocator.value.url), data);
                 }
 
                 if(modEdits.youTubeURLs.isDirty)
@@ -1451,7 +1434,7 @@ namespace ModIO
                     var addedImageFilePaths = new List<string>();
                     foreach(var locator in modEdits.galleryImageLocators.value)
                     {
-                        if(File.Exists(locator.url))
+                        if(LocalDataStorage.GetFileExists(locator.url))
                         {
                             addedImageFilePaths.Add(locator.url);
                         }
@@ -1465,7 +1448,7 @@ namespace ModIO
 
                         try
                         {
-                            Directory.CreateDirectory(Path.GetDirectoryName(galleryZipLocation));
+                            LocalDataStorage.CreateDirectory(Path.GetDirectoryName(galleryZipLocation));
 
                             using(var zip = new Ionic.Zip.ZipFile())
                             {
@@ -1476,8 +1459,10 @@ namespace ModIO
                                 zip.Save(galleryZipLocation);
                             }
 
-                            var imageGalleryUpload = BinaryUpload.Create("images.zip",
-                                                                         File.ReadAllBytes(galleryZipLocation));
+                            byte[] data;
+                            LocalDataStorage.ReadFile(galleryZipLocation, out data);
+
+                            var imageGalleryUpload = BinaryUpload.Create("images.zip", data);
 
                             addMediaParameters.galleryImages = imageGalleryUpload;
                         }
@@ -1634,7 +1619,7 @@ namespace ModIO
                                                     Action<Modfile> onSuccess,
                                                     Action<WebRequestError> onError)
         {
-            if(!Directory.Exists(binaryDirectory))
+            if(!System.IO.Directory.Exists(binaryDirectory))
             {
                 if(onError != null)
                 {
@@ -1660,11 +1645,11 @@ namespace ModIO
 
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(binaryZipLocation));
+                LocalDataStorage.CreateDirectory(Path.GetDirectoryName(binaryZipLocation));
 
                 using(var zip = new Ionic.Zip.ZipFile())
                 {
-                    foreach(string filePath in Directory.GetFiles(binaryDirectory, "*.*", SearchOption.AllDirectories))
+                    foreach(string filePath in System.IO.Directory.GetFiles(binaryDirectory, "*.*", System.IO.SearchOption.AllDirectories))
                     {
                         string relativeFilePath = filePath.Substring(binaryDirectoryPathLength);
                         string relativeDirectory = Path.GetDirectoryName(relativeFilePath);
@@ -1710,7 +1695,7 @@ namespace ModIO
 
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(binaryZipLocation));
+                LocalDataStorage.CreateDirectory(Path.GetDirectoryName(binaryZipLocation));
 
                 using(var zip = new Ionic.Zip.ZipFile())
                 {
@@ -1748,7 +1733,9 @@ namespace ModIO
                                                   Action<WebRequestError> onError)
         {
             string buildFilename = Path.GetFileName(binaryZipLocation);
-            byte[] buildZipData = File.ReadAllBytes(binaryZipLocation);
+
+            byte[] buildZipData;
+            LocalDataStorage.ReadFile(binaryZipLocation, out buildZipData);
 
             var parameters = new AddModfileParameters();
             parameters.zippedBinaryData = BinaryUpload.Create(buildFilename, buildZipData);
