@@ -1649,7 +1649,7 @@ namespace ModIO
 
                 using(var zip = new Ionic.Zip.ZipFile())
                 {
-                    foreach(string filePath in System.IO.Directory.GetFiles(binaryDirectory, "*.*", System.IO.SearchOption.AllDirectories))
+                    foreach(string filePath in LocalDataStorage.GetFiles(binaryDirectory, null, true))
                     {
                         string relativeFilePath = filePath.Substring(binaryDirectoryPathLength);
                         string relativeDirectory = Path.GetDirectoryName(relativeFilePath);

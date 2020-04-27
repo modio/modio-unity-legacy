@@ -341,7 +341,7 @@ namespace ModIO.EditorCode
                             string smpDir = System.IO.Path.GetDirectoryName(smpFilePath);
 
                             int profileCount
-                            = System.IO.Directory.GetFiles(smpDir, profile.name + "*.asset").Length;
+                            = LocalDataStorage.GetFiles(smpDir, profile.name + "*.asset", false).Count;
 
                             string fileNameAddition = (profileCount > 0
                                                        ? " (" + profileCount.ToString() + ")"
