@@ -126,6 +126,12 @@ namespace ModIO
             return LocalDataStorage.PLATFORM_IO.GetFileSizeAndHash(path, out byteCount, out md5Hash);
         }
 
+        /// <summary>Gets the files at a location.</summary>
+        public static IList<string> GetFiles(string path, bool recurseSubdirectories)
+        {
+            return LocalDataStorage.PLATFORM_IO.GetFiles(path, recurseSubdirectories);
+        }
+
         // ------ Directory Management ------
         /// <summary>Creates a directory.</summary>
         public static bool CreateDirectory(string path)
