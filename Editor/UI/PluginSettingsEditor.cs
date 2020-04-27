@@ -120,7 +120,7 @@ namespace ModIO.UI.EditorCode
                     {
                         if(!System.IO.Directory.Exists(processedDir))
                         {
-                            IOUtilities.CreateDirectory(processedDir);
+                            LocalDataStorage.CreateDirectory(processedDir);
                         }
 
                         EditorUtility.RevealInFinder(processedDir);
