@@ -151,6 +151,12 @@ namespace ModIO
             return LocalDataStorage.PLATFORM_IO.MoveDirectory(source, destination);
         }
 
+        /// <summary>Checks for the existence of a directory.</summary>
+        public static bool GetDirectoryExists(string path)
+        {
+            throw new System.NotImplementedException();
+        }
+
         /// <summary>Gets a list of directories found at the given location.</summary>
         public static IList<string> GetDirectories(string path)
         {

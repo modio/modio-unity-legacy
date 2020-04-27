@@ -96,7 +96,7 @@ namespace ModIO.UI.EditorCode
                           && !string.IsNullOrEmpty(testDir))
                     {
                         testDir = System.IO.Path.GetDirectoryName(testDir);
-                        directoryIsValid = System.IO.Directory.Exists(testDir);
+                        directoryIsValid = LocalDataStorage.GetDirectoryExists(testDir);
                     }
                 }
                 catch
@@ -118,10 +118,7 @@ namespace ModIO.UI.EditorCode
 
                     if(GUILayout.Button(new GUIContent("...", toolTip), GUILayout.Width(21), GUILayout.Height(14)))
                     {
-                        if(!System.IO.Directory.Exists(processedDir))
-                        {
-                            LocalDataStorage.CreateDirectory(processedDir);
-                        }
+                        LocalDataStorage.CreateDirectory(processedDir);
 
                         EditorUtility.RevealInFinder(processedDir);
                     }

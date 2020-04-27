@@ -338,7 +338,7 @@ namespace ModIO
 
                 installDir = ModManager.GetModInstallDirectory(p.id, modfile.id);
 
-                if(System.IO.Directory.Exists(installDir))
+                if(LocalDataStorage.GetDirectoryExists(installDir))
                 {
                     if(onSuccess != null)
                     {
@@ -1619,7 +1619,7 @@ namespace ModIO
                                                     Action<Modfile> onSuccess,
                                                     Action<WebRequestError> onError)
         {
-            if(!System.IO.Directory.Exists(binaryDirectory))
+            if(!LocalDataStorage.GetDirectoryExists(binaryDirectory))
             {
                 if(onError != null)
                 {

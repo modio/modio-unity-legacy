@@ -197,9 +197,9 @@ namespace ModIO.EditorCode
 
                     // - Build Profile -
                     #if UPLOAD_MOD_BINARY_AS_DIRECTORY
-                    using(new EditorGUI.DisabledScope(!System.IO.Directory.Exists(buildFilePath)))
+                    using(new EditorGUI.DisabledScope(!LocalDataStorage.GetDirectoryExists(buildFilePath)))
                     #else
-                    using(new EditorGUI.DisabledScope(!System.IO.File.Exists(buildFilePath)))
+                    using(new EditorGUI.DisabledScope(!LocalDataStorage.GetFileExists(buildFilePath)))
                     #endif
                     {
                         // - Version -
@@ -304,9 +304,9 @@ namespace ModIO.EditorCode
 
             // Upload Build
             #if UPLOAD_MOD_BINARY_AS_DIRECTORY
-            if(System.IO.Directory.Exists(buildFilePath))
+            if(LocalDataStorage.GetDirectoryExists(buildFilePath))
             #else
-            if(System.IO.File.Exists(buildFilePath))
+            if(LocalDataStorage.GetFileExists(buildFilePath))
             #endif
             {
                 Action<WebRequestError> onSubmissionFailed = (e) =>
