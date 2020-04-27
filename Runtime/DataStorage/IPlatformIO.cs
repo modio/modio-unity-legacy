@@ -42,6 +42,9 @@ namespace ModIO
         /// <summary>Moves a directory.</summary>
         bool MoveDirectory(string source, string destination);
 
+        /// <summary>Checks for the existence of a directory.</summary>
+        bool GetDirectoryExists(string path);
+
         /// <summary>Gets the sub-directories at a location.</summary>
         IList<string> GetDirectories(string path);
     }

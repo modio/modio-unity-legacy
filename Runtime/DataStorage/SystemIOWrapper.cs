@@ -388,6 +388,12 @@ namespace ModIO
             return success;
         }
 
+        /// <summary>Checks for the existence of a directory.</summary>
+        public virtual bool GetDirectoryExists(string path)
+        {
+            return Directory.Exists(path);
+        }
+
         /// <summary>Gets the sub-directories at a location.</summary>
         public virtual IList<string> GetDirectories(string path)
         {

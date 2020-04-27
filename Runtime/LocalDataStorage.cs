@@ -154,7 +154,7 @@ namespace ModIO
         /// <summary>Checks for the existence of a directory.</summary>
         public static bool GetDirectoryExists(string path)
         {
-            throw new System.NotImplementedException();
+            return LocalDataStorage.PLATFORM_IO.GetDirectoryExists(path);
         }
 
         /// <summary>Gets a list of directories found at the given location.</summary>
