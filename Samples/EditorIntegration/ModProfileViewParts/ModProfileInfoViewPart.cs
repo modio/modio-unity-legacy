@@ -2,8 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using FileInfo = System.IO.FileInfo;
+using Path = System.IO.Path;
 
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -88,7 +89,7 @@ namespace ModIO.EditorCode
         // ------[ UPDATE ]------
         public void OnUpdate()
         {
-            if(File.Exists(logoLocation))
+            if(LocalDataStorage.GetFileExists(logoLocation))
             {
                 try
                 {
