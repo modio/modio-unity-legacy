@@ -30,7 +30,7 @@ namespace ModIO
         bool GetFileSizeAndHash(string path, out Int64 byteCount, out string md5Hash);
 
         /// <summary>Gets the files at a location.</summary>
-        IList<string> GetFiles(string path, bool recurseSubdirectories);
+        IList<string> GetFiles(string path, string nameFilter, bool recurseSubdirectories);
 
         // --- Directory Management ---
         /// <summary>Creates a directory.</summary>

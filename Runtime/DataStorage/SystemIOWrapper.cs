@@ -254,20 +254,23 @@ namespace ModIO
         }
 
         /// <summary>Gets the files at a location.</summary>
-        public virtual IList<string> GetFiles(string path, bool recurseSubdirectories)
+        public virtual IList<string> GetFiles(string path, string nameFilter, bool recurseSubdirectories)
         {
             if(!Directory.Exists(path))
             {
                 return null;
             }
-            else if(recurseSubdirectories)
+
+            var searchOption = (recurseSubdirectories
+                                ? SearchOption.AllDirectories
+                                : SearchOption.TopDirectoryOnly);
+
+            if(nameFilter == null)
             {
-                return Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+                nameFilter = "*";
             }
-            else
-            {
-                return Directory.GetFiles(path);
-            }
+
+            return Directory.GetFiles(path, nameFilter, searchOption);
         }
 
         // --- Directory Management ---
