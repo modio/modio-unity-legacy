@@ -253,6 +253,23 @@ namespace ModIO
             return success;
         }
 
+        /// <summary>Gets the files at a location.</summary>
+        public virtual IList<string> GetFiles(string path, bool recurseSubdirectories)
+        {
+            if(!Directory.Exists(path))
+            {
+                return null;
+            }
+            else if(recurseSubdirectories)
+            {
+                return Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+            }
+            else
+            {
+                return Directory.GetFiles(path);
+            }
+        }
+
         // --- Directory Management ---
         /// <summary>Creates a directory.</summary>
         public virtual bool CreateDirectory(string path)
