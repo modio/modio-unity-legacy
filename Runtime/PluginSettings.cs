@@ -100,15 +100,26 @@ namespace ModIO
         /// <summary>Loads the Data from the asset instance.</summary>
         private static void LoadDataInstance(string assetPath)
         {
+            PluginSettings.Data settings = PluginSettings.LoadDataFromAsset(assetPath);
+
+            PluginSettings._dataInstance = settings;
+            PluginSettings._loaded = true;
+        }
+
+        /// <summary>Loads the data from a PluginSettings asset.</summary>
+        public static PluginSettings.Data LoadDataFromAsset(string assetPath)
+        {
             PluginSettings wrapper = Resources.Load<PluginSettings>(assetPath);
+            PluginSettings.Data settings;
 
             if(wrapper == null)
             {
-                PluginSettings._dataInstance = new Data();
+                settings = new Data();
             }
             else
             {
-                Data settings = wrapper.m_data;
+                settings = wrapper.m_data;
+
                 bool isTestServer = settings.apiURL.Contains("api.test.mod.io");
 
                 // - Path variable replacement -
@@ -127,12 +138,9 @@ namespace ModIO
                                                                                settings.gameId,
                                                                                isTestServer);
                 }
-
-                // apply to data instance
-                PluginSettings._dataInstance = settings;
             }
 
-            PluginSettings._loaded = true;
+            return settings;
         }
 
         /// <summary>Replaces variables in the directory values.</summary>
