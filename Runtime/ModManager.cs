@@ -337,7 +337,7 @@ namespace ModIO
             Action<ModProfile> onGetModProfile = null;
             Action<ModfileIdPair, FileDownloadInfo> onDownloadSucceeded = null;
             Action<ModfileIdPair, WebRequestError> onDownloadFailed = null;
-            Action install = null;
+            Action<bool> onInstalled = null;
 
             onGetModProfile = (p) =>
             {
@@ -371,7 +371,7 @@ namespace ModIO
 
                     if(isBinaryZipValid)
                     {
-                        install();
+                        ModManager.TryInstallMod(profile.id, modfile.id, onInstalled);
                     }
                     else
                     {
@@ -391,7 +391,7 @@ namespace ModIO
                     DownloadClient.modfileDownloadSucceeded -= onDownloadSucceeded;
                     DownloadClient.modfileDownloadFailed -= onDownloadFailed;
 
-                    install();
+                    ModManager.TryInstallMod(profile.id, modfile.id, onInstalled);
                 }
             };
 
@@ -409,10 +409,9 @@ namespace ModIO
                 }
             };
 
-            install = () =>
+            onInstalled = (success) =>
             {
-                bool didInstall = ModManager.TryInstallMod(profile.id, modfile.id, true);
-                if(didInstall)
+                if(success)
                 {
                     if(onSuccess != null)
                     {
@@ -609,8 +608,17 @@ namespace ModIO
                                                      && (m.fileHash == null
                                                          || m.fileHash.md5 == fileHash));
 
-                        isInstalled = (isDownloadedAndValid
-                                       && ModManager.TryInstallMod(m.modId, m.id, true));
+                        if(isDownloadedAndValid)
+                        {
+                            bool installDone = false;
+                            ModManager.TryInstallMod(m.modId, m.id, (success) =>
+                            {
+                                installDone = true;
+                                isInstalled = success;
+                            });
+
+                            while(!installDone) { yield return null; }
+                        }
                     }
 
                     // update
@@ -691,16 +699,19 @@ namespace ModIO
                 {
                     if(idPair.modfileId == downloadingModfile.id)
                     {
-                        bool didInstall = ModManager.TryInstallMod(downloadingModfile.modId, downloadingModfile.id, true);
-                        if(!didInstall)
+                        ModManager.TryInstallMod(downloadingModfile.modId, downloadingModfile.id,
+                        (success) =>
                         {
-                            Debug.LogWarning("[mod.io] Successfully downloaded but failed to install mod (id:"
-                                             + downloadingModfile.modId.ToString()
-                                             + "-modfile:" + downloadingModfile.id.ToString()
-                                              + "). See logged message for details.");
-                        }
+                            if(!success)
+                            {
+                                Debug.LogWarning("[mod.io] Successfully downloaded but failed to install mod (id:"
+                                                 + downloadingModfile.modId.ToString()
+                                                 + "-modfile:" + downloadingModfile.id.ToString()
+                                                  + "). See logged message for details.");
+                            }
 
-                        startNextDownload = true;
+                            startNextDownload = true;
+                        });
                     }
                 };
 
