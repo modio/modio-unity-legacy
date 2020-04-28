@@ -62,6 +62,11 @@ namespace ModIO
         /// <summary>Location of the settings file.</summary>
         public static readonly string FILE_PATH = "modio_settings";
 
+        /// <summary>Location of the settings file for use in-editor.</summary>
+        public static readonly string FILE_PATH_EDITOR = IOUtilities.CombinePath("mod.io",
+                                                                                 "Editor",
+                                                                                 "PluginSettings");
+
         /// <summary>Has the asset been loaded.</summary>
         private static bool _loaded = false;
 
@@ -75,13 +80,18 @@ namespace ModIO
             {
                 if(!PluginSettings._loaded)
                 {
-                    PluginSettings._dataInstance = PluginSettings.LoadDataFromAsset(PluginSettings.FILE_PATH);
-
                     #if UNITY_EDITOR
+                    {
+                        PluginSettings._dataInstance = PluginSettings.LoadDataFromAsset(PluginSettings.FILE_PATH_EDITOR);
+
                         // If Application isn't playing, we reload every time
                         PluginSettings._loaded = Application.isPlaying;
+                    }
                     #else
+                    {
+                        PluginSettings._dataInstance = PluginSettings.LoadDataFromAsset(PluginSettings.FILE_PATH);
                         PluginSettings._loaded = true;
+                    }
                     #endif
                 }
 
