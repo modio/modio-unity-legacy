@@ -233,7 +233,7 @@ namespace ModIO
 
         // ---------[ EDITOR CODE ]---------
         #if UNITY_EDITOR
-        /// <summary>Locates the PluginSettings asset used by the plugin.</summary>
+        /// <summary>Locates the PluginSettings asset used at runtime.</summary>
         [UnityEditor.MenuItem("Tools/mod.io/Edit Settings", false)]
         public static void FocusAsset()
         {
@@ -241,7 +241,7 @@ namespace ModIO
 
             if(settings == null)
             {
-                PluginSettings.Data defaultData = PluginSettings.GenerateDefaultData();
+                PluginSettings.Data defaultData = PluginSettings.GenerateRuntimeDefaults();
                 settings = PluginSettings.SetRuntimeData(defaultData);
             }
 
@@ -251,7 +251,7 @@ namespace ModIO
 
 
         /// <summary>Generates a PluginSettings.Data instance with default values.</summary>
-        public static PluginSettings.Data GenerateDefaultData()
+        public static PluginSettings.Data GenerateRuntimeDefaults()
         {
             PluginSettings.Data data = new PluginSettings.Data()
             {
@@ -314,10 +314,10 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Creates the asset instance that the plugin will use.</summary>
-        [System.Obsolete("Use PluginSettings.GenerateDefaultData() and PluginSettings.SetRuntimeData() instead.")]
+        [System.Obsolete("Use PluginSettings.GenerateRuntimeDefaults() and PluginSettings.SetRuntimeData() instead.")]
         private static PluginSettings InitializeAsset()
         {
-            PluginSettings.Data data = PluginSettings.GenerateDefaultData();
+            PluginSettings.Data data = PluginSettings.GenerateRuntimeDefaults();
             return PluginSettings.SetRuntimeData(data);
         }
         #endif
