@@ -251,10 +251,17 @@ namespace ModIO
         /// <summary>Creates the asset instance that the plugin will use.</summary>
         private static PluginSettings InitializeAsset()
         {
+            PluginSettings.Data data = PluginSettings.GenerateDefaultData();
+            return SetGlobalValues(data);
+        }
+
+        /// <summary>Generates a PluginSettings.Data instance with default values.</summary>
+        public static PluginSettings.Data GenerateDefaultData()
+        {
             PluginSettings.Data data = new PluginSettings.Data()
             {
                 apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
-                gameId = 0,
+                gameId = GameProfile.NULL_ID,
                 gameAPIKey = string.Empty,
                 cacheDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$",
                 installationDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods",
@@ -266,7 +273,7 @@ namespace ModIO
                 },
             };
 
-            return SetGlobalValues(data);
+            return data;
         }
 
         /// <summary>Stores the given values to the Runtime asset.</summary>
