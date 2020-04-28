@@ -82,7 +82,7 @@ namespace ModIO
 
                 if(!PluginSettings._loaded)
                 {
-                    PluginSettings.LoadDataInstance();
+                    PluginSettings.LoadDataInstance(PluginSettings.FILE_PATH);
                 }
 
                 return PluginSettings._dataInstance;
@@ -98,9 +98,9 @@ namespace ModIO
 
         // ---------[ FUNCTIONALITY ]---------
         /// <summary>Loads the Data from the asset instance.</summary>
-        private static void LoadDataInstance()
+        private static void LoadDataInstance(string assetPath)
         {
-            PluginSettings wrapper = Resources.Load<PluginSettings>(PluginSettings.FILE_PATH);
+            PluginSettings wrapper = Resources.Load<PluginSettings>(assetPath);
 
             if(wrapper == null)
             {
