@@ -73,16 +73,16 @@ namespace ModIO
         {
             get
             {
-                #if UNITY_EDITOR
-                if(!Application.isPlaying)
-                {
-                    PluginSettings._loaded = false;
-                }
-                #endif
-
                 if(!PluginSettings._loaded)
                 {
-                    PluginSettings.LoadDataInstance(PluginSettings.FILE_PATH);
+                    PluginSettings._dataInstance = PluginSettings.LoadDataFromAsset(PluginSettings.FILE_PATH);
+
+                    #if UNITY_EDITOR
+                        // If Application isn't playing, we reload every time
+                        PluginSettings._loaded = Application.isPlaying;
+                    #else
+                        PluginSettings._loaded = true;
+                    #endif
                 }
 
                 return PluginSettings._dataInstance;
@@ -97,15 +97,6 @@ namespace ModIO
         #pragma warning restore 0649
 
         // ---------[ FUNCTIONALITY ]---------
-        /// <summary>Loads the Data from the asset instance.</summary>
-        private static void LoadDataInstance(string assetPath)
-        {
-            PluginSettings.Data settings = PluginSettings.LoadDataFromAsset(assetPath);
-
-            PluginSettings._dataInstance = settings;
-            PluginSettings._loaded = true;
-        }
-
         /// <summary>Loads the data from a PluginSettings asset.</summary>
         public static PluginSettings.Data LoadDataFromAsset(string assetPath)
         {
