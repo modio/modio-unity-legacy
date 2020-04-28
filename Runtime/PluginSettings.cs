@@ -272,16 +272,24 @@ namespace ModIO
         /// <summary>Sets the values of the Plugin Settings.</summary>
         public static PluginSettings SetGlobalValues(PluginSettings.Data data)
         {
-            string assetPath = "Assets/Resources/" + PluginSettings.FILE_PATH + ".asset";
+            return PluginSettings.SaveToAsset(PluginSettings.FILE_PATH, data);
+        }
+
+        /// <summary>Sets/saves the settings for the runtime instance.</summary>
+        public static PluginSettings SaveToAsset(string path,
+                                                 PluginSettings.Data data)
+        {
+            string assetPath = IOUtilities.CombinePath("Assets", "Resources", path + ".asset");
+
+            // creates the containing folder
+            string assetFolder = System.IO.Path.GetDirectoryName(assetPath);
+            LocalDataStorage.CreateDirectory(assetFolder);
+
+            // create asset
             PluginSettings settings = ScriptableObject.CreateInstance<PluginSettings>();
-
-            if(!UnityEditor.AssetDatabase.IsValidFolder("Assets/Resources"))
-            {
-                UnityEditor.AssetDatabase.CreateFolder("Assets", "Resources");
-            }
-
             settings.m_data = data;
 
+            // save
             UnityEditor.AssetDatabase.CreateAsset(settings, assetPath);
             UnityEditor.AssetDatabase.SaveAssets();
             UnityEditor.AssetDatabase.Refresh();
