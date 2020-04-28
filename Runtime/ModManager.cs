@@ -77,17 +77,25 @@ namespace ModIO
         }
 
         /// <summary>Extracts a mod archive to the installs folder and removes other installed versions.</summary>
-        public static bool TryInstallMod(int modId, int modfileId, bool removeArchiveOnSuccess)
+        public static void TryInstallMod(int modId, int modfileId, Action<bool> onComplete)
         {
             // Needs to have a valid mod id otherwise we mess with player-added mods!
             Debug.Assert(modId != ModProfile.NULL_ID);
+
+            // Check onComplete is not null
+            if(onComplete == null)
+            {
+                onComplete = (b) => {};
+            }
 
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
             if(!LocalDataStorage.GetFileExists(zipFilePath))
             {
                 Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
                                  + "\nMod Binary ZipFile [" + zipFilePath + "] does not exist.");
-                return false;
+
+                onComplete.Invoke(false);
+                return;
             }
 
             // extract
@@ -111,7 +119,8 @@ namespace ModIO
 
                 LocalDataStorage.DeleteDirectory(tempLocation);
 
-                return false;
+                onComplete.Invoke(false);
+                return;
             }
 
             // Remove old versions
@@ -124,7 +133,8 @@ namespace ModIO
 
                 LocalDataStorage.DeleteDirectory(tempLocation);
 
-                return false;
+                onComplete.Invoke(false);
+                return;
             }
 
             // Move to permanent folder
@@ -145,13 +155,11 @@ namespace ModIO
 
                 LocalDataStorage.DeleteDirectory(tempLocation);
 
-                return false;
+                onComplete.Invoke(false);
+                return;
             }
 
-            if(removeArchiveOnSuccess)
-            {
-                LocalDataStorage.DeleteFile(zipFilePath);
-            }
+            LocalDataStorage.DeleteFile(zipFilePath);
 
             if(ModManager.onModBinaryInstalled != null)
             {
@@ -163,7 +171,7 @@ namespace ModIO
                 ModManager.onModBinaryInstalled(idPair);
             }
 
-            return true;
+            onComplete.Invoke(true);
         }
 
         /// <summary>Removes all versions of a mod from the installs folder.</summary>
@@ -1970,6 +1978,16 @@ namespace ModIO
             ModManager.UninstallMod(modId, (s) => succeeded = s);
 
             return succeeded;
+        }
+
+        /// <summary>[Obsolete] Extracts a mod archive to the installs folder and removes other installed versions.</summary>
+        [Obsolete("Use TryInstallMod(int, int, Action<bool>) instead.")]
+        public static bool TryInstallMod(int modId, int modfileId, bool removeArchiveOnSuccess)
+        {
+            bool result = false;
+
+            ModManager.TryInstallMod(modId, modfileId, (b) => result = b);
+            return result;
         }
 
         #pragma warning restore 0067
