@@ -76,7 +76,7 @@ namespace ModIO
                 #if UNITY_EDITOR
                 if(!Application.isPlaying)
                 {
-                    PluginSettings.LoadDataInstance();
+                    PluginSettings._loaded = false;
                 }
                 #endif
 
