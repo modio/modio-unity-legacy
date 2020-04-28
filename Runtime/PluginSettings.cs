@@ -269,10 +269,16 @@ namespace ModIO
             return SetGlobalValues(data);
         }
 
-        /// <summary>Sets the values of the Plugin Settings.</summary>
-        public static PluginSettings SetGlobalValues(PluginSettings.Data data)
+        /// <summary>Stores the given values to the Runtime asset.</summary>
+        public static PluginSettings SetRuntimeData(PluginSettings.Data data)
         {
             return PluginSettings.SaveToAsset(PluginSettings.FILE_PATH, data);
+        }
+
+        /// <summary>Stores the given values to the Editor asset.</summary>
+        public static PluginSettings SetEditorData(PluginSettings.Data data)
+        {
+            return PluginSettings.SaveToAsset(PluginSettings.FILE_PATH_EDITOR, data);
         }
 
         /// <summary>Sets/saves the settings for the runtime instance.</summary>
@@ -309,6 +315,14 @@ namespace ModIO
             }
 
             return PluginSettings.SetGlobalValues(valuesToCopy.m_data);
+        }
+
+        // ---------[ Obsolete ]---------
+        /// <summary>[Obsolete] Sets the values of the Plugin Settings.</summary>
+        [System.Obsolete("Use PluginSettings.SetRuntimeData() instead.")]
+        public static PluginSettings SetGlobalValues(PluginSettings.Data data)
+        {
+            return PluginSettings.SetRuntimeData(data);
         }
         #endif
     }
