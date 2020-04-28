@@ -241,19 +241,14 @@ namespace ModIO
 
             if(settings == null)
             {
-                settings = PluginSettings.InitializeAsset();
+                PluginSettings.Data defaultData = PluginSettings.GenerateDefaultData();
+                settings = PluginSettings.SetRuntimeData(defaultData);
             }
 
             UnityEditor.EditorGUIUtility.PingObject(settings);
             UnityEditor.Selection.activeObject = settings;
         }
 
-        /// <summary>Creates the asset instance that the plugin will use.</summary>
-        private static PluginSettings InitializeAsset()
-        {
-            PluginSettings.Data data = PluginSettings.GenerateDefaultData();
-            return SetGlobalValues(data);
-        }
 
         /// <summary>Generates a PluginSettings.Data instance with default values.</summary>
         public static PluginSettings.Data GenerateDefaultData()
@@ -310,25 +305,19 @@ namespace ModIO
             return settings;
         }
 
-        /// <summary>Copies a Plugin Settings' values into the main asset.</summary>
-        public static PluginSettings SetAssetAsGlobal(string assetPath)
-        {
-            PluginSettings valuesToCopy = UnityEditor.AssetDatabase.LoadAssetAtPath<PluginSettings>(assetPath);
-            if(valuesToCopy == null)
-            {
-                Debug.LogError("[mod.io] PluginSettings at " + assetPath + " could not be found and"
-                               + " thus the globally used PluginSettings asset was unchanged.");
-                return null;
-            }
-
-            return PluginSettings.SetGlobalValues(valuesToCopy.m_data);
-        }
-
         // ---------[ Obsolete ]---------
         /// <summary>[Obsolete] Sets the values of the Plugin Settings.</summary>
         [System.Obsolete("Use PluginSettings.SetRuntimeData() instead.")]
         public static PluginSettings SetGlobalValues(PluginSettings.Data data)
         {
+            return PluginSettings.SetRuntimeData(data);
+        }
+
+        /// <summary>[Obsolete] Creates the asset instance that the plugin will use.</summary>
+        [System.Obsolete("Use PluginSettings.GenerateDefaultData() and PluginSettings.SetRuntimeData() instead.")]
+        private static PluginSettings InitializeAsset()
+        {
+            PluginSettings.Data data = PluginSettings.GenerateDefaultData();
             return PluginSettings.SetRuntimeData(data);
         }
         #endif
