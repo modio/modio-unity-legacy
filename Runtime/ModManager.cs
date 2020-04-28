@@ -124,54 +124,55 @@ namespace ModIO
             }
 
             // Remove old versions
-            bool uninstallSucceeded = ModManager.TryUninstallAllModVersions(modId);
-
-            if(!uninstallSucceeded)
+            ModManager.UninstallMod(modId, (uninstallSucceeded) =>
             {
-                Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
-                                 + "\nFailed to uninstall other versions of this mod.");
-
-                LocalDataStorage.DeleteDirectory(tempLocation);
-
-                onComplete.Invoke(false);
-                return;
-            }
-
-            // Move to permanent folder
-            string installDirectory = ModManager.GetModInstallDirectory(modId,
-                                                                        modfileId);
-            try
-            {
-                LocalDataStorage.DeleteDirectory(installDirectory);
-                LocalDataStorage.CreateDirectory(ModManager.installationDirectory);
-                LocalDataStorage.MoveDirectory(tempLocation, installDirectory);
-            }
-            catch(Exception e)
-            {
-                Debug.LogWarning("[mod.io] Unable to move binary to the mod installation folder."
-                                 + "\nSrc: " + tempLocation
-                                 + "\nDest: " + installDirectory + "\n\n"
-                                 + Utility.GenerateExceptionDebugString(e));
-
-                LocalDataStorage.DeleteDirectory(tempLocation);
-
-                onComplete.Invoke(false);
-                return;
-            }
-
-            LocalDataStorage.DeleteFile(zipFilePath);
-
-            if(ModManager.onModBinaryInstalled != null)
-            {
-                ModfileIdPair idPair = new ModfileIdPair()
+                if(!uninstallSucceeded)
                 {
-                    modId = modId,
-                    modfileId = modfileId,
-                };
-                ModManager.onModBinaryInstalled(idPair);
-            }
+                    Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
+                                     + "\nFailed to uninstall other versions of this mod.");
 
-            onComplete.Invoke(true);
+                    LocalDataStorage.DeleteDirectory(tempLocation);
+
+                    onComplete.Invoke(false);
+                    return;
+                }
+
+                // Move to permanent folder
+                string installDirectory = ModManager.GetModInstallDirectory(modId,
+                                                                            modfileId);
+                try
+                {
+                    LocalDataStorage.DeleteDirectory(installDirectory);
+                    LocalDataStorage.CreateDirectory(ModManager.installationDirectory);
+                    LocalDataStorage.MoveDirectory(tempLocation, installDirectory);
+                }
+                catch(Exception e)
+                {
+                    Debug.LogWarning("[mod.io] Unable to move binary to the mod installation folder."
+                                     + "\nSrc: " + tempLocation
+                                     + "\nDest: " + installDirectory + "\n\n"
+                                     + Utility.GenerateExceptionDebugString(e));
+
+                    LocalDataStorage.DeleteDirectory(tempLocation);
+
+                    onComplete.Invoke(false);
+                    return;
+                }
+
+                LocalDataStorage.DeleteFile(zipFilePath);
+
+                if(ModManager.onModBinaryInstalled != null)
+                {
+                    ModfileIdPair idPair = new ModfileIdPair()
+                    {
+                        modId = modId,
+                        modfileId = modfileId,
+                    };
+                    ModManager.onModBinaryInstalled(idPair);
+                }
+
+                onComplete.Invoke(true);
+            });
         }
 
         /// <summary>Removes all versions of a mod from the installs folder.</summary>
