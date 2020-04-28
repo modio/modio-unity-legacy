@@ -17,7 +17,7 @@ namespace ModIO.EditorCode
             ScriptableModProfile asset = ScriptableObject.CreateInstance<ScriptableModProfile>();
 
             int profileCount
-            = System.IO.Directory.GetFiles(Application.dataPath, "NewModProfile*.asset").Length;
+            = LocalDataStorage.GetFiles(Application.dataPath, "NewModProfile*.asset", false).Count;
 
             string fileNameAddition = (profileCount > 0
                                        ? " (" + profileCount.ToString() + ")"

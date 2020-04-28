@@ -73,7 +73,7 @@ namespace ModIO.UI.EditorCode
                 {
                     if(!System.IO.Directory.Exists(dir))
                     {
-                        IOUtilities.CreateDirectory(dir);
+                        LocalDataStorage.CreateDirectory(dir);
                     }
 
                     EditorUtility.RevealInFinder(dir);

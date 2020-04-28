@@ -34,13 +34,17 @@ namespace ModIO
         public static bool SaveGameProfile(GameProfile profile)
         {
             Debug.Assert(profile != null);
-            return IOUtilities.WriteJsonObjectFile(gameProfileFilePath, profile);
+
+            return LocalDataStorage.WriteJSONFile(gameProfileFilePath, profile);
         }
 
         /// <summary>Retrieves the game's profile from the cache.</summary>
         public static GameProfile LoadGameProfile()
         {
-            return IOUtilities.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
+            GameProfile profile;
+            LocalDataStorage.ReadJSONFile(gameProfileFilePath, out profile);
+
+            return profile;
         }
 
         // ---------[ MODS ]---------
@@ -64,15 +68,19 @@ namespace ModIO
         public static bool SaveModProfile(ModProfile profile)
         {
             Debug.Assert(profile != null);
-            return IOUtilities.WriteJsonObjectFile(GenerateModProfileFilePath(profile.id), profile);
+
+            string path = GenerateModProfileFilePath(profile.id);
+            return LocalDataStorage.WriteJSONFile(path, profile);
         }
 
         /// <summary>Retrieves a mod's profile from the cache.</summary>
         public static ModProfile LoadModProfile(int modId)
         {
-            string profileFilePath = GenerateModProfileFilePath(modId);
-            ModProfile profile = IOUtilities.ReadJsonObjectFile<ModProfile>(profileFilePath);
-            return(profile);
+            string path = GenerateModProfileFilePath(modId);
+            ModProfile profile;
+            LocalDataStorage.ReadJSONFile(path, out profile);
+
+            return profile;
         }
 
         /// <summary>Stores a collection of mod profiles in the cache.</summary>
@@ -140,7 +148,9 @@ namespace ModIO
                     foreach(string modDirectory in offsetModDirectories)
                     {
                         string profilePath = IOUtilities.CombinePath(modDirectory, "profile.data");
-                        ModProfile profile = IOUtilities.ReadJsonObjectFile<ModProfile>(profilePath);
+                        ModProfile profile;
+
+                        LocalDataStorage.ReadJSONFile(profilePath, out profile);
 
                         if(profile != null)
                         {
@@ -148,7 +158,7 @@ namespace ModIO
                         }
                         else
                         {
-                            IOUtilities.DeleteFile(profilePath);
+                            LocalDataStorage.DeleteFile(profilePath);
                         }
                     }
                 }
@@ -207,7 +217,9 @@ namespace ModIO
                     if(idFilter.Contains(modId))
                     {
                         string profilePath = IOUtilities.CombinePath(modDirectory, "profile.data");
-                        ModProfile profile = IOUtilities.ReadJsonObjectFile<ModProfile>(profilePath);
+                        ModProfile profile;
+
+                        LocalDataStorage.ReadJSONFile(profilePath, out profile);
 
                         if(profile != null)
                         {
@@ -215,7 +227,7 @@ namespace ModIO
                         }
                         else
                         {
-                            IOUtilities.DeleteFile(profilePath);
+                            LocalDataStorage.DeleteFile(profilePath);
                         }
                     }
                 }
@@ -255,7 +267,7 @@ namespace ModIO
         public static bool DeleteMod(int modId)
         {
             string modDir = CacheClient.GenerateModDirectoryPath(modId);
-            return IOUtilities.DeleteDirectory(modDir);
+            return LocalDataStorage.DeleteDirectory(modDir);
         }
 
         // ------[ STATISTICS ]------
@@ -271,15 +283,17 @@ namespace ModIO
         {
             Debug.Assert(stats != null);
             string statsFilePath = GenerateModStatisticsFilePath(stats.modId);
-            return IOUtilities.WriteJsonObjectFile(statsFilePath, stats);
+            return LocalDataStorage.WriteJSONFile(statsFilePath, stats);
         }
 
         /// <summary>Retrieves a mod's statistics from the cache.</summary>
         public static ModStatistics LoadModStatistics(int modId)
         {
             string statsFilePath = GenerateModStatisticsFilePath(modId);
-            ModStatistics stats = IOUtilities.ReadJsonObjectFile<ModStatistics>(statsFilePath);
-            return(stats);
+            ModStatistics stats;
+            LocalDataStorage.ReadJSONFile(statsFilePath, out stats);
+
+            return stats;
         }
 
         // ------[ MODFILES ]------
@@ -307,15 +321,18 @@ namespace ModIO
         public static bool SaveModfile(Modfile modfile)
         {
             Debug.Assert(modfile != null);
-            return IOUtilities.WriteJsonObjectFile(GenerateModfileFilePath(modfile.modId, modfile.id),
-                                                   modfile);
+
+            string path = GenerateModfileFilePath(modfile.modId, modfile.id);
+            return LocalDataStorage.WriteJSONFile(path, modfile);
         }
 
         /// <summary>Retrieves a modfile from the cache.</summary>
         public static Modfile LoadModfile(int modId, int modfileId)
         {
             string modfileFilePath = GenerateModfileFilePath(modId, modfileId);
-            var modfile = IOUtilities.ReadJsonObjectFile<Modfile>(modfileFilePath);
+            Modfile modfile;
+            LocalDataStorage.ReadJSONFile(modfileFilePath, out modfile);
+
             return modfile;
         }
 
@@ -327,30 +344,44 @@ namespace ModIO
             Debug.Assert(modBinary.Length > 0);
 
             string filePath = GenerateModBinaryZipFilePath(modId, modfileId);
-            return IOUtilities.WriteBinaryFile(filePath, modBinary);
+            return LocalDataStorage.WriteFile(filePath, modBinary);
         }
 
         /// <summary>Retrieves a mod binary's ZipFile data from the cache.</summary>
         public static byte[] LoadModBinaryZip(int modId, int modfileId)
         {
             string filePath = GenerateModBinaryZipFilePath(modId, modfileId);
-            byte[] zipData = IOUtilities.LoadBinaryFile(filePath);
+            byte[] zipData;
+            LocalDataStorage.ReadFile(filePath, out zipData);
+
             return zipData;
         }
 
         /// <summary>Deletes a modfile and binary from the cache.</summary>
         public static bool DeleteModfileAndBinaryZip(int modId, int modfileId)
         {
-            bool isSuccessful = IOUtilities.DeleteFile(CacheClient.GenerateModfileFilePath(modId, modfileId));
-            isSuccessful = (IOUtilities.DeleteFile(CacheClient.GenerateModBinaryZipFilePath(modId, modfileId))
-                            && isSuccessful);
-            return isSuccessful;
+            string modfilePath = CacheClient.GenerateModfileFilePath(modId, modfileId);
+            string zipPath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
+
+            bool success = true;
+
+            if(!LocalDataStorage.DeleteFile(modfilePath))
+            {
+                success = false;
+            }
+            if(!LocalDataStorage.DeleteFile(zipPath))
+            {
+                success = false;
+            }
+
+            return success;
         }
 
         /// <summary>Deletes all modfiles and binaries from the cache.</summary>
         public static bool DeleteAllModfileAndBinaryData(int modId)
         {
-            return IOUtilities.DeleteDirectory(CacheClient.GenerateModBinariesDirectoryPath(modId));
+            string path = CacheClient.GenerateModBinariesDirectoryPath(modId);
+            return LocalDataStorage.DeleteDirectory(path);
         }
 
         // ------[ MEDIA ]------
@@ -404,7 +435,11 @@ namespace ModIO
         /// <summary>Retrieves the file paths for the mod logos in the cache.</summary>
         public static Dictionary<LogoSize, string> GetModLogoVersionFileNames(int modId)
         {
-            return IOUtilities.ReadJsonObjectFile<Dictionary<LogoSize, string>>(CacheClient.GenerateModLogoVersionInfoFilePath(modId));
+            string path = CacheClient.GenerateModLogoVersionInfoFilePath(modId);
+            Dictionary<LogoSize, string> retVal;
+            LocalDataStorage.ReadJSONFile(path, out retVal);
+
+            return retVal;
         }
 
         /// <summary>Stores a mod logo in the cache with the given fileName.</summary>
@@ -414,28 +449,43 @@ namespace ModIO
             Debug.Assert(!String.IsNullOrEmpty(fileName));
             Debug.Assert(logoTexture != null);
 
+            bool success = false;
             string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
-            bool isSuccessful = IOUtilities.WritePNGFile(logoFilePath, logoTexture);
+            byte[] imageData = logoTexture.EncodeToPNG();
 
-            // - Update the versioning info -
-            var versionInfo = CacheClient.GetModLogoVersionFileNames(modId);
-            if(versionInfo == null)
+            // write file
+            if(LocalDataStorage.WriteFile(logoFilePath, imageData))
             {
-                versionInfo = new Dictionary<LogoSize, string>();
-            }
-            versionInfo[size] = fileName;
-            isSuccessful = (IOUtilities.WriteJsonObjectFile(GenerateModLogoVersionInfoFilePath(modId), versionInfo)
-                            && isSuccessful);
+                success = true;
 
-            return isSuccessful;
+                // - Update the versioning info -
+                var versionInfo = CacheClient.GetModLogoVersionFileNames(modId);
+                if(versionInfo == null)
+                {
+                    versionInfo = new Dictionary<LogoSize, string>();
+                }
+                versionInfo[size] = fileName;
+                LocalDataStorage.WriteJSONFile(GenerateModLogoVersionInfoFilePath(modId), versionInfo);
+            }
+
+            return success;
         }
 
         /// <summary>Retrieves a mod logo from the cache.</summary>
         public static Texture2D LoadModLogo(int modId, LogoSize size)
         {
             string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
-            Texture2D logoTexture = IOUtilities.ReadImageFile(logoFilePath);
-            return(logoTexture);
+            byte[] imageData;
+
+            if(LocalDataStorage.ReadFile(logoFilePath, out imageData)
+               && imageData != null)
+            {
+                return IOUtilities.ParseImageData(imageData);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>Retrieves a mod logo from the cache if it matches the given fileName.</summary>
@@ -483,7 +533,9 @@ namespace ModIO
             string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
                                                                                imageFileName,
                                                                                size);
-            return IOUtilities.WritePNGFile(imageFilePath, imageTexture);
+            byte[] imageData = imageTexture.EncodeToPNG();
+
+            return LocalDataStorage.WriteFile(imageFilePath, imageData);
         }
 
         /// <summary>Retrieves a mod gallery image from the cache.</summary>
@@ -496,9 +548,17 @@ namespace ModIO
             string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
                                                                                imageFileName,
                                                                                size);
-            Texture2D imageTexture = IOUtilities.ReadImageFile(imageFilePath);
+            byte[] imageData;
 
-            return(imageTexture);
+            if(LocalDataStorage.ReadFile(imageFilePath, out imageData)
+               && imageData != null)
+            {
+                return IOUtilities.ParseImageData(imageData);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>Stores a YouTube thumbnail in the cache.</summary>
@@ -511,7 +571,9 @@ namespace ModIO
 
             string thumbnailFilePath = CacheClient.GenerateModYouTubeThumbnailFilePath(modId,
                                                                                        youTubeId);
-            return IOUtilities.WritePNGFile(thumbnailFilePath, thumbnail);
+            byte[] imageData = thumbnail.EncodeToPNG();
+
+            return LocalDataStorage.WriteFile(thumbnailFilePath, imageData);
         }
 
         /// <summary>Retrieves a YouTube thumbnail from the cache.</summary>
@@ -522,10 +584,17 @@ namespace ModIO
 
             string thumbnailFilePath = CacheClient.GenerateModYouTubeThumbnailFilePath(modId,
                                                                                        youTubeId);
+            byte[] imageData;
 
-            Texture2D thumbnailTexture = IOUtilities.ReadImageFile(thumbnailFilePath);
-
-            return(thumbnailTexture);
+            if(LocalDataStorage.ReadFile(thumbnailFilePath, out imageData)
+               && imageData != null)
+            {
+                return IOUtilities.ParseImageData(imageData);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         // ---------[ MOD TEAMS ]---------
@@ -543,21 +612,24 @@ namespace ModIO
             Debug.Assert(modTeam != null);
 
             string filePath = CacheClient.GenerateModTeamFilePath(modId);
-            return IOUtilities.WriteJsonObjectFile(filePath, modTeam);
+            return LocalDataStorage.WriteJSONFile(filePath, modTeam);
         }
 
         /// <summary>Retrieves a mod team's data from the cache.</summary>
         public static List<ModTeamMember> LoadModTeam(int modId)
         {
             string filePath = CacheClient.GenerateModTeamFilePath(modId);
-            var modTeam = IOUtilities.ReadJsonObjectFile<List<ModTeamMember>>(filePath);
+            List<ModTeamMember> modTeam;
+            LocalDataStorage.ReadJSONFile(filePath, out modTeam);
+
             return modTeam;
         }
 
         /// <summary>Deletes a mod team's data from the cache.</summary>
         public static bool DeleteModTeam(int modId)
         {
-            return IOUtilities.DeleteFile(CacheClient.GenerateModTeamFilePath(modId));
+            string path = CacheClient.GenerateModTeamFilePath(modId);
+            return LocalDataStorage.DeleteFile(path);
         }
 
         // ---------[ USERS ]---------
@@ -583,21 +655,33 @@ namespace ModIO
             Debug.Assert(avatarTexture != null);
 
             string avatarFilePath = CacheClient.GenerateUserAvatarFilePath(userId, size);
-            return IOUtilities.WritePNGFile(avatarFilePath, avatarTexture);
+            byte[] imageData = avatarTexture.EncodeToPNG();
+
+            return LocalDataStorage.WriteFile(avatarFilePath, imageData);
         }
 
         /// <summary>Retrieves a user's avatar from the cache.</summary>
         public static Texture2D LoadUserAvatar(int userId, UserAvatarSize size)
         {
             string avatarFilePath = CacheClient.GenerateUserAvatarFilePath(userId, size);
-            Texture2D avatarTexture = IOUtilities.ReadImageFile(avatarFilePath);
-            return(avatarTexture);
+            byte[] imageData;
+
+            if(LocalDataStorage.ReadFile(avatarFilePath, out imageData)
+               && imageData != null)
+            {
+                return IOUtilities.ParseImageData(imageData);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>Delete's a user's avatars from the cache.</summary>
         public static bool DeleteUserAvatar(int userId)
         {
-            return IOUtilities.DeleteDirectory(CacheClient.GenerateUserAvatarDirectoryPath(userId));
+            string path = CacheClient.GenerateUserAvatarDirectoryPath(userId);
+            return LocalDataStorage.DeleteDirectory(path);
         }
 
         // ---------[ OBSOLETE ]---------
@@ -625,7 +709,7 @@ namespace ModIO
             Debug.Assert(userProfile != null);
 
             string filePath = CacheClient.GenerateUserProfileFilePath(userProfile.id);
-            return IOUtilities.WriteJsonObjectFile(filePath, userProfile);
+            return LocalDataStorage.WriteJSONFile(filePath, userProfile);
         }
 
         /// <summary>[Obsolete] Retrieves a user's profile from the cache.</summary>
@@ -633,15 +717,18 @@ namespace ModIO
         public static UserProfile LoadUserProfile(int userId)
         {
             string filePath = CacheClient.GenerateUserProfileFilePath(userId);
-            var userProfile = IOUtilities.ReadJsonObjectFile<UserProfile>(filePath);
-            return(userProfile);
+            UserProfile userProfile;
+            LocalDataStorage.ReadJSONFile(filePath, out userProfile);
+
+            return userProfile;
         }
 
         /// <summary>[Obsolete] Deletes a user's profile from the cache.</summary>
         [Obsolete("User Profiles are no longer accessible via the mod.io API.")]
         public static bool DeleteUserProfile(int userId)
         {
-            return IOUtilities.DeleteFile(CacheClient.GenerateUserProfileFilePath(userId));
+            string path = CacheClient.GenerateUserProfileFilePath(userId);
+            return LocalDataStorage.DeleteFile(path);
         }
 
         /// <summary>[Obsolete] Iterates through all the user profiles in the cache.</summary>
@@ -671,7 +758,9 @@ namespace ModIO
 
                 foreach(string profileFilePath in userFiles)
                 {
-                    var profile = IOUtilities.ReadJsonObjectFile<UserProfile>(profileFilePath);
+                    UserProfile profile;
+                    LocalDataStorage.ReadJSONFile(profileFilePath, out profile);
+
                     if(profile != null)
                     {
                         yield return profile;

@@ -6,8 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-using Directory = System.IO.Directory;
-
 namespace ModIO.UI
 {
     public class ModBrowser : MonoBehaviour
@@ -179,28 +177,10 @@ namespace ModIO.UI
                 yield break;
             }
 
-            if(!UserDataStorage.isInitialized)
-            {
-                bool isDone = false;
-                UserDataStorage.InitializeForUser(null, () => { isDone = true; });
-
-                while(!isDone) { yield return null; }
-            }
-
-            if(UserDataStorage.isInitialized)
-            {
-                bool isDone = false;
-                LocalUser.Load(() => isDone = true);
-
-                while(!isDone) { yield return null; }
-            }
-            else
-            {
-                Debug.LogWarning("[mod.io] Failed to initialize user data."
-                                 + " A temporary LocalUser instance will be created.");
-
-                LocalUser.instance = new LocalUser();
-            }
+            // load user
+            bool isDone = false;
+            LocalUser.Load(() => isDone = true);
+            while(!isDone) { yield return null; }
 
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
@@ -675,7 +655,11 @@ namespace ModIO.UI
                 }
                 else
                 {
-                    ModManager.TryUninstallAllModVersions(idPair.modId);
+                    bool isUninstallDone = false;
+
+                    ModManager.UninstallMod(idPair.modId, (s) => isUninstallDone = true);
+
+                    while(!isUninstallDone) { yield return null; }
                 }
             }
 
@@ -1415,7 +1399,7 @@ namespace ModIO.UI
             // remove from disk
             CacheClient.DeleteAllModfileAndBinaryData(modId);
 
-            ModManager.TryUninstallAllModVersions(modId);
+            ModManager.UninstallMod(modId, null);
 
             DisableMod(modId);
 
@@ -1488,7 +1472,7 @@ namespace ModIO.UI
                     // remove from disk
                     CacheClient.DeleteAllModfileAndBinaryData(modId);
 
-                    ModManager.TryUninstallAllModVersions(modId);
+                    ModManager.UninstallMod(modId, null);
 
                     // disable
                     LocalUser.EnabledModIds.Remove(modId);

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 using UnityEngine;
@@ -272,9 +271,12 @@ namespace ModIO
             downloadInfo.request = UnityWebRequest.Get(downloadURL);
 
             string tempFilePath = downloadInfo.target + ".download";
-            try
+            bool success = false;
+
+            success = LocalDataStorage.WriteFile(tempFilePath, new byte[0]);
+
+            if(success)
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(tempFilePath));
                 downloadInfo.request.downloadHandler = new DownloadHandlerFile(tempFilePath);
 
                 #if PLATFORM_PS4
@@ -283,39 +285,32 @@ namespace ModIO
                 //  Spiderling Studios (http://spiderlinggames.co.uk/)
                 downloadInfo.request.redirectLimit = 0;
                 #endif
+
+                var operation = downloadInfo.request.SendWebRequest();
+
+                #if DEBUG
+                    DebugUtilities.DebugDownload(operation, LocalUser.instance, tempFilePath);
+                #endif
+
+                operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(idPair);
+
+                DownloadClient.StartMonitoringSpeed();
+
+                // notify download started
+                if(DownloadClient.modfileDownloadStarted != null)
+                {
+                    DownloadClient.modfileDownloadStarted(idPair, downloadInfo);
+                }
             }
-            catch(Exception e)
+            else if(DownloadClient.modfileDownloadFailed != null)
             {
                 string warningInfo = ("Failed to create download file on disk."
-                                      + "\nFile: " + tempFilePath + "\n\n");
+                                      + "\nSource: " + downloadURL
+                                      + "\nDestination: " + tempFilePath + "\n\n");
 
-                Debug.LogWarning("[mod.io] " + warningInfo + Utility.GenerateExceptionDebugString(e));
-
-                if(modfileDownloadFailed != null)
-                {
-                    modfileDownloadFailed(idPair, WebRequestError.GenerateLocal(warningInfo));
-                }
-
-                return;
-            }
-
-            var operation = downloadInfo.request.SendWebRequest();
-
-            #if DEBUG
-                DebugUtilities.DebugDownload(operation, LocalUser.instance, tempFilePath);
-            #endif
-
-            operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(idPair);
-
-            DownloadClient.StartMonitoringSpeed();
-
-            // notify download started
-            if(DownloadClient.modfileDownloadStarted != null)
-            {
-                DownloadClient.modfileDownloadStarted(idPair, downloadInfo);
+                modfileDownloadFailed(idPair, WebRequestError.GenerateLocal(warningInfo));
             }
         }
-
 
         public static void CancelModBinaryDownload(int modId, int modfileId)
         {
@@ -357,8 +352,8 @@ namespace ModIO
                 }
                 else
                 {
-                    downloadInfo.isDone = true;
                     downloadInfo.wasAborted = true;
+                    downloadInfo.isDone = true;
 
                     modfileDownloadMap.Remove(idPair);
                 }
@@ -369,8 +364,8 @@ namespace ModIO
         {
             FileDownloadInfo downloadInfo = DownloadClient.modfileDownloadMap[idPair];
             UnityWebRequest request = downloadInfo.request;
-            bool succeeded = false;
-            downloadInfo.isDone = true;
+            bool success = false;
+
             downloadInfo.bytesPerSecond = 0;
 
             if(request.isNetworkError || request.isHttpError)
@@ -393,7 +388,7 @@ namespace ModIO
                     {
                         if (PluginSettings.data.logAllRequests)
                         {
-                            Debug.LogFormat("CAUGHT DOWNLOAD REDIRECTION\nURL: {0}", headerLocation);
+                            Debug.LogFormat("[mod.io] Caught PS4 redirection error. Reattempting.\nURL: {0}", headerLocation);
                         }
 
                         downloadInfo.error = null;
@@ -402,7 +397,7 @@ namespace ModIO
                         return;
                     }
                 }
-                #endif
+                #endif // UNITY_PS4
 
                 else
                 {
@@ -416,39 +411,29 @@ namespace ModIO
             }
             else
             {
-                try
+                success = LocalDataStorage.MoveFile(downloadInfo.target + ".download",
+                                                    downloadInfo.target);
+
+                if(!success
+                   && DownloadClient.modfileDownloadFailed != null)
                 {
-                    if(File.Exists(downloadInfo.target))
-                    {
-                        File.Delete(downloadInfo.target);
-                    }
+                    string errorMessage = ("Download succeeded but failed to rename from"
+                                           + " temporary file name."
+                                           + "\nTemporary file name: "
+                                           + downloadInfo.target + ".download");
 
-                    File.Move(downloadInfo.target + ".download", downloadInfo.target);
+                    downloadInfo.error = WebRequestError.GenerateLocal(errorMessage);
 
-                    succeeded = true;
-                }
-                catch(Exception e)
-                {
-                    string warningInfo = ("Failed to save mod binary."
-                                          + "\nFile: " + downloadInfo.target + "\n\n");
-
-                    Debug.LogWarning("[mod.io] " + warningInfo + Utility.GenerateExceptionDebugString(e));
-
-                    downloadInfo.error = WebRequestError.GenerateLocal(warningInfo);
-
-                    if(modfileDownloadFailed != null)
-                    {
-                        modfileDownloadFailed(idPair, downloadInfo.error);
-                    }
+                    modfileDownloadFailed(idPair, downloadInfo.error);
                 }
             }
 
-            if(succeeded)
+            downloadInfo.isDone = true;
+
+            if(success
+               && modfileDownloadSucceeded != null)
             {
-                if(modfileDownloadSucceeded != null)
-                {
-                    modfileDownloadSucceeded(idPair, downloadInfo);
-                }
+                modfileDownloadSucceeded(idPair, downloadInfo);
             }
 
             modfileDownloadMap.Remove(idPair);

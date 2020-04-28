@@ -2,8 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using FileInfo = System.IO.FileInfo;
+using Path = System.IO.Path;
 
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -58,10 +59,13 @@ namespace ModIO.EditorCode
             if(logoProperty.FindPropertyRelative("isDirty").boolValue == true)
             {
                 logoLocation = logoProperty.FindPropertyRelative("value.url").stringValue;
-                logoTexture = IOUtilities.ReadImageFile(logoLocation);
-                if(logoTexture != null)
+
+                byte[] data = null;
+
+                if(LocalDataStorage.ReadFile(logoLocation, out data))
                 {
                     lastLogoWriteTime = (new FileInfo(logoLocation)).LastWriteTime;
+                    logoTexture = IOUtilities.ParseImageData(data);
                 }
             }
             else if(profile != null)
@@ -85,16 +89,21 @@ namespace ModIO.EditorCode
         // ------[ UPDATE ]------
         public void OnUpdate()
         {
-            if(File.Exists(logoLocation))
+            if(LocalDataStorage.GetFileExists(logoLocation))
             {
                 try
                 {
                     FileInfo imageInfo = new FileInfo(logoLocation);
                     if(lastLogoWriteTime < imageInfo.LastWriteTime)
                     {
-                        logoTexture = IOUtilities.ReadImageFile(logoLocation);
-                        lastLogoWriteTime = imageInfo.LastWriteTime;
-                        isRepaintRequired = true;
+                        byte[] data = null;
+
+                        if(LocalDataStorage.ReadFile(logoLocation, out data))
+                        {
+                            logoTexture = IOUtilities.ParseImageData(data);
+                            lastLogoWriteTime = imageInfo.LastWriteTime;
+                            isRepaintRequired = true;
+                        }
                     }
                 }
                 catch(Exception e)
@@ -315,16 +324,17 @@ namespace ModIO.EditorCode
                     string path = EditorUtility.OpenFilePanelWithFilters("Select Mod Logo",
                                                                          "",
                                                                          IMAGE_FILE_FILTER);
-                    Texture2D newLogoTexture = IOUtilities.ReadImageFile(path);
 
-                    if(newLogoTexture)
+                    byte[] data = null;
+
+                    if(LocalDataStorage.ReadFile(path, out data))
                     {
                         logoProperty.FindPropertyRelative("value.url").stringValue = path;
                         logoProperty.FindPropertyRelative("value.fileName").stringValue = Path.GetFileName(path);
                         logoProperty.FindPropertyRelative("isDirty").boolValue = true;
                         logoProperty.serializedObject.ApplyModifiedProperties();
 
-                        logoTexture = newLogoTexture;
+                        logoTexture = IOUtilities.ParseImageData(data);
                         logoLocation = path;
                         lastLogoWriteTime = (new FileInfo(logoLocation)).LastWriteTime;
                     }
