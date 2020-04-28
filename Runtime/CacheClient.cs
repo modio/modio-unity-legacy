@@ -158,7 +158,7 @@ namespace ModIO
                         }
                         else
                         {
-                            IOUtilities.DeleteFile(profilePath);
+                            LocalDataStorage.DeleteFile(profilePath);
                         }
                     }
                 }
@@ -227,7 +227,7 @@ namespace ModIO
                         }
                         else
                         {
-                            IOUtilities.DeleteFile(profilePath);
+                            LocalDataStorage.DeleteFile(profilePath);
                         }
                     }
                 }
@@ -267,7 +267,7 @@ namespace ModIO
         public static bool DeleteMod(int modId)
         {
             string modDir = CacheClient.GenerateModDirectoryPath(modId);
-            return IOUtilities.DeleteDirectory(modDir);
+            return LocalDataStorage.DeleteDirectory(modDir);
         }
 
         // ------[ STATISTICS ]------
@@ -360,16 +360,28 @@ namespace ModIO
         /// <summary>Deletes a modfile and binary from the cache.</summary>
         public static bool DeleteModfileAndBinaryZip(int modId, int modfileId)
         {
-            bool isSuccessful = IOUtilities.DeleteFile(CacheClient.GenerateModfileFilePath(modId, modfileId));
-            isSuccessful = (IOUtilities.DeleteFile(CacheClient.GenerateModBinaryZipFilePath(modId, modfileId))
-                            && isSuccessful);
-            return isSuccessful;
+            string modfilePath = CacheClient.GenerateModfileFilePath(modId, modfileId);
+            string zipPath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
+
+            bool success = true;
+
+            if(!LocalDataStorage.DeleteFile(modfilePath))
+            {
+                success = false;
+            }
+            if(!LocalDataStorage.DeleteFile(zipPath))
+            {
+                success = false;
+            }
+
+            return success;
         }
 
         /// <summary>Deletes all modfiles and binaries from the cache.</summary>
         public static bool DeleteAllModfileAndBinaryData(int modId)
         {
-            return IOUtilities.DeleteDirectory(CacheClient.GenerateModBinariesDirectoryPath(modId));
+            string path = CacheClient.GenerateModBinariesDirectoryPath(modId);
+            return LocalDataStorage.DeleteDirectory(path);
         }
 
         // ------[ MEDIA ]------
@@ -616,7 +628,8 @@ namespace ModIO
         /// <summary>Deletes a mod team's data from the cache.</summary>
         public static bool DeleteModTeam(int modId)
         {
-            return IOUtilities.DeleteFile(CacheClient.GenerateModTeamFilePath(modId));
+            string path = CacheClient.GenerateModTeamFilePath(modId);
+            return LocalDataStorage.DeleteFile(path);
         }
 
         // ---------[ USERS ]---------
@@ -667,7 +680,8 @@ namespace ModIO
         /// <summary>Delete's a user's avatars from the cache.</summary>
         public static bool DeleteUserAvatar(int userId)
         {
-            return IOUtilities.DeleteDirectory(CacheClient.GenerateUserAvatarDirectoryPath(userId));
+            string path = CacheClient.GenerateUserAvatarDirectoryPath(userId);
+            return LocalDataStorage.DeleteDirectory(path);
         }
 
         // ---------[ OBSOLETE ]---------
@@ -713,7 +727,8 @@ namespace ModIO
         [Obsolete("User Profiles are no longer accessible via the mod.io API.")]
         public static bool DeleteUserProfile(int userId)
         {
-            return IOUtilities.DeleteFile(CacheClient.GenerateUserProfileFilePath(userId));
+            string path = CacheClient.GenerateUserProfileFilePath(userId);
+            return LocalDataStorage.DeleteFile(path);
         }
 
         /// <summary>[Obsolete] Iterates through all the user profiles in the cache.</summary>
