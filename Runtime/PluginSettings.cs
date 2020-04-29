@@ -28,6 +28,7 @@ namespace ModIO
         public struct Data
         {
             // ---------[ Fields ]---------
+            [Header("API Settings")]
             [Tooltip("API URL to use when making requests")]
             public string apiURL;
 
@@ -37,6 +38,10 @@ namespace ModIO
             [Tooltip("API Key assigned to your game profile")]
             public string gameAPIKey;
 
+            /// <summary>Request logging options.</summary>
+            public RequestLoggingOptions requestLogging;
+
+            [Header("Runtime Directories")]
             [Tooltip("Directory to use for mod installations")]
             [VariableDirectory]
             public string installationDirectory;
@@ -45,12 +50,8 @@ namespace ModIO
             [VariableDirectory]
             public string cacheDirectory;
 
-            /// <summary>Request logging options.</summary>
-            public RequestLoggingOptions requestLogging;
-
             // ---------[ Obsolete ]---------
             [System.Obsolete("Use requestLogging.logAllResponses instead.")]
-            [HideInInspector]
             public bool logAllRequests
             {
                 get { return this.requestLogging.logAllResponses; }
@@ -257,7 +258,7 @@ namespace ModIO
 
             if(settings == null)
             {
-                PluginSettings.Data defaultData = PluginSettings.GenerateRuntimeDefaults();
+                PluginSettings.Data defaultData = PluginSettings.GenerateDefaultData();
                 settings = PluginSettings.SetRuntimeData(defaultData);
             }
 
@@ -266,21 +267,21 @@ namespace ModIO
         }
 
         /// <summary>Generates a PluginSettings.Data instance with runtime defaults.</summary>
-        public static PluginSettings.Data GenerateRuntimeDefaults()
+        public static PluginSettings.Data GenerateDefaultData()
         {
             PluginSettings.Data data = new PluginSettings.Data()
             {
                 apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
                 gameId = GameProfile.NULL_ID,
                 gameAPIKey = string.Empty,
-                cacheDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$",
-                installationDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods",
                 requestLogging = new RequestLoggingOptions()
                 {
                     errorsAsWarnings = true,
                     logAllResponses = false,
                     logOnSend = false,
                 },
+                cacheDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$",
+                installationDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods",
             };
 
             return data;
@@ -323,10 +324,10 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Creates the asset instance that the plugin will use.</summary>
-        [System.Obsolete("Use PluginSettings.GenerateRuntimeDefaults() and PluginSettings.SetRuntimeData() instead.")]
+        [System.Obsolete("Use PluginSettings.GenerateDefaultData() and PluginSettings.SetRuntimeData() instead.")]
         private static PluginSettings InitializeAsset()
         {
-            PluginSettings.Data data = PluginSettings.GenerateRuntimeDefaults();
+            PluginSettings.Data data = PluginSettings.GenerateDefaultData();
             return PluginSettings.SetRuntimeData(data);
         }
         #endif
