@@ -75,7 +75,21 @@ namespace ModIO.UI.EditorCode
                         LocalDataStorage.CreateDirectory(dir);
                     }
 
-                    EditorUtility.RevealInFinder(dir);
+                    if(dir.StartsWith(Application.dataPath))
+                    {
+                        string assetDir = dir.Substring(Application.dataPath.Length);
+                        assetDir = "Assets" + assetDir;
+
+                        var folderObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(assetDir);
+                        int folderId = folderObject.GetInstanceID();
+
+                        EditorGUIUtility.PingObject(folderId);
+                        UnityEditor.Selection.activeObject = folderObject;
+                    }
+                    else
+                    {
+                        EditorUtility.RevealInFinder(dir);
+                    }
                 }
             }
         }
