@@ -133,15 +133,30 @@ namespace ModIO
         }
         public string INSTALLATION_DIRECTORY
         {
-            get { return PluginSettings.data.installationDirectory; }
+            #if UNITY_EDITOR
+                get { return PluginSettings.data.installationDirectoryEditor; }
+            #else
+                get { return PluginSettings.data.installationDirectory; }
+            #endif // UNITY_EDITOR
+
         }
         public string CACHE_DIRECTORY
         {
-            get { return PluginSettings.data.cacheDirectory; }
+            #if UNITY_EDITOR
+                get { return PluginSettings.data.cacheDirectoryEditor; }
+            #else
+                get { return PluginSettings.data.cacheDirectory; }
+            #endif // UNITY_EDITOR
+
         }
         public string USER_DIRECTORY
         {
-            get { return PluginSettings.data.userDirectory; }
+            #if UNITY_EDITOR
+                get { return PluginSettings.data.userDirectoryEditor; }
+            #else
+                get { return PluginSettings.data.userDirectory; }
+            #endif // UNITY_EDITOR
+
         }
 
         // ---------[ FUNCTIONALITY ]---------
