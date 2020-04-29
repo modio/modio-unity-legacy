@@ -62,11 +62,6 @@ namespace ModIO
         /// <summary>Location of the settings file.</summary>
         public static readonly string FILE_PATH = "modio_settings";
 
-        /// <summary>Location of the settings file for use in-editor.</summary>
-        public static readonly string FILE_PATH_EDITOR = IOUtilities.CombinePath("mod.io",
-                                                                                 "Editor",
-                                                                                 "PluginSettings");
-
         /// <summary>Has the asset been loaded.</summary>
         private static bool _loaded = false;
 
@@ -80,18 +75,13 @@ namespace ModIO
             {
                 if(!PluginSettings._loaded)
                 {
-                    #if UNITY_EDITOR
-                    {
-                        PluginSettings._dataInstance = PluginSettings.LoadDataFromAsset(PluginSettings.FILE_PATH_EDITOR);
+                    PluginSettings._dataInstance = PluginSettings.LoadDataFromAsset(PluginSettings.FILE_PATH);
 
+                    #if UNITY_EDITOR
                         // If Application isn't playing, we reload every time
                         PluginSettings._loaded = Application.isPlaying;
-                    }
                     #else
-                    {
-                        PluginSettings._dataInstance = PluginSettings.LoadDataFromAsset(PluginSettings.FILE_PATH);
                         PluginSettings._loaded = true;
-                    }
                     #endif
                 }
 
@@ -275,8 +265,7 @@ namespace ModIO
             UnityEditor.Selection.activeObject = settings;
         }
 
-
-        /// <summary>Generates a PluginSettings.Data instance with default values.</summary>
+        /// <summary>Generates a PluginSettings.Data instance with runtime defaults.</summary>
         public static PluginSettings.Data GenerateRuntimeDefaults()
         {
             PluginSettings.Data data = new PluginSettings.Data()
@@ -301,12 +290,6 @@ namespace ModIO
         public static PluginSettings SetRuntimeData(PluginSettings.Data data)
         {
             return PluginSettings.SaveToAsset(PluginSettings.FILE_PATH, data);
-        }
-
-        /// <summary>Stores the given values to the Editor asset.</summary>
-        public static PluginSettings SetEditorData(PluginSettings.Data data)
-        {
-            return PluginSettings.SaveToAsset(PluginSettings.FILE_PATH_EDITOR, data);
         }
 
         /// <summary>Sets/saves the settings for the runtime instance.</summary>
