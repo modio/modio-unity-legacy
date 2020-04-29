@@ -13,17 +13,6 @@ namespace ModIO
     /// <summary>An interface for storing/loading data retrieved for the mod.io servers on disk.</summary>
     public static class CacheClient
     {
-        // ---------[ MEMBERS ]---------
-        /// <summary>Directory that the CacheClient uses to store data.</summary>
-        public static string cacheDirectory;
-
-        // ---------[ INITIALIZATION ]---------
-        /// <summary>Initializes the CacheClient settings.</summary>
-        static CacheClient()
-        {
-            CacheClient.cacheDirectory = PluginSettings.CACHE_DIRECTORY;
-        }
-
         // ---------[ GAME PROFILE ]---------
         /// <summary>File path for the game profile data.</summary>
         public static string gameProfileFilePath
@@ -678,6 +667,13 @@ namespace ModIO
         }
 
         // ---------[ OBSOLETE ]---------
+        /// <summary>[Obsolete] Directory that the CacheClient uses to store data.</summary>
+        [Obsolete("Use PluginSettings.CACHE_DIRECTORY instead")]
+        public static string cacheDirectory
+        {
+            get { return PluginSettings.CACHE_DIRECTORY; }
+        }
+
         /// <summary>[Obsolete] Retrieves the file paths for the mod logos in the cache.</summary>
         [Obsolete("Use CacheClient.GetModLogoVersionFileNames() instead")]
         public static Dictionary<LogoSize, string> LoadModLogoFilePaths(int modId)
