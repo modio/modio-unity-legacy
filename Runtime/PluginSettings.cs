@@ -115,48 +115,45 @@ namespace ModIO
         #pragma warning restore 0649
 
         // --- Accessors ---
-        public string API_URL
+        public static string API_URL
         {
             get { return PluginSettings.data.apiURL; }
         }
-        public int GAME_ID
+        public static int GAME_ID
         {
             get { return PluginSettings.data.gameId; }
         }
-        public string GAME_API_KEY
+        public static string GAME_API_KEY
         {
             get { return PluginSettings.data.gameAPIKey; }
         }
-        public RequestLoggingOptions REQUEST_LOGGING
+        public static RequestLoggingOptions REQUEST_LOGGING
         {
             get { return PluginSettings.data.requestLogging; }
         }
-        public string INSTALLATION_DIRECTORY
+        public static string INSTALLATION_DIRECTORY
         {
             #if UNITY_EDITOR
                 get { return PluginSettings.data.installationDirectoryEditor; }
             #else
                 get { return PluginSettings.data.installationDirectory; }
             #endif // UNITY_EDITOR
-
         }
-        public string CACHE_DIRECTORY
+        public static string CACHE_DIRECTORY
         {
             #if UNITY_EDITOR
                 get { return PluginSettings.data.cacheDirectoryEditor; }
             #else
                 get { return PluginSettings.data.cacheDirectory; }
             #endif // UNITY_EDITOR
-
         }
-        public string USER_DIRECTORY
+        public static string USER_DIRECTORY
         {
             #if UNITY_EDITOR
                 get { return PluginSettings.data.userDirectoryEditor; }
             #else
                 get { return PluginSettings.data.userDirectory; }
             #endif // UNITY_EDITOR
-
         }
 
         // ---------[ FUNCTIONALITY ]---------
