@@ -240,64 +240,6 @@ namespace ModIO
             return directory;
         }
 
-        /// <summary>Processes a test variable string.</summary>
-        private static string ReplaceTestValueString(string directory,
-                                                     int testStringIndex,
-                                                     bool testValue)
-        {
-            // get vars
-            int trueStart = -1;
-            int trueEnd = -1;
-            int falseStart = -1;
-            int testEnd = -1;
-
-            trueStart = directory.IndexOf('?', testStringIndex+1) + 1;
-
-            testEnd = directory.IndexOf('$', testStringIndex+1);
-
-            #if UNITY_EDITOR
-            if(!Application.isPlaying && testEnd < 0)
-            {
-                return "Missing \'$\': Directory contains an unclosed test string.";
-            }
-            #endif
-
-            Debug.Assert(testEnd > 0, ("[mod.io] Unclosed test string \'"
-                                       + directory.Substring(testStringIndex, trueStart-testStringIndex)
-                                       + "\' in Plugin Settings directory. A closing \'$\' is required."));
-
-            ++testEnd;
-
-            falseStart = directory.IndexOf(':', trueStart);
-            if(falseStart > testEnd
-               || falseStart == -1)
-            {
-                falseStart = -1;
-                trueEnd = testEnd-1;
-            }
-            else
-            {
-                trueEnd = falseStart;
-                ++falseStart;
-            }
-
-            // replace
-            string insertString = string.Empty;
-
-            if(testValue)
-            {
-                insertString = directory.Substring(trueStart, trueEnd-trueStart);
-            }
-            else if(falseStart > -1)
-            {
-                insertString = directory.Substring(falseStart, testEnd-1-falseStart);
-            }
-
-            return directory
-                .Remove(testStringIndex, testEnd-testStringIndex)
-                .Insert(testStringIndex, insertString);
-        }
-
         // ---------[ EDITOR CODE ]---------
         #if UNITY_EDITOR
         /// <summary>Locates the PluginSettings asset used at runtime.</summary>
