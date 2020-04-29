@@ -192,6 +192,39 @@ namespace ModIO
                                                                                settings.gameId,
                                                                                isTestServer);
                 }
+
+                // userdir
+                if(settings.userDirectory != null)
+                {
+                    settings.userDirectory = ReplaceDirectoryVariables(settings.userDirectory,
+                                                                       settings.gameId,
+                                                                       isTestServer);
+                }
+
+                // cachedir
+                if(settings.cacheDirectoryEditor != null)
+                {
+                    settings.cacheDirectoryEditor = ReplaceDirectoryVariables(settings.cacheDirectoryEditor,
+                                                                              settings.gameId,
+                                                                              isTestServer);
+                }
+
+                // installdir
+                if(settings.installationDirectoryEditor != null)
+                {
+                    settings.installationDirectoryEditor = ReplaceDirectoryVariables(settings.installationDirectoryEditor,
+                                                                                     settings.gameId,
+                                                                                     isTestServer);
+                }
+
+                // userdir
+                if(settings.userDirectoryEditor != null)
+                {
+                    settings.userDirectoryEditor = ReplaceDirectoryVariables(settings.userDirectoryEditor,
+                                                                             settings.gameId,
+                                                                             isTestServer);
+                }
+
             }
 
             return settings;
