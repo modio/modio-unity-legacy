@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Path = System.IO.Path;
 
 using UnityEngine;
 
@@ -118,12 +119,12 @@ namespace ModIO
 
             string profileDirectory = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
 
-            if(Directory.Exists(profileDirectory))
+            if(LocalDataStorage.GetDirectoryExists(profileDirectory))
             {
-                string[] modDirectories;
+                IList<string> modDirectories;
                 try
                 {
-                    modDirectories = Directory.GetDirectories(profileDirectory);
+                    modDirectories = LocalDataStorage.GetDirectories(profileDirectory);
                 }
                 catch(Exception e)
                 {
@@ -136,17 +137,11 @@ namespace ModIO
                     modDirectories = new string[0];
                 }
 
-                int offsetDirCount = modDirectories.Length - offset;
-                if(offsetDirCount > 0)
+                if(modDirectories.Count - offset > 0)
                 {
-                    string[] offsetModDirectories = new string[offsetDirCount];
-                    Array.Copy(modDirectories, offset,
-                               offsetModDirectories, 0,
-                               offsetDirCount);
-
-                    foreach(string modDirectory in offsetModDirectories)
+                    for(int i = offset; i < modDirectories.Count; ++i)
                     {
-                        string profilePath = IOUtilities.CombinePath(modDirectory, "profile.data");
+                        string profilePath = IOUtilities.CombinePath(modDirectories[i], "profile.data");
                         ModProfile profile;
 
                         LocalDataStorage.ReadJSONFile(profilePath, out profile);
@@ -186,12 +181,12 @@ namespace ModIO
 
             string profileDirectory = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
 
-            if(Directory.Exists(profileDirectory))
+            if(LocalDataStorage.GetDirectoryExists(profileDirectory))
             {
-                string[] modDirectories;
+                IList<string> modDirectories;
                 try
                 {
-                    modDirectories = Directory.GetDirectories(profileDirectory);
+                    modDirectories = LocalDataStorage.GetDirectories(profileDirectory);
                 }
                 catch(Exception e)
                 {
@@ -238,12 +233,12 @@ namespace ModIO
         {
             string profileDirectory = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
 
-            if(Directory.Exists(profileDirectory))
+            if(LocalDataStorage.GetDirectoryExists(profileDirectory))
             {
-                string[] modDirectories;
+                IList<string> modDirectories;
                 try
                 {
-                    modDirectories = Directory.GetDirectories(profileDirectory);
+                    modDirectories = LocalDataStorage.GetDirectories(profileDirectory);
                 }
                 catch(Exception e)
                 {
@@ -256,7 +251,7 @@ namespace ModIO
                     modDirectories = new string[0];
                 }
 
-                return modDirectories.Length;
+                return modDirectories.Count;
             }
 
             return 0;
@@ -737,12 +732,12 @@ namespace ModIO
             string profileDirectory = IOUtilities.CombinePath(CacheClient.cacheDirectory,
                                                               "users");
 
-            if(Directory.Exists(profileDirectory))
+            if(LocalDataStorage.GetDirectoryExists(profileDirectory))
             {
-                string[] userFiles;
+                IList<string> userFiles;
                 try
                 {
-                    userFiles = Directory.GetFiles(profileDirectory);
+                    userFiles = LocalDataStorage.GetFiles(profileDirectory, null, false);
                 }
                 catch(Exception e)
                 {
