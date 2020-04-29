@@ -67,7 +67,7 @@ namespace ModIO
         /// <summary>Generates the path for a given modfile install directory.</summary>
         public static string GetModInstallDirectory(int modId, int modfileId)
         {
-            return IOUtilities.CombinePath(ModManager.installationDirectory,
+            return IOUtilities.CombinePath(PluginSettings.INSTALLATION_DIRECTORY,
                                            modId.ToString() + "_" + modfileId.ToString());
         }
 
@@ -138,7 +138,7 @@ namespace ModIO
                 try
                 {
                     LocalDataStorage.DeleteDirectory(installDirectory);
-                    LocalDataStorage.CreateDirectory(ModManager.installationDirectory);
+                    LocalDataStorage.CreateDirectory(PluginSettings.INSTALLATION_DIRECTORY);
                     LocalDataStorage.MoveDirectory(tempLocation, installDirectory);
                 }
                 catch(Exception e)
@@ -277,7 +277,7 @@ namespace ModIO
         /// <summary>Returns the data of all the mods installed.</summary>
         public static IEnumerable<KeyValuePair<ModfileIdPair, string>> IterateInstalledMods(IList<int> modIdFilter)
         {
-            IList<string> modDirectories = LocalDataStorage.GetDirectories(ModManager.installationDirectory);
+            IList<string> modDirectories = LocalDataStorage.GetDirectories(PluginSettings.INSTALLATION_DIRECTORY);
             if(modDirectories == null)
             {
                 yield break;
