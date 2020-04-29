@@ -58,6 +58,7 @@ namespace ModIO
                 DataUpdater.UpdateFromVersion(data.lastRunVersion);
             }
 
+            data.lastRunVersion = ModIOVersion.Current;
             ModManager.m_data = data;
 
             LocalDataStorage.WriteJSONFile(PERSISTENTDATA_FILEPATH, ModManager.m_data);
