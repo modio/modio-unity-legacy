@@ -55,7 +55,7 @@ namespace ModIO
                     timeSent = ServerTimeStamp.Now;
                 }
 
-                if(PluginSettings.data.requestLogging.logOnSend)
+                if(PluginSettings.REQUEST_LOGGING.logOnSend)
                 {
                     var logString = new System.Text.StringBuilder();
                     logString.AppendLine("[mod.io] Web Request Sent");
@@ -90,8 +90,8 @@ namespace ModIO
                     Debug.Log(logString.ToString());
                 }
 
-                if(PluginSettings.data.requestLogging.logAllResponses
-                   || PluginSettings.data.requestLogging.errorsAsWarnings)
+                if(PluginSettings.REQUEST_LOGGING.logAllResponses
+                   || PluginSettings.REQUEST_LOGGING.errorsAsWarnings)
                 {
 
                     RequestDebugData debugData = new RequestDebugData()
@@ -130,7 +130,7 @@ namespace ModIO
                 bool isError = (webRequest.isNetworkError || webRequest.isHttpError);
 
                 // should we log?
-                if(PluginSettings.data.requestLogging.logAllResponses || isError)
+                if(PluginSettings.REQUEST_LOGGING.logAllResponses || isError)
                 {
                     RequestDebugData debugData;
                     if(!DebugUtilities.webRequestDebugData.TryGetValue(webRequest, out debugData))
@@ -196,7 +196,7 @@ namespace ModIO
                     logString.AppendLine(responseString);
 
                     // log
-                    if(isError && PluginSettings.data.requestLogging.errorsAsWarnings)
+                    if(isError && PluginSettings.REQUEST_LOGGING.errorsAsWarnings)
                     {
                         Debug.LogWarning(logString.ToString());
                     }

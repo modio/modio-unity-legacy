@@ -210,7 +210,7 @@ namespace ModIO
             // set filter and initial pagination
             RequestFilter subscriptionFilter = new RequestFilter();
             subscriptionFilter.AddFieldFilter(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
-                                              new EqualToFilter<int>(PluginSettings.data.gameId));
+                                              new EqualToFilter<int>(PluginSettings.GAME_ID));
 
             APIPaginationParameters pagination = new APIPaginationParameters()
             {

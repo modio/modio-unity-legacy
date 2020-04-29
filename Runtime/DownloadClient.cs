@@ -379,14 +379,14 @@ namespace ModIO
                 // NOTE(@jackson): This workaround addresses an issue in UnityWebRequests on the
                 //  PS4 whereby redirects fail in specific cases. Special thanks to @Eamon of
                 //  Spiderling Studios (http://spiderlinggames.co.uk/)
-                #if UNITY_PS4
-                else if (downloadInfo.error.responseCode == 302) // Redirect limit exceeded
+                #if UNITY_PS4 || MODIO_DEV
+                else if (downloadInfo.error.webRequest.responseCode == 302) // Redirect limit exceeded
                 {
                     string headerLocation = string.Empty;
-                    if (downloadInfo.error.responseHeaders.TryGetValue("location", out headerLocation)
+                    if (downloadInfo.error.webRequest.GetResponseHeaders().TryGetValue("location", out headerLocation)
                         && !request.url.Equals(headerLocation))
                     {
-                        if (PluginSettings.data.logAllRequests)
+                        if(PluginSettings.REQUEST_LOGGING.logAllResponses)
                         {
                             Debug.LogFormat("[mod.io] Caught PS4 redirection error. Reattempting.\nURL: {0}", headerLocation);
                         }
@@ -560,10 +560,10 @@ namespace ModIO
 
         // ---------[ OBSOLETE ]---------
         /// <summary>Enable logging of all web requests.</summary>
-        [Obsolete("Use PluginSettings.data.logAllRequests instead.")]
+        [Obsolete("Use PluginSettings.REQUEST_LOGGING instead.")]
         public static bool logAllRequests
         {
-            get { return PluginSettings.data.logAllRequests; }
+            get { return PluginSettings.REQUEST_LOGGING.logAllResponses; }
         }
     }
 }

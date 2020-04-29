@@ -21,8 +21,7 @@ namespace ModIO
         /// <summary>Initializes the CacheClient settings.</summary>
         static CacheClient()
         {
-            PluginSettings.Data settings = PluginSettings.data;
-            CacheClient.cacheDirectory = settings.cacheDirectory;
+            CacheClient.cacheDirectory = PluginSettings.CACHE_DIRECTORY;
         }
 
         // ---------[ GAME PROFILE ]---------

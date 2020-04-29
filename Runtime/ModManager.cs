@@ -45,9 +45,8 @@ namespace ModIO
         /// <summary>Initializes the ModManager settings.</summary>
         static ModManager()
         {
-            PluginSettings.Data settings = PluginSettings.data;
-            ModManager.installationDirectory = settings.installationDirectory;
-            ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(settings.cacheDirectory, PERSISTENTDATA_FILENAME);
+            ModManager.installationDirectory = PluginSettings.INSTALLATION_DIRECTORY;
+            ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, PERSISTENTDATA_FILENAME);
 
             bool success = false;
             PersistentData data;
@@ -1183,7 +1182,7 @@ namespace ModIO
 
             userEventFilter.AddFieldFilter(GetUserEventsFilterFields.gameId, new EqualToFilter<int>()
             {
-                filterValue = PluginSettings.data.gameId,
+                filterValue = PluginSettings.GAME_ID,
             });
 
             // - Get All Events -
@@ -1209,7 +1208,7 @@ namespace ModIO
 
             userEventFilter.AddFieldFilter(GetUserEventsFilterFields.gameId, new EqualToFilter<int>()
             {
-                filterValue = PluginSettings.data.gameId,
+                filterValue = PluginSettings.GAME_ID,
             });
 
             // - Get All Events -
@@ -1804,7 +1803,7 @@ namespace ModIO
             RequestFilter userModsFilter = new RequestFilter();
             userModsFilter.AddFieldFilter(GetUserModFilterFields.gameId, new EqualToFilter<int>()
             {
-                filterValue = PluginSettings.data.gameId,
+                filterValue = PluginSettings.GAME_ID,
             });
 
             Action<List<ModProfile>> onGetMods = (modProfiles) =>
