@@ -178,6 +178,8 @@ namespace ModIO
             LocalUser._instance = new LocalUser();
             LocalUser.AssertListsNotNull(ref LocalUser._instance);
             LocalUser.isLoaded = false;
+
+            LocalUser.Load();
         }
 
         // ---------[ Data I/O ]---------
