@@ -96,11 +96,55 @@ namespace ModIO
                     PluginSettings._dataInstance = PluginSettings.LoadDataFromAsset(PluginSettings.FILE_PATH);
 
                     #if UNITY_EDITOR
+                    {
                         // If Application isn't playing, we reload every time
                         PluginSettings._loaded = Application.isPlaying;
+                    }
                     #else
                         PluginSettings._loaded = true;
-                    #endif
+                    #endif // UNITY_EDITOR
+
+                    #if DEBUG
+                    if(Application.isPlaying)
+                    {
+                        string errorMessage = null;
+
+                        // check config
+                        if(string.IsNullOrEmpty(PluginSettings._dataInstance.apiURL))
+                        {
+                            errorMessage = "[mod.io] No valid API URL was found in your mod.io configuration file.";
+                        }
+                        else if(PluginSettings._dataInstance.gameId == GameProfile.NULL_ID)
+                        {
+                            errorMessage = "[mod.io] No valid Game Id was found in your mod.io configuration file.";
+                        }
+                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.gameAPIKey))
+                        {
+                            errorMessage = "[mod.io] No valid Game API Key was found in your mod.io configuration file.";
+                        }
+                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.installationDirectory))
+                        {
+                            errorMessage = "[mod.io] No valid Installation Directory was found in your mod.io configuration file.";
+                        }
+                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.cacheDirectory))
+                        {
+                            errorMessage = "[mod.io] No valid Cache Directory was found in your mod.io configuration file.";
+                        }
+                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.userDirectory))
+                        {
+                            errorMessage = "[mod.io] No valid User Directory was found in your mod.io configuration file.";
+                        }
+
+                        if(errorMessage != null)
+                        {
+                            #if UNITY_EDITOR
+                                PluginSettings.FocusAsset();
+                            #endif // UNITY_EDITOR
+
+                            Debug.LogError(errorMessage);
+                        }
+                    }
+                    #endif // DEBUG
                 }
 
                 return PluginSettings._dataInstance;
@@ -213,7 +257,6 @@ namespace ModIO
                     settings.userDirectoryEditor = ReplaceDirectoryVariables(settings.userDirectoryEditor,
                                                                              settings.gameId);
                 }
-
             }
 
             return settings;
