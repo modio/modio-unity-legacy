@@ -114,28 +114,60 @@ namespace ModIO
                         // check config
                         if(string.IsNullOrEmpty(PluginSettings._dataInstance.apiURL))
                         {
-                            errorMessage = "[mod.io] No valid API URL was found in your mod.io configuration file.";
+                            errorMessage = ("[mod.io] API URL is missing from the Plugin Settings.\n"
+                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                           + " item before the mod.io Unity Plugin can be used.");
                         }
                         else if(PluginSettings._dataInstance.gameId == GameProfile.NULL_ID)
                         {
-                            errorMessage = "[mod.io] No valid Game Id was found in your mod.io configuration file.";
+                            errorMessage = ("[mod.io] Game ID is missing from the Plugin Settings.\n"
+                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                           + " item before the mod.io Unity Plugin can be used.");
                         }
                         else if(string.IsNullOrEmpty(PluginSettings._dataInstance.gameAPIKey))
                         {
-                            errorMessage = "[mod.io] No valid Game API Key was found in your mod.io configuration file.";
+                            errorMessage = ("[mod.io] Game API Key is missing from the Plugin Settings.\n"
+                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                           + " item before the mod.io Unity Plugin can be used.");
                         }
                         else if(string.IsNullOrEmpty(PluginSettings._dataInstance.installationDirectory))
                         {
-                            errorMessage = "[mod.io] No valid Installation Directory was found in your mod.io configuration file.";
+                            errorMessage = ("[mod.io] Installation Directory is missing from the Plugin Settings.\n"
+                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                           + " item before the mod.io Unity Plugin can be used.");
                         }
                         else if(string.IsNullOrEmpty(PluginSettings._dataInstance.cacheDirectory))
                         {
-                            errorMessage = "[mod.io] No valid Cache Directory was found in your mod.io configuration file.";
+                            errorMessage = ("[mod.io] Cache Directory is missing from the Plugin Settings.\n"
+                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                           + " item before the mod.io Unity Plugin can be used.");
                         }
                         else if(string.IsNullOrEmpty(PluginSettings._dataInstance.userDirectory))
                         {
-                            errorMessage = "[mod.io] No valid User Directory was found in your mod.io configuration file.";
+                            errorMessage = ("[mod.io] User Directory is missing from the Plugin Settings.\n"
+                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                           + " item before the mod.io Unity Plugin can be used.");
                         }
+                        #if UNITY_EDITOR
+                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.installationDirectoryEditor))
+                        {
+                            errorMessage = ("[mod.io] Installation Directory (Editor) is missing from the Plugin Settings.\n"
+                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                           + " item before the mod.io Unity Plugin can be used.");
+                        }
+                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.cacheDirectoryEditor))
+                        {
+                            errorMessage = ("[mod.io] Cache Directory (Editor) is missing from the Plugin Settings.\n"
+                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                           + " item before the mod.io Unity Plugin can be used.");
+                        }
+                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.userDirectoryEditor))
+                        {
+                            errorMessage = ("[mod.io] User Directory (Editor) is missing from the Plugin Settings.\n"
+                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                           + " item before the mod.io Unity Plugin can be used.");
+                        }
+                        #endif
 
                         if(errorMessage != null)
                         {
