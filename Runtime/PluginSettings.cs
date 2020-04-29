@@ -139,6 +139,10 @@ namespace ModIO
         {
             get { return PluginSettings.data.cacheDirectory; }
         }
+        public string USER_DIRECTORY
+        {
+            get { return PluginSettings.data.userDirectory; }
+        }
 
         // ---------[ FUNCTIONALITY ]---------
         /// <summary>Loads the data from a PluginSettings asset.</summary>
