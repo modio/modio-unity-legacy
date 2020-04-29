@@ -50,6 +50,10 @@ namespace ModIO
             [VariableDirectory]
             public string cacheDirectory;
 
+            [Tooltip("Directory to use for user data")]
+            [VariableDirectory]
+            public string userDirectory;
+
             [Header("Editor Directories")]
             [Tooltip("Directory to use for mod installations")]
             [VariableDirectory]
@@ -58,6 +62,10 @@ namespace ModIO
             [Tooltip("Directory to use for cached server data")]
             [VariableDirectory]
             public string cacheDirectoryEditor;
+
+            [Tooltip("Directory to use for user data")]
+            [VariableDirectory]
+            public string userDirectoryEditor;
 
             // ---------[ Obsolete ]---------
             [System.Obsolete("Use requestLogging.logAllResponses instead.")]
@@ -291,10 +299,12 @@ namespace ModIO
                 },
 
                 installationDirectory = @"$DATA_PATH$/mod.io/mods",
-                cacheDirectory = @"$DATA_PATH$/mod.io/mods",
+                cacheDirectory = @"$DATA_PATH$/mod.io/cache",
+                userDirectory = @"$PERSISTENT_DATA_PATH$/mod.io-$GAME_ID$",
 
                 installationDirectoryEditor = @"$DATA_PATH$/Resources/mod.io/Editor/mods",
                 cacheDirectoryEditor = @"$DATA_PATH$/Resources/mod.io/Editor/cache",
+                userDirectoryEditor = @"$DATA_PATH$/Resources/mod.io/Editor/user",
             };
 
             return data;
