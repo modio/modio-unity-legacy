@@ -16,6 +16,8 @@ namespace ModIO.UI.EditorCode
         // ---------[ GUI FUNCTIONALITY ]---------
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            int gameId = property.serializedObject.FindProperty("m_data.gameId").intValue;
+
             // render base field
             Rect basePropertyRect = position;
             basePropertyRect.height = position.height - EditorGUIUtility.singleLineHeight;
@@ -23,8 +25,7 @@ namespace ModIO.UI.EditorCode
 
             // draw unwrapped directory
             string dir = property.stringValue;
-            dir = PluginSettings.ReplaceDirectoryVariables(dir,
-                                                           PluginSettings.GAME_ID);
+            dir = PluginSettings.ReplaceDirectoryVariables(dir, gameId);
 
             Rect previewRect = position;
             previewRect.width = position.width - BUTTON_WIDTH;
