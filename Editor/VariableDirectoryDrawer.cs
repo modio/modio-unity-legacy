@@ -23,8 +23,7 @@ namespace ModIO.UI.EditorCode
             // draw unwrapped directory
             string dir = property.stringValue;
             dir = PluginSettings.ReplaceDirectoryVariables(dir,
-                                                           PluginSettings.data.gameId,
-                                                           PluginSettings.data.apiURL.Contains("api.test.mod.io"));
+                                                           PluginSettings.data.gameId);
 
             Rect previewRect = position;
             previewRect.width = position.width - BUTTON_WIDTH;

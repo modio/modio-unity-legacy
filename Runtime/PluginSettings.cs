@@ -174,55 +174,47 @@ namespace ModIO
             {
                 settings = wrapper.m_data;
 
-                bool isTestServer = settings.apiURL.Contains("api.test.mod.io");
-
                 // - Path variable replacement -
                 // cachedir
                 if(settings.cacheDirectory != null)
                 {
                     settings.cacheDirectory = ReplaceDirectoryVariables(settings.cacheDirectory,
-                                                                        settings.gameId,
-                                                                        isTestServer);
+                                                                        settings.gameId);
                 }
 
                 // installdir
                 if(settings.installationDirectory != null)
                 {
                     settings.installationDirectory = ReplaceDirectoryVariables(settings.installationDirectory,
-                                                                               settings.gameId,
-                                                                               isTestServer);
+                                                                               settings.gameId);
                 }
 
                 // userdir
                 if(settings.userDirectory != null)
                 {
                     settings.userDirectory = ReplaceDirectoryVariables(settings.userDirectory,
-                                                                       settings.gameId,
-                                                                       isTestServer);
+                                                                       settings.gameId);
                 }
 
                 // cachedir
                 if(settings.cacheDirectoryEditor != null)
                 {
                     settings.cacheDirectoryEditor = ReplaceDirectoryVariables(settings.cacheDirectoryEditor,
-                                                                              settings.gameId,
-                                                                              isTestServer);
+                                                                              settings.gameId);
                 }
 
                 // installdir
                 if(settings.installationDirectoryEditor != null)
                 {
                     settings.installationDirectoryEditor = ReplaceDirectoryVariables(settings.installationDirectoryEditor,
-                                                                                     settings.gameId,
-                                                                                     isTestServer);
+                                                                                     settings.gameId);
                 }
 
                 // userdir
                 if(settings.userDirectoryEditor != null)
                 {
                     settings.userDirectoryEditor = ReplaceDirectoryVariables(settings.userDirectoryEditor,
-                                                                             settings.gameId,
-                                                                             isTestServer);
+                                                                             settings.gameId);
                 }
 
             }
@@ -231,7 +223,7 @@ namespace ModIO
         }
 
         /// <summary>Replaces variables in the directory values.</summary>
-        public static string ReplaceDirectoryVariables(string directory, int gameId, bool isTestServer)
+        public static string ReplaceDirectoryVariables(string directory, int gameId)
         {
             // straight replaces
             directory = (directory
@@ -244,17 +236,6 @@ namespace ModIO
                          .Replace("$APPLICATION_IDENTIFIER", Application.identifier)
                          .Replace("$GAME_ID$", gameId.ToString())
                          );
-
-            // boolean replacements
-            string testString = null;
-            int testStringIndex = -1;
-
-            testString = "$IS_TEST_SERVER?";
-            testStringIndex = directory.IndexOf(testString);
-            if(testStringIndex >= 0)
-            {
-                directory = ReplaceTestValueString(directory, testStringIndex, isTestServer);
-            }
 
             return directory;
         }
