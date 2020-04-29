@@ -106,6 +106,32 @@ namespace ModIO
         private Data m_data;
         #pragma warning restore 0649
 
+        // --- Accessors ---
+        public string API_URL
+        {
+            get { return PluginSettings.data.apiURL; }
+        }
+        public int GAME_ID
+        {
+            get { return PluginSettings.data.gameId; }
+        }
+        public string GAME_API_KEY
+        {
+            get { return PluginSettings.data.gameAPIKey; }
+        }
+        public RequestLoggingOptions REQUEST_LOGGING
+        {
+            get { return PluginSettings.data.requestLogging; }
+        }
+        public string INSTALLATION_DIRECTORY
+        {
+            get { return PluginSettings.data.installationDirectory; }
+        }
+        public string CACHE_DIRECTORY
+        {
+            get { return PluginSettings.data.cacheDirectory; }
+        }
+
         // ---------[ FUNCTIONALITY ]---------
         /// <summary>Loads the data from a PluginSettings asset.</summary>
         public static PluginSettings.Data LoadDataFromAsset(string assetPath)
