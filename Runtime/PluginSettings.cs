@@ -50,6 +50,15 @@ namespace ModIO
             [VariableDirectory]
             public string cacheDirectory;
 
+            [Header("Editor Directories")]
+            [Tooltip("Directory to use for mod installations")]
+            [VariableDirectory]
+            public string installationDirectoryEditor;
+
+            [Tooltip("Directory to use for cached server data")]
+            [VariableDirectory]
+            public string cacheDirectoryEditor;
+
             // ---------[ Obsolete ]---------
             [System.Obsolete("Use requestLogging.logAllResponses instead.")]
             public bool logAllRequests
