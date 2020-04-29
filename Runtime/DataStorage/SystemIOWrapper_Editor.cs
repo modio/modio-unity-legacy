@@ -24,7 +24,9 @@ namespace ModIO
         {
             bool success = base.WriteFile(path, data);
 
-            if(success && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path))
+            if(success
+               && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path)
+               && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
             }
@@ -38,7 +40,9 @@ namespace ModIO
         {
             bool success = base.DeleteFile(path);
 
-            if(success && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path))
+            if(success
+               && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path)
+               && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
             }
@@ -53,7 +57,9 @@ namespace ModIO
             bool isInDatabase = (SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(source)
                                  || SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(destination));
 
-            if(success && isInDatabase)
+            if(success
+               && isInDatabase
+               && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
             }
@@ -67,7 +73,9 @@ namespace ModIO
         {
             bool success = base.CreateDirectory(path);
 
-            if(success && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path))
+            if(success
+               && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path)
+               && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
             }
@@ -80,7 +88,9 @@ namespace ModIO
         {
             bool success = base.DeleteDirectory(path);
 
-            if(success && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path))
+            if(success
+               && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path)
+               && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
             }
@@ -95,7 +105,9 @@ namespace ModIO
             bool isInDatabase = (SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(source)
                                  || SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(destination));
 
-            if(success && isInDatabase)
+            if(success
+               && isInDatabase
+               && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
             }
@@ -109,7 +121,8 @@ namespace ModIO
         {
             base.SetActiveUser(platformUserId, callback);
 
-            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir))
+            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir)
+               && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
             }
@@ -120,7 +133,8 @@ namespace ModIO
         {
             base.SetActiveUser(platformUserId, callback);
 
-            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir))
+            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir)
+               && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
             }
@@ -131,7 +145,8 @@ namespace ModIO
         {
             base.ClearActiveUserData(callback);
 
-            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir))
+            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir)
+               && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
             }
