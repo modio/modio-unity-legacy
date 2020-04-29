@@ -38,14 +38,10 @@ namespace ModIO
         /// <summary>Data that needs to be stored across sessions.</summary>
         private static PersistentData m_data;
 
-        /// <summary>Install directory used by the ModManager.</summary>
-        public static string installationDirectory;
-
         // ---------[ INITIALIZATION ]---------
         /// <summary>Initializes the ModManager settings.</summary>
         static ModManager()
         {
-            ModManager.installationDirectory = PluginSettings.INSTALLATION_DIRECTORY;
             ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, PERSISTENTDATA_FILENAME);
 
             bool success = false;
@@ -1885,6 +1881,12 @@ namespace ModIO
 
         // ---------[ OBSOLETE ]---------
         #pragma warning disable 0067
+        /// <summary>[Obsolete] Install directory used by the ModManager.</summary>
+        [Obsolete("Use PluginSettings.INSTALLATION_DIRECTORY instead")]
+        public static string installationDirectory
+        {
+            get { return PluginSettings.INSTALLATION_DIRECTORY; }
+        }
 
         /// <summary>[Obsolete] An event that notifies listeners that a mod has been uninstalled.</summary>
         [Obsolete("Use ModManager.onModBinariesUninstalled instead.", false)]
