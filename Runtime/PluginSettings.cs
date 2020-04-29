@@ -289,8 +289,12 @@ namespace ModIO
                     logAllResponses = false,
                     logOnSend = false,
                 },
-                cacheDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$",
-                installationDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods",
+
+                installationDirectory = @"$DATA_PATH$/mod.io/mods",
+                cacheDirectory = @"$DATA_PATH$/mod.io/mods",
+
+                installationDirectoryEditor = @"$DATA_PATH$/Resources/mod.io/Editor/mods",
+                cacheDirectoryEditor = @"$DATA_PATH$/Resources/mod.io/Editor/cache",
             };
 
             return data;
