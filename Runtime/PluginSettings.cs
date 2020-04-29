@@ -1,3 +1,5 @@
+using Path = System.IO.Path;
+
 using UnityEngine;
 
 namespace ModIO
@@ -338,7 +340,7 @@ namespace ModIO
             string assetPath = IOUtilities.CombinePath("Assets", "Resources", path + ".asset");
 
             // creates the containing folder
-            string assetFolder = System.IO.Path.GetDirectoryName(assetPath);
+            string assetFolder = Path.GetDirectoryName(assetPath);
             LocalDataStorage.CreateDirectory(assetFolder);
 
             // create asset
