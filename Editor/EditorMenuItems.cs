@@ -19,7 +19,7 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear All Cached Data", false)]
         public static void ClearCache()
         {
-            if(LocalDataStorage.DeleteDirectory(CacheClient.cacheDirectory))
+            if(LocalDataStorage.DeleteDirectory(PluginSettings.CACHE_DIRECTORY))
             {
                 Debug.Log("[mod.io] Cache Cleared.");
             }
@@ -64,7 +64,7 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear Mod Data", false)]
         public static void ClearCachedModData()
         {
-            string modDir = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
+            string modDir = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
 
             if(LocalDataStorage.DeleteDirectory(modDir))
             {
