@@ -308,13 +308,8 @@ namespace ModIO
         }
 
         // ---------[ IPlatformUserDataIO Interface ]---------
-        /// <summary>Root directory for the user-specific data.</summary>
-        public static readonly string USER_DIR_ROOT = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath,
-                                                                              "modio-" + PluginSettings.data.gameId,
-                                                                              "users");
-
         /// <summary>The directory for the active user's data.</summary>
-        public string userDir = SystemIOWrapper.USER_DIR_ROOT;
+        public string userDir = PluginSettings.USER_DIRECTORY;
 
         // --- Initialization ---
         /// <summary>Initializes the storage system for the given user.</summary>
@@ -344,12 +339,12 @@ namespace ModIO
         /// <summary>Determines the user directory for a given user id..</summary>
         protected virtual string GenerateActiveUserDirectory(string platformUserId)
         {
-            string userDir = SystemIOWrapper.USER_DIR_ROOT;
+            string userDir = PluginSettings.USER_DIRECTORY;
 
             if(!string.IsNullOrEmpty(platformUserId))
             {
                 string folderName = IOUtilities.MakeValidFileName(platformUserId);
-                userDir = IOUtilities.CombinePath(SystemIOWrapper.USER_DIR_ROOT, folderName);
+                userDir = IOUtilities.CombinePath(PluginSettings.USER_DIRECTORY, folderName);
             }
 
             return userDir;

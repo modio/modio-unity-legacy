@@ -104,11 +104,6 @@ namespace ModIO
         }
 
         // ---------[ IPlatformUserDataIO Interface ]---------
-        /// <summary>Defines the base directory for the user-specific data.</summary>
-        public static readonly string EDITOR_RESOURCES_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
-                                                                                        "Editor Default Resources",
-                                                                                        "mod.io");
-
         /// <summary>Initializes the storage system for the given user.</summary>
         public override void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
         {
@@ -129,20 +124,6 @@ namespace ModIO
             {
                 AssetDatabase.Refresh();
             }
-        }
-
-        /// <summary>Determines the user directory for a given user id..</summary>
-        protected override string GenerateActiveUserDirectory(string platformUserId)
-        {
-            string userDir = SystemIOWrapper_Editor.EDITOR_RESOURCES_FOLDER;
-
-            if(!string.IsNullOrEmpty(platformUserId))
-            {
-                string folderName = IOUtilities.MakeValidFileName(platformUserId);
-                userDir = IOUtilities.CombinePath(SystemIOWrapper.USER_DIR_ROOT, folderName);
-            }
-
-            return userDir;
         }
 
         /// <summary>Deletes all of the active user's data.</summary>
