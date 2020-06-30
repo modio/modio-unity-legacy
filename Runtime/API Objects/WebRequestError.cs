@@ -17,7 +17,13 @@ namespace ModIO
             [System.Serializable]
             public class APIError
             {
+                [JsonProperty("error_ref")]
+                public int errorReference = -1;
+
+                [JsonProperty("message")]
                 public string message = null;
+
+                [JsonProperty("errors")]
                 public Dictionary<string, string> errors = null;
             }
 
