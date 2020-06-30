@@ -1783,7 +1783,7 @@ namespace ModIO
                                                        Action<WebRequestError> onError)
         {
             if(LocalUser.Profile == null
-               && !string.IsNullOrEmpty(LocalUser.OAuthToken))
+               && LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             }

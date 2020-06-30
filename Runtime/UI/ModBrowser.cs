@@ -205,7 +205,7 @@ namespace ModIO.UI
                     int reattemptDelay = CalculateReattemptDelay(requestError);
                     if(requestError.isAuthenticationInvalid)
                     {
-                        if(string.IsNullOrEmpty(LocalUser.OAuthToken))
+                        if(LocalUser.AuthenticationState == AuthenticationState.NoToken)
                         {
                             Debug.LogWarning("[mod.io] Unable to retrieve the game profile from the mod.io"
                                              + " servers. Please check you Game Id and APIKey in the"
