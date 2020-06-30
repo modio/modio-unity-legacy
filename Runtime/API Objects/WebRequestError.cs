@@ -37,6 +37,9 @@ namespace ModIO
         /// <summary>The ServerTimeStamp at which the request was received.</summary>
         public int timeStamp;
 
+        /// <summary>The mod.io error reference code.</summary>
+        public int errorReference;
+
         /// <summary>The message returned by the API explaining the error.</summary>
         public string errorMessage;
 
@@ -82,6 +85,7 @@ namespace ModIO
             {
                 webRequest = null,
                 timeStamp = ServerTimeStamp.Now,
+                errorReference = 0,
                 errorMessage = errorMessage,
                 displayMessage = errorMessage,
 
@@ -146,6 +150,7 @@ namespace ModIO
                     }
 
                     // extract values
+                    this.errorReference = errorWrapper.error.errorReference;
                     this.errorMessage = errorWrapper.error.message;
                     this.fieldValidationMessages = errorWrapper.error.errors;
                 }
