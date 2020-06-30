@@ -429,6 +429,9 @@ namespace ModIO
                 responseString.AppendLine(error.limitedUntilTimeStamp.ToString());
 
                 // add messages
+                responseString.Append("  errorReference=");
+                responseString.AppendLine(error.errorReference.ToString());
+
                 responseString.Append("  errorMessage=");
                 responseString.AppendLine(error.errorMessage);
 
