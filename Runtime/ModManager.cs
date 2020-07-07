@@ -236,7 +236,7 @@ namespace ModIO
         }
 
         /// <summary>Returns all of the mod directories of installed mods.</summary>
-        public static void GetInstalledModDirectories(bool excludeDisabledMods, Action<List<string>> onComplete)
+        public static void QueryInstalledModDirectories(bool excludeDisabledMods, Action<List<string>> onComplete)
         {
             Debug.Assert(onComplete != null);
 
@@ -2018,12 +2018,12 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Returns all of the mod directories of installed mods.</summary>
-        [Obsolete("Use GetInstalledModDirectories(bool, Action<List<string>>) instead.")]
+        [Obsolete("Use QueryInstalledModDirectories(bool, Action<List<string>>) instead.")]
         public static List<string> GetInstalledModDirectories(bool excludeDisabledMods)
         {
             List<string> result = null;
 
-            ModManager.GetInstalledModDirectories(excludeDisabledMods, (r) => result = r);
+            ModManager.QueryInstalledModDirectories(excludeDisabledMods, (r) => result = r);
             return result;
         }
 
