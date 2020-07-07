@@ -3,19 +3,19 @@
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/modio/UnityPlugin/blob/master/LICENSE)
 [![Discord](https://img.shields.io/discord/389039439487434752.svg?label=Discord&logo=discord&color=7289DA&labelColor=2C2F33)](https://discord.mod.io)
 [![Master docs](https://img.shields.io/badge/docs-master-green.svg)](https://github.com/modio/UnityPlugin/wiki)
-[![Unity 3D](https://img.shields.io/badge/Unity-2017.2+-lightgrey.svg)](https://unity3d.com/)
+[![Unity 3D](https://img.shields.io/badge/Unity-2017.3+-lightgrey.svg)](https://unity3d.com/)
 
-Welcome to [mod.io](https://mod.io) Unity Plugin. It allows game developers to easily control the browsing and installation of mod files in their games. It provides a C# interface built on the Unity Engine to connect to the [mod.io API](https://docs.mod.io). We have a [test environment](https://test.mod.io) available which offers developers a private sandbox to try the Unity Plugin out.
+Welcome to [mod.io](https://mod.io) Unity Plugin. It allows game developers to easily control the browsing and installation of User-Generated Content in UGC-supported games. The C# interface built on the Unity Engine provides an easy way of connecting to the [mod.io API](https://docs.mod.io). We have a [test environment](https://test.mod.io) available which offers developers a private sandbox to try the Unity Plugin out.
 
-<p align="center"><a href="https://www.assetstore.unity3d.com/#!/content/138866"><img src="https://cdn-images-1.medium.com/max/1600/1*eopj1hgjlJJZ8Q9l8dNVBA.png"></a></p>
+<p align="center"><a href="https://assetstore.unity.com/packages/templates/systems/mod-browser-manager-138866"><img src="https://cdn-images-1.medium.com/max/1600/1*eopj1hgjlJJZ8Q9l8dNVBA.png"></a></p>
 
 ## Features
 * Platform agnostic (support 1 click mod installs on Steam, Epic Games Store, Discord, GOG, itch.io and even consoles in the future)
 * Clientless (it has no other dependencies and works behind the scenes in your game)
-* Powerful search, filtering and tagging of mods
+* Ready-to-go, fully functional and customizable mod browsing UI
 * C# interface built on the Unity Engine for connecting to the [mod.io API](https://docs.mod.io/)
-* Players can activate / deactivate mods they are subscribed to
-* Customizable mod browsing UI
+* Powerful search, filtering and tagging of mods
+* Player preference and accounty management
 
 ## Installation
 Requires **Unity 2017.3** or later. Tested on Windows, and MacOS.
@@ -27,14 +27,14 @@ The best way is to install this library as a [Git package](https://docs.unity3d.
 First, make sure that you to have Git installed and available in your system's PATH.
 After that you need to add the following line to your project's `manifest.json`:
 ```
-"com.modio.unityplugin": "https://github.com/modio/UnityPlugin.git",
+"com.modio.unityplugin": "https://github.com/modio/UnityPlugin-UPM.git",
 ```
 
 It should look like this, notice the comma at the end of the line:
 ```
 {
   "dependencies": {
-    "com.modio.unityplugin": "https://github.com/modio/UnityPlugin.git",
+    "com.modio.unityplugin": "https://github.com/modio/UnityPlugin-UPM.git",
     "com.unity.package-manager-ui": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
@@ -51,14 +51,13 @@ or the [Releases page](https://github.com/modio/UnityPlugin/releases).
 If you have any previous versions of the plugin installed, it is highly recommended to delete them before importing a newer version.
 
 ## Getting started
-If you are a game developer, first step is to add mod support to your Unity game. Once mod support is up and running, [create your games profile](https://mod.io/games/add) on mod.io, to get an API key and access to all [functionality mod.io offers](https://apps.mod.io/guides/getting-started).
-Next, download the latest [UnityPackage release from Github](https://github.com/modio/UnityPlugin/releases) or [Unity Asset Store](https://www.assetstore.unity3d.com/#!/content/138866) and unpack it into your project, then head over to the [GitHub Wiki](https://github.com/modio/UnityPlugin/wiki) and follow the guides to get it running within your game.
 
-1. [Download the Unity package](https://www.assetstore.unity3d.com/#!/content/138866) and import it into your project
-1. Drop the _ModBrowser prefab into your menu scene, or adapt the ExampleScene for your purposes
-1. Set up your [game on mod.io](https://mod.io/games/add) (or our [private test environment](https://test.mod.io/games/add)) to get your game ID and API key
-1. Input your ID and API key by selecting "Plugin Settings" on the ModBrowser component inspector, or under the mod.io/Edit Settings menu item
-1. In your code, make a call to _ModManager.GetInstalledModDirectories()_ to get a list of mod data your player has installed (read our wiki for [detailed instructions](https://github.com/modio/UnityPlugin/wiki))
+1. Implement support for user-generated content in your project. Maps, skins, or game modes are often a good place to start.
+1. Set up your [game profile on mod.io](https://mod.io/games/add) (or our [private test environment](https://test.mod.io/games/add)) to get your game ID and API key.
+1. Add the plugin to your game using the installation instructions above.
+1. Drop the _ModBrowser prefab into your menu scene, or adapt the Example Scene for your purposes.
+1. Input your ID and API key by selecting "Plugin Settings" on the ModBrowser component inspector, or under the Tools/mod.io/Edit Settings menu item
+1. In your code, make a call to `ModManager.GetInstalledModDirectories()` to get a list of mod data your player has installed (read our wiki for [detailed instructions](https://github.com/modio/UnityPlugin/wiki))
 1. Setup complete! Join us [on Discord](https://discord.mod.io) if you have questions or need help.
 
 All mods [submitted to mod.io](https://mod.io/mods/add) will be automatically fetched and managed by the plugin, and are instantly downloadable and testable.
@@ -110,30 +109,21 @@ APIClient.GetOAuthToken(securityCodeFromEmail,
                         (token) => OnTokenReceived(token),
                         (e) => OnError(e));
 
-UserAuthenticationData.instance = new UserAuthenticationData()
-{
-	token = receivedOAuthToken,
-};
+LocalUser.instance = new LocalUser();
+LocalUser.OAuthToken = receivedOAuthToken;
 
 APIClient.GetAuthenticatedUser((userProfile) => OnProfileReceived(userProfile),
                                (e) => OnError(e));
 
-UserAuthenticationData userData = UserAuthenticationData.instance;
-userData.userId = userProfile.id;
-UserAuthenticationData.instance = userData;
-
-CacheClient.SaveUserProfile(userProfile);
+LocalUser.Profile = userProfile;
+LocalUser.Save();
 ```
 
 ### Manage Subscriptions
 ```java
 // -- Sub/Unsubscribe --
-APIClient.SubscribedToMod(modId,
-                          (modProfile) => OnSubscribed(modProfile),
-                          (e) => OnError(e));
-APIClient.UnsubscribeFromMod(modId,
-                             () => OnUnsubscribed(),
-                             (e) => OnError(e));
+UserAccountManagement.SubscribedToMod(modId);
+UserAccountManagement.UnsubscribeFromMod(modId);
 
 // -- Fetch and Store ---
 APIClient.GetUserSubscriptions(RequestFilter.None,
@@ -142,7 +132,7 @@ APIClient.GetUserSubscriptions(RequestFilter.None,
                                (e) => OnError(e));
 
 int[] modIds = Utility.MapProfileIds(subscribedMods);
-ModManager.SetSubscribedModIds(modIds);
+LocalUser.SubscribedModIds = new List<int>(modIds);
 
 // -- Download, Update, and Install Subscribed Mods --
 activeSceneComponent.StartCoroutine(ModManager.DownloadAndUpdateMods_Coroutine(modIds,
@@ -179,6 +169,11 @@ ModManager.UploadModBinaryDirectory(modId,
                                     (e) => OnError(e));
 ```
 
+## Dependencies
+The [mod.io](https://mod.io) Unity Plugin requires the functionality of two other open-source Unity plugins to run. These are included as libraries in the UnityPackage in the `Plugins` directory, or in the repository under `third_party`:
+* Json.Net for improved Json serialization. ([GitHub Repo](https://github.com/SaladLab/Json.Net.Unity3D) || [Unity Asset Store Page](https://assetstore.unity.com/packages/tools/input-management/json-net-for-unity-11347))
+* DotNetZip for Unity to zip and unzip transmitted files. ([GitHub Repo](https://github.com/r2d2rigo/dotnetzip-for-unity))
+
 ## Benefits
 mod.io offers the same core functionality as Steamworks Workshop (1 click mod installs in-game), plus mod hosting, moderation and all of the critical pieces needed. Where we differ is our approach to modding and the flexibility a REST API offers. For example: 
 
@@ -191,11 +186,6 @@ mod.io offers the same core functionality as Steamworks Workshop (1 click mod in
 
 ## Large studios and Publishers
 A private white label option is available to license, if you want a fully featured mod-platform that you can control and host in-house. [Contact us](mailto:developers@mod.io?subject=Whitelabel) to discuss.
-
-## Dependencies
-The [mod.io](https://mod.io) Unity Plugin requires the functionality of two other open-source Unity plugins to run. These are included as libraries in the UnityPackage in the `Plugins` directory, or in the repository under `third_party`:
-* Json.Net for improved Json serialization. ([GitHub Repo](https://github.com/SaladLab/Json.Net.Unity3D) || [Unity Asset Store Page](https://assetstore.unity.com/packages/tools/input-management/json-net-for-unity-11347))
-* DotNetZip for Unity to zip and unzip transmitted files. ([GitHub Repo](https://github.com/r2d2rigo/dotnetzip-for-unity))
 
 ## Contributions Welcome
 Our Unity plugin is public and open source. Game developers are welcome to utilize it directly, to add support for mods in their games, or fork it for their games customized use. Want to make changes to our plugin? Submit a pull request with your recommended changes to be reviewed.
