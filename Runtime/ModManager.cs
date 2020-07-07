@@ -555,7 +555,6 @@ namespace ModIO
             Debug.Assert(modfiles != null);
 
             List<Modfile> unmatchedModfiles = new List<Modfile>(modfiles);
-            List<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
 
             // early out for 0 modfiles
             if(unmatchedModfiles.Count == 0)
@@ -565,6 +564,17 @@ namespace ModIO
             }
 
             // check for installs
+            bool gotModVersions = false;
+            List<ModfileIdPair> installedModVersions = null;
+            ModManager.QueryInstalledModVersions(false,
+            (r) =>
+            {
+                installedModVersions = r;
+                gotModVersions = true;
+            });
+
+            while(!gotModVersions) { yield return null;}
+
             for(int i = 0;
                 i < unmatchedModfiles.Count;
                 ++i)
