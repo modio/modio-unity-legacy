@@ -236,8 +236,10 @@ namespace ModIO
         }
 
         /// <summary>Returns all of the mod directories of installed mods.</summary>
-        public static List<string> GetInstalledModDirectories(bool excludeDisabledMods)
+        public static void GetInstalledModDirectories(bool excludeDisabledMods, Action<List<string>> onComplete)
         {
+            Debug.Assert(onComplete != null);
+
             List<int> modIdFilter = null;
             if(excludeDisabledMods)
             {
@@ -253,7 +255,7 @@ namespace ModIO
                 directories.Add(kvp.Value);
             }
 
-            return directories;
+            onComplete.Invoke(directories);
         }
 
         /// <summary>Returns all of the mod version info of installed mods.</summary>
