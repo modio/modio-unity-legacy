@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 
+using Path = System.IO.Path;
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEditor;
@@ -45,8 +47,8 @@ namespace ModIO.EditorCode
 
         private string GenerateUniqueFileName(string path)
         {
-            string fileNameNoExtension = System.IO.Path.GetFileNameWithoutExtension(path);
-            string fileExtension = System.IO.Path.GetExtension(path);
+            string fileNameNoExtension = Path.GetFileNameWithoutExtension(path);
+            string fileExtension = Path.GetExtension(path);
             int numberToAppend = 0;
             string regexPattern = fileNameNoExtension + "\\d*\\" + fileExtension;
 
@@ -113,20 +115,27 @@ namespace ModIO.EditorCode
                    && !String.IsNullOrEmpty(imageURL))
                 {
                     GalleryImageLocator imageLocator = baseProfile.media.GetGalleryImageWithFileName(imageFileName);
+                    this.textureCache[imageFileName] = EditorImages.LoadingPlaceholder;
 
                     if(imageLocator != null)
                     {
-                        this.textureCache[imageFileName] = EditorImages.LoadingPlaceholder;
-
                         ModManager.GetModGalleryImage(baseProfile.id,
                                                       imageLocator,
                                                       IMAGE_PREVIEW_SIZE,
                                                       (t) => { this.textureCache[imageFileName] = t; isRepaintRequired = true; },
-                                                      WebRequestError.LogAsWarning);
+                                                      null);
                     }
                     else
                     {
-                        this.textureCache[imageFileName] = IOUtilities.ReadImageFile(imageURL);
+                        byte[] data = null;
+                        bool success = false;
+
+                        success = LocalDataStorage.ReadFile(imageURL, out data);
+
+                        if(success)
+                        {
+                            this.textureCache[imageFileName] = IOUtilities.ParseImageData(data);
+                        }
                     }
                 }
             }
@@ -239,7 +248,14 @@ namespace ModIO.EditorCode
                     string path = EditorUtility.OpenFilePanelWithFilters("Select Gallery Image",
                                                                          "",
                                                                          ModMediaViewPart.IMAGE_FILE_FILTER);
-                    Texture2D newTexture = IOUtilities.ReadImageFile(path);
+
+                    bool success = false;
+                    byte[] data = null;
+
+                    success = LocalDataStorage.ReadFile(path, out data);
+
+                    Texture2D newTexture = null;
+                    if(success) { newTexture = IOUtilities.ParseImageData(data); }
 
                     if(newTexture != null)
                     {
@@ -303,7 +319,16 @@ namespace ModIO.EditorCode
             else
             {
                 string imageSource = GetGalleryImageSource(index);
-                this.textureCache.Add(imageFileName, IOUtilities.ReadImageFile(imageSource));
+
+                byte[] data = null;
+                Texture2D imageData = null;
+
+                if(LocalDataStorage.ReadFile(imageSource, out data))
+                {
+                    imageData = IOUtilities.ParseImageData(data);
+                }
+
+                this.textureCache.Add(imageFileName, imageData);
 
                 return this.textureCache[imageFileName];
             }

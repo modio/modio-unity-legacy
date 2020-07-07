@@ -37,8 +37,9 @@ namespace ModIO.UI
         }
 
         // ---------[ FIELDS ]---------
-        /// <summary>Should requests made by the ImageRequestManager be logged.</summary>
-        public bool logDownloads = false;
+        /// <summary>Should the downloads made by this object be excluded from logging?</summary>
+        [Tooltip("Should the downloads made by this object be excluded from logging?")]
+        public bool excludeDownloadsFromLogs = true;
 
         /// <summary>Should the cache be cleared on disable.</summary>
         public bool clearCacheOnDisable = true;
@@ -298,7 +299,7 @@ namespace ModIO.UI
             if(string.IsNullOrEmpty(url))
             {
                 #if UNITY_EDITOR
-                if(this.logDownloads)
+                if(!this.excludeDownloadsFromLogs)
                 {
                     Debug.Log("[mod.io] Attempted to fetch image with a Null or Empty"
                               + " url in the locator.");
@@ -418,27 +419,9 @@ namespace ModIO.UI
             };
 
             #if DEBUG
-            if(PluginSettings.data.logAllRequests && logDownloads)
+            if(!this.excludeDownloadsFromLogs)
             {
-                string requestHeaders = "";
-                List<string> requestKeys = new List<string>(APIClient.UNITY_REQUEST_HEADER_KEYS);
-                requestKeys.AddRange(APIClient.MODIO_REQUEST_HEADER_KEYS);
-
-                foreach(string headerKey in requestKeys)
-                {
-                    string headerValue = webRequest.GetRequestHeader(headerKey);
-                    if(headerValue != null)
-                    {
-                        requestHeaders += "\n" + headerKey + ": " + headerValue;
-                    }
-                }
-
-                int timeStamp = ServerTimeStamp.Now;
-                Debug.Log("IMAGE DOWNLOAD STARTED"
-                          + "\nURL: " + webRequest.url
-                          + "\nTimeStamp: [" + timeStamp.ToString() + "] "
-                          + ServerTimeStamp.ToLocalDateTime(timeStamp).ToString()
-                          + "\nHeaders: " + requestHeaders);
+                DebugUtilities.DebugDownload(operation, LocalUser.instance, null);
             }
             #endif
 
@@ -452,46 +435,6 @@ namespace ModIO.UI
             if(this == null) { return; }
 
             Debug.Assert(webRequest != null);
-
-            // - logging -
-            #if DEBUG
-            if(PluginSettings.data.logAllRequests && logDownloads)
-            {
-                if(webRequest.isNetworkError || webRequest.isHttpError)
-                {
-                    WebRequestError.LogAsWarning(WebRequestError.GenerateFromWebRequest(webRequest));
-                }
-                else
-                {
-                    var headerString = new System.Text.StringBuilder();
-                    var responseHeaders = webRequest.GetResponseHeaders();
-                    if(responseHeaders != null
-                       && responseHeaders.Count > 0)
-                    {
-                        headerString.Append("\n");
-                        foreach(var kvp in responseHeaders)
-                        {
-                            headerString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
-                        }
-                    }
-                    else
-                    {
-                        headerString.Append(" NONE");
-                    }
-
-                    var responseTimeStamp = ServerTimeStamp.Now;
-                    string logString = ("IMAGE DOWNLOAD SUCCEEDED"
-                                        + "\nURL: " + webRequest.url
-                                        + "\nTime Stamp: " + responseTimeStamp + " ("
-                                        + ServerTimeStamp.ToLocalDateTime(responseTimeStamp) + ")"
-                                        + "\nResponse Headers: " + headerString.ToString()
-                                        + "\nResponse Code: " + webRequest.responseCode
-                                        + "\nResponse Error: " + webRequest.error
-                                        + "\n");
-                    Debug.Log(logString);
-                }
-            }
-            #endif
 
             // handle callbacks
             Callbacks callbacks;
@@ -726,5 +669,13 @@ namespace ModIO.UI
                                        onError);
         }
         #pragma warning restore 0618
+
+        /// <summary>Should requests made by the ImageRequestManager be logged.</summary>
+        [Obsolete("Use ImageRequestManager.excludeDownloadsFromLogs instead")]
+        public bool logDownloads
+        {
+            get { return !this.excludeDownloadsFromLogs; }
+            set { this.excludeDownloadsFromLogs = !value; }
+        }
     }
 }

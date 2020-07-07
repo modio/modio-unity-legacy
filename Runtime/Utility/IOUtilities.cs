@@ -1,6 +1,7 @@
 ﻿using System;
-using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
+using Path = System.IO.Path;
 
 using Newtonsoft.Json;
 
@@ -11,242 +12,61 @@ namespace ModIO
 {
     public static class IOUtilities
     {
-        /// <summary>Reads an entire file and parses the JSON Object it contains.</summary>
-        public static T ReadJsonObjectFile<T>(string filePath)
+        /// <summary>Parse data as image.</summary>
+        public static Texture2D ParseImageData(byte[] data)
         {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
+            if(data == null || data.Length > 0) { return null; }
 
-            T jsonObject;
-            TryReadJsonObjectFile(filePath, out jsonObject);
-            return jsonObject;
-        }
-
-        /// <summary>Reads an entire file and parses the JSON Object it contains.</summary>
-        public static bool TryReadJsonObjectFile<T>(string filePath, out T jsonObject)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-
-            if(File.Exists(filePath))
-            {
-                try
-                {
-                    jsonObject = JsonConvert.DeserializeObject<T>(File.ReadAllText(filePath));
-                    return true;
-                }
-                catch(Exception e)
-                {
-                    string warningInfo = ("[mod.io] Failed to read json object from file."
-                                          + "\nFile: " + filePath + "\n\n");
-
-                    Debug.LogWarning(warningInfo
-                                     + Utility.GenerateExceptionDebugString(e));
-                }
-            }
-
-            jsonObject = default(T);
-            return false;
-        }
-
-        /// <summary>Writes an object to a file in the JSON Object format.</summary>
-        public static bool WriteJsonObjectFile<T>(string filePath,
-                                                  T jsonObject)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-
-            try
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-                File.WriteAllText(filePath, JsonConvert.SerializeObject(jsonObject));
-                return true;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to write json object to file."
-                                      + "\nFile: " + filePath + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-            }
-
-            return false;
-        }
-
-        /// <summary>Loads an entire binary file as a byte array.</summary>
-        public static byte[] LoadBinaryFile(string filePath)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-
-            byte[] fileData = null;
-            TryLoadBinaryFile(filePath, out fileData);
-            return fileData;
-        }
-
-        /// <summary>Loads an entire binary file as a byte array.</summary>
-        public static bool TryLoadBinaryFile(string filePath, out byte[] output)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-
-            if(File.Exists(filePath))
-            {
-                try
-                {
-                    output = File.ReadAllBytes(filePath);
-                    return true;
-                }
-                catch(Exception e)
-                {
-                    string warningInfo = ("[mod.io] Failed to read binary file."
-                                          + "\nFile: " + filePath + "\n\n");
-
-                    Debug.LogWarning(warningInfo
-                                     + Utility.GenerateExceptionDebugString(e));
-                }
-            }
-
-            output = null;
-            return false;
-        }
-
-        /// <summary>Writes an entire binary file.</summary>
-        public static bool WriteBinaryFile(string filePath,
-                                           byte[] data)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-
-            try
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-                File.WriteAllBytes(filePath, data);
-                return true;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to write binary file."
-                                      + "\nFile: " + filePath + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-            }
-
-            return false;
-        }
-
-        /// <summary>Loads the image data from a file into a new Texture.</summary>
-        public static Texture2D ReadImageFile(string filePath)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-
-            Texture2D texture = null;
-            TryReadImageFile(filePath, out texture);
+            Texture2D texture = new Texture2D(0,0);
+            texture.LoadImage(data);
             return texture;
         }
 
-        /// <summary>Loads the image data from a file into a new Texture.</summary>
-        public static bool TryReadImageFile(string filePath, out Texture2D texture)
+        /// <summary>Attempts to parse the data of a JSON file.</summary>
+        public static bool TryParseUTF8JSONData<T>(byte[] data, out T jsonObject)
         {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
+            bool success = false;
 
-            if(File.Exists(filePath))
+            if(data != null)
             {
-                byte[] imageData;
-                bool readSuccessful = IOUtilities.TryLoadBinaryFile(filePath, out imageData);
-
-                if(readSuccessful
-                   && imageData != null
-                   && imageData.Length > 0)
+                try
                 {
-                    texture = new Texture2D(0,0);
-                    texture.LoadImage(imageData);
-                    return true;
+                    string dataString = Encoding.UTF8.GetString(data);
+                    jsonObject = JsonConvert.DeserializeObject<T>(dataString);
+                    success = true;
+                }
+                catch
+                {
+                    jsonObject = default(T);
+                    success = false;
                 }
             }
+            else
+            {
+                jsonObject = default(T);
+            }
 
-            texture = null;
-            return false;
+            return success;
         }
 
-        /// <summary>Writes a texture to a PNG file.</summary>
-        public static bool WritePNGFile(string filePath,
-                                        Texture2D texture)
+        /// <summary>Generates the byte array for a JSON representation.</summary>
+        public static byte[] GenerateUTF8JSONData<T>(T jsonObject)
         {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
+            Debug.Assert(jsonObject != null);
 
-            Debug.Assert(Path.GetExtension(filePath).Equals(".png"),
-                         "[mod.io] Images can only be saved in PNG format."
-                         + "\n" + filePath
-                         + " is an invalid file path.");
-
-            return IOUtilities.WriteBinaryFile(filePath, texture.EncodeToPNG());
-        }
-
-        /// <summary>Deletes a file.</summary>
-        public static bool DeleteFile(string filePath)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
+            byte[] data = null;
 
             try
             {
-                if(File.Exists(filePath)) { File.Delete(filePath); }
-                return true;
+                string dataString = JsonConvert.SerializeObject(jsonObject);
+                data = Encoding.UTF8.GetBytes(dataString);
             }
-            catch(Exception e)
+            catch
             {
-                string warningInfo = ("[mod.io] Failed to delete file."
-                                      + "\nFile: " + filePath + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
+                data = null;
             }
 
-            return false;
-        }
-
-        /// <summary>Creates a directory.</summary>
-        public static bool CreateDirectory(string directoryPath)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(directoryPath));
-
-            try
-            {
-                Directory.CreateDirectory(directoryPath);
-                return true;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to create directory."
-                                      + "\nDirectory: " + directoryPath + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-            }
-
-            return false;
-        }
-
-        /// <summary>Deletes a directory.</summary>
-        public static bool DeleteDirectory(string directoryPath)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(directoryPath));
-
-            try
-            {
-                if(Directory.Exists(directoryPath))
-                {
-                    Directory.Delete(directoryPath, true);
-                }
-
-                return true;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to delete directory."
-                                      + "\nDirectory: " + directoryPath + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-            }
-
-            return false;
+            return data;
         }
 
         /// <summary>Creates a path using System.IO.Path.Combine().</summary>
@@ -262,61 +82,12 @@ namespace ModIO
                 {
                     if(!string.IsNullOrEmpty(pathElem))
                     {
-                        retVal = System.IO.Path.Combine(retVal, pathElem);
+                        retVal = Path.Combine(retVal, pathElem);
                     }
                 }
             }
 
             return retVal;
-        }
-
-        /// <summary>Gets the size (in bytes) of a given file.</summary>
-        public static Int64 GetFileSize(string filePath)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-            Debug.Assert(File.Exists(filePath));
-
-            try
-            {
-                return (new FileInfo(filePath)).Length;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to calculate file size."
-                                      + "\nFile: " + filePath + "\n\n");
-
-                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
-            }
-            return -1;
-        }
-
-        /// <summary>Calculates the MD5 Hash for a given file.</summary>
-        public static string CalculateFileMD5Hash(string filePath)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-            Debug.Assert(File.Exists(filePath));
-
-            try
-            {
-                using (var md5 = System.Security.Cryptography.MD5.Create())
-                {
-                    using (var stream = System.IO.File.OpenRead(filePath))
-                    {
-                        var hash = md5.ComputeHash(stream);
-                        string hashString = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                        return hashString;
-                    }
-                }
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to calculate file hash."
-                                      + "\nFile: " + filePath + "\n\n");
-
-                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
-            }
-
-            return null;
         }
 
         /// <summary>Gets the name of the item (file/folder) at the given path.</summary>
@@ -345,7 +116,6 @@ namespace ModIO
 
             return folderName;
         }
-
 
         /// <summary>Collection of invalid Windows file names.</summary>
         public static readonly string[] INVALID_FILENAMES_WIN = new string[]
@@ -442,6 +212,166 @@ namespace ModIO
             }
 
             return input + extension;
+        }
+
+        // ---------[ Obsolete ]---------
+        /// <summary>[Obsolete] Loads an entire binary file as a byte array.</summary>
+        [Obsolete("Use LocalDataStorage.ReadFile() instead.")]
+        public static bool TryLoadBinaryFile(string filePath, out byte[] output)
+        {
+            bool success = false;
+            byte[] data = null;
+
+            success = LocalDataStorage.ReadFile(filePath, out data);
+            output = data;
+
+            return success;
+        }
+
+        /// <summary>[Obsolete] Loads an entire binary file as a byte array.</summary>
+        [Obsolete("Use LocalDataStorage.ReadFile() instead.")]
+        public static byte[] LoadBinaryFile(string filePath)
+        {
+            byte[] data = null;
+
+            LocalDataStorage.ReadFile(filePath, out data);
+
+            return data;
+        }
+
+        /// <summary>[Obsolete] Loads the image data from a file into a new Texture.</summary>
+        [Obsolete("Use LocalDataStorage.ReadFile() and IOUtilities.ParseImageData() instead.")]
+        public static Texture2D ReadImageFile(string filePath)
+        {
+            Texture2D parsed = null;
+            bool success = false;
+            byte[] data = null;
+
+            success = LocalDataStorage.ReadFile(filePath, out data);
+
+            if(success)
+            {
+                parsed = IOUtilities.ParseImageData(data);
+            }
+
+            return parsed;
+        }
+
+        /// <summary>[Obsolete] Loads the image data from a file into a new Texture.</summary>
+        [Obsolete("Use LocalDataStorage.ReadFile() and IOUtilities.ParseImageData() instead.")]
+        public static bool TryReadImageFile(string filePath, out Texture2D texture)
+        {
+            Texture2D parsed = null;
+            bool success = false;
+            byte[] data = null;
+
+            success = LocalDataStorage.ReadFile(filePath, out data);
+
+            if(success)
+            {
+                parsed = IOUtilities.ParseImageData(data);
+            }
+
+            texture = parsed;
+            return success;
+        }
+
+        /// <summary>[Obsolete] Reads an entire file and parses the JSON Object it contains.</summary>
+        [Obsolete("Use LocalDataStorage.ReadJSONFile() instead.")]
+        public static T ReadJsonObjectFile<T>(string filePath)
+        {
+            T parsed;
+
+            LocalDataStorage.ReadJSONFile<T>(filePath, out parsed);
+
+            return parsed;
+        }
+
+        /// <summary>[Obsolete] Reads an entire file and parses the JSON Object it contains.</summary>
+        [Obsolete("Use LocalDataStorage.ReadJSONFile() instead.")]
+        public static bool TryReadJsonObjectFile<T>(string filePath, out T jsonObject)
+        {
+            T parsed;
+            bool success = false;
+
+            success = LocalDataStorage.ReadJSONFile<T>(filePath, out parsed);
+            jsonObject = parsed;
+
+            return success;
+        }
+
+        /// <summary>[Obsolete] Writes an entire binary file.</summary>
+        [Obsolete("Use LocalDataStorage.WriteFile() instead.")]
+        public static bool WriteBinaryFile(string filePath, byte[] data)
+        {
+            return LocalDataStorage.WriteFile(filePath, data);
+        }
+
+        /// <summary>[Obsolete] Writes a texture to a PNG file.</summary>
+        [Obsolete("Use LocalDataStorage.WriteFile() and Texture2D.EncodeToPNG() instead.")]
+        public static bool WritePNGFile(string filePath, Texture2D texture)
+        {
+            byte[] data = null;
+
+            if(texture != null)
+            {
+                data = texture.EncodeToPNG();
+
+                if(data != null)
+                {
+                    return LocalDataStorage.WriteFile(filePath, data);
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>[Obsolete] Writes an object to a file in the JSON Object format.</summary>
+        [Obsolete("Use LocalDataStorage.WriteJSONFile() instead.")]
+        public static bool WriteJsonObjectFile<T>(string filePath,
+                                                  T jsonObject)
+        {
+            return LocalDataStorage.WriteJSONFile<T>(filePath, jsonObject);;
+        }
+
+        /// <summary>[Obsolete] Deletes a file.</summary>
+        [Obsolete("Use LocalDataStorage.DeleteFile() instead.")]
+        public static bool DeleteFile(string filePath)
+        {
+            return LocalDataStorage.DeleteFile(filePath);
+        }
+
+        /// <summary>[Obsolete] Creates a directory.</summary>
+        [Obsolete("Use LocalDataStorage.CreateDirectory() instead.")]
+        public static bool CreateDirectory(string directoryPath)
+        {
+            return LocalDataStorage.CreateDirectory(directoryPath);
+        }
+
+        /// <summary>[Obsolete] Deletes a directory.</summary>
+        [Obsolete("Use LocalDataStorage.DeleteDirectory() instead.")]
+        public static bool DeleteDirectory(string directoryPath)
+        {
+            return LocalDataStorage.DeleteDirectory(directoryPath);
+        }
+
+        /// <summary>[Obsolete] Gets the size (in bytes) of a given file.</summary>
+        [Obsolete("Use LocalDataStorage.GetFileSize() instead.")]
+        public static Int64 GetFileSize(string filePath)
+        {
+            return LocalDataStorage.GetFileSize(filePath);
+        }
+
+        /// <summary>[Obsolete] Calculates the MD5 Hash for a given file.</summary>
+        [Obsolete("Use LocalDataStorage.GetFileSizeAndHash() instead.")]
+        public static string CalculateFileMD5Hash(string filePath)
+        {
+            Int64 byteCount;
+            string hash;
+
+            LocalDataStorage.GetFileSizeAndHash(filePath, out byteCount, out hash);
+
+            return hash;
         }
     }
 }

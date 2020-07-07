@@ -117,7 +117,7 @@ namespace ModIO.UI
                                                 this.container.DisplayModfiles(r.items);
                                             }
                                          },
-                                         WebRequestError.LogAsWarning);
+                                         null);
             }
         }
     }

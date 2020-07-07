@@ -210,7 +210,7 @@ namespace ModIO
             // set filter and initial pagination
             RequestFilter subscriptionFilter = new RequestFilter();
             subscriptionFilter.AddFieldFilter(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
-                                              new EqualToFilter<int>(PluginSettings.data.gameId));
+                                              new EqualToFilter<int>(PluginSettings.GAME_ID));
 
             APIPaginationParameters pagination = new APIPaginationParameters()
             {
@@ -591,59 +591,38 @@ namespace ModIO
                 case ExternalAuthenticationProvider.OculusRift:
                 {
                     string token = authData.ticket;
-                    string nonce;
-                    string userIdString;
-                    int userId;
+                    string nonce = null;
+                    string userIdString = null;
+                    int userId = -1;
+                    string errorMessage = null;
 
                     if(authData.additionalData == null)
                     {
-                        var error = WebRequestError.GenerateLocal("Unable to authenticate using stored Oculus Rift user data."
-                                                                  + " The user id and nonce are missing.");
-                        WebRequestError.LogAsWarning(error);
-
-                        if(onError != null)
-                        {
-                            onError(error);
-                        }
-
-                        return;
+                        errorMessage = "The user id and nonce are missing.";
                     }
                     else if(!authData.additionalData.TryGetValue(ExternalAuthenticationData.OculusRiftKeys.NONCE, out nonce)
                             || string.IsNullOrEmpty(nonce))
                     {
-                        var error = WebRequestError.GenerateLocal("Unable to authenticate using stored Oculus Rift user data."
-                                                                  + " The nonce is missing.");
-                        WebRequestError.LogAsWarning(error);
-
-                        if(onError != null)
-                        {
-                            onError(error);
-                        }
-
-                        return;
+                        errorMessage = "The nonce is missing.";
                     }
                     else if(!authData.additionalData.TryGetValue(ExternalAuthenticationData.OculusRiftKeys.USER_ID, out userIdString)
                             || string.IsNullOrEmpty(userIdString))
                     {
-                        var error = WebRequestError.GenerateLocal("Unable to authenticate using stored Oculus Rift user data."
-                                                                  + " The user id is missing.");
-                        WebRequestError.LogAsWarning(error);
-
-                        if(onError != null)
-                        {
-                            onError(error);
-                        }
-
-                        return;
+                        errorMessage = "The user id is missing.";
                     }
                     else if(!int.TryParse(userIdString, out userId))
                     {
-                        var error = WebRequestError.GenerateLocal("Unable to authenticate using stored Oculus Rift user data."
-                                                                  + " The user id is not parseable as an integer.");
-                        WebRequestError.LogAsWarning(error);
+                        errorMessage = "The user id is not parseable as an integer.";
+                    }
+
+                    if(errorMessage != null)
+                    {
+                        Debug.LogWarning("[mod.io] Unable to authenticate using stored Oculus Rift user data.\n"
+                                         + errorMessage);
 
                         if(onError != null)
                         {
+                            var error = WebRequestError.GenerateLocal(errorMessage);
                             onError(error);
                         }
 

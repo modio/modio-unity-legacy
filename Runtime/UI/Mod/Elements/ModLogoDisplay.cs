@@ -107,7 +107,7 @@ namespace ModIO.UI
                     ImageRequestManager.instance.RequestModLogo(modId, locator, this.logoSize,
                                                                 displayDelegate,
                                                                 displayDelegate, // fallback
-                                                                WebRequestError.LogAsWarning);
+                                                                null);
                 }
             }
         }

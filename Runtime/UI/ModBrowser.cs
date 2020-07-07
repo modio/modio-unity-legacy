@@ -6,8 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-using Directory = System.IO.Directory;
-
 namespace ModIO.UI
 {
     public class ModBrowser : MonoBehaviour
@@ -88,66 +86,6 @@ namespace ModIO.UI
 
         private void Start()
         {
-            #if DEBUG
-            PluginSettings.Data settings = PluginSettings.data;
-
-            if(settings.gameId == GameProfile.NULL_ID)
-            {
-                Debug.LogError("[mod.io] Game ID is missing from the Plugin Settings.\n"
-                               + "This must be configured by selecting the mod.io > Edit Settings menu"
-                               + " item, or by clicking \'Plugin Settings' on this Mod Browser object,"
-                               + " before the mod.io Unity Plugin can be used.",
-                               this);
-
-                this.gameObject.SetActive(false);
-                return;
-            }
-            if(String.IsNullOrEmpty(settings.gameAPIKey))
-            {
-                Debug.LogError("[mod.io] Game API Key is missing from the Plugin Settings.\n"
-                               + "This must be configured by selecting the mod.io > Edit Settings menu"
-                               + " item, or by clicking \'Plugin Settings' on this Mod Browser object,"
-                               + " before the mod.io Unity Plugin can be used.",
-                               this);
-
-                this.gameObject.SetActive(false);
-                return;
-            }
-            if(String.IsNullOrEmpty(settings.apiURL))
-            {
-                Debug.LogError("[mod.io] API URL is missing from the Plugin Settings.\n"
-                               + "This must be configured by selecting the mod.io > Edit Settings menu"
-                               + " item, or by clicking \'Plugin Settings' on this Mod Browser object,"
-                               + " before the mod.io Unity Plugin can be used.",
-                               this);
-
-                this.gameObject.SetActive(false);
-                return;
-            }
-            if(String.IsNullOrEmpty(settings.cacheDirectory))
-            {
-                Debug.LogError("[mod.io] Cache Directory is missing from the Plugin Settings.\n"
-                               + "This must be configured by selecting the mod.io > Edit Settings menu"
-                               + " item, or by clicking \'Plugin Settings' on this Mod Browser object,"
-                               + " before the mod.io Unity Plugin can be used.",
-                               this);
-
-                this.gameObject.SetActive(false);
-                return;
-            }
-            if(String.IsNullOrEmpty(settings.installationDirectory))
-            {
-                Debug.LogError("[mod.io] Mod Installation Directory is missing from the Plugin Settings.\n"
-                               + "This must be configured by selecting the mod.io > Edit Settings menu"
-                               + " item, or by clicking \'Plugin Settings' on this Mod Browser object,"
-                               + " before the mod.io Unity Plugin can be used.",
-                               this);
-
-                this.gameObject.SetActive(false);
-                return;
-            }
-            #endif
-
             LoadLocalData();
         }
 
@@ -159,7 +97,7 @@ namespace ModIO.UI
             if(m_gameProfile == null)
             {
                 m_gameProfile = new GameProfile();
-                m_gameProfile.id = PluginSettings.data.gameId;
+                m_gameProfile.id = PluginSettings.GAME_ID;
             }
 
             IEnumerable<IGameProfileUpdateReceiver> updateReceivers = GetComponentsInChildren<IGameProfileUpdateReceiver>(true);
@@ -179,28 +117,10 @@ namespace ModIO.UI
                 yield break;
             }
 
-            if(!UserDataStorage.isInitialized)
-            {
-                bool isDone = false;
-                UserDataStorage.InitializeForUser(null, () => { isDone = true; });
-
-                while(!isDone) { yield return null; }
-            }
-
-            if(UserDataStorage.isInitialized)
-            {
-                bool isDone = false;
-                LocalUser.Load(() => isDone = true);
-
-                while(!isDone) { yield return null; }
-            }
-            else
-            {
-                Debug.LogWarning("[mod.io] Failed to initialize user data."
-                                 + " A temporary LocalUser instance will be created.");
-
-                LocalUser.instance = new LocalUser();
-            }
+            // load user
+            bool isDone = false;
+            LocalUser.Load(() => isDone = true);
+            while(!isDone) { yield return null; }
 
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
@@ -285,7 +205,7 @@ namespace ModIO.UI
                     int reattemptDelay = CalculateReattemptDelay(requestError);
                     if(requestError.isAuthenticationInvalid)
                     {
-                        if(string.IsNullOrEmpty(LocalUser.OAuthToken))
+                        if(LocalUser.AuthenticationState == AuthenticationState.NoToken)
                         {
                             Debug.LogWarning("[mod.io] Unable to retrieve the game profile from the mod.io"
                                              + " servers. Please check you Game Id and APIKey in the"
@@ -309,8 +229,8 @@ namespace ModIO.UI
                     else if(requestError.isRequestUnresolvable
                             || reattemptDelay < 0)
                     {
-                        Debug.LogWarning("[mod.io] Fetching Game Profile failed.\n"
-                                         + requestError.ToUnityDebugString());
+                        Debug.LogWarning("[mod.io] Fetching Game Profile failed.\n---[ Response Info ]---\n"
+                                         + DebugUtilities.GetResponseInfo(requestError.webRequest));
 
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    "Failed to collect game data from mod.io.\n"
@@ -382,8 +302,8 @@ namespace ModIO.UI
                     else if(requestError.isRequestUnresolvable
                             || reattemptDelay < 0)
                     {
-                        Debug.LogWarning("[mod.io] Fetching User Profile failed.\n"
-                                         + requestError.ToUnityDebugString());
+                        Debug.LogWarning("[mod.io] Fetching User Profile failed.\n---[ Response Info ]---\n"
+                                         + DebugUtilities.GetResponseInfo(requestError.webRequest));
 
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    "Failed to collect user profile data from mod.io.\n"
@@ -450,7 +370,7 @@ namespace ModIO.UI
             {
                 RequestFilter userSubFilter = new RequestFilter();
                 userSubFilter.AddFieldFilter(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
-                                          new EqualToFilter<int>(PluginSettings.data.gameId));
+                                          new EqualToFilter<int>(PluginSettings.GAME_ID));
 
                 requestDelegate
                     = (p) => APIClient.GetUserSubscriptions(userSubFilter, p,
@@ -675,7 +595,11 @@ namespace ModIO.UI
                 }
                 else
                 {
-                    ModManager.TryUninstallAllModVersions(idPair.modId);
+                    bool isUninstallDone = false;
+
+                    ModManager.UninstallMod(idPair.modId, (s) => isUninstallDone = true);
+
+                    while(!isUninstallDone) { yield return null; }
                 }
             }
 
@@ -1056,8 +980,8 @@ namespace ModIO.UI
                         else if(requestError.isRequestUnresolvable
                                 || reattemptDelay < 0)
                         {
-                            Debug.LogWarning("[mod.io] Polling for user updates failed."
-                                             + requestError.ToUnityDebugString());
+                            Debug.LogWarning("[mod.io] Polling for user updates failed.\n---[ Response Info ]---\n"
+                                             + DebugUtilities.GetResponseInfo(requestError.webRequest));
 
                             cancelUpdates = true;
                         }
@@ -1242,7 +1166,7 @@ namespace ModIO.UI
                     {
                         ModProfileRequestManager.instance.CacheModProfiles(r.items);
                     },
-                    WebRequestError.LogAsWarning);
+                    null);
                 }
 
                 // get new versions of subscribed mods
@@ -1335,8 +1259,7 @@ namespace ModIO.UI
         public void LogUserOut()
         {
             // push queued subs/unsubs
-            UserAccountManagement.PushSubscriptionChanges(null,
-                                                          (e) => WebRequestError.LogAsWarning(e[0]));
+            UserAccountManagement.PushSubscriptionChanges(null, null);
 
             // - clear current user -
             LocalUser oldUser = LocalUser.instance;
@@ -1416,7 +1339,7 @@ namespace ModIO.UI
             // remove from disk
             CacheClient.DeleteAllModfileAndBinaryData(modId);
 
-            ModManager.TryUninstallAllModVersions(modId);
+            ModManager.UninstallMod(modId, null);
 
             DisableMod(modId);
 
@@ -1489,7 +1412,7 @@ namespace ModIO.UI
                     // remove from disk
                     CacheClient.DeleteAllModfileAndBinaryData(modId);
 
-                    ModManager.TryUninstallAllModVersions(modId);
+                    ModManager.UninstallMod(modId, null);
 
                     // disable
                     LocalUser.EnabledModIds.Remove(modId);
@@ -1650,10 +1573,10 @@ namespace ModIO.UI
         [Obsolete("No longer used.")]
         public const string MANIFEST_FILENAME = "browser_manifest.data";
 
-        [Obsolete("Use PluginSettings.data.logAllRequests instead")]
+        [Obsolete("Use PluginSettings.REQUEST_LOGGING instead")]
         public bool debugAllAPIRequests
         {
-            get { return PluginSettings.data.logAllRequests; }
+            get { return PluginSettings.REQUEST_LOGGING.logAllResponses; }
         }
         [Obsolete][HideInInspector]
         public ExplorerView explorerView;

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 using DateTime = System.DateTime;
@@ -17,7 +17,13 @@ namespace ModIO
             [System.Serializable]
             public class APIError
             {
+                [JsonProperty("error_ref")]
+                public int errorReference = -1;
+
+                [JsonProperty("message")]
                 public string message = null;
+
+                [JsonProperty("errors")]
                 public Dictionary<string, string> errors = null;
             }
 
@@ -30,6 +36,9 @@ namespace ModIO
 
         /// <summary>The ServerTimeStamp at which the request was received.</summary>
         public int timeStamp;
+
+        /// <summary>The mod.io error reference code.</summary>
+        public int errorReference;
 
         /// <summary>The message returned by the API explaining the error.</summary>
         public string errorMessage;
@@ -52,52 +61,6 @@ namespace ModIO
 
         /// <summary>A player/user-friendly message to display on the UI.</summary>
         public string displayMessage;
-
-        // --- OBSOLETE FIELDS ---
-        [System.Obsolete("Use webRequest.responseCode instead")]
-        public int responseCode
-        {
-            get { return (webRequest != null ? (int)webRequest.responseCode : -1); }
-        }
-        [System.Obsolete("Use webRequest.method instead")]
-        public string method
-        {
-            get { return (webRequest != null ? webRequest.method : "LOCAL"); }
-        }
-        [System.Obsolete("Use webRequest.url instead")]
-        public string url
-        {
-            get { return (webRequest != null ? webRequest.url : string.Empty); }
-        }
-        [System.Obsolete("Use webRequest.GetResponseHeaders() instead")]
-        public Dictionary<string, string> responseHeaders
-        {
-            get { return (webRequest != null ? webRequest.GetResponseHeaders() : null); }
-        }
-
-        [System.Obsolete("Use webRequest.downloadHandler.text instead")]
-        public string responseBody
-        {
-            get
-            {
-                if(webRequest != null
-                   && webRequest.downloadHandler != null
-                   && !(webRequest.downloadHandler is DownloadHandlerFile))
-                {
-                    return webRequest.downloadHandler.text;
-                }
-                return string.Empty;
-            }
-        }
-
-        /// <summary>[Obsolete] The message returned by the API explaining the error.</summary>
-        [System.Obsolete("Use WebRequestError.errorMessage instead")]
-        public string message
-        {
-            get { return this.errorMessage; }
-            set { this.errorMessage = value; }
-        }
-
 
         // ---------[ INITIALIZATION ]---------
         public static WebRequestError GenerateFromWebRequest(UnityWebRequest webRequest)
@@ -122,6 +85,7 @@ namespace ModIO
             {
                 webRequest = null,
                 timeStamp = ServerTimeStamp.Now,
+                errorReference = 0,
                 errorMessage = errorMessage,
                 displayMessage = errorMessage,
 
@@ -186,6 +150,7 @@ namespace ModIO
                     }
 
                     // extract values
+                    this.errorReference = errorWrapper.error.errorReference;
                     this.errorMessage = errorWrapper.error.message;
                     this.fieldValidationMessages = errorWrapper.error.errors;
                 }
@@ -405,74 +370,70 @@ namespace ModIO
             }
         }
 
-        // ---------[ HELPER FUNCTIONS ]---------
-        public string ToUnityDebugString()
+        // ---------[ Obsolete ]---------
+        [System.Obsolete("Use webRequest.responseCode instead")]
+        public int responseCode
         {
-            var debugString = new System.Text.StringBuilder();
-
-            string headerString = (this.webRequest == null ? "REQUEST FAILED LOCALLY"
-                                   : "WEB REQUEST FAILED");
-            debugString.AppendLine(headerString);
-
-            if(this.webRequest != null)
-            {
-                debugString.AppendLine("------[ Request Data ]------");
-                debugString.AppendLine(APIClient.GenerateRequestDebugString(this.webRequest));
-
-                debugString.AppendLine("------[ Response Data ]------");
-                debugString.AppendLine("Time Stamp: " + this.timeStamp + " ("
-                                       + ServerTimeStamp.ToLocalDateTime(this.timeStamp) + ")");
-
-                var responseHeaders = webRequest.GetResponseHeaders();
-                if(responseHeaders != null
-                   && responseHeaders.Count > 0)
-                {
-                    debugString.AppendLine("Response Headers:");
-                    foreach(var kvp in responseHeaders)
-                    {
-                        debugString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
-                    }
-                }
-                debugString.AppendLine("Response Code: " + this.webRequest.responseCode.ToString());
-
-                debugString.AppendLine("errorMessage: " + this.errorMessage);
-
-                if(this.fieldValidationMessages != null
-                   && this.fieldValidationMessages.Count > 0)
-                {
-                    debugString.AppendLine("Field Validation Messages:");
-                    foreach(var kvp in fieldValidationMessages)
-                    {
-                        debugString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
-                    }
-                }
-
-                debugString.AppendLine("isAuthenticationInvalid = "    + this.isAuthenticationInvalid.ToString());
-                debugString.AppendLine("isServerUnreachable = "        + this.isServerUnreachable.ToString());
-                debugString.AppendLine("isRequestUnresolvable = "      + this.isRequestUnresolvable.ToString());
-                debugString.AppendLine("limitedUntilTimeStamp = "      + this.limitedUntilTimeStamp.ToString());
-                debugString.AppendLine("displayMessage = "             + this.displayMessage);
-
-                string contentText = "[NULL]";
-                if(this.webRequest.downloadHandler != null)
-                {
-                    try
-                    {
-                        contentText = this.webRequest.downloadHandler.text;
-                    }
-                    catch
-                    {
-                        contentText = "[NON-TEXT DATA]";
-                    }
-                }
-            }
-
-            return debugString.ToString();
+            get { return (webRequest != null ? (int)webRequest.responseCode : -1); }
+        }
+        [System.Obsolete("Use webRequest.method instead")]
+        public string method
+        {
+            get { return (webRequest != null ? webRequest.method : "LOCAL"); }
+        }
+        [System.Obsolete("Use webRequest.url instead")]
+        public string url
+        {
+            get { return (webRequest != null ? webRequest.url : string.Empty); }
+        }
+        [System.Obsolete("Use webRequest.GetResponseHeaders() instead")]
+        public Dictionary<string, string> responseHeaders
+        {
+            get { return (webRequest != null ? webRequest.GetResponseHeaders() : null); }
         }
 
+        [System.Obsolete("Use webRequest.downloadHandler.text instead")]
+        public string responseBody
+        {
+            get
+            {
+                if(webRequest != null
+                   && webRequest.downloadHandler != null
+                   && !(webRequest.downloadHandler is DownloadHandlerFile))
+                {
+                    return webRequest.downloadHandler.text;
+                }
+                return string.Empty;
+            }
+        }
+
+        /// <summary>[Obsolete] The message returned by the API explaining the error.</summary>
+        [System.Obsolete("Use WebRequestError.errorMessage instead")]
+        public string message
+        {
+            get { return this.errorMessage; }
+            set { this.errorMessage = value; }
+        }
+
+        [System.Obsolete("Set PluginSettings.requestLogging.errorsAsWarnings instead.")]
         public static void LogAsWarning(WebRequestError error)
         {
-            Debug.LogWarning(error.ToUnityDebugString());
+            Debug.LogWarning("[mod.io] Web Request Failed\n"
+                             + error.ToUnityDebugString());
+        }
+
+        [System.Obsolete("Use DebugUtilities.GetResponseInfo() instead.")]
+        public string ToUnityDebugString()
+        {
+            if(this.webRequest == null)
+            {
+                return ("Request failed prior to being sent.\n"
+                        + this.errorMessage);
+            }
+            else
+            {
+                return DebugUtilities.GetResponseInfo(this.webRequest);
+            }
         }
     }
 }

@@ -19,16 +19,20 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear All Cached Data", false)]
         public static void ClearCache()
         {
-            if(IOUtilities.DeleteDirectory(CacheClient.cacheDirectory))
+            if(LocalDataStorage.DeleteDirectory(PluginSettings.CACHE_DIRECTORY))
             {
                 Debug.Log("[mod.io] Cache Cleared.");
+            }
+            else
+            {
+                Debug.Log("[mod.io] Failed to clear cache.");
             }
         }
 
         [MenuItem("Tools/mod.io/Debugging/Clear All User Data", false)]
         public static void ClearAllUserData()
         {
-            UserDataStorage.WriteFileCallback onClear = (success) =>
+            UserDataStorage.ClearActiveUserData((success) =>
             {
                 LocalUser.instance = new LocalUser();
                 LocalUser.isLoaded = true;
@@ -41,41 +45,47 @@ namespace ModIO.EditorCode
                 {
                     Debug.Log("[mod.io] Failed to clear User Data.");
                 }
-            };
-
-            if(!UserDataStorage.isInitialized)
-            {
-                UserDataStorage.InitializeForUser(null, () => UserDataStorage.ClearAllData(onClear));
-            }
-            else
-            {
-                UserDataStorage.ClearAllData(onClear);
-            }
+            });
         }
+
         [MenuItem("Tools/mod.io/Debugging/Clear Game Data", false)]
         public static void ClearCachedGameProfile()
         {
-            if(IOUtilities.DeleteFile(CacheClient.gameProfileFilePath))
+            if(LocalDataStorage.DeleteFile(CacheClient.gameProfileFilePath))
             {
                 Debug.Log("[mod.io] Cached Game Data Deleted.");
             }
+            else
+            {
+                Debug.Log("[mod.io] Failed to delete Cached Game Data.");
+            }
         }
+
         [MenuItem("Tools/mod.io/Debugging/Clear Mod Data", false)]
         public static void ClearCachedModData()
         {
-            string modDir = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
-            if(IOUtilities.DeleteDirectory(modDir))
+            string modDir = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
+
+            if(LocalDataStorage.DeleteDirectory(modDir))
             {
                 Debug.Log("[mod.io] Cached Mod Data Deleted.");
+            }
+            else
+            {
+                Debug.Log("[mod.io] Failed to clear cached Mod Data.");
             }
         }
 
         [MenuItem("Tools/mod.io/Debugging/Delete Installed Mods", false)]
         public static void RemoveAllInstalledMods()
         {
-            if(IOUtilities.DeleteDirectory(ModManager.installationDirectory))
+            if(LocalDataStorage.DeleteDirectory(PluginSettings.INSTALLATION_DIRECTORY))
             {
                 Debug.Log("[mod.io] Mod Installation Data removed.");
+            }
+            else
+            {
+                Debug.Log("[mod.io] Failed to removed installed mods.");
             }
         }
 
