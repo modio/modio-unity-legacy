@@ -251,14 +251,17 @@ namespace ModIO
                 modIdFilter.Add(ModProfile.NULL_ID);
             }
 
-            List<string> directories = new List<string>();
-            var installedModInfo = ModManager.IterateInstalledMods(modIdFilter);
-            foreach(var kvp in installedModInfo)
+            ModManager.QueryInstalledMods(modIdFilter, (installedMods) =>
             {
-                directories.Add(kvp.Value);
-            }
+                List<string> directories = new List<string>();
 
-            onComplete.Invoke(directories);
+                foreach(var kvp in installedMods)
+                {
+                    directories.Add(kvp.Value);
+                }
+
+                onComplete.Invoke(directories);
+            });
         }
 
         /// <summary>Returns all of the mod version info of installed mods.</summary>
@@ -272,17 +275,20 @@ namespace ModIO
                 modIdFilter = new List<int>(LocalUser.EnabledModIds);
             }
 
-            List<ModfileIdPair> versions = new List<ModfileIdPair>();
-            var installedModInfo = ModManager.IterateInstalledMods(modIdFilter);
-            foreach(var kvp in installedModInfo)
+            ModManager.QueryInstalledMods(modIdFilter, (installedMods) =>
             {
-                if(kvp.Key.modId != ModProfile.NULL_ID)
-                {
-                    versions.Add(kvp.Key);
-                }
-            }
+                List<ModfileIdPair> versions = new List<ModfileIdPair>();
 
-            onComplete.Invoke(versions);
+                foreach(var kvp in installedMods)
+                {
+                    if(kvp.Key.modId != ModProfile.NULL_ID)
+                    {
+                        versions.Add(kvp.Key);
+                    }
+                }
+
+                onComplete.Invoke(versions);
+            });
         }
 
         /// <summary>Returns the data of all the mods installed.</summary>
