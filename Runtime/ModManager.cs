@@ -177,28 +177,30 @@ namespace ModIO
             // Don't accidentally uninstall player-added mods!
             Debug.Assert(modId != ModProfile.NULL_ID);
 
-            var installedMods = new List<KeyValuePair<ModfileIdPair, string>>(ModManager.IterateInstalledMods(new int[] { modId }));
-            List<ModfileIdPair> successfulUninstalls = new List<ModfileIdPair>();
-
-            foreach(var installInfo in installedMods)
+            ModManager.QueryInstalledMods(new int[] { modId }, (installedMods) =>
             {
-                if(LocalDataStorage.DeleteDirectory(installInfo.Value))
+                List<ModfileIdPair> successfulUninstalls = new List<ModfileIdPair>();
+
+                foreach(var installInfo in installedMods)
                 {
-                    successfulUninstalls.Add(installInfo.Key);
+                    if(LocalDataStorage.DeleteDirectory(installInfo.Value))
+                    {
+                        successfulUninstalls.Add(installInfo.Key);
+                    }
                 }
-            }
 
-            // notify uninstall listeners
-            if(ModManager.onModBinariesUninstalled != null)
-            {
-                ModManager.onModBinariesUninstalled(successfulUninstalls.ToArray());
-            }
+                // notify uninstall listeners
+                if(ModManager.onModBinariesUninstalled != null)
+                {
+                    ModManager.onModBinariesUninstalled(successfulUninstalls.ToArray());
+                }
 
-            // invoke callback
-            if(onComplete != null)
-            {
-                onComplete.Invoke(successfulUninstalls.Count == installedMods.Count);
-            }
+                // invoke callback
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(successfulUninstalls.Count == installedMods.Count);
+                }
+            });
         }
 
         /// <summary>Removes a specific version of a mod from the installs folder.</summary>
