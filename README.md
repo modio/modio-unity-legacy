@@ -27,14 +27,14 @@ The best way is to install this library as a [Git package](https://docs.unity3d.
 First, make sure that you to have Git installed and available in your system's PATH.
 After that you need to add the following line to your project's `manifest.json`:
 ```
-"com.modio.unityplugin": "https://github.com/modio/UnityPlugin.git",
+"com.modio.unityplugin": "https://github.com/modio/UnityPlugin-UPM.git",
 ```
 
 It should look like this, notice the comma at the end of the line:
 ```
 {
   "dependencies": {
-    "com.modio.unityplugin": "https://github.com/modio/UnityPlugin.git",
+    "com.modio.unityplugin": "https://github.com/modio/UnityPlugin-UPM.git",
     "com.unity.package-manager-ui": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
