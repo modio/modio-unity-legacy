@@ -283,47 +283,50 @@ namespace ModIO
         }
 
         /// <summary>Returns the data of all the mods installed.</summary>
-        public static IEnumerable<KeyValuePair<ModfileIdPair, string>> IterateInstalledMods(IList<int> modIdFilter)
+        public static void QueryInstalledMods(IList<int> modIdFilter, Action<IDictionary<ModfileIdPair, string>> onComplete)
         {
+            Debug.Assert(onComplete != null);
+
+            Dictionary<ModfileIdPair, string> installedModMap = new Dictionary<ModfileIdPair, string>();
+
             IList<string> modDirectories = LocalDataStorage.GetDirectories(PluginSettings.INSTALLATION_DIRECTORY);
-            if(modDirectories == null)
+            if(modDirectories != null)
             {
-                yield break;
-            }
-
-            foreach(string modDirectory in modDirectories)
-            {
-                string folderName = IOUtilities.GetPathItemName(modDirectory);
-                string[] folderNameParts = folderName.Split('_');
-
-                int modId;
-                int modfileId;
-                if(!(folderNameParts.Length > 0
-                     && Int32.TryParse(folderNameParts[0], out modId)))
+                foreach(string modDirectory in modDirectories)
                 {
-                    modId = ModProfile.NULL_ID;
-                }
+                    string folderName = IOUtilities.GetPathItemName(modDirectory);
+                    string[] folderNameParts = folderName.Split('_');
 
-                if(modIdFilter == null
-                   || modIdFilter.Contains(modId))
-                {
-                    if(!(modId != ModProfile.NULL_ID
-                         && folderNameParts.Length > 1
-                         && Int32.TryParse(folderNameParts[1], out modfileId)))
+                    int modId;
+                    int modfileId;
+                    if(!(folderNameParts.Length > 0
+                         && Int32.TryParse(folderNameParts[0], out modId)))
                     {
-                        modfileId = Modfile.NULL_ID;
+                        modId = ModProfile.NULL_ID;
                     }
 
-                    ModfileIdPair idPair = new ModfileIdPair()
+                    if(modIdFilter == null
+                       || modIdFilter.Contains(modId))
                     {
-                        modId = modId,
-                        modfileId = modfileId,
-                    };
+                        if(!(modId != ModProfile.NULL_ID
+                             && folderNameParts.Length > 1
+                             && Int32.TryParse(folderNameParts[1], out modfileId)))
+                        {
+                            modfileId = Modfile.NULL_ID;
+                        }
 
-                    var info = new KeyValuePair<ModfileIdPair, string>(idPair, modDirectory);
-                    yield return info;
+                        ModfileIdPair idPair = new ModfileIdPair()
+                        {
+                            modId = modId,
+                            modfileId = modfileId,
+                        };
+
+                        installedModMap.Add(idPair, modDirectory);
+                    }
                 }
             }
+
+            onComplete.Invoke(installedModMap);
         }
 
         /// <summary>Downloads and installs a single mod</summary>
@@ -2046,6 +2049,16 @@ namespace ModIO
             List<ModfileIdPair> result = null;
 
             ModManager.QueryInstalledModVersions(excludeDisabledMods, (r) => result = r);
+            return result;
+        }
+
+        /// <summary>[Obsolete] Returns the data of all the mods installed.</summary>
+        [Obsolete("Use QueryInstalledMods(bool, Action<IDictionary<ModfileIdPair, string>>) instead.")]
+        public static IEnumerable<KeyValuePair<ModfileIdPair, string>> IterateInstalledMods(IList<int> modIdFilter)
+        {
+            IDictionary<ModfileIdPair, string> result = null;
+
+            ModManager.QueryInstalledMods(modIdFilter, (r) => result = r);
             return result;
         }
 
