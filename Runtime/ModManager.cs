@@ -202,7 +202,7 @@ namespace ModIO
         }
 
         /// <summary>Removes a specific version of a mod from the installs folder.</summary>
-        public static bool TryUninstallModVersion(int modId, int modfileId)
+        public static void TryUninstallModVersion(int modId, int modfileId, Action<bool> onComplete)
         {
             // Don't accidentally uninstall player-added mods!
             Debug.Assert(modId != ModProfile.NULL_ID);
@@ -229,7 +229,10 @@ namespace ModIO
                 ModManager.onModBinariesUninstalled(new ModfileIdPair[] { idPair });
             }
 
-            return succeeded;
+            if(onComplete != null)
+            {
+                onComplete.Invoke(succeeded);
+            }
         }
 
         /// <summary>Returns all of the mod directories of installed mods.</summary>
