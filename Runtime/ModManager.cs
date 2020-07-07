@@ -259,8 +259,10 @@ namespace ModIO
         }
 
         /// <summary>Returns all of the mod version info of installed mods.</summary>
-        public static List<ModfileIdPair> GetInstalledModVersions(bool excludeDisabledMods)
+        public static void QueryInstalledModVersions(bool excludeDisabledMods, Action<List<ModfileIdPair>> onComplete)
         {
+            Debug.Assert(onComplete != null);
+
             List<int> modIdFilter = null;
             if(excludeDisabledMods)
             {
@@ -277,7 +279,7 @@ namespace ModIO
                 }
             }
 
-            return versions;
+            onComplete.Invoke(versions);
         }
 
         /// <summary>Returns the data of all the mods installed.</summary>
@@ -2024,6 +2026,16 @@ namespace ModIO
             List<string> result = null;
 
             ModManager.QueryInstalledModDirectories(excludeDisabledMods, (r) => result = r);
+            return result;
+        }
+
+        /// <summary>[Obsolete] Returns all of the mod version info of installed mods.</summary>
+        [Obsolete("Use QueryInstalledModVersions(bool, Action<List<ModfileIdPair>>) instead.")]
+        public static List<ModfileIdPair> GetInstalledModVersions(bool excludeDisabledMods)
+        {
+            List<ModfileIdPair> result = null;
+
+            ModManager.QueryInstalledModVersions(excludeDisabledMods, (r) => result = r);
             return result;
         }
 
