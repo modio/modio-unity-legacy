@@ -2007,6 +2007,26 @@ namespace ModIO
             return result;
         }
 
+        /// <summary>[Obsolete] Removes a specific version of a mod from the installs folder.</summary>
+        [Obsolete("Use TryUninstallModVersion(int, int, Action<bool>) instead.")]
+        public static bool TryUninstallModVersion(int modId, int modfileId)
+        {
+            bool result = false;
+
+            ModManager.TryUninstallModVersion(modId, modfileId, (b) => result = b);
+            return result;
+        }
+
+        /// <summary>[Obsolete] Returns all of the mod directories of installed mods.</summary>
+        [Obsolete("Use GetInstalledModDirectories(bool, Action<List<string>>) instead.")]
+        public static List<string> GetInstalledModDirectories(bool excludeDisabledMods)
+        {
+            List<string> result = null;
+
+            ModManager.GetInstalledModDirectories(excludeDisabledMods, (r) => result = r);
+            return result;
+        }
+
         #pragma warning restore 0067
     }
 }
