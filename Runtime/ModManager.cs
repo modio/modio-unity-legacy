@@ -209,32 +209,33 @@ namespace ModIO
             // Don't accidentally uninstall player-added mods!
             Debug.Assert(modId != ModProfile.NULL_ID);
 
-            var installedMods = ModManager.IterateInstalledMods(new int[] { modId });
-
-            bool succeeded = true;
-            foreach(var installInfo in installedMods)
+            ModManager.QueryInstalledMods(new int[] { modId }, (installedMods) =>
             {
-                if(installInfo.Key.modfileId == modfileId)
+                bool succeeded = true;
+                foreach(var installInfo in installedMods)
                 {
-                    succeeded = LocalDataStorage.DeleteDirectory(installInfo.Value) && succeeded;
+                    if(installInfo.Key.modfileId == modfileId)
+                    {
+                        succeeded = LocalDataStorage.DeleteDirectory(installInfo.Value) && succeeded;
+                    }
                 }
-            }
 
-            if(succeeded && ModManager.onModBinariesUninstalled != null)
-            {
-                ModfileIdPair idPair = new ModfileIdPair()
+                if(succeeded && ModManager.onModBinariesUninstalled != null)
                 {
-                    modId = modId,
-                    modfileId = modfileId,
-                };
+                    ModfileIdPair idPair = new ModfileIdPair()
+                    {
+                        modId = modId,
+                        modfileId = modfileId,
+                    };
 
-                ModManager.onModBinariesUninstalled(new ModfileIdPair[] { idPair });
-            }
+                    ModManager.onModBinariesUninstalled(new ModfileIdPair[] { idPair });
+                }
 
-            if(onComplete != null)
-            {
-                onComplete.Invoke(succeeded);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(succeeded);
+                }
+            });
         }
 
         /// <summary>Returns all of the mod directories of installed mods.</summary>
