@@ -390,48 +390,51 @@ namespace ModIO.UI
                 }
             }
 
-            // check disk for any missing profiles
-            foreach(ModProfile profile in CacheClient.IterateFilteredModProfiles(missingIds))
+            CacheClient.RequestFilteredModProfiles(missingIds, (cachedProfiles) =>
             {
-                int index = orderedIdList.IndexOf(profile.id);
-                if(index >= 0 && results[index] == null)
+                // check disk for any missing profiles
+                foreach(ModProfile profile in cachedProfiles)
                 {
-                    results[index] = profile;
-                }
-
-                missingIds.Remove(profile.id);
-            }
-
-            // if no missing profiles, early out
-            if(missingIds.Count == 0)
-            {
-                onSuccess(results);
-                return;
-            }
-
-            // fetch missing profiles
-            Action<List<ModProfile>> onFetchProfiles = (modProfiles) =>
-            {
-                if(this != null)
-                {
-                    this.CacheModProfiles(modProfiles);
-                }
-
-                foreach(ModProfile profile in modProfiles)
-                {
-                    int i = orderedIdList.IndexOf(profile.id);
-                    if(i >= 0)
+                    int index = orderedIdList.IndexOf(profile.id);
+                    if(index >= 0 && results[index] == null)
                     {
-                        results[i] = profile;
+                        results[index] = profile;
                     }
+
+                    missingIds.Remove(profile.id);
                 }
 
-                onSuccess(results);
-            };
+                // if no missing profiles, early out
+                if(missingIds.Count == 0)
+                {
+                    onSuccess(results);
+                    return;
+                }
 
-            this.StartCoroutine(this.FetchAllModProfiles(missingIds.ToArray(),
-                                                         onFetchProfiles,
-                                                         onError));
+                // fetch missing profiles
+                Action<List<ModProfile>> onFetchProfiles = (modProfiles) =>
+                {
+                    if(this != null)
+                    {
+                        this.CacheModProfiles(modProfiles);
+                    }
+
+                    foreach(ModProfile profile in modProfiles)
+                    {
+                        int i = orderedIdList.IndexOf(profile.id);
+                        if(i >= 0)
+                        {
+                            results[i] = profile;
+                        }
+                    }
+
+                    onSuccess(results);
+                };
+
+                this.StartCoroutine(this.FetchAllModProfiles(missingIds.ToArray(),
+                                                             onFetchProfiles,
+                                                             onError));
+            });
         }
 
         // ---------[ UTILITY ]---------

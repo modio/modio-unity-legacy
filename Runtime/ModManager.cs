@@ -849,43 +849,46 @@ namespace ModIO
             List<int> missingModIds = new List<int>(modIds);
             List<ModProfile> modProfiles = new List<ModProfile>(missingModIds.Count);
 
-            foreach(ModProfile profile in CacheClient.IterateAllModProfiles())
+            CacheClient.RequestAllModProfiles((cachedProfiles) =>
             {
-                if(missingModIds.Contains(profile.id))
+                foreach(ModProfile profile in cachedProfiles)
                 {
-                    missingModIds.Remove(profile.id);
-                    modProfiles.Add(profile);
+                    if(missingModIds.Contains(profile.id))
+                    {
+                        missingModIds.Remove(profile.id);
+                        modProfiles.Add(profile);
+                    }
                 }
-            }
 
-            if(missingModIds.Count == 0)
-            {
-                if(onSuccess != null) { onSuccess(modProfiles); }
-            }
-            else
-            {
-                // - Filter -
-                RequestFilter modFilter = new RequestFilter();
-                modFilter.sortFieldName = GetAllModsFilterFields.id;
-                modFilter.AddFieldFilter(GetAllModsFilterFields.id, new InArrayFilter<int>()
+                if(missingModIds.Count == 0)
                 {
-                    filterArray = missingModIds.ToArray()
-                });
-
-                Action<List<ModProfile>> onGetMods = (profiles) =>
-                {
-                    modProfiles.AddRange(profiles);
-
-                    CacheClient.SaveModProfiles(profiles, null);
-
                     if(onSuccess != null) { onSuccess(modProfiles); }
-                };
+                }
+                else
+                {
+                    // - Filter -
+                    RequestFilter modFilter = new RequestFilter();
+                    modFilter.sortFieldName = GetAllModsFilterFields.id;
+                    modFilter.AddFieldFilter(GetAllModsFilterFields.id, new InArrayFilter<int>()
+                    {
+                        filterArray = missingModIds.ToArray()
+                    });
 
-                // - Get All Events -
-                ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetAllMods(modFilter, p, s, e),
-                                                               onGetMods,
-                                                               onError);
-            }
+                    Action<List<ModProfile>> onGetMods = (profiles) =>
+                    {
+                        modProfiles.AddRange(profiles);
+
+                        CacheClient.SaveModProfiles(profiles, null);
+
+                        if(onSuccess != null) { onSuccess(modProfiles); }
+                    };
+
+                    // - Get All Events -
+                    ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetAllMods(modFilter, p, s, e),
+                                                                   onGetMods,
+                                                                   onError);
+                }
+            });
         }
 
         // ---------[ MOD IMAGES ]---------
