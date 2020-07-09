@@ -1016,25 +1016,26 @@ namespace ModIO
                                       Action<Modfile> onSuccess,
                                       Action<WebRequestError> onError)
         {
-            var cachedModfile = CacheClient.LoadModfile(modId, modfileId);
-
-            if(cachedModfile != null)
+            CacheClient.LoadModfile(modId, modfileId, (cachedModfile) =>
             {
-                if(onSuccess != null) { onSuccess(cachedModfile); }
-            }
-            else
-            {
-                // - Fetch from Server -
-                Action<Modfile> onGetModfile = (modfile) =>
+                if(cachedModfile != null)
                 {
-                    CacheClient.SaveModfile(modfile);
-                    if(onSuccess != null) { onSuccess(modfile); }
-                };
+                    if(onSuccess != null) { onSuccess(cachedModfile); }
+                }
+                else
+                {
+                    // - Fetch from Server -
+                    Action<Modfile> onGetModfile = (modfile) =>
+                    {
+                        CacheClient.SaveModfile(modfile, null);
+                        if(onSuccess != null) { onSuccess(modfile); }
+                    };
 
-                APIClient.GetModfile(modId, modfileId,
-                                     onGetModfile,
-                                     onError);
-            }
+                    APIClient.GetModfile(modId, modfileId,
+                                         onGetModfile,
+                                         onError);
+                }
+            });
         }
 
 
