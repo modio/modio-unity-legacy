@@ -461,24 +461,36 @@ namespace ModIO.UI
                         errorCallback(error);
                     }
                 }
+
+                // remove from "in progress"
+                this.m_callbackMap.Remove(imageURL);
             }
             else
             {
-                Texture2D texture = ((DownloadHandlerTexture)webRequest.downloadHandler).texture;
+                this.OnRequestSucceeded(imageURL, ((DownloadHandlerTexture)webRequest.downloadHandler).texture);
+            }
+        }
 
-                if(this.isActiveAndEnabled || !this.clearCacheOnDisable)
-                {
-                    this.cache[imageURL] = texture;
-                }
+        /// <summary>Handles a successful image request.</summary>
+        protected virtual void OnRequestSucceeded(string url, Texture2D texture)
+        {
+            if(this == null) { return; }
 
-                foreach(var successCallback in callbacks.succeeded)
-                {
-                    successCallback(texture);
-                }
+            if(this.isActiveAndEnabled || !this.clearCacheOnDisable)
+            {
+                this.cache[url] = texture;
             }
 
-            // remove from "in progress"
-            this.m_callbackMap.Remove(imageURL);
+            if(this.m_callbackMap.ContainsKey(url))
+            {
+                foreach(var successCallback in this.m_callbackMap[url].succeeded)
+                {
+                    successCallback.Invoke(texture);
+                }
+
+                // remove from "in progress"
+                this.m_callbackMap.Remove(url);
+            }
         }
 
         // ---------[ EVENTS ]---------
