@@ -60,35 +60,51 @@ namespace ModIO
         }
 
         /// <summary>Stores a mod's profile in the cache.</summary>
-        public static bool SaveModProfile(ModProfile profile)
+        public static void SaveModProfile(ModProfile profile, Action<bool> onComplete)
         {
             Debug.Assert(profile != null);
 
             string path = GenerateModProfileFilePath(profile.id);
-            return LocalDataStorage.WriteJSONFile(path, profile);
+            bool result = LocalDataStorage.WriteJSONFile(path, profile);
+
+            if(onComplete != null)
+            {
+                onComplete.Invoke(result);
+            }
         }
 
         /// <summary>Retrieves a mod's profile from the cache.</summary>
-        public static ModProfile LoadModProfile(int modId)
+        public static void LoadModProfile(int modId, Action<ModProfile> onComplete)
         {
+            Debug.Assert(onComplete != null);
+
             string path = GenerateModProfileFilePath(modId);
             ModProfile profile;
             LocalDataStorage.ReadJSONFile(path, out profile);
 
-            return profile;
+            if(onComplete != null)
+            {
+                onComplete.Invoke(profile);
+            }
         }
 
         /// <summary>Stores a collection of mod profiles in the cache.</summary>
-        public static bool SaveModProfiles(IEnumerable<ModProfile> modProfiles)
+        public static void SaveModProfiles(IEnumerable<ModProfile> modProfiles, Action<bool> onComplete)
         {
             Debug.Assert(modProfiles != null);
 
             bool isSuccessful = true;
+
             foreach(ModProfile profile in modProfiles)
             {
-                isSuccessful = CacheClient.SaveModProfile(profile) && isSuccessful;
+                string path = GenerateModProfileFilePath(profile.id);
+                isSuccessful = LocalDataStorage.WriteJSONFile(path, profile) && isSuccessful;
             }
-            return isSuccessful;
+
+            if(onComplete != null)
+            {
+                onComplete.Invoke(isSuccessful);
+            }
         }
 
         /// <summary>Iterates through all of the mod profiles in the cache.</summary>
@@ -784,6 +800,39 @@ namespace ModIO
             GameProfile result = null;
 
             CacheClient.LoadGameProfile((r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Stores a mod's profile in the cache.</summary>
+        [Obsolete("Use SaveModProfile(ModProfile, Action<bool>) instead.")]
+        public static bool SaveModProfile(ModProfile profile)
+        {
+            bool result = false;
+
+            CacheClient.SaveModProfile(profile, (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Retrieves a mod's profile from the cache.</summary>
+        [Obsolete("Use LoadModProfile(int, Action<ModProfile>) instead.")]
+        public static ModProfile LoadModProfile(int modId)
+        {
+            ModProfile result = null;
+
+            CacheClient.LoadModProfile(modId, (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Stores a collection of mod profiles in the cache.</summary>
+        [Obsolete("Use SaveModProfile(IEnumerable<ModProfile>, Action<bool>) instead.")]
+        public static bool SaveModProfiles(IEnumerable<ModProfile> modProfiles)
+        {
+            bool result = false;
+
+            CacheClient.SaveModProfiles(modProfiles, (r) => result = r);
 
             return result;
         }
