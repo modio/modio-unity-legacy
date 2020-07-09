@@ -679,11 +679,13 @@ namespace ModIO
         }
 
         /// <summary>Stores a mod gallery image in the cache.</summary>
-        public static bool SaveModGalleryImage(int modId,
+        public static void SaveModGalleryImage(int modId,
                                                string imageFileName,
                                                ModGalleryImageSize size,
-                                               Texture2D imageTexture)
+                                               Texture2D imageTexture,
+                                               Action<bool> onComplete)
         {
+            Debug.Assert(modId != ModProfile.NULL_ID);
             Debug.Assert(!String.IsNullOrEmpty(imageFileName));
             Debug.Assert(imageTexture != null);
 
@@ -691,66 +693,81 @@ namespace ModIO
                                                                                imageFileName,
                                                                                size);
             byte[] imageData = imageTexture.EncodeToPNG();
+            bool result = LocalDataStorage.WriteFile(imageFilePath, imageData);
 
-            return LocalDataStorage.WriteFile(imageFilePath, imageData);
+            if(onComplete != null)
+            {
+                onComplete.Invoke(result);
+            }
         }
 
         /// <summary>Retrieves a mod gallery image from the cache.</summary>
-        public static Texture2D LoadModGalleryImage(int modId,
-                                                    string imageFileName,
-                                                    ModGalleryImageSize size)
+        public static void LoadModGalleryImage(int modId, string imageFileName, ModGalleryImageSize size,
+                                               Action<Texture2D> onComplete)
         {
+            Debug.Assert(modId != ModProfile.NULL_ID);
             Debug.Assert(!String.IsNullOrEmpty(imageFileName));
+            Debug.Assert(onComplete != null);
 
             string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
                                                                                imageFileName,
                                                                                size);
-            byte[] imageData;
+            byte[] imageData = null;
+            Texture2D result = null;
 
             if(LocalDataStorage.ReadFile(imageFilePath, out imageData)
                && imageData != null)
             {
-                return IOUtilities.ParseImageData(imageData);
+                result = IOUtilities.ParseImageData(imageData);
             }
-            else
+
+            if(onComplete != null)
             {
-                return null;
+                onComplete.Invoke(result);
             }
         }
 
         /// <summary>Stores a YouTube thumbnail in the cache.</summary>
-        public static bool SaveModYouTubeThumbnail(int modId,
-                                                   string youTubeId,
-                                                   Texture2D thumbnail)
+        public static void SaveModYouTubeThumbnail(int modId, string youTubeId, Texture2D thumbnail,
+                                                   Action<bool> onComplete)
         {
+            Debug.Assert(modId != ModProfile.NULL_ID);
             Debug.Assert(!String.IsNullOrEmpty(youTubeId));
             Debug.Assert(thumbnail != null);
 
             string thumbnailFilePath = CacheClient.GenerateModYouTubeThumbnailFilePath(modId,
                                                                                        youTubeId);
             byte[] imageData = thumbnail.EncodeToPNG();
+            bool result = LocalDataStorage.WriteFile(thumbnailFilePath, imageData);
 
-            return LocalDataStorage.WriteFile(thumbnailFilePath, imageData);
+            if(onComplete != null)
+            {
+                onComplete.Invoke(result);
+            }
         }
 
         /// <summary>Retrieves a YouTube thumbnail from the cache.</summary>
-        public static Texture2D LoadModYouTubeThumbnail(int modId,
-                                                        string youTubeId)
+        public static void LoadModYouTubeThumbnail(int modId, string youTubeId,
+                                                   Action<Texture2D> onComplete)
         {
+            Debug.Assert(modId != ModProfile.NULL_ID);
             Debug.Assert(!String.IsNullOrEmpty(youTubeId));
+            Debug.Assert(onComplete != null);
 
             string thumbnailFilePath = CacheClient.GenerateModYouTubeThumbnailFilePath(modId,
                                                                                        youTubeId);
-            byte[] imageData;
+            byte[] imageData = null;
+            Texture2D result = null;
 
             if(LocalDataStorage.ReadFile(thumbnailFilePath, out imageData)
                && imageData != null)
             {
-                return IOUtilities.ParseImageData(imageData);
+                result = IOUtilities.ParseImageData(imageData);
             }
-            else
+
+            if(onComplete != null)
             {
-                return null;
+                onComplete.Invoke(result);
             }
         }
 
@@ -1206,6 +1223,57 @@ namespace ModIO
             string result = null;
 
             CacheClient.GetModLogoFileName(modId, size, (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Stores a mod gallery image in the cache.</summary>
+        [Obsolete("Use SaveModGalleryImage(int, string, ModGalleryImageSize, Texture2D, Action<bool>) instead.")]
+        public static bool SaveModGalleryImage(int modId,
+                                               string imageFileName,
+                                               ModGalleryImageSize size,
+                                               Texture2D imageTexture)
+        {
+            bool result = false;
+
+            CacheClient.SaveModGalleryImage(modId, imageFileName, size, imageTexture,
+                                            (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Retrieves a mod gallery image from the cache.</summary>
+        [Obsolete("Use LoadModGalleryImage(int, string, ModGalleryImageSize, Action<Texture2D>) instead.")]
+        public static Texture2D LoadModGalleryImage(int modId, string imageFileName, ModGalleryImageSize size)
+        {
+            Texture2D result = null;
+
+            CacheClient.LoadModGalleryImage(modId, imageFileName, size,
+                                            (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Stores a YouTube thumbnail in the cache.</summary>
+        [Obsolete("Use SaveModYouTubeThumbnail(int, string, Texture2D, Action<bool>) instead.")]
+        public static bool SaveModYouTubeThumbnail(int modId, string youTubeId, Texture2D thumbnail)
+        {
+            bool result = false;
+
+            CacheClient.SaveModYouTubeThumbnail(modId, youTubeId, thumbnail,
+                                                (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Retrieves a YouTube thumbnail from the cache.</summary>
+        [Obsolete("Use LoadModYouTubeThumbnail(int, string, Action<Texture2D>) instead.")]
+        public static Texture2D LoadModYouTubeThumbnail(int modId, string youTubeId)
+        {
+            Texture2D result = null;
+
+            CacheClient.LoadModYouTubeThumbnail(modId, youTubeId,
+                                                (r) => result = r);
 
             return result;
         }
