@@ -305,8 +305,17 @@ namespace ModIO.UI
         {
             Debug.Assert(onSuccess != null);
 
-            // do the work
-            this.RequestImage_Internal(url, null, null, onSuccess, onError);
+            // check cache and existing callbacks
+            if(this.TryGetCacheOrSetCallbacks(url, onSuccess, null, onError))
+            {
+                return;
+            }
+
+            // - Start new request -
+            this.CreateCallbacksEntry(url, onSuccess, onError);
+
+            // do the download
+            this.DownloadImage(url);
         }
 
         /// <summary>Handles computations for the image request.</summary>
