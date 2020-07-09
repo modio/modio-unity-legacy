@@ -1095,30 +1095,34 @@ namespace ModIO
         {
             Debug.Assert(avatarLocator != null);
 
-            var cachedAvatarTexture = CacheClient.LoadUserAvatar(userId, size);
-            if(cachedAvatarTexture != null)
+            CacheClient.LoadUserAvatar(userId, size, (cachedAvatarTexture) =>
             {
-                onSuccess(cachedAvatarTexture);
-            }
-            else
-            {
-                // - Fetch from Server -
-                var download = DownloadClient.DownloadImage(avatarLocator.GetSizeURL(size));
-
-                download.succeeded += (d) =>
+                if(cachedAvatarTexture != null)
                 {
-                    CacheClient.SaveUserAvatar(userId, size, d.imageTexture);
-                };
-
-                download.succeeded += (d) => onSuccess(d.imageTexture);
-
-                if(onError != null)
-                {
-                    download.failed += (d) => onError(d.error);
+                    if(onSuccess != null)
+                    {
+                        onSuccess.Invoke(cachedAvatarTexture);
+                    }
                 }
-            }
-        }
+                else
+                {
+                    // - Fetch from Server -
+                    var download = DownloadClient.DownloadImage(avatarLocator.GetSizeURL(size));
 
+                    download.succeeded += (d) =>
+                    {
+                        CacheClient.SaveUserAvatar(userId, size, d.imageTexture, null);
+                    };
+
+                    download.succeeded += (d) => onSuccess(d.imageTexture);
+
+                    if(onError != null)
+                    {
+                        download.failed += (d) => onError(d.error);
+                    }
+                }
+            });
+        }
 
         // ---------[ EVENTS ]---------
         /// <summary>Fetches all mod events for the game.</summary>
