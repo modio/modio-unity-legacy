@@ -19,20 +19,27 @@ namespace ModIO
         { get { return IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "game_profile.data"); } }
 
         /// <summary>Stores the game's profile in the cache.</summary>
-        public static bool SaveGameProfile(GameProfile profile)
+        public static void SaveGameProfile(GameProfile profile, Action<bool> onComplete)
         {
             Debug.Assert(profile != null);
 
-            return LocalDataStorage.WriteJSONFile(gameProfileFilePath, profile);
+            var result = LocalDataStorage.WriteJSONFile(gameProfileFilePath, profile);
+
+            if(onComplete != null)
+            {
+                onComplete.Invoke(result);
+            }
         }
 
         /// <summary>Retrieves the game's profile from the cache.</summary>
-        public static GameProfile LoadGameProfile()
+        public static void LoadGameProfile(Action<GameProfile> onComplete)
         {
+            Debug.Assert(onComplete != null);
+
             GameProfile profile;
             LocalDataStorage.ReadJSONFile(gameProfileFilePath, out profile);
 
-            return profile;
+            onComplete.Invoke(profile);
         }
 
         // ---------[ MODS ]---------
@@ -756,6 +763,29 @@ namespace ModIO
                     }
                 }
             }
+        }
+
+        // --- Obsolete Synchronous Interface ---
+        /// <summary>[Obsolete] Stores the game's profile in the cache.</summary>
+        [Obsolete("Use SaveGameProfile(GameProfile, Action<bool>) instead.")]
+        public static bool SaveGameProfile(GameProfile profile)
+        {
+            bool result = false;
+
+            CacheClient.SaveGameProfile(profile, (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Retrieves the game's profile from the cache.</summary>
+        [Obsolete("Use LoadGameProfile(Action<GameProfile>) instead.")]
+        public static GameProfile LoadGameProfile()
+        {
+            GameProfile result = null;
+
+            CacheClient.LoadGameProfile((r) => result = r);
+
+            return result;
         }
     }
 }
