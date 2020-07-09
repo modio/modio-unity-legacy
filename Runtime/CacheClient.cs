@@ -107,14 +107,14 @@ namespace ModIO
             }
         }
 
-        /// <summary>Iterates through all of the mod profiles in the cache.</summary>
-        public static void IterateAllModProfiles(Action<IList<ModProfile>> onComplete)
+        /// <summary>Requests all of the mod profiles in the cache.</summary>
+        public static void RequestAllModProfiles(Action<IList<ModProfile>> onComplete)
         {
-            CacheClient.IterateAllModProfilesFromOffset(0, onComplete);
+            CacheClient.RequestAllModProfilesFromOffset(0, onComplete);
         }
 
-        /// <summary>Iterates through all of the mod profiles from the given offset.</summary>
-        public static void IterateAllModProfilesFromOffset(int offset, Action<IList<ModProfile>> onComplete)
+        /// <summary>Requests all of the mod profiles from the given offset.</summary>
+        public static void RequestAllModProfilesFromOffset(int offset, Action<IList<ModProfile>> onComplete)
         {
             Debug.Assert(IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods", "0")
                          == CacheClient.GenerateModDirectoryPath(0),
@@ -178,8 +178,8 @@ namespace ModIO
             }
         }
 
-        /// <summary>Iterates through all of the mod profiles returning only those matching the id filter.</summary>
-        public static void IterateFilteredModProfiles(IList<int> idFilter, Action<IList<ModProfile>> onComplete)
+        /// <summary>Requests all of the mod profiles returning only those matching the id filter.</summary>
+        public static void RequestFilteredModProfiles(IList<int> idFilter, Action<IList<ModProfile>> onComplete)
         {
             Debug.Assert(IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods", "0")
                          == CacheClient.GenerateModDirectoryPath(0),
@@ -859,34 +859,34 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Iterates through all of the mod profiles in the cache.</summary>
-        [Obsolete("Use IterateAllModProfiles(Action<IList<ModProfile>>) instead.")]
+        [Obsolete("Use RequestAllModProfiles(Action<IList<ModProfile>>) instead.")]
         public static IEnumerable<ModProfile> IterateAllModProfiles()
         {
             IList<ModProfile> result = null;
 
-            CacheClient.IterateAllModProfiles((r) => result = r);
+            CacheClient.RequestAllModProfiles((r) => result = r);
 
             return result;
         }
 
         /// <summary>[Obsolete] Iterates through all of the mod profiles from the given offset.</summary>
-        [Obsolete("Use IterateAllModProfilesFromOffset(int, Action<IList<ModProfile>>) instead.")]
+        [Obsolete("Use RequestAllModProfilesFromOffset(int, Action<IList<ModProfile>>) instead.")]
         public static IEnumerable<ModProfile> IterateAllModProfilesFromOffset(int offset)
         {
             IList<ModProfile> result = null;
 
-            CacheClient.IterateAllModProfilesFromOffset(offset, (r) => result = r);
+            CacheClient.RequestAllModProfilesFromOffset(offset, (r) => result = r);
 
             return result;
         }
 
         /// <summary>[Obsolete] Iterates through all of the mod profiles returning only those matching the id filter.</summary>
-        [Obsolete("Use IterateFilteredModProfiles(IList<int>, Action<IList<ModProfile>>) instead.")]
+        [Obsolete("Use RequestFilteredModProfiles(IList<int>, Action<IList<ModProfile>>) instead.")]
         public static IEnumerable<ModProfile> IterateFilteredModProfiles(IList<int> idFilter)
         {
             IList<ModProfile> result = null;
 
-            CacheClient.IterateFilteredModProfiles(idFilter, (r) => result = r);
+            CacheClient.RequestFilteredModProfiles(idFilter, (r) => result = r);
 
             return result;
         }
