@@ -101,21 +101,11 @@ namespace ModIO.UI
             }
 
             // - Start new request -
-            // add to callbacks map
-            Callbacks callbacks = new Callbacks()
-            {
-                fallback = null,
-                succeeded = new List<Action<Texture2D>>(),
-                failed = new List<Action<WebRequestError>>(),
-            };
-
-            callbacks.fallback = this.FindFallbackTexture(locator);
-            callbacks.succeeded.Add(onLogoReceived);
-            callbacks.failed.Add(onError);
-
-            this.m_callbackMap[url] = callbacks;
+            Callbacks callbacks = this.CreateCallbacksEntry(url, onLogoReceived, onError);
 
             // check for fallback
+            callbacks.fallback = this.FindFallbackTexture(locator);
+
             if(onFallbackFound != null
                && callbacks.fallback != null)
             {
@@ -452,6 +442,26 @@ namespace ModIO.UI
 
             // not found
             return false;
+        }
+
+        /// <summary>Creates a new entry in the callbacks map for a given url.</summary>
+        protected virtual Callbacks CreateCallbacksEntry(string url,
+                                                         Action<Texture2D> onSuccess,
+                                                         Action<WebRequestError> onError)
+        {
+            Callbacks callbacks = new Callbacks()
+            {
+                fallback = null,
+                succeeded = new List<Action<Texture2D>>(),
+                failed = new List<Action<WebRequestError>>(),
+            };
+
+            callbacks.succeeded.Add(onSuccess);
+            callbacks.failed.Add(onError);
+
+            this.m_callbackMap[url] = callbacks;
+
+            return callbacks;
         }
 
         /// <summary>Finds a fallback texture for the given locator.</summary>
