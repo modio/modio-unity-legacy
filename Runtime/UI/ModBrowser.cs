@@ -71,7 +71,7 @@ namespace ModIO.UI
 
         private void OnEnable()
         {
-            this.StartCoroutine(StartFetchRemoteData());
+            this.StartCoroutine(InitializeModBrowser());
 
             ModManager.onModBinaryInstalled += this.OnModInstalled;
             DownloadClient.modfileDownloadFailed += this.OnModfileDownloadFailed;
@@ -84,41 +84,35 @@ namespace ModIO.UI
             DownloadClient.modfileDownloadFailed += this.OnModfileDownloadFailed;
         }
 
-        private void Start()
+        private System.Collections.IEnumerator InitializeModBrowser()
         {
-            LoadLocalData();
-        }
+            bool isDone = false;
 
-        private void LoadLocalData()
-        {
             // - GameData -
-            // TODO(@jackson): Remove?
-            m_gameProfile = CacheClient.LoadGameProfile();
+            CacheClient.LoadGameProfile((p) =>
+            {
+                this.m_gameProfile = p;
+                isDone = true;
+            });
+
+            while(!isDone) { yield return null; }
+
             if(m_gameProfile == null)
             {
                 m_gameProfile = new GameProfile();
                 m_gameProfile.id = PluginSettings.GAME_ID;
             }
 
-            IEnumerable<IGameProfileUpdateReceiver> updateReceivers = GetComponentsInChildren<IGameProfileUpdateReceiver>(true);
-            foreach(var receiver in updateReceivers)
+            // check if still active
+            if(this == null || !this.isActiveAndEnabled) { yield break; }
+
+            IEnumerable<IGameProfileUpdateReceiver> gameUpdatReceivers = GetComponentsInChildren<IGameProfileUpdateReceiver>(true);
+            foreach(var receiver in gameUpdatReceivers)
             {
                 receiver.OnGameProfileUpdated(m_gameProfile);
             }
-        }
-
-        private System.Collections.IEnumerator StartFetchRemoteData()
-        {
-            // Ensure Start() has finished
-            yield return null;
-
-            if(this == null || !this.isActiveAndEnabled)
-            {
-                yield break;
-            }
 
             // load user
-            bool isDone = false;
             LocalUser.Load(() => isDone = true);
             while(!isDone) { yield return null; }
 
@@ -137,8 +131,8 @@ namespace ModIO.UI
                     UserAccountManagement.ReauthenticateWithStoredExternalAuthData(
                     (u) =>
                     {
-                        IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
-                        foreach(var receiver in updateReceivers)
+                        IEnumerable<IAuthenticatedUserUpdateReceiver> userUpdateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
+                        foreach(var receiver in userUpdateReceivers)
                         {
                             receiver.OnUserProfileUpdated(u);
                         }
@@ -156,6 +150,9 @@ namespace ModIO.UI
 
                 while(isAttemptingReauth) { yield return null; }
             }
+
+            // check if still active
+            if(this == null || !this.isActiveAndEnabled) { yield break; }
 
             this.StartCoroutine(FetchGameProfile());
 
