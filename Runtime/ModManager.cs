@@ -821,25 +821,24 @@ namespace ModIO
                                          Action<ModProfile> onSuccess,
                                          Action<WebRequestError> onError)
         {
-            var cachedProfile = CacheClient.LoadModProfile(modId);
-
-            if(cachedProfile != null)
+            CacheClient.LoadModProfile(modId, (cachedProfile) =>
             {
-                if(onSuccess != null) { onSuccess(cachedProfile); }
-            }
-            else
-            {
-                // - Fetch from Server -
-                Action<ModProfile> onGetMod = (profile) =>
+                if(cachedProfile != null)
                 {
-                    CacheClient.SaveModProfile(profile);
-                    if(onSuccess != null) { onSuccess(profile); }
-                };
+                    if(onSuccess != null) { onSuccess(cachedProfile); }
+                }
+                else
+                {
+                    // - Fetch from Server -
+                    Action<ModProfile> onGetMod = (profile) =>
+                    {
+                        CacheClient.SaveModProfile(profile, null);
+                        if(onSuccess != null) { onSuccess(profile); }
+                    };
 
-                APIClient.GetMod(modId,
-                                 onGetMod,
-                                 onError);
-            }
+                    APIClient.GetMod(modId, onGetMod, onError);
+                }
+            });
         }
 
         /// <summary>Fetches and caches Mod Profiles (if not already cached).</summary>
@@ -877,7 +876,7 @@ namespace ModIO
                 {
                     modProfiles.AddRange(profiles);
 
-                    CacheClient.SaveModProfiles(profiles);
+                    CacheClient.SaveModProfiles(profiles, null);
 
                     if(onSuccess != null) { onSuccess(modProfiles); }
                 };
