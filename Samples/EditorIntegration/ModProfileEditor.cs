@@ -255,7 +255,7 @@ namespace ModIO.EditorCode
                     APIClient.GetMod(modIdProperty.intValue,
                     (modProfile) =>
                     {
-                        CacheClient.SaveModProfile(modProfile);
+                        CacheClient.SaveModProfile(modProfile, null);
                         this.profile = modProfile;
 
                         ScriptableModProfile smp = this.target as ScriptableModProfile;
