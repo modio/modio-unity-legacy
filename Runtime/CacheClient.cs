@@ -577,9 +577,11 @@ namespace ModIO
         }
 
         /// <summary>Stores a mod logo in the cache with the given fileName.</summary>
-        public static bool SaveModLogo(int modId, string fileName,
-                                       LogoSize size, Texture2D logoTexture)
+        public static void SaveModLogo(int modId, string fileName,
+                                       LogoSize size, Texture2D logoTexture,
+                                       Action<bool> onComplete)
         {
+            Debug.Assert(modId != ModProfile.NULL_ID);
             Debug.Assert(!String.IsNullOrEmpty(fileName));
             Debug.Assert(logoTexture != null);
 
@@ -602,39 +604,49 @@ namespace ModIO
                 LocalDataStorage.WriteJSONFile(GenerateModLogoVersionInfoFilePath(modId), versionInfo);
             }
 
-            return success;
+            if(onComplete != null)
+            {
+                onComplete.Invoke(success);
+            }
         }
 
         /// <summary>Retrieves a mod logo from the cache.</summary>
-        public static Texture2D LoadModLogo(int modId, LogoSize size)
+        public static void LoadModLogo(int modId, LogoSize size, Action<Texture2D> onComplete)
         {
+            Debug.Assert(onComplete != null);
+
+            Texture2D result = null;
             string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
             byte[] imageData;
 
             if(LocalDataStorage.ReadFile(logoFilePath, out imageData)
                && imageData != null)
             {
-                return IOUtilities.ParseImageData(imageData);
+                result = IOUtilities.ParseImageData(imageData);
             }
-            else
+
+            if(onComplete != null)
             {
-                return null;
+                onComplete.Invoke(result);
             }
         }
 
         /// <summary>Retrieves a mod logo from the cache if it matches the given fileName.</summary>
-        public static Texture2D LoadModLogo(int modId, string fileName, LogoSize size)
+        public static void LoadModLogo(int modId, string fileName, LogoSize size,
+                                       Action<Texture2D> onComplete)
         {
+            Debug.Assert(modId != ModProfile.NULL_ID);
             Debug.Assert(!String.IsNullOrEmpty(fileName));
+            Debug.Assert(onComplete != null);
 
             string logoFileName = GetModLogoFileName(modId, size);
             if(logoFileName == fileName)
             {
-                return CacheClient.LoadModLogo(modId, size);
+                CacheClient.LoadModLogo(modId, size, onComplete);
             }
-            else
+            else if(onComplete != null)
             {
-                return null;
+                onComplete.Invoke(null);
             }
         }
 
@@ -1126,6 +1138,41 @@ namespace ModIO
             bool result = false;
 
             CacheClient.DeleteAllModfileAndBinaryData(modId, (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Stores a mod logo in the cache with the given fileName.</summary>
+        [Obsolete("Use SaveModLogo(int, string, LogoSize, Texture2D, Action<bool>) instead.")]
+        public static bool SaveModLogo(int modId, string fileName, LogoSize size, Texture2D logoTexture)
+        {
+            bool result = false;
+
+            CacheClient.SaveModLogo(modId, fileName,
+                                    size, logoTexture,
+                                    (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Retrieves a mod logo from the cache.</summary>
+        [Obsolete("Use LoadModLogo(int, LogoSize, Action<bool>) instead.")]
+        public static Texture2D LoadModLogo(int modId, LogoSize size)
+        {
+            Texture2D result = null;
+
+            CacheClient.LoadModLogo(modId, size, (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Retrieves a mod logo from the cache if it matches the given fileName.</summary>
+        [Obsolete("Use LoadModLogo(int, string, LogoSize, Action<bool>) instead.")]
+        public static Texture2D LoadModLogo(int modId, string fileName, LogoSize size)
+        {
+            Texture2D result = null;
+
+            CacheClient.LoadModLogo(modId, fileName, size, (r) => result = r);
 
             return result;
         }
