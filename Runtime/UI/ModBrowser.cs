@@ -577,7 +577,6 @@ namespace ModIO.UI
         private System.Collections.IEnumerator VerifySubscriptionInstallations()
         {
             var subscribedModIds = LocalUser.SubscribedModIds;
-            IList<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
             Dictionary<int, List<int>> groupedIds = new Dictionary<int, List<int>>();
 
             // create map
@@ -585,6 +584,18 @@ namespace ModIO.UI
             {
                 groupedIds.Add(modId, new List<int>());
             }
+
+            // get installed versions
+            bool gotModVersions = false;
+            IList<ModfileIdPair> installedModVersions = null;
+            ModManager.QueryInstalledModVersions(false,
+            (r) =>
+            {
+                installedModVersions = r;
+                gotModVersions = true;
+            });
+
+            while(!gotModVersions) { yield return null; }
 
             // sort installs
             foreach(ModfileIdPair idPair in installedModVersions)

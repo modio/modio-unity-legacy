@@ -177,64 +177,72 @@ namespace ModIO
             // Don't accidentally uninstall player-added mods!
             Debug.Assert(modId != ModProfile.NULL_ID);
 
-            var installedMods = new List<KeyValuePair<ModfileIdPair, string>>(ModManager.IterateInstalledMods(new int[] { modId }));
-            List<ModfileIdPair> successfulUninstalls = new List<ModfileIdPair>();
-
-            foreach(var installInfo in installedMods)
+            ModManager.QueryInstalledMods(new int[] { modId }, (installedMods) =>
             {
-                if(LocalDataStorage.DeleteDirectory(installInfo.Value))
+                List<ModfileIdPair> successfulUninstalls = new List<ModfileIdPair>();
+
+                foreach(var installInfo in installedMods)
                 {
-                    successfulUninstalls.Add(installInfo.Key);
+                    if(LocalDataStorage.DeleteDirectory(installInfo.Value))
+                    {
+                        successfulUninstalls.Add(installInfo.Key);
+                    }
                 }
-            }
 
-            // notify uninstall listeners
-            if(ModManager.onModBinariesUninstalled != null)
-            {
-                ModManager.onModBinariesUninstalled(successfulUninstalls.ToArray());
-            }
+                // notify uninstall listeners
+                if(ModManager.onModBinariesUninstalled != null)
+                {
+                    ModManager.onModBinariesUninstalled(successfulUninstalls.ToArray());
+                }
 
-            // invoke callback
-            if(onComplete != null)
-            {
-                onComplete.Invoke(successfulUninstalls.Count == installedMods.Count);
-            }
+                // invoke callback
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(successfulUninstalls.Count == installedMods.Count);
+                }
+            });
         }
 
         /// <summary>Removes a specific version of a mod from the installs folder.</summary>
-        public static bool TryUninstallModVersion(int modId, int modfileId)
+        public static void TryUninstallModVersion(int modId, int modfileId, Action<bool> onComplete)
         {
             // Don't accidentally uninstall player-added mods!
             Debug.Assert(modId != ModProfile.NULL_ID);
 
-            var installedMods = ModManager.IterateInstalledMods(new int[] { modId });
-
-            bool succeeded = true;
-            foreach(var installInfo in installedMods)
+            ModManager.QueryInstalledMods(new int[] { modId }, (installedMods) =>
             {
-                if(installInfo.Key.modfileId == modfileId)
+                bool succeeded = true;
+                foreach(var installInfo in installedMods)
                 {
-                    succeeded = LocalDataStorage.DeleteDirectory(installInfo.Value) && succeeded;
+                    if(installInfo.Key.modfileId == modfileId)
+                    {
+                        succeeded = LocalDataStorage.DeleteDirectory(installInfo.Value) && succeeded;
+                    }
                 }
-            }
 
-            if(succeeded && ModManager.onModBinariesUninstalled != null)
-            {
-                ModfileIdPair idPair = new ModfileIdPair()
+                if(succeeded && ModManager.onModBinariesUninstalled != null)
                 {
-                    modId = modId,
-                    modfileId = modfileId,
-                };
+                    ModfileIdPair idPair = new ModfileIdPair()
+                    {
+                        modId = modId,
+                        modfileId = modfileId,
+                    };
 
-                ModManager.onModBinariesUninstalled(new ModfileIdPair[] { idPair });
-            }
+                    ModManager.onModBinariesUninstalled(new ModfileIdPair[] { idPair });
+                }
 
-            return succeeded;
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(succeeded);
+                }
+            });
         }
 
         /// <summary>Returns all of the mod directories of installed mods.</summary>
-        public static List<string> GetInstalledModDirectories(bool excludeDisabledMods)
+        public static void QueryInstalledModDirectories(bool excludeDisabledMods, Action<List<string>> onComplete)
         {
+            Debug.Assert(onComplete != null);
+
             List<int> modIdFilter = null;
             if(excludeDisabledMods)
             {
@@ -243,80 +251,91 @@ namespace ModIO
                 modIdFilter.Add(ModProfile.NULL_ID);
             }
 
-            List<string> directories = new List<string>();
-            var installedModInfo = ModManager.IterateInstalledMods(modIdFilter);
-            foreach(var kvp in installedModInfo)
+            ModManager.QueryInstalledMods(modIdFilter, (installedMods) =>
             {
-                directories.Add(kvp.Value);
-            }
+                List<string> directories = new List<string>();
 
-            return directories;
+                foreach(var kvp in installedMods)
+                {
+                    directories.Add(kvp.Value);
+                }
+
+                onComplete.Invoke(directories);
+            });
         }
 
         /// <summary>Returns all of the mod version info of installed mods.</summary>
-        public static List<ModfileIdPair> GetInstalledModVersions(bool excludeDisabledMods)
+        public static void QueryInstalledModVersions(bool excludeDisabledMods, Action<List<ModfileIdPair>> onComplete)
         {
+            Debug.Assert(onComplete != null);
+
             List<int> modIdFilter = null;
             if(excludeDisabledMods)
             {
                 modIdFilter = new List<int>(LocalUser.EnabledModIds);
             }
 
-            List<ModfileIdPair> versions = new List<ModfileIdPair>();
-            var installedModInfo = ModManager.IterateInstalledMods(modIdFilter);
-            foreach(var kvp in installedModInfo)
+            ModManager.QueryInstalledMods(modIdFilter, (installedMods) =>
             {
-                if(kvp.Key.modId != ModProfile.NULL_ID)
-                {
-                    versions.Add(kvp.Key);
-                }
-            }
+                List<ModfileIdPair> versions = new List<ModfileIdPair>();
 
-            return versions;
+                foreach(var kvp in installedMods)
+                {
+                    if(kvp.Key.modId != ModProfile.NULL_ID)
+                    {
+                        versions.Add(kvp.Key);
+                    }
+                }
+
+                onComplete.Invoke(versions);
+            });
         }
 
         /// <summary>Returns the data of all the mods installed.</summary>
-        public static IEnumerable<KeyValuePair<ModfileIdPair, string>> IterateInstalledMods(IList<int> modIdFilter)
+        public static void QueryInstalledMods(IList<int> modIdFilter, Action<IDictionary<ModfileIdPair, string>> onComplete)
         {
+            Debug.Assert(onComplete != null);
+
+            Dictionary<ModfileIdPair, string> installedModMap = new Dictionary<ModfileIdPair, string>();
+
             IList<string> modDirectories = LocalDataStorage.GetDirectories(PluginSettings.INSTALLATION_DIRECTORY);
-            if(modDirectories == null)
+            if(modDirectories != null)
             {
-                yield break;
-            }
-
-            foreach(string modDirectory in modDirectories)
-            {
-                string folderName = IOUtilities.GetPathItemName(modDirectory);
-                string[] folderNameParts = folderName.Split('_');
-
-                int modId;
-                int modfileId;
-                if(!(folderNameParts.Length > 0
-                     && Int32.TryParse(folderNameParts[0], out modId)))
+                foreach(string modDirectory in modDirectories)
                 {
-                    modId = ModProfile.NULL_ID;
-                }
+                    string folderName = IOUtilities.GetPathItemName(modDirectory);
+                    string[] folderNameParts = folderName.Split('_');
 
-                if(modIdFilter == null
-                   || modIdFilter.Contains(modId))
-                {
-                    if(!(modId != ModProfile.NULL_ID
-                         && folderNameParts.Length > 1
-                         && Int32.TryParse(folderNameParts[1], out modfileId)))
+                    int modId;
+                    int modfileId;
+                    if(!(folderNameParts.Length > 0
+                         && Int32.TryParse(folderNameParts[0], out modId)))
                     {
-                        modfileId = Modfile.NULL_ID;
+                        modId = ModProfile.NULL_ID;
                     }
 
-                    ModfileIdPair idPair = new ModfileIdPair()
+                    if(modIdFilter == null
+                       || modIdFilter.Contains(modId))
                     {
-                        modId = modId,
-                        modfileId = modfileId,
-                    };
+                        if(!(modId != ModProfile.NULL_ID
+                             && folderNameParts.Length > 1
+                             && Int32.TryParse(folderNameParts[1], out modfileId)))
+                        {
+                            modfileId = Modfile.NULL_ID;
+                        }
 
-                    var info = new KeyValuePair<ModfileIdPair, string>(idPair, modDirectory);
-                    yield return info;
+                        ModfileIdPair idPair = new ModfileIdPair()
+                        {
+                            modId = modId,
+                            modfileId = modfileId,
+                        };
+
+                        installedModMap.Add(idPair, modDirectory);
+                    }
                 }
             }
+
+            onComplete.Invoke(installedModMap);
         }
 
         /// <summary>Downloads and installs a single mod</summary>
@@ -548,7 +567,6 @@ namespace ModIO
             Debug.Assert(modfiles != null);
 
             List<Modfile> unmatchedModfiles = new List<Modfile>(modfiles);
-            List<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
 
             // early out for 0 modfiles
             if(unmatchedModfiles.Count == 0)
@@ -558,6 +576,17 @@ namespace ModIO
             }
 
             // check for installs
+            bool gotModVersions = false;
+            List<ModfileIdPair> installedModVersions = null;
+            ModManager.QueryInstalledModVersions(false,
+            (r) =>
+            {
+                installedModVersions = r;
+                gotModVersions = true;
+            });
+
+            while(!gotModVersions) { yield return null;}
+
             for(int i = 0;
                 i < unmatchedModfiles.Count;
                 ++i)
@@ -1999,6 +2028,46 @@ namespace ModIO
             bool result = false;
 
             ModManager.TryInstallMod(modId, modfileId, (b) => result = b);
+            return result;
+        }
+
+        /// <summary>[Obsolete] Removes a specific version of a mod from the installs folder.</summary>
+        [Obsolete("Use TryUninstallModVersion(int, int, Action<bool>) instead.")]
+        public static bool TryUninstallModVersion(int modId, int modfileId)
+        {
+            bool result = false;
+
+            ModManager.TryUninstallModVersion(modId, modfileId, (b) => result = b);
+            return result;
+        }
+
+        /// <summary>[Obsolete] Returns all of the mod directories of installed mods.</summary>
+        [Obsolete("Use QueryInstalledModDirectories(bool, Action<List<string>>) instead.")]
+        public static List<string> GetInstalledModDirectories(bool excludeDisabledMods)
+        {
+            List<string> result = null;
+
+            ModManager.QueryInstalledModDirectories(excludeDisabledMods, (r) => result = r);
+            return result;
+        }
+
+        /// <summary>[Obsolete] Returns all of the mod version info of installed mods.</summary>
+        [Obsolete("Use QueryInstalledModVersions(bool, Action<List<ModfileIdPair>>) instead.")]
+        public static List<ModfileIdPair> GetInstalledModVersions(bool excludeDisabledMods)
+        {
+            List<ModfileIdPair> result = null;
+
+            ModManager.QueryInstalledModVersions(excludeDisabledMods, (r) => result = r);
+            return result;
+        }
+
+        /// <summary>[Obsolete] Returns the data of all the mods installed.</summary>
+        [Obsolete("Use QueryInstalledMods(bool, Action<IDictionary<ModfileIdPair, string>>) instead.")]
+        public static IEnumerable<KeyValuePair<ModfileIdPair, string>> IterateInstalledMods(IList<int> modIdFilter)
+        {
+            IDictionary<ModfileIdPair, string> result = null;
+
+            ModManager.QueryInstalledMods(modIdFilter, (r) => result = r);
             return result;
         }
 
