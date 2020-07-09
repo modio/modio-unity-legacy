@@ -261,10 +261,15 @@ namespace ModIO
         }
 
         /// <summary>Deletes all of a mod's data from the cache.</summary>
-        public static bool DeleteMod(int modId)
+        public static void DeleteMod(int modId, Action<bool> onComplete)
         {
             string modDir = CacheClient.GenerateModDirectoryPath(modId);
-            return LocalDataStorage.DeleteDirectory(modDir);
+            bool result = LocalDataStorage.DeleteDirectory(modDir);
+
+            if(onComplete != null)
+            {
+                onComplete.Invoke(result);
+            }
         }
 
         // ------[ STATISTICS ]------
@@ -858,6 +863,17 @@ namespace ModIO
             IList<ModProfile> result = null;
 
             CacheClient.RequestFilteredModProfiles(idFilter, (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Deletes all of a mod's data from the cache.</summary>
+        [Obsolete("Use DeleteMod(int modId, Action<bool> onComplete)")]
+        public static bool DeleteMod(int modId)
+        {
+            bool result = false;
+
+            CacheClient.DeleteMod(modId, (r) => result = r);
 
             return result;
         }
