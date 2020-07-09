@@ -278,7 +278,7 @@ namespace ModIO.UI
                     if(profile != null
                        && subMods.Contains(profile.id))
                     {
-                        CacheClient.SaveModProfile(profile);
+                        CacheClient.SaveModProfile(profile, null);
                     }
                 }
             }
@@ -334,30 +334,33 @@ namespace ModIO.UI
                 return;
             }
 
-            profile = CacheClient.LoadModProfile(id);
-            if(profile != null)
+            CacheClient.LoadModProfile(id, (cachedProfile) =>
             {
-                profileCache.Add(id, profile);
-                onSuccess(profile);
-                return;
-            }
-
-            APIClient.GetMod(id, (p) =>
-            {
-                if(this != null)
+                if(cachedProfile != null)
                 {
-                    profileCache[p.id] = p;
-
-                    if(this.storeIfSubscribed
-                       && LocalUser.SubscribedModIds.Contains(p.id))
-                    {
-                        CacheClient.SaveModProfile(p);
-                    }
+                    profileCache.Add(id, cachedProfile);
+                    onSuccess(cachedProfile);
                 }
+                else
+                {
+                    APIClient.GetMod(id, (p) =>
+                    {
+                        if(this != null)
+                        {
+                            profileCache[p.id] = p;
 
-                onSuccess(p);
-            },
-            onError);
+                            if(this.storeIfSubscribed
+                               && LocalUser.SubscribedModIds.Contains(p.id))
+                            {
+                                CacheClient.SaveModProfile(p, null);
+                            }
+                        }
+
+                        onSuccess(p);
+                    },
+                    onError);
+                }
+            });
         }
 
         /// <summary>Requests a collection of ModProfiles by id.</summary>
@@ -571,7 +574,7 @@ namespace ModIO.UI
                     ModProfile profile;
                     if(this.profileCache.TryGetValue(modId, out profile))
                     {
-                        CacheClient.SaveModProfile(profile);
+                        CacheClient.SaveModProfile(profile, null);
                     }
                 }
             }
