@@ -1287,57 +1287,57 @@ namespace ModIO
             }
 
             // - Initial Mod Submission -
-            byte[] data;
-            LocalDataStorage.ReadFile(newModProfile.logoLocator.value.url, out data);
+            LocalDataStorage.ReadFile(newModProfile.logoLocator.value.url, (p, success, data) =>
+            {
+                var parameters = new AddModParameters();
+                parameters.name = newModProfile.name.value;
+                parameters.summary = newModProfile.summary.value;
+                parameters.logo = BinaryUpload.Create(Path.GetFileName(newModProfile.logoLocator.value.url), data);
 
-            var parameters = new AddModParameters();
-            parameters.name = newModProfile.name.value;
-            parameters.summary = newModProfile.summary.value;
-            parameters.logo = BinaryUpload.Create(Path.GetFileName(newModProfile.logoLocator.value.url), data);
+                if(newModProfile.visibility.isDirty)
+                {
+                    parameters.visibility = newModProfile.visibility.value;
+                }
+                if(newModProfile.nameId.isDirty)
+                {
+                    parameters.nameId = newModProfile.nameId.value;
+                }
+                if(newModProfile.descriptionAsHTML.isDirty)
+                {
+                    parameters.descriptionAsHTML = newModProfile.descriptionAsHTML.value;
+                }
+                if(newModProfile.homepageURL.isDirty)
+                {
+                    parameters.nameId = newModProfile.homepageURL.value;
+                }
+                if(newModProfile.metadataBlob.isDirty)
+                {
+                    parameters.metadataBlob = newModProfile.metadataBlob.value;
+                }
+                if(newModProfile.nameId.isDirty)
+                {
+                    parameters.nameId = newModProfile.nameId.value;
+                }
+                if(newModProfile.tags.isDirty)
+                {
+                    parameters.tags = newModProfile.tags.value;
+                }
 
-            if(newModProfile.visibility.isDirty)
-            {
-                parameters.visibility = newModProfile.visibility.value;
-            }
-            if(newModProfile.nameId.isDirty)
-            {
-                parameters.nameId = newModProfile.nameId.value;
-            }
-            if(newModProfile.descriptionAsHTML.isDirty)
-            {
-                parameters.descriptionAsHTML = newModProfile.descriptionAsHTML.value;
-            }
-            if(newModProfile.homepageURL.isDirty)
-            {
-                parameters.nameId = newModProfile.homepageURL.value;
-            }
-            if(newModProfile.metadataBlob.isDirty)
-            {
-                parameters.metadataBlob = newModProfile.metadataBlob.value;
-            }
-            if(newModProfile.nameId.isDirty)
-            {
-                parameters.nameId = newModProfile.nameId.value;
-            }
-            if(newModProfile.tags.isDirty)
-            {
-                parameters.tags = newModProfile.tags.value;
-            }
+                // NOTE(@jackson): As add Mod takes more parameters than edit,
+                //  we can ignore some of the elements in the EditModParameters
+                //  when passing to SubmitModChanges_Internal
+                var remainingModEdits = new EditableModProfile();
+                remainingModEdits.youTubeURLs = newModProfile.youTubeURLs;
+                remainingModEdits.sketchfabURLs = newModProfile.sketchfabURLs;
+                remainingModEdits.galleryImageLocators = newModProfile.galleryImageLocators;
 
-            // NOTE(@jackson): As add Mod takes more parameters than edit,
-            //  we can ignore some of the elements in the EditModParameters
-            //  when passing to SubmitModChanges_Internal
-            var remainingModEdits = new EditableModProfile();
-            remainingModEdits.youTubeURLs = newModProfile.youTubeURLs;
-            remainingModEdits.sketchfabURLs = newModProfile.sketchfabURLs;
-            remainingModEdits.galleryImageLocators = newModProfile.galleryImageLocators;
-
-            APIClient.AddMod(parameters,
-                             result => SubmitModChanges_Internal(result,
-                                                                 remainingModEdits,
-                                                                 onSuccess,
-                                                                 onError),
-                             onError);
+                APIClient.AddMod(parameters,
+                                 result => SubmitModChanges_Internal(result,
+                                                                     remainingModEdits,
+                                                                     onSuccess,
+                                                                     onError),
+                                 onError);
+            });
         }
 
         /// <summary>Submits changes to a mod to the server.</summary>
@@ -1448,10 +1448,21 @@ namespace ModIO
                 if(modEdits.logoLocator.isDirty
                    && LocalDataStorage.GetFileExists(modEdits.logoLocator.value.url))
                 {
-                    byte[] data;
-                    LocalDataStorage.ReadFile(modEdits.logoLocator.value.url, out data);
+                    addMediaParameters.logo = new BinaryUpload();
 
-                    addMediaParameters.logo = BinaryUpload.Create(Path.GetFileName(modEdits.logoLocator.value.url), data);
+                    submissionActions.Add(() =>
+                    {
+                        LocalDataStorage.ReadFile(modEdits.logoLocator.value.url,
+                        (p, success, data) =>
+                        {
+                            if(success)
+                            {
+                                addMediaParameters.logo = BinaryUpload.Create(Path.GetFileName(modEdits.logoLocator.value.url), data);
+                            }
+
+                            doNextSubmissionAction(null);
+                        });
+                    });
                 }
 
                 if(modEdits.youTubeURLs.isDirty)
@@ -1505,6 +1516,8 @@ namespace ModIO
                                                                             "modio",
                                                                             "imageGallery_" + DateTime.Now.ToFileTime() + ".zip");
 
+                        bool archiveCreated = false;
+
                         try
                         {
                             LocalDataStorage.CreateDirectory(Path.GetDirectoryName(galleryZipLocation));
@@ -1518,17 +1531,32 @@ namespace ModIO
                                 zip.Save(galleryZipLocation);
                             }
 
-                            byte[] data;
-                            LocalDataStorage.ReadFile(galleryZipLocation, out data);
-
-                            var imageGalleryUpload = BinaryUpload.Create("images.zip", data);
-
-                            addMediaParameters.galleryImages = imageGalleryUpload;
+                            archiveCreated = true;
                         }
                         catch(Exception e)
                         {
                             Debug.LogError("[mod.io] Unable to zip image gallery prior to uploading.\n\n"
                                            + Utility.GenerateExceptionDebugString(e));
+                        }
+
+                        if(archiveCreated)
+                        {
+                            addMediaParameters.galleryImages = new BinaryUpload();
+
+                            submissionActions.Add(() =>
+                            {
+                                LocalDataStorage.ReadFile(galleryZipLocation,
+                                (p, success, data) =>
+                                {
+                                    if(success)
+                                    {
+                                        var imageGalleryUpload = BinaryUpload.Create("images.zip", data);
+                                        addMediaParameters.galleryImages = imageGalleryUpload;
+                                    }
+
+                                    doNextSubmissionAction(null);
+                                });
+                            });
                         }
                     }
 
@@ -1791,36 +1819,35 @@ namespace ModIO
                                                   Action<Modfile> onSuccess,
                                                   Action<WebRequestError> onError)
         {
-            string buildFilename = Path.GetFileName(binaryZipLocation);
-
-            byte[] buildZipData;
-            LocalDataStorage.ReadFile(binaryZipLocation, out buildZipData);
-
-            var parameters = new AddModfileParameters();
-            parameters.zippedBinaryData = BinaryUpload.Create(buildFilename, buildZipData);
-            if(modfileValues.version.isDirty)
+            LocalDataStorage.ReadFile(binaryZipLocation, (p, success, data) =>
             {
-                parameters.version = modfileValues.version.value;
-            }
-            if(modfileValues.changelog.isDirty)
-            {
-                parameters.changelog = modfileValues.changelog.value;
-            }
-            if(modfileValues.metadataBlob.isDirty)
-            {
-                parameters.metadataBlob = modfileValues.metadataBlob.value;
-            }
+                string buildFilename = Path.GetFileName(binaryZipLocation);
+                var parameters = new AddModfileParameters();
+                parameters.zippedBinaryData = BinaryUpload.Create(buildFilename, data);
+                if(modfileValues.version.isDirty)
+                {
+                    parameters.version = modfileValues.version.value;
+                }
+                if(modfileValues.changelog.isDirty)
+                {
+                    parameters.changelog = modfileValues.changelog.value;
+                }
+                if(modfileValues.metadataBlob.isDirty)
+                {
+                    parameters.metadataBlob = modfileValues.metadataBlob.value;
+                }
 
-            parameters.isActiveBuild = setActiveBuild;
+                parameters.isActiveBuild = setActiveBuild;
 
-            // - Generate Hash -
-            string hash;
-            Int64 fileSize;
+                // - Generate Hash -
+                string hash;
+                Int64 fileSize;
 
-            LocalDataStorage.GetFileSizeAndHash(binaryZipLocation, out fileSize, out hash);
-            parameters.fileHash = hash;
+                LocalDataStorage.GetFileSizeAndHash(binaryZipLocation, out fileSize, out hash);
+                parameters.fileHash = hash;
 
-            APIClient.AddModfile(modId, parameters, onSuccess, onError);
+                APIClient.AddModfile(modId, parameters, onSuccess, onError);
+            });
         }
         // ---------[ USER DATA ]---------
         /// <summary>Fetches and caches the User Profile for the values in UserAuthenticationData.</summary>
