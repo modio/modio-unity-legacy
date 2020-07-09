@@ -842,39 +842,56 @@ namespace ModIO
         }
 
         /// <summary>Stores a user's avatar in the cache.</summary>
-        public static bool SaveUserAvatar(int userId, UserAvatarSize size,
-                                          Texture2D avatarTexture)
+        public static void SaveUserAvatar(int userId, UserAvatarSize size, Texture2D avatarTexture,
+                                          Action<bool> onComplete)
         {
+            Debug.Assert(userId != UserProfile.NULL_ID);
             Debug.Assert(avatarTexture != null);
 
             string avatarFilePath = CacheClient.GenerateUserAvatarFilePath(userId, size);
             byte[] imageData = avatarTexture.EncodeToPNG();
+            bool result = LocalDataStorage.WriteFile(avatarFilePath, imageData);
 
-            return LocalDataStorage.WriteFile(avatarFilePath, imageData);
+            if(onComplete != null)
+            {
+                onComplete.Invoke(result);
+            }
         }
 
         /// <summary>Retrieves a user's avatar from the cache.</summary>
-        public static Texture2D LoadUserAvatar(int userId, UserAvatarSize size)
+        public static void LoadUserAvatar(int userId, UserAvatarSize size, Action<Texture2D> onComplete)
         {
+            Debug.Assert(userId != UserProfile.NULL_ID);
+            Debug.Assert(onComplete != null);
+
             string avatarFilePath = CacheClient.GenerateUserAvatarFilePath(userId, size);
-            byte[] imageData;
+            byte[] imageData = null;
+            Texture2D result = null;
 
             if(LocalDataStorage.ReadFile(avatarFilePath, out imageData)
                && imageData != null)
             {
-                return IOUtilities.ParseImageData(imageData);
+                result = IOUtilities.ParseImageData(imageData);
             }
-            else
+
+            if(onComplete != null)
             {
-                return null;
+                onComplete.Invoke(result);
             }
         }
 
         /// <summary>Delete's a user's avatars from the cache.</summary>
-        public static bool DeleteUserAvatar(int userId)
+        public static void DeleteUserAvatar(int userId, Action<bool> onComplete)
         {
+            Debug.Assert(userId != UserProfile.NULL_ID);
+
             string path = CacheClient.GenerateUserAvatarDirectoryPath(userId);
-            return LocalDataStorage.DeleteDirectory(path);
+            bool result = LocalDataStorage.DeleteDirectory(path);
+
+            if(onComplete != null)
+            {
+                onComplete.Invoke(result);
+            }
         }
 
         // ---------[ OBSOLETE ]---------
@@ -1329,6 +1346,42 @@ namespace ModIO
 
             CacheClient.DeleteModTeam(modId,
                                       (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Stores a user's avatar in the cache.</summary>
+        [Obsolete("Use SaveUserAvatar(int, UserAvatarSize, Texture2D, Action<bool>) instead.")]
+        public static bool SaveUserAvatar(int userId, UserAvatarSize size, Texture2D avatarTexture)
+        {
+            bool result = false;
+
+            CacheClient.SaveUserAvatar(userId, size, avatarTexture,
+                                       (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Retrieves a user's avatar from the cache.</summary>
+        [Obsolete("Use LoadUserAvatar(int, UserAvatarSize, Action<Texture2D>) instead.")]
+        public static Texture2D LoadUserAvatar(int userId, UserAvatarSize size)
+        {
+            Texture2D result = null;
+
+            CacheClient.LoadUserAvatar(userId, size,
+                                       (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Delete's a user's avatars from the cache.</summary>
+        [Obsolete("Use DeleteUserAvatar(int, Action<bool>) instead.")]
+        public static bool DeleteUserAvatar(int userId)
+        {
+            bool result = false;
+
+            CacheClient.DeleteUserAvatar(userId,
+                                         (r) => result = r);
 
             return result;
         }
