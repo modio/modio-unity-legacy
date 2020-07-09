@@ -444,24 +444,38 @@ namespace ModIO
         }
 
         /// <summary>Stores a mod binary's ZipFile data in the cache.</summary>
-        public static bool SaveModBinaryZip(int modId, int modfileId,
-                                            byte[] modBinary)
+        public static void SaveModBinaryZip(int modId, int modfileId, byte[] modBinary,
+                                            Action<bool> onComplete)
         {
+            Debug.Assert(modId != ModProfile.NULL_ID);
+            Debug.Assert(modfileId != Modfile.NULL_ID);
             Debug.Assert(modBinary != null);
             Debug.Assert(modBinary.Length > 0);
 
             string filePath = GenerateModBinaryZipFilePath(modId, modfileId);
-            return LocalDataStorage.WriteFile(filePath, modBinary);
+            bool result = LocalDataStorage.WriteFile(filePath, modBinary);
+
+            if(onComplete != null)
+            {
+                onComplete.Invoke(result);
+            }
         }
 
         /// <summary>Retrieves a mod binary's ZipFile data from the cache.</summary>
-        public static byte[] LoadModBinaryZip(int modId, int modfileId)
+        public static void LoadModBinaryZip(int modId, int modfileId, Action<byte[]> onComplete)
         {
+            Debug.Assert(modId != ModProfile.NULL_ID);
+            Debug.Assert(modfileId != Modfile.NULL_ID);
+            Debug.Assert(onComplete != null);
+
             string filePath = GenerateModBinaryZipFilePath(modId, modfileId);
             byte[] zipData;
             LocalDataStorage.ReadFile(filePath, out zipData);
 
-            return zipData;
+            if(onComplete != null)
+            {
+                onComplete.Invoke(zipData);
+            }
         }
 
         /// <summary>Deletes a modfile and binary from the cache.</summary>
@@ -1053,6 +1067,29 @@ namespace ModIO
             Modfile result = null;
 
             CacheClient.LoadModfile(modId, modfileId, (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Stores a mod binary's ZipFile data in the cache.</summary>
+        [Obsolete("Use SaveModBinaryZip(int, int, byte[], Action<bool>) instead.")]
+        public static bool SaveModBinaryZip(int modId, int modfileId, byte[] modBinary)
+        {
+            bool result = false;
+
+            CacheClient.SaveModBinaryZip(modId, modfileId, modBinary,
+                                         (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Retrieves a mod binary's ZipFile data from the cache.</summary>
+        [Obsolete("Use LoadModBinaryZip(int, int, Action<byte[]>) instead.")]
+        public static byte[] LoadModBinaryZip(int modId, int modfileId)
+        {
+            byte[] result = null;
+
+            CacheClient.LoadModBinaryZip(modId, modfileId, (r) => result = r);
 
             return result;
         }
