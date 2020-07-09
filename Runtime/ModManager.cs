@@ -908,26 +908,29 @@ namespace ModIO
                                       Action<Texture2D> onSuccess,
                                       Action<WebRequestError> onError)
         {
+            Debug.Assert(modId != ModProfile.NULL_ID);
             Debug.Assert(logoLocator != null);
+            Debug.Assert(onSuccess != null);
 
-            var logoTexture = CacheClient.LoadModLogo(modId, logoLocator.fileName, size);
-            if(logoTexture != null)
+            CacheClient.LoadModLogo(modId, logoLocator.fileName, size, (logoTexture) =>
             {
-                onSuccess(logoTexture);
-            }
-            else
-            {
-                var textureDownload = DownloadClient.DownloadImage(logoLocator.GetSizeURL(size));
-
-                textureDownload.succeeded += (d) =>
+                if(logoTexture != null)
                 {
-                    CacheClient.SaveModLogo(modId, logoLocator.GetFileName(),
-                                            size, d.imageTexture);
-                };
+                    if(onSuccess != null) { onSuccess(logoTexture); }
+                }
+                else
+                {
+                    var textureDownload = DownloadClient.DownloadImage(logoLocator.GetSizeURL(size));
 
-                textureDownload.succeeded += (d) => onSuccess(d.imageTexture);
-                textureDownload.failed += (d) => onError(d.error);
-            }
+                    textureDownload.succeeded += (d) =>
+                    {
+                        CacheClient.SaveModLogo(modId, logoLocator.GetFileName(), size, d.imageTexture, null);
+                    };
+
+                    textureDownload.succeeded += (d) => onSuccess(d.imageTexture);
+                    textureDownload.failed += (d) => onError(d.error);
+                }
+            });
         }
 
         /// <summary>Fetches and caches a Mod Gallery Image (if not already cached).</summary>
