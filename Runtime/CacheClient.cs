@@ -415,22 +415,32 @@ namespace ModIO
         }
 
         /// <summary>Stores a modfile in the cache.</summary>
-        public static bool SaveModfile(Modfile modfile)
+        public static void SaveModfile(Modfile modfile, Action<bool> onComplete)
         {
             Debug.Assert(modfile != null);
 
             string path = GenerateModfileFilePath(modfile.modId, modfile.id);
-            return LocalDataStorage.WriteJSONFile(path, modfile);
+            bool result = LocalDataStorage.WriteJSONFile(path, modfile);
+
+            if(onComplete != null)
+            {
+                onComplete.Invoke(result);
+            }
         }
 
         /// <summary>Retrieves a modfile from the cache.</summary>
-        public static Modfile LoadModfile(int modId, int modfileId)
+        public static void LoadModfile(int modId, int modfileId, Action<Modfile> onComplete)
         {
+            Debug.Assert(onComplete != null);
+
             string modfileFilePath = GenerateModfileFilePath(modId, modfileId);
             Modfile modfile;
             LocalDataStorage.ReadJSONFile(modfileFilePath, out modfile);
 
-            return modfile;
+            if(onComplete != null)
+            {
+                onComplete.Invoke(modfile);
+            }
         }
 
         /// <summary>Stores a mod binary's ZipFile data in the cache.</summary>
@@ -1021,6 +1031,28 @@ namespace ModIO
             ModStatistics result = null;
 
             CacheClient.LoadModStatistics(modId, (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Stores a modfile in the cache.</summary>
+        [Obsolete("Use SaveModfile(Modfile, Action<bool>) instead.")]
+        public static bool SaveModfile(Modfile modfile)
+        {
+            bool result = false;
+
+            CacheClient.SaveModfile(modfile, (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Retrieves a modfile from the cache.</summary>
+        [Obsolete("Use LoadModfile(int, int, Action<Modfile>) instead.")]
+        public static Modfile LoadModfile(int modId, int modfileId)
+        {
+            Modfile result = null;
+
+            CacheClient.LoadModfile(modId, modfileId, (r) => result = r);
 
             return result;
         }
