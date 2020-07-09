@@ -1044,26 +1044,27 @@ namespace ModIO
                                             Action<ModStatistics> onSuccess,
                                             Action<WebRequestError> onError)
         {
-            var cachedStats = CacheClient.LoadModStatistics(modId);
-
-            if(cachedStats != null
-               && cachedStats.dateExpires > ServerTimeStamp.Now)
+            CacheClient.LoadModStatistics(modId, (cachedStats) =>
             {
-                if(onSuccess != null) { onSuccess(cachedStats); }
-            }
-            else
-            {
-                // - Fetch from Server -
-                Action<ModStatistics> onGetStats = (stats) =>
+                if(cachedStats != null
+                   && cachedStats.dateExpires > ServerTimeStamp.Now)
                 {
-                    CacheClient.SaveModStatistics(stats);
-                    if(onSuccess != null) { onSuccess(stats); }
-                };
+                    if(onSuccess != null) { onSuccess(cachedStats); }
+                }
+                else
+                {
+                    // - Fetch from Server -
+                    Action<ModStatistics> onGetStats = (stats) =>
+                    {
+                        CacheClient.SaveModStatistics(stats, null);
+                        if(onSuccess != null) { onSuccess(stats); }
+                    };
 
-                APIClient.GetModStats(modId,
-                                      onGetStats,
-                                      onError);
-            }
+                    APIClient.GetModStats(modId,
+                                          onGetStats,
+                                          onError);
+                }
+            });
         }
 
 
