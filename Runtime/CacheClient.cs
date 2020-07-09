@@ -479,8 +479,11 @@ namespace ModIO
         }
 
         /// <summary>Deletes a modfile and binary from the cache.</summary>
-        public static bool DeleteModfileAndBinaryZip(int modId, int modfileId)
+        public static void DeleteModfileAndBinaryZip(int modId, int modfileId, Action<bool> onComplete)
         {
+            Debug.Assert(modId != ModProfile.NULL_ID);
+            Debug.Assert(modfileId != Modfile.NULL_ID);
+
             string modfilePath = CacheClient.GenerateModfileFilePath(modId, modfileId);
             string zipPath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
 
@@ -495,14 +498,24 @@ namespace ModIO
                 success = false;
             }
 
-            return success;
+            if(onComplete != null)
+            {
+                onComplete.Invoke(success);
+            }
         }
 
         /// <summary>Deletes all modfiles and binaries from the cache.</summary>
-        public static bool DeleteAllModfileAndBinaryData(int modId)
+        public static void DeleteAllModfileAndBinaryData(int modId, Action<bool> onComplete)
         {
+            Debug.Assert(modId != ModProfile.NULL_ID);
+
             string path = CacheClient.GenerateModBinariesDirectoryPath(modId);
-            return LocalDataStorage.DeleteDirectory(path);
+            bool result = LocalDataStorage.DeleteDirectory(path);
+
+            if(onComplete != null)
+            {
+                onComplete.Invoke(result);
+            }
         }
 
         // ------[ MEDIA ]------
@@ -1090,6 +1103,29 @@ namespace ModIO
             byte[] result = null;
 
             CacheClient.LoadModBinaryZip(modId, modfileId, (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Deletes a modfile and binary from the cache.</summary>
+        [Obsolete("Use DeleteModfileAndBinaryZip(int, int, Action<bool>) instead.")]
+        public static bool DeleteModfileAndBinaryZip(int modId, int modfileId)
+        {
+            bool result = false;
+
+            CacheClient.DeleteModfileAndBinaryZip(modId, modfileId,
+                                                  (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Deletes all modfiles and binaries from the cache.</summary>
+        [Obsolete("Use DeleteAllModfileAndBinaryData(int, Action<bool>) instead.")]
+        public static bool DeleteAllModfileAndBinaryData(int modId)
+        {
+            bool result = false;
+
+            CacheClient.DeleteAllModfileAndBinaryData(modId, (r) => result = r);
 
             return result;
         }
