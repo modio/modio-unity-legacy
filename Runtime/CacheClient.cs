@@ -567,13 +567,17 @@ namespace ModIO
         }
 
         /// <summary>Retrieves the file paths for the mod logos in the cache.</summary>
-        public static Dictionary<LogoSize, string> GetModLogoVersionFileNames(int modId)
+        public static void GetModLogoVersionFileNames(int modId,
+                                                      Action<Dictionary<LogoSize, string>> onComplete)
         {
             string path = CacheClient.GenerateModLogoVersionInfoFilePath(modId);
             Dictionary<LogoSize, string> retVal;
             LocalDataStorage.ReadJSONFile(path, out retVal);
 
-            return retVal;
+            if(onComplete != null)
+            {
+                onComplete.Invoke(retVal);
+            }
         }
 
         /// <summary>Stores a mod logo in the cache with the given fileName.</summary>
@@ -595,13 +599,15 @@ namespace ModIO
                 success = true;
 
                 // - Update the versioning info -
-                var versionInfo = CacheClient.GetModLogoVersionFileNames(modId);
-                if(versionInfo == null)
+                CacheClient.GetModLogoVersionFileNames(modId, (versionInfo) =>
                 {
-                    versionInfo = new Dictionary<LogoSize, string>();
-                }
-                versionInfo[size] = fileName;
-                LocalDataStorage.WriteJSONFile(GenerateModLogoVersionInfoFilePath(modId), versionInfo);
+                    if(versionInfo == null)
+                    {
+                        versionInfo = new Dictionary<LogoSize, string>();
+                    }
+                    versionInfo[size] = fileName;
+                    LocalDataStorage.WriteJSONFile(GenerateModLogoVersionInfoFilePath(modId), versionInfo);
+                });
             }
 
             if(onComplete != null)
@@ -639,32 +645,37 @@ namespace ModIO
             Debug.Assert(!String.IsNullOrEmpty(fileName));
             Debug.Assert(onComplete != null);
 
-            string logoFileName = GetModLogoFileName(modId, size);
-            if(logoFileName == fileName)
+            CacheClient.GetModLogoFileName(modId, size, (logoFileName) =>
             {
-                CacheClient.LoadModLogo(modId, size, onComplete);
-            }
-            else if(onComplete != null)
-            {
-                onComplete.Invoke(null);
-            }
+                if(logoFileName == fileName)
+                {
+                    CacheClient.LoadModLogo(modId, size, onComplete);
+                }
+                else if(onComplete != null)
+                {
+                    onComplete.Invoke(null);
+                }
+            });
         }
 
         /// <summary>Retrieves the information for the cached mod logos.</summary>
-        public static string GetModLogoFileName(int modId, LogoSize size)
+        public static void GetModLogoFileName(int modId, LogoSize size, Action<string> onComplete)
         {
             // - Ensure the logo is the correct version -
-            var versionInfo = CacheClient.GetModLogoVersionFileNames(modId);
-            if(versionInfo != null)
+            CacheClient.GetModLogoVersionFileNames(modId, (versionInfo) =>
             {
-                string logoFileName = string.Empty;
-                if(versionInfo.TryGetValue(size, out logoFileName)
-                   && !String.IsNullOrEmpty(logoFileName))
+                string logoFileName = null;
+
+                if(versionInfo != null)
                 {
-                    return logoFileName;
+                    versionInfo.TryGetValue(size, out logoFileName);
                 }
-            }
-            return null;
+
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(logoFileName);
+                }
+            });
         }
 
         /// <summary>Stores a mod gallery image in the cache.</summary>
@@ -1142,6 +1153,17 @@ namespace ModIO
             return result;
         }
 
+        /// <summary>[Obsolete] Retrieves the file paths for the mod logos in the cache.</summary>
+        [Obsolete("Use GetModLogoVersionFileNames(int, Action<IDictionary<LogoSize, string>>) instead.")]
+        public static Dictionary<LogoSize, string> GetModLogoVersionFileNames(int modId)
+        {
+            Dictionary<LogoSize, string> result = null;
+
+            CacheClient.GetModLogoVersionFileNames(modId, (r) => result = r);
+
+            return result;
+        }
+
         /// <summary>[Obsolete] Stores a mod logo in the cache with the given fileName.</summary>
         [Obsolete("Use SaveModLogo(int, string, LogoSize, Texture2D, Action<bool>) instead.")]
         public static bool SaveModLogo(int modId, string fileName, LogoSize size, Texture2D logoTexture)
@@ -1173,6 +1195,17 @@ namespace ModIO
             Texture2D result = null;
 
             CacheClient.LoadModLogo(modId, fileName, size, (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Retrieves the information for the cached mod logos.</summary>
+        [Obsolete("Use GetModLogoFileName(int, LogoSize, Action<string>) instead.")]
+        public static string GetModLogoFileName(int modId, LogoSize size)
+        {
+            string result = null;
+
+            CacheClient.GetModLogoFileName(modId, size, (r) => result = r);
 
             return result;
         }
