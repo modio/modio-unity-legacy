@@ -92,25 +92,79 @@ namespace ModIO.UI
             Debug.Assert(locator != null);
             Debug.Assert(onLogoReceived != null);
 
-            // set loading function
-            Func<Texture2D> loadFromDisk = () => CacheClient.LoadModLogo(modId, locator.GetFileName(), size);
-
-            // set saving function
-            Action<Texture2D> saveToDisk = null;
-            if(this.storeIfSubscribed)
+            // check cache
+            string url = locator.GetSizeURL(size);
+            if(this.cache.ContainsKey(url))
             {
-                saveToDisk = (t) =>
-                {
-                    if(LocalUser.SubscribedModIds.Contains(modId))
-                    {
-                        CacheClient.SaveModLogo(modId, locator.GetFileName(), size, t);
-                    }
-                };
+                onLogoReceived.Invoke(this.cache[url]);
+                return;
             }
 
-            // do the work
-            this.RequestImage_Internal(locator, size, loadFromDisk, saveToDisk,
-                                       onLogoReceived, onFallbackFound, onError);
+            // check requests in progress
+            Callbacks callbacks = null;
+            if(this.m_callbackMap.TryGetValue(url, out callbacks))
+            {
+                callbacks.succeeded.Add(onLogoReceived);
+                callbacks.failed.Add(onError);
+
+                if(onFallbackFound != null
+                   && callbacks.fallback != null)
+                {
+                    onFallbackFound.Invoke(callbacks.fallback);
+                }
+
+                return;
+            }
+
+            // - Start new request -
+            // add to callbacks map
+            callbacks = new Callbacks()
+            {
+                fallback = null,
+                succeeded = new List<Action<Texture2D>>(),
+                failed = new List<Action<WebRequestError>>(),
+            };
+
+            callbacks.fallback = this.FindFallbackTexture(locator);
+            callbacks.succeeded.Add(onLogoReceived);
+            callbacks.failed.Add(onError);
+
+            this.m_callbackMap[url] = callbacks;
+
+            // check for fallback
+            if(onFallbackFound != null
+               && callbacks.fallback != null)
+            {
+                onFallbackFound.Invoke(callbacks.fallback);
+            }
+
+            // start process by checking the cache
+            CacheClient.LoadModLogo(modId, locator.GetFileName(), size, (texture) =>
+            {
+                if(this == null) { return; }
+
+                if(texture != null)
+                {
+                    this.OnRequestSucceeded(url, texture);
+                }
+                else
+                {
+                    // set saving function
+                    if(this.storeIfSubscribed)
+                    {
+                        callbacks.succeeded.Add((t) =>
+                        {
+                            if(LocalUser.SubscribedModIds.Contains(modId))
+                            {
+                                CacheClient.SaveModLogo(modId, locator.GetFileName(), size, t, null);
+                            }
+                        });
+                    }
+
+                    // do the download
+                    this.DownloadImage(url);
+                }
+            });
         }
 
         /// <summary>Requests the image for a given locator.</summary>
@@ -535,7 +589,7 @@ namespace ModIO.UI
                     if(this.cache.TryGetValue(sizeURLPair.url, out cachedTexture))
                     {
                         CacheClient.SaveModLogo(profile.id, profile.logoLocator.GetFileName(),
-                                                sizeURLPair.size, cachedTexture);
+                                                sizeURLPair.size, cachedTexture, null);
                     }
                 }
             }
