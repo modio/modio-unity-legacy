@@ -309,6 +309,90 @@ namespace ModIO
             }
         }
 
+        /// <summary>Requests all of the mod statistics returning only those matching the id filter.</summary>
+        public static void RequestFilteredModStatistics(IList<int> idFilter, Action<IList<ModStatistics>> onComplete)
+        {
+            const string FILENAME = "stats.data";
+
+            Debug.Assert(IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods", "0")
+                         == CacheClient.GenerateModDirectoryPath(0),
+                         "[mod.io] This function relies on mod directory path being a generated in"
+                         + " a specific way. Changing CacheClient.GenerateModDirectoryPath()"
+                         + " necessitates changes in this function.");
+
+            Debug.Assert(IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(0), FILENAME)
+                         == CacheClient.GenerateModStatisticsFilePath(0),
+                         "[mod.io] This function relies on mod directory profile file path being a generated in"
+                         + " a specific way. Changing CacheClient.GenerateModStatisticsFilePath()"
+                         + " necessitates changes in this function.");
+
+            Debug.Assert(onComplete != null);
+
+            // init
+            List<ModStatistics> modStatistics = new List<ModStatistics>();
+
+            // early out
+            if(idFilter == null || idFilter.Count == 0)
+            {
+                onComplete.Invoke(modStatistics);
+                return;
+            }
+
+            // get statistics
+            string statisticsDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
+
+            if(LocalDataStorage.GetDirectoryExists(statisticsDirectory))
+            {
+                IList<string> modDirectories;
+                try
+                {
+                    modDirectories = LocalDataStorage.GetDirectories(statisticsDirectory);
+                }
+                catch(Exception e)
+                {
+                    string warningInfo = ("[mod.io] Failed to read mod statistics directory."
+                                          + "\nDirectory: " + statisticsDirectory + "\n\n");
+
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
+
+                    modDirectories = new string[0];
+                }
+
+                foreach(string modDirectory in modDirectories)
+                {
+                    string idPart = modDirectory.Substring(statisticsDirectory.Length + 1);
+                    int modId = ModProfile.NULL_ID;
+                    if(!int.TryParse(idPart, out modId))
+                    {
+                        modId = ModProfile.NULL_ID;
+                    }
+
+                    if(idFilter.Contains(modId))
+                    {
+                        string statisticsPath = IOUtilities.CombinePath(modDirectory, FILENAME);
+                        ModStatistics statistics;
+
+                        LocalDataStorage.ReadJSONFile(statisticsPath, out statistics);
+
+                        if(statistics != null)
+                        {
+                            modStatistics.Add(statistics);
+                        }
+                        else
+                        {
+                            LocalDataStorage.DeleteFile(statisticsPath);
+                        }
+                    }
+                }
+            }
+
+            if(onComplete != null)
+            {
+                onComplete.Invoke(modStatistics);
+            }
+        }
+
         // ------[ MODFILES ]------
         /// <summary>Generates the path for a cached mod build directory.</summary>
         public static string GenerateModBinariesDirectoryPath(int modId)
