@@ -73,31 +73,46 @@ namespace ModIO.UI
                                                  Action<ModStatistics> onSuccess,
                                                  Action<WebRequestError> onError)
         {
-            ModStatistics stats = null;
+            Debug.Assert(onSuccess != null);
 
-            if(!this.cache.TryGetValue(modId, out stats))
+            // check loaded cache
+            ModStatistics cachedStats = null;
+            if(this.cache.TryGetValue(modId, out cachedStats)
+               && this.IsValid(cachedStats))
             {
-                stats = CacheClient.LoadModStatistics(modId);
-                this.cache.Add(modId, stats);
+                onSuccess.Invoke(cachedStats);
+                return;
             }
 
-            if(this.IsValid(stats))
+            CacheClient.LoadModStatistics(modId, (stats) =>
             {
-                onSuccess(stats);
-            }
-            else
-            {
-                APIClient.GetModStats(modId, (s) =>
+                if(this == null) { return; }
+
+                if(this.IsValid(stats))
                 {
-                    if(this != null)
-                    {
-                        this.cache[modId] = s;
-                    }
+                    this.cache.Add(modId, stats);
 
-                    onSuccess(s);
-                },
-                onError);
-            }
+                    if(onSuccess != null)
+                    {
+                        onSuccess.Invoke(stats);
+                    }
+                }
+                else
+                {
+                    APIClient.GetModStats(modId, (s) =>
+                    {
+                        if(this != null)
+                        {
+                            this.cache[modId] = s;
+                        }
+                        if(onSuccess != null)
+                        {
+                            onSuccess(s);
+                        }
+                    },
+                    onError);
+                }
+            });
         }
 
         /// <summary>Requests a collection of ModStatistcs by id.</summary>
@@ -122,56 +137,58 @@ namespace ModIO.UI
                 }
             }
 
-            // check disk for any missing stats
-            int missingIndex = 0;
-            while(missingIndex < missingIds.Count)
+            CacheClient.RequestFilteredModStatistics(missingIds, (cachedStatistics) =>
             {
-                int id = missingIds[missingIndex];
-                ModStatistics stats = CacheClient.LoadModStatistics(id);
-
-                if(this.IsValid(stats))
+                // check disk for any missing stats
+                foreach(ModStatistics stats in cachedStatistics)
                 {
-                    int resultIndex = orderedIdList.IndexOf(id);
-                    results[resultIndex] = stats;
-                    missingIds.RemoveAt(missingIndex);
-                }
-                else
-                {
-                    ++missingIndex;
-                }
-            }
-
-            // if no missing profiles, early out
-            if(missingIds.Count == 0)
-            {
-                onSuccess(results);
-                return;
-            }
-
-            // fetch missing statistics
-            Action<List<ModStatistics>> onFetchStats = (modStatistics) =>
-            {
-                if(this != null)
-                {
-                    foreach(ModStatistics stats in modStatistics)
+                    if(this.IsValid(stats))
                     {
-                        this.cache[stats.modId] = stats;
+                        int index = orderedIdList.IndexOf(stats.modId);
+                        if(index >= 0)
+                        {
+                            results[index] = stats;
+                        }
+
+                        missingIds.Remove(stats.modId);
                     }
                 }
 
-                foreach(ModStatistics stats in modStatistics)
+                // if no missing profiles, early out
+                if(missingIds.Count == 0)
                 {
-                    int i = orderedIdList.IndexOf(stats.modId);
-                    if(i >= 0)
-                    {
-                        results[i] = stats;
-                    }
+                    onSuccess(results);
+                    return;
                 }
 
-                onSuccess(results);
-            };
+                // fetch missing statistics
+                Action<List<ModStatistics>> onFetchStats = (modStatistics) =>
+                {
+                    if(this != null)
+                    {
+                        foreach(ModStatistics stats in modStatistics)
+                        {
+                            this.cache[stats.modId] = stats;
+                        }
+                    }
 
-            this.StartCoroutine(this.FetchAllModStatistics(missingIds.ToArray(), onFetchStats, onError));
+                    if(onSuccess != null)
+                    {
+                        foreach(ModStatistics stats in modStatistics)
+                        {
+                            int i = orderedIdList.IndexOf(stats.modId);
+                            if(i >= 0)
+                            {
+                                results[i] = stats;
+                            }
+                        }
+
+                        onSuccess.Invoke(results);
+                    }
+                };
+
+                this.StartCoroutine(this.FetchAllModStatistics(missingIds.ToArray(), onFetchStats, onError));
+            });
         }
 
         /// <summary>Returns the a ModStatistics if the object is cached and valid.</summary>
