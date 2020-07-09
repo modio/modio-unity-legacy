@@ -325,68 +325,29 @@ namespace ModIO.UI
                                                      Action<Texture2D> onSuccess,
                                                      Action<WebRequestError> onError)
         {
-            Debug.Assert(onSuccess != null);
-
-            // early out
-            if(string.IsNullOrEmpty(url))
+            // check cache and existing callbacks
+            if(this.TryGetCacheOrSetCallbacks(url, onSuccess, null, onError))
             {
-                onSuccess(null);
                 return;
             }
 
-            // init vars
-            Callbacks callbacks = null;
+            // - Start new request -
+            Callbacks callbacks = this.CreateCallbacksEntry(url, onSuccess, onError);
 
-            // check cache
-            Texture2D texture = null;
-            if(this.cache.TryGetValue(url, out texture))
+            // add save function to download callback
+            callbacks.onTextureDownloaded = saveToDisk;
+
+            // start process by checking the cache
+            Texture2D texture = loadFromDisk();
+            if(texture != null)
             {
-                onSuccess(texture);
-                return;
+                this.OnRequestSucceeded(url, texture);
             }
-
-            // check currently downloading
-            if(this.m_callbackMap.TryGetValue(url, out callbacks))
+            else
             {
-                // add callbacks
-                callbacks.succeeded.Add(onSuccess);
-                if(onError != null)
-                {
-                    callbacks.failed.Add(onError);
-                }
-
-                return;
+                // do the download
+                this.DownloadImage(url);
             }
-
-            // check disk
-            if(loadFromDisk != null)
-            {
-                texture = loadFromDisk();
-                if(texture != null)
-                {
-                    this.cache.Add(url, texture);
-                    onSuccess(texture);
-                    return;
-                }
-            }
-
-            // create new callbacks entry
-            callbacks = new Callbacks()
-            {
-                succeeded = new List<Action<Texture2D>>(),
-                failed = new List<Action<WebRequestError>>(),
-            };
-            this.m_callbackMap.Add(url, callbacks);
-
-            // add functions
-            if(saveToDisk != null)
-            {
-                callbacks.succeeded.Add(saveToDisk);
-            }
-            callbacks.succeeded.Add(onSuccess);
-
-            // start download
-            this.DownloadImage(url);
         }
 
         /// <summary>Handles computations for the image request.</summary>
@@ -398,97 +359,41 @@ namespace ModIO.UI
                                                         Action<WebRequestError> onError)
         {
             Debug.Assert(locator != null);
-            Debug.Assert(onSuccess != null);
 
-            // init vars
             string url = locator.GetSizeURL(size);
-            Callbacks callbacks = null;
 
-            // check for null URL
-            if(string.IsNullOrEmpty(url))
+            // check cache and existing callbacks
+            if(this.TryGetCacheOrSetCallbacks(url, onSuccess, onFallback, onError))
             {
-                #if UNITY_EDITOR
-                if(!this.excludeDownloadsFromLogs)
-                {
-                    Debug.Log("[mod.io] Attempted to fetch image with a Null or Empty"
-                              + " url in the locator.");
-                }
-                #endif
-
-                onSuccess(null);
                 return;
             }
 
-            // check cache
-            Texture2D texture = null;
-            if(this.cache.TryGetValue(url, out texture))
-            {
-                onSuccess(texture);
-                return;
-            }
-
-            // check currently downloading
-            if(this.m_callbackMap.TryGetValue(url, out callbacks))
-            {
-                // add callbacks
-                callbacks.succeeded.Add(onSuccess);
-                if(onError != null)
-                {
-                    callbacks.failed.Add(onError);
-                }
-
-                // check for fallback
-                if(onFallback != null)
-                {
-                    Texture2D fallback = FindFallbackTexture(locator);
-                    if(fallback != null)
-                    {
-                        onFallback(fallback);
-                    }
-                }
-
-                return;
-            }
-
-            // check disk
-            if(loadFromDisk != null)
-            {
-                texture = loadFromDisk();
-                if(texture != null)
-                {
-                    this.cache.Add(url, texture);
-                    onSuccess(texture);
-                    return;
-                }
-            }
-
-            // create new callbacks entry
-            callbacks = new Callbacks()
-            {
-                succeeded = new List<Action<Texture2D>>(),
-                failed = new List<Action<WebRequestError>>(),
-            };
-            this.m_callbackMap.Add(url, callbacks);
-
-            // add functions
-            if(saveToDisk != null)
-            {
-                callbacks.succeeded.Add(saveToDisk);
-            }
-            callbacks.succeeded.Add(onSuccess);
+            // - Start new request -
+            Callbacks callbacks = this.CreateCallbacksEntry(url, onSuccess, onError);
 
             // check for fallback
-            if(onFallback != null)
+            callbacks.fallback = this.FindFallbackTexture(locator);
+
+            if(onFallback != null
+               && callbacks.fallback != null)
             {
-                Texture2D fallback = FindFallbackTexture(locator);
-                if(fallback != null)
-                {
-                    onFallback(fallback);
-                }
+                onFallback.Invoke(callbacks.fallback);
             }
 
-            // start download
-            this.DownloadImage(url);
+            // add save function to download callback
+            callbacks.onTextureDownloaded = saveToDisk;
+
+            // start process by checking the cache
+            Texture2D texture = loadFromDisk();
+            if(texture != null)
+            {
+                this.OnRequestSucceeded(url, texture);
+            }
+            else
+            {
+                // do the download
+                this.DownloadImage(url);
+            }
         }
 
         /// <summary>Checks the cache and the callback map for a given url.</summary>
