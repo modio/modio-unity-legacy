@@ -780,30 +780,49 @@ namespace ModIO
         }
 
         /// <summary>Stores a mod team's data in the cache.</summary>
-        public static bool SaveModTeam(int modId,
-                                       List<ModTeamMember> modTeam)
+        public static void SaveModTeam(int modId, List<ModTeamMember> modTeam,
+                                       Action<bool> onComplete)
         {
+            Debug.Assert(modId != ModProfile.NULL_ID);
             Debug.Assert(modTeam != null);
 
             string filePath = CacheClient.GenerateModTeamFilePath(modId);
-            return LocalDataStorage.WriteJSONFile(filePath, modTeam);
+            bool result =  LocalDataStorage.WriteJSONFile(filePath, modTeam);
+
+            if(onComplete != null)
+            {
+                onComplete.Invoke(result);
+            }
         }
 
         /// <summary>Retrieves a mod team's data from the cache.</summary>
-        public static List<ModTeamMember> LoadModTeam(int modId)
+        public static void LoadModTeam(int modId, Action<List<ModTeamMember>> onComplete)
         {
+            Debug.Assert(modId != ModProfile.NULL_ID);
+            Debug.Assert(onComplete != null);
+
             string filePath = CacheClient.GenerateModTeamFilePath(modId);
             List<ModTeamMember> modTeam;
             LocalDataStorage.ReadJSONFile(filePath, out modTeam);
 
-            return modTeam;
+            if(onComplete != null)
+            {
+                onComplete.Invoke(modTeam);
+            }
         }
 
         /// <summary>Deletes a mod team's data from the cache.</summary>
-        public static bool DeleteModTeam(int modId)
+        public static void DeleteModTeam(int modId, Action<bool> onComplete)
         {
+            Debug.Assert(modId != ModProfile.NULL_ID);
+
             string path = CacheClient.GenerateModTeamFilePath(modId);
-            return LocalDataStorage.DeleteFile(path);
+            bool result = LocalDataStorage.DeleteFile(path);
+
+            if(onComplete != null)
+            {
+                onComplete.Invoke(result);
+            }
         }
 
         // ---------[ USERS ]---------
@@ -1274,6 +1293,42 @@ namespace ModIO
 
             CacheClient.LoadModYouTubeThumbnail(modId, youTubeId,
                                                 (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Stores a mod team's data in the cache.</summary>
+        [Obsolete("Use SaveModTeam(int, List<ModTeamMember>, Action<bool>) instead.")]
+        public static bool SaveModTeam(int modId, List<ModTeamMember> modTeam)
+        {
+            bool result = false;
+
+            CacheClient.SaveModTeam(modId, modTeam,
+                                    (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Retrieves a mod team's data from the cache.</summary>
+        [Obsolete("Use LoadModTeam(int, Action<List<ModTeamMember>>) instead.")]
+        public static List<ModTeamMember> LoadModTeam(int modId)
+        {
+            List<ModTeamMember> result = null;
+
+            CacheClient.LoadModTeam(modId,
+                                    (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Deletes a mod team's data from the cache.</summary>
+        [Obsolete("Use DeleteModTeam(int, Action<bool>) instead.")]
+        public static bool DeleteModTeam(int modId)
+        {
+            bool result = false;
+
+            CacheClient.DeleteModTeam(modId,
+                                      (r) => result = r);
 
             return result;
         }
