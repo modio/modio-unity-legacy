@@ -7,12 +7,28 @@ using UnityEngine;
 using Newtonsoft.Json;
 
 using ModIO.API;
+using ModIO.LocalDataIOCallbacks;
 
 namespace ModIO
 {
     /// <summary>An interface for storing/loading mod.io data on disk.</summary>
     public static class LocalDataStorage
     {
+        // TODO(@jackson): REMOVE
+        public class TEMP_PLATFORM_IO_ASYNC
+        {
+            public static void ReadFile(string path, ReadFileCallback callback)
+            {
+                byte[] data = null;
+                bool success = LocalDataStorage.PLATFORM_IO.ReadFile(path, out data);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, success, data);
+                }
+            }
+        }
+
         // ---------[ Constants ]---------
         /// <summary>Defines the I/O functions to use for this platform.</summary>
         public static readonly IPlatformIO PLATFORM_IO;
