@@ -955,31 +955,31 @@ namespace ModIO
             Debug.Assert(imageLocator != null, "[mod.io] imageLocator parameter cannot be null.");
             Debug.Assert(!String.IsNullOrEmpty(imageLocator.fileName), "[mod.io] imageFileName parameter needs to be not null or empty (used as identifier for gallery images)");
 
-            var cachedImageTexture = CacheClient.LoadModGalleryImage(modId,
-                                                                     imageLocator.fileName,
-                                                                     size);
-
-            if(cachedImageTexture != null)
+            CacheClient.LoadModGalleryImage(modId, imageLocator.fileName, size, (cachedImageTexture) =>
             {
-                if(onSuccess != null) { onSuccess(cachedImageTexture); }
-            }
-            else
-            {
-                // - Fetch from Server -
-                var download = DownloadClient.DownloadModGalleryImage(imageLocator,
-                                                                      size);
-
-                download.succeeded += (d) =>
+                if(cachedImageTexture != null)
                 {
-                    CacheClient.SaveModGalleryImage(modId,
-                                                    imageLocator.fileName,
-                                                    size,
-                                                    d.imageTexture);
-                };
+                    if(onSuccess != null) { onSuccess.Invoke(cachedImageTexture); }
+                }
+                else
+                {
+                    // - Fetch from Server -
+                    var download = DownloadClient.DownloadModGalleryImage(imageLocator,
+                                                                          size);
 
-                download.succeeded += (d) => onSuccess(d.imageTexture);
-                download.failed += (d) => onError(d.error);
-            }
+                    download.succeeded += (d) =>
+                    {
+                        CacheClient.SaveModGalleryImage(modId,
+                                                        imageLocator.fileName,
+                                                        size,
+                                                        d.imageTexture,
+                                                        null);
+                    };
+
+                    download.succeeded += (d) => onSuccess(d.imageTexture);
+                    download.failed += (d) => onError(d.error);
+                }
+            });
         }
 
         /// <summary>Fetches and caches a Mod YouTube Thumbnail (if not already cached).</summary>
@@ -991,25 +991,26 @@ namespace ModIO
             Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
                          "[mod.io] youTubeVideoId parameter must not be null or empty.");
 
-            var cachedYouTubeThumbnail = CacheClient.LoadModYouTubeThumbnail(modId,
-                                                                             youTubeVideoId);
-
-            if(cachedYouTubeThumbnail != null)
+            CacheClient.LoadModYouTubeThumbnail(modId, youTubeVideoId, (cachedYouTubeThumbnail) =>
             {
-                if(onSuccess != null) { onSuccess(cachedYouTubeThumbnail); }
-            }
-            else
-            {
-                var download = DownloadClient.DownloadYouTubeThumbnail(youTubeVideoId);
-
-                download.succeeded += (d) =>
+                if(cachedYouTubeThumbnail != null)
                 {
-                    CacheClient.SaveModYouTubeThumbnail(modId, youTubeVideoId, d.imageTexture);
-                };
+                    if(onSuccess != null) { onSuccess.Invoke(cachedYouTubeThumbnail); }
+                }
+                else
+                {
+                    var download = DownloadClient.DownloadYouTubeThumbnail(youTubeVideoId);
 
-                download.succeeded += (d) => onSuccess(d.imageTexture);
-                download.failed += (d) => onError(d.error);
-            }
+                    download.succeeded += (d) =>
+                    {
+                        CacheClient.SaveModYouTubeThumbnail(modId, youTubeVideoId, d.imageTexture,
+                                                            null);
+                    };
+
+                    download.succeeded += (d) => onSuccess(d.imageTexture);
+                    download.failed += (d) => onError(d.error);
+                }
+            });
         }
 
 
