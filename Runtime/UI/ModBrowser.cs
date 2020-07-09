@@ -1346,7 +1346,7 @@ namespace ModIO.UI
             DownloadClient.CancelAnyModBinaryDownloads(modId);
 
             // remove from disk
-            CacheClient.DeleteAllModfileAndBinaryData(modId);
+            CacheClient.DeleteAllModfileAndBinaryData(modId, null);
 
             ModManager.UninstallMod(modId, null);
 
@@ -1419,7 +1419,7 @@ namespace ModIO.UI
                 foreach(int modId in removedSubscriptions)
                 {
                     // remove from disk
-                    CacheClient.DeleteAllModfileAndBinaryData(modId);
+                    CacheClient.DeleteAllModfileAndBinaryData(modId, null);
 
                     ModManager.UninstallMod(modId, null);
 
