@@ -92,33 +92,17 @@ namespace ModIO.UI
             Debug.Assert(locator != null);
             Debug.Assert(onLogoReceived != null);
 
-            // check cache
             string url = locator.GetSizeURL(size);
-            if(this.cache.ContainsKey(url))
+
+            // check cache and existing callbacks
+            if(this.TryGetCacheOrSetCallbacks(url, onLogoReceived, onFallbackFound, onError))
             {
-                onLogoReceived.Invoke(this.cache[url]);
-                return;
-            }
-
-            // check requests in progress
-            Callbacks callbacks = null;
-            if(this.m_callbackMap.TryGetValue(url, out callbacks))
-            {
-                callbacks.succeeded.Add(onLogoReceived);
-                callbacks.failed.Add(onError);
-
-                if(onFallbackFound != null
-                   && callbacks.fallback != null)
-                {
-                    onFallbackFound.Invoke(callbacks.fallback);
-                }
-
                 return;
             }
 
             // - Start new request -
             // add to callbacks map
-            callbacks = new Callbacks()
+            Callbacks callbacks = new Callbacks()
             {
                 fallback = null,
                 succeeded = new List<Action<Texture2D>>(),
@@ -437,6 +421,39 @@ namespace ModIO.UI
             this.DownloadImage(url);
         }
 
+        /// <summary>Checks the cache and the callback map for a given url.</summary>
+        protected virtual bool TryGetCacheOrSetCallbacks(string url,
+                                                         Action<Texture2D> onSuccess,
+                                                         Action<Texture2D> onFallbackFound,
+                                                         Action<WebRequestError> onError)
+        {
+            // check cache
+            if(this.cache.ContainsKey(url))
+            {
+                onSuccess.Invoke(this.cache[url]);
+                return true;
+            }
+
+            // check requests in progress
+            Callbacks callbacks = null;
+            if(this.m_callbackMap.TryGetValue(url, out callbacks))
+            {
+                callbacks.succeeded.Add(onSuccess);
+                callbacks.failed.Add(onError);
+
+                if(onFallbackFound != null
+                   && callbacks.fallback != null)
+                {
+                    onFallbackFound.Invoke(callbacks.fallback);
+                }
+
+                return true;
+            }
+
+            // not found
+            return false;
+        }
+
         /// <summary>Finds a fallback texture for the given locator.</summary>
         protected virtual Texture2D FindFallbackTexture<E>(IMultiSizeImageLocator<E> locator)
         {
@@ -540,7 +557,10 @@ namespace ModIO.UI
             {
                 foreach(var successCallback in this.m_callbackMap[url].succeeded)
                 {
-                    successCallback.Invoke(texture);
+                    if(successCallback != null)
+                    {
+                        successCallback.Invoke(texture);
+                    }
                 }
 
                 // remove from "in progress"
