@@ -179,6 +179,7 @@ namespace ModIO.UI
                     if(this == null) { return; }
 
                     m_gameProfile = g;
+                    CacheClient.SaveGameProfile(g, null);
 
                     IEnumerable<IGameProfileUpdateReceiver> updateReceivers = GetComponentsInChildren<IGameProfileUpdateReceiver>(true);
                     foreach(var receiver in updateReceivers)
