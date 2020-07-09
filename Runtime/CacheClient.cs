@@ -260,35 +260,6 @@ namespace ModIO
             }
         }
 
-        /// <summary>Determines how many ModProfiles are currently stored in the cache.</summary>
-        public static int CountModProfiles()
-        {
-            string profileDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
-
-            if(LocalDataStorage.GetDirectoryExists(profileDirectory))
-            {
-                IList<string> modDirectories;
-                try
-                {
-                    modDirectories = LocalDataStorage.GetDirectories(profileDirectory);
-                }
-                catch(Exception e)
-                {
-                    string warningInfo = ("[mod.io] Failed to read mod profile directory."
-                                          + "\nDirectory: " + profileDirectory + "\n\n");
-
-                    Debug.LogWarning(warningInfo
-                                     + Utility.GenerateExceptionDebugString(e));
-
-                    modDirectories = new string[0];
-                }
-
-                return modDirectories.Count;
-            }
-
-            return 0;
-        }
-
         /// <summary>Deletes all of a mod's data from the cache.</summary>
         public static bool DeleteMod(int modId)
         {
@@ -889,6 +860,36 @@ namespace ModIO
             CacheClient.RequestFilteredModProfiles(idFilter, (r) => result = r);
 
             return result;
+        }
+
+        /// <summary>[Obsolete] Determines how many ModProfiles are currently stored in the cache.</summary>
+        [Obsolete("No longer supported.", true)]
+        public static int CountModProfiles()
+        {
+            string profileDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
+
+            if(LocalDataStorage.GetDirectoryExists(profileDirectory))
+            {
+                IList<string> modDirectories;
+                try
+                {
+                    modDirectories = LocalDataStorage.GetDirectories(profileDirectory);
+                }
+                catch(Exception e)
+                {
+                    string warningInfo = ("[mod.io] Failed to read mod profile directory."
+                                          + "\nDirectory: " + profileDirectory + "\n\n");
+
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
+
+                    modDirectories = new string[0];
+                }
+
+                return modDirectories.Count;
+            }
+
+            return 0;
         }
     }
 }
