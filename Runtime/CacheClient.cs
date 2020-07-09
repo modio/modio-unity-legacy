@@ -108,13 +108,13 @@ namespace ModIO
         }
 
         /// <summary>Iterates through all of the mod profiles in the cache.</summary>
-        public static IEnumerable<ModProfile> IterateAllModProfiles()
+        public static void IterateAllModProfiles(Action<IList<ModProfile>> onComplete)
         {
-            return IterateAllModProfilesFromOffset(0);
+            CacheClient.IterateAllModProfilesFromOffset(0, onComplete);
         }
 
         /// <summary>Iterates through all of the mod profiles from the given offset.</summary>
-        public static IEnumerable<ModProfile> IterateAllModProfilesFromOffset(int offset)
+        public static void IterateAllModProfilesFromOffset(int offset, Action<IList<ModProfile>> onComplete)
         {
             Debug.Assert(IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods", "0")
                          == CacheClient.GenerateModDirectoryPath(0),
@@ -128,6 +128,9 @@ namespace ModIO
                          + " a specific way. Changing CacheClient.GenerateModProfileFilePath()"
                          + " necessitates changes in this function.");
 
+            Debug.Assert(onComplete != null);
+
+            List<ModProfile> modProfiles = new List<ModProfile>();
             string profileDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
 
             if(LocalDataStorage.GetDirectoryExists(profileDirectory))
@@ -159,7 +162,7 @@ namespace ModIO
 
                         if(profile != null)
                         {
-                            yield return profile;
+                            modProfiles.Add(profile);
                         }
                         else
                         {
@@ -167,6 +170,11 @@ namespace ModIO
                         }
                     }
                 }
+            }
+
+            if(onComplete != null)
+            {
+                onComplete.Invoke(modProfiles);
             }
         }
 
@@ -846,6 +854,28 @@ namespace ModIO
             bool result = false;
 
             CacheClient.SaveModProfiles(modProfiles, (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Iterates through all of the mod profiles in the cache.</summary>
+        [Obsolete("Use IterateAllModProfiles(Action<IList<ModProfile>>) instead.")]
+        public static IEnumerable<ModProfile> IterateAllModProfiles()
+        {
+            IList<ModProfile> result = null;
+
+            CacheClient.IterateAllModProfiles((r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Iterates through all of the mod profiles from the given offset.</summary>
+        [Obsolete("Use IterateAllModProfilesFromOffset(int, Action<IList<ModProfile>>) instead.")]
+        public static IEnumerable<ModProfile> IterateAllModProfilesFromOffset(int offset)
+        {
+            IList<ModProfile> result = null;
+
+            CacheClient.IterateAllModProfilesFromOffset(offset, (r) => result = r);
 
             return result;
         }
