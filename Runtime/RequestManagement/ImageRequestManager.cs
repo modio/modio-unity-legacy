@@ -213,12 +213,41 @@ namespace ModIO.UI
             Debug.Assert(locator != null);
             Debug.Assert(onAvatarReceived != null);
 
-            // set loading function
-            Func<Texture2D> loadFromDisk = () => CacheClient.LoadUserAvatar(userId, size);
+            string url = locator.GetSizeURL(size);
 
-            // do the work
-            this.RequestImage_Internal(locator, size, loadFromDisk, null,
-                                       onAvatarReceived, onFallbackFound, onError);
+            // check cache and existing callbacks
+            if(this.TryGetCacheOrSetCallbacks(url, onAvatarReceived, onFallbackFound, onError))
+            {
+                return;
+            }
+
+            // - Start new request -
+            Callbacks callbacks = this.CreateCallbacksEntry(url, onAvatarReceived, onError);
+
+            // check for fallback
+            callbacks.fallback = this.FindFallbackTexture(locator);
+
+            if(onFallbackFound != null
+               && callbacks.fallback != null)
+            {
+                onFallbackFound.Invoke(callbacks.fallback);
+            }
+
+            // start process by checking the cache
+            CacheClient.LoadUserAvatar(userId, size, (texture) =>
+            {
+                if(this == null) { return; }
+
+                if(texture != null)
+                {
+                    this.OnRequestSucceeded(url, texture);
+                }
+                else
+                {
+                    // do the download
+                    this.DownloadImage(url);
+                }
+            });
         }
 
         /// <summary>Requests the thumbnail for a given YouTube video.</summary>
