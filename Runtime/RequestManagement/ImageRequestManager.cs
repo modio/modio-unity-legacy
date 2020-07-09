@@ -448,6 +448,15 @@ namespace ModIO.UI
                                                          Action<Texture2D> onFallbackFound,
                                                          Action<WebRequestError> onError)
         {
+            Debug.Assert(onSuccess != null);
+
+            // handle null url
+            if(string.IsNullOrEmpty(url))
+            {
+                onSuccess.Invoke(null);
+                return true;
+            }
+
             // check cache
             if(this.cache.ContainsKey(url))
             {
