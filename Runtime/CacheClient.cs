@@ -469,13 +469,13 @@ namespace ModIO
             Debug.Assert(onComplete != null);
 
             string filePath = GenerateModBinaryZipFilePath(modId, modfileId);
-            byte[] zipData;
-            LocalDataStorage.ReadFile(filePath, out zipData);
-
-            if(onComplete != null)
+            LocalDataStorage.ReadFile(filePath, (p,s,data) =>
             {
-                onComplete.Invoke(zipData);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(data);
+                }
+            });
         }
 
         /// <summary>Deletes a modfile and binary from the cache.</summary>
@@ -621,20 +621,21 @@ namespace ModIO
         {
             Debug.Assert(onComplete != null);
 
-            Texture2D result = null;
-            string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
-            byte[] imageData;
+            string filePath = CacheClient.GenerateModLogoFilePath(modId, size);
 
-            if(LocalDataStorage.ReadFile(logoFilePath, out imageData)
-               && imageData != null)
+            LocalDataStorage.ReadFile(filePath, (p, success, data) =>
             {
-                result = IOUtilities.ParseImageData(imageData);
-            }
+                Texture2D texture = null;
+                if(success && data != null)
+                {
+                    texture = IOUtilities.ParseImageData(data);
+                }
 
-            if(onComplete != null)
-            {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(texture);
+                }
+            });
         }
 
         /// <summary>Retrieves a mod logo from the cache if it matches the given fileName.</summary>
@@ -709,22 +710,21 @@ namespace ModIO
             Debug.Assert(!String.IsNullOrEmpty(imageFileName));
             Debug.Assert(onComplete != null);
 
-            string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
-                                                                               imageFileName,
-                                                                               size);
-            byte[] imageData = null;
-            Texture2D result = null;
+            string filePath = CacheClient.GenerateModGalleryImageFilePath(modId, imageFileName, size);
 
-            if(LocalDataStorage.ReadFile(imageFilePath, out imageData)
-               && imageData != null)
+            LocalDataStorage.ReadFile(filePath, (p, success, data) =>
             {
-                result = IOUtilities.ParseImageData(imageData);
-            }
+                Texture2D texture = null;
+                if(success && data != null)
+                {
+                    texture = IOUtilities.ParseImageData(data);
+                }
 
-            if(onComplete != null)
-            {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(texture);
+                }
+            });
         }
 
         /// <summary>Stores a YouTube thumbnail in the cache.</summary>
@@ -754,21 +754,21 @@ namespace ModIO
             Debug.Assert(!String.IsNullOrEmpty(youTubeId));
             Debug.Assert(onComplete != null);
 
-            string thumbnailFilePath = CacheClient.GenerateModYouTubeThumbnailFilePath(modId,
-                                                                                       youTubeId);
-            byte[] imageData = null;
-            Texture2D result = null;
+            string filePath = CacheClient.GenerateModYouTubeThumbnailFilePath(modId, youTubeId);
 
-            if(LocalDataStorage.ReadFile(thumbnailFilePath, out imageData)
-               && imageData != null)
+            LocalDataStorage.ReadFile(filePath, (p, success, data) =>
             {
-                result = IOUtilities.ParseImageData(imageData);
-            }
+                Texture2D texture = null;
+                if(success && data != null)
+                {
+                    texture = IOUtilities.ParseImageData(data);
+                }
 
-            if(onComplete != null)
-            {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(texture);
+                }
+            });
         }
 
         // ---------[ MOD TEAMS ]---------
@@ -864,20 +864,21 @@ namespace ModIO
             Debug.Assert(userId != UserProfile.NULL_ID);
             Debug.Assert(onComplete != null);
 
-            string avatarFilePath = CacheClient.GenerateUserAvatarFilePath(userId, size);
-            byte[] imageData = null;
-            Texture2D result = null;
+            string filePath = CacheClient.GenerateUserAvatarFilePath(userId, size);
 
-            if(LocalDataStorage.ReadFile(avatarFilePath, out imageData)
-               && imageData != null)
+            LocalDataStorage.ReadFile(filePath, (p, success, data) =>
             {
-                result = IOUtilities.ParseImageData(imageData);
-            }
+                Texture2D texture = null;
+                if(success && data != null)
+                {
+                    texture = IOUtilities.ParseImageData(data);
+                }
 
-            if(onComplete != null)
-            {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(texture);
+                }
+            });
         }
 
         /// <summary>Delete's a user's avatars from the cache.</summary>
