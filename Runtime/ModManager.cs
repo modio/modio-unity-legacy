@@ -791,23 +791,27 @@ namespace ModIO
         public static void GetGameProfile(Action<GameProfile> onSuccess,
                                           Action<WebRequestError> onError)
         {
-            GameProfile cachedProfile = CacheClient.LoadGameProfile();
-
-            if(cachedProfile != null)
+            CacheClient.LoadGameProfile((cachedProfile) =>
             {
-                onSuccess(cachedProfile);
-            }
-            else
-            {
-                Action<GameProfile> onGetProfile = (profile) =>
+                if(cachedProfile != null)
                 {
-                    CacheClient.SaveGameProfile(profile);
-                    if(onSuccess != null) { onSuccess(profile); }
-                };
+                    if(onSuccess != null)
+                    {
+                        onSuccess(cachedProfile);
+                    }
+                }
+                else
+                {
+                    Action<GameProfile> onGetProfile = (profile) =>
+                    {
+                        CacheClient.SaveGameProfile(profile, null);
+                        if(onSuccess != null) { onSuccess(profile); }
+                    };
 
-                APIClient.GetGame(onGetProfile,
-                                  onError);
-            }
+                    APIClient.GetGame(onGetProfile,
+                                      onError);
+                }
+            });
         }
 
 
