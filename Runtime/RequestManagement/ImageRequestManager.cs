@@ -94,6 +94,7 @@ namespace ModIO.UI
             Debug.Assert(onLogoReceived != null);
 
             string url = locator.GetSizeURL(size);
+            string fileName = locator.GetFileName();
 
             // check cache and existing callbacks
             if(this.TryGetCacheOrSetCallbacks(url, onLogoReceived, onFallbackFound, onError))
@@ -113,8 +114,20 @@ namespace ModIO.UI
                 onFallbackFound.Invoke(callbacks.fallback);
             }
 
+            // add save function to download callback
+            if(this.storeIfSubscribed)
+            {
+                callbacks.onTextureDownloaded = (texture) =>
+                {
+                    if(LocalUser.SubscribedModIds.Contains(modId))
+                    {
+                        CacheClient.SaveModLogo(modId, fileName, size, texture, null);
+                    }
+                };
+            }
+
             // start process by checking the cache
-            CacheClient.LoadModLogo(modId, locator.GetFileName(), size, (texture) =>
+            CacheClient.LoadModLogo(modId, fileName, size, (texture) =>
             {
                 if(this == null) { return; }
 
@@ -124,18 +137,6 @@ namespace ModIO.UI
                 }
                 else
                 {
-                    // set saving function
-                    if(this.storeIfSubscribed)
-                    {
-                        callbacks.succeeded.Add((t) =>
-                        {
-                            if(LocalUser.SubscribedModIds.Contains(modId))
-                            {
-                                CacheClient.SaveModLogo(modId, locator.GetFileName(), size, t, null);
-                            }
-                        });
-                    }
-
                     // do the download
                     this.DownloadImage(url);
                 }
