@@ -228,33 +228,44 @@ namespace ModIO.UI
         {
             Debug.Assert(onThumbnailReceived != null);
 
-            // early out
-            if(string.IsNullOrEmpty(youTubeId))
+            string url = Utility.GenerateYouTubeThumbnailURL(youTubeId);
+
+            // check cache and existing callbacks
+            if(this.TryGetCacheOrSetCallbacks(url, onThumbnailReceived, null, onError))
             {
-                onThumbnailReceived(null);
                 return;
             }
 
-            // set loading function
-            Func<Texture2D> loadFromDisk = () => CacheClient.LoadModYouTubeThumbnail(modId, youTubeId);
+            // - Start new request -
+            Callbacks callbacks = this.CreateCallbacksEntry(url, onThumbnailReceived, onError);
 
-            // set saving function
-            Action<Texture2D> saveToDisk = null;
+            // add save function to download callback
             if(this.storeIfSubscribed)
             {
-                saveToDisk = (t) =>
+                callbacks.onTextureDownloaded = (texture) =>
                 {
                     if(LocalUser.SubscribedModIds.Contains(modId))
                     {
-                        CacheClient.SaveModYouTubeThumbnail(modId, youTubeId, t);
+                        CacheClient.SaveModYouTubeThumbnail(modId, youTubeId, texture, null);
                     }
                 };
             }
 
-            // do the work
-            this.RequestImage_Internal(Utility.GenerateYouTubeThumbnailURL(youTubeId),
-                                       loadFromDisk, saveToDisk,
-                                       onThumbnailReceived, onError);
+            // start process by checking the cache
+            CacheClient.LoadModYouTubeThumbnail(modId, youTubeId, (texture) =>
+            {
+                if(this == null) { return; }
+
+                if(texture != null)
+                {
+                    this.OnRequestSucceeded(url, texture);
+                }
+                else
+                {
+                    // do the download
+                    this.DownloadImage(url);
+                }
+            });
         }
 
         /// <summary>Requests an image at a given URL.</summary>
@@ -698,7 +709,8 @@ namespace ModIO.UI
 
                     if(this.cache.TryGetValue(thumbURL, out cachedTexture))
                     {
-                        CacheClient.SaveModYouTubeThumbnail(profile.id, youTubeId, cachedTexture);
+                        CacheClient.SaveModYouTubeThumbnail(profile.id, youTubeId, cachedTexture,
+                                                            null);
                     }
                 }
             }
