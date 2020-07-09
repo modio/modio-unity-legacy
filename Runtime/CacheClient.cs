@@ -171,13 +171,8 @@ namespace ModIO
         }
 
         /// <summary>Iterates through all of the mod profiles returning only those matching the id filter.</summary>
-        public static IEnumerable<ModProfile> IterateFilteredModProfiles(IList<int> idFilter)
+        public static void IterateFilteredModProfiles(IList<int> idFilter, Action<IList<ModProfile>> onComplete)
         {
-            if(idFilter == null || idFilter.Count == 0)
-            {
-                yield break;
-            }
-
             Debug.Assert(IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods", "0")
                          == CacheClient.GenerateModDirectoryPath(0),
                          "[mod.io] This function relies on mod directory path being a generated in"
@@ -190,6 +185,19 @@ namespace ModIO
                          + " a specific way. Changing CacheClient.GenerateModProfileFilePath()"
                          + " necessitates changes in this function.");
 
+            Debug.Assert(onComplete != null);
+
+            // init
+            List<ModProfile> modProfiles = new List<ModProfile>();
+
+            // early out
+            if(idFilter == null || idFilter.Count == 0)
+            {
+                onComplete.Invoke(modProfiles);
+                return;
+            }
+
+            // get profiles
             string profileDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
 
             if(LocalDataStorage.GetDirectoryExists(profileDirectory))
@@ -228,7 +236,7 @@ namespace ModIO
 
                         if(profile != null)
                         {
-                            yield return profile;
+                            modProfiles.Add(profile);
                         }
                         else
                         {
@@ -236,6 +244,11 @@ namespace ModIO
                         }
                     }
                 }
+            }
+
+            if(onComplete != null)
+            {
+                onComplete.Invoke(modProfiles);
             }
         }
 
@@ -833,6 +846,17 @@ namespace ModIO
             bool result = false;
 
             CacheClient.SaveModProfiles(modProfiles, (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Iterates through all of the mod profiles returning only those matching the id filter.</summary>
+        [Obsolete("Use IterateFilteredModProfiles(IList<int>, Action<IList<ModProfile>>) instead.")]
+        public static IEnumerable<ModProfile> IterateFilteredModProfiles(IList<int> idFilter)
+        {
+            IList<ModProfile> result = null;
+
+            CacheClient.IterateFilteredModProfiles(idFilter, (r) => result = r);
 
             return result;
         }
