@@ -35,6 +35,7 @@ namespace ModIO.UI
             public Texture2D fallback = null;
             public List<Action<Texture2D>> succeeded = null;
             public List<Action<WebRequestError>> failed = null;
+            public Action<Texture2D> onTextureDownloaded = null;
         }
 
         // ---------[ FIELDS ]---------
@@ -549,7 +550,14 @@ namespace ModIO.UI
             }
             else
             {
-                this.OnRequestSucceeded(imageURL, ((DownloadHandlerTexture)webRequest.downloadHandler).texture);
+                Texture2D texture = ((DownloadHandlerTexture)webRequest.downloadHandler).texture;
+
+                if(callbacks.onTextureDownloaded != null)
+                {
+                    callbacks.onTextureDownloaded.Invoke(texture);
+                }
+
+                this.OnRequestSucceeded(imageURL, texture);
             }
         }
 
