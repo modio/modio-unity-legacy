@@ -281,21 +281,32 @@ namespace ModIO
         }
 
         /// <summary>Stores a mod's statistics in the cache.</summary>
-        public static bool SaveModStatistics(ModStatistics stats)
+        public static void SaveModStatistics(ModStatistics stats, Action<bool> onComplete)
         {
             Debug.Assert(stats != null);
+
             string statsFilePath = GenerateModStatisticsFilePath(stats.modId);
-            return LocalDataStorage.WriteJSONFile(statsFilePath, stats);
+            bool result = LocalDataStorage.WriteJSONFile(statsFilePath, stats);
+
+            if(onComplete != null)
+            {
+                onComplete.Invoke(result);
+            }
         }
 
         /// <summary>Retrieves a mod's statistics from the cache.</summary>
-        public static ModStatistics LoadModStatistics(int modId)
+        public static void LoadModStatistics(int modId, Action<ModStatistics> onComplete)
         {
+            Debug.Assert(onComplete != null);
+
             string statsFilePath = GenerateModStatisticsFilePath(modId);
             ModStatistics stats;
             LocalDataStorage.ReadJSONFile(statsFilePath, out stats);
 
-            return stats;
+            if(onComplete != null)
+            {
+                onComplete.Invoke(stats);
+            }
         }
 
         // ------[ MODFILES ]------
@@ -906,6 +917,28 @@ namespace ModIO
             }
 
             return 0;
+        }
+
+        /// <summary>[Obsolete] Stores a mod's statistics in the cache.</summary>
+        [Obsolete("Use SaveModStatistics(ModStatistics, Action<bool>) instead.")]
+        public static bool SaveModStatistics(ModStatistics stats)
+        {
+            bool result = false;
+
+            CacheClient.SaveModStatistics(stats, (r) => result = r);
+
+            return result;
+        }
+
+        /// <summary>[Obsolete] Retrieves a mod's statistics from the cache.</summary>
+        [Obsolete("Use LoadModStatistics(int, Action<ModStatistics>) instead.")]
+        public static ModStatistics LoadModStatistics(int modId)
+        {
+            ModStatistics result = null;
+
+            CacheClient.LoadModStatistics(modId, (r) => result = r);
+
+            return result;
         }
     }
 }
