@@ -32,8 +32,9 @@ namespace ModIO.UI
         // ---------[ NESTED DATA-TYPES ]---------
         protected class Callbacks
         {
-            public List<Action<Texture2D>> succeeded;
-            public List<Action<WebRequestError>> failed;
+            public Texture2D fallback = null;
+            public List<Action<Texture2D>> succeeded = null;
+            public List<Action<WebRequestError>> failed = null;
         }
 
         // ---------[ FIELDS ]---------
@@ -50,7 +51,7 @@ namespace ModIO.UI
         /// <summary>Cached images.</summary>
         public Dictionary<string, Texture2D> cache = new Dictionary<string, Texture2D>();
 
-        /// <summary>Callback map for currently downloading images.</summary>
+        /// <summary>Callback map for images currently being fetched.</summary>
         private Dictionary<string, Callbacks> m_callbackMap = new Dictionary<string, Callbacks>();
 
         // ---------[ INITIALIZATION ]---------
