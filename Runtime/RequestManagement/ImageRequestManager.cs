@@ -153,25 +153,54 @@ namespace ModIO.UI
             Debug.Assert(locator != null);
             Debug.Assert(onImageReceived != null);
 
-            // set loading function
-            Func<Texture2D> loadFromDisk = () => CacheClient.LoadModGalleryImage(modId, locator.GetFileName(), size);
+            string url = locator.GetSizeURL(size);
+            string fileName = locator.GetFileName();
 
-            // set saving function
-            Action<Texture2D> saveToDisk = null;
+            // check cache and existing callbacks
+            if(this.TryGetCacheOrSetCallbacks(url, onImageReceived, onFallbackFound, onError))
+            {
+                return;
+            }
+
+            // - Start new request -
+            Callbacks callbacks = this.CreateCallbacksEntry(url, onImageReceived, onError);
+
+            // check for fallback
+            callbacks.fallback = this.FindFallbackTexture(locator);
+
+            if(onFallbackFound != null
+               && callbacks.fallback != null)
+            {
+                onFallbackFound.Invoke(callbacks.fallback);
+            }
+
+            // add save function to download callback
             if(this.storeIfSubscribed)
             {
-                saveToDisk = (t) =>
+                callbacks.onTextureDownloaded = (texture) =>
                 {
                     if(LocalUser.SubscribedModIds.Contains(modId))
                     {
-                        CacheClient.SaveModGalleryImage(modId, locator.GetFileName(), size, t);
+                        CacheClient.SaveModGalleryImage(modId, fileName, size, texture, null);
                     }
                 };
             }
 
-            // do the work
-            this.RequestImage_Internal(locator, size, loadFromDisk, saveToDisk,
-                                       onImageReceived, onFallbackFound, onError);
+            // start process by checking the cache
+            CacheClient.LoadModGalleryImage(modId, fileName, size, (texture) =>
+            {
+                if(this == null) { return; }
+
+                if(texture != null)
+                {
+                    this.OnRequestSucceeded(url, texture);
+                }
+                else
+                {
+                    // do the download
+                    this.DownloadImage(url);
+                }
+            });
         }
 
         /// <summary>Requests the user avatar for the given locator.</summary>
@@ -643,7 +672,8 @@ namespace ModIO.UI
                         if(this.cache.TryGetValue(sizeURLPair.url, out cachedTexture))
                         {
                             CacheClient.SaveModGalleryImage(profile.id, locator.GetFileName(),
-                                                            sizeURLPair.size, cachedTexture);
+                                                            sizeURLPair.size, cachedTexture,
+                                                            null);
                         }
                     }
                 }
