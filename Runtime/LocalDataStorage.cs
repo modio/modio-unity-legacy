@@ -48,6 +48,13 @@ namespace ModIO
         // ---------[ Data Management Interface ]---------
         // ------ File I/O ------
         /// <summary>Reads a file.</summary>
+        public static void ReadFile(string path, ReadFileCallback callback)
+        {
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.ReadFile(path, callback);
+        }
+
+        /// <summary>Reads a file.</summary>
+        [Obsolete]
         public static bool ReadFile(string path, out byte[] data)
         {
             return LocalDataStorage.PLATFORM_IO.ReadFile(path, out data);
