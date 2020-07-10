@@ -116,13 +116,15 @@ namespace ModIO
         /// <summary>Requests all of the mod profiles from the given offset.</summary>
         public static void RequestAllModProfilesFromOffset(int offset, Action<IList<ModProfile>> onComplete)
         {
+            const string FILENAME = "profile.data";
+
             Debug.Assert(IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods", "0")
                          == CacheClient.GenerateModDirectoryPath(0),
                          "[mod.io] This function relies on mod directory path being a generated in"
                          + " a specific way. Changing CacheClient.GenerateModDirectoryPath()"
                          + " necessitates changes in this function.");
 
-            Debug.Assert(IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(0), "profile.data")
+            Debug.Assert(IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(0), FILENAME)
                          == CacheClient.GenerateModProfileFilePath(0),
                          "[mod.io] This function relies on mod directory profile file path being a generated in"
                          + " a specific way. Changing CacheClient.GenerateModProfileFilePath()"
@@ -155,7 +157,7 @@ namespace ModIO
                 {
                     for(int i = offset; i < modDirectories.Count; ++i)
                     {
-                        string profilePath = IOUtilities.CombinePath(modDirectories[i], "profile.data");
+                        string profilePath = IOUtilities.CombinePath(modDirectories[i], FILENAME);
                         ModProfile profile;
 
                         LocalDataStorage.ReadJSONFile(profilePath, out profile);
@@ -181,13 +183,15 @@ namespace ModIO
         /// <summary>Requests all of the mod profiles returning only those matching the id filter.</summary>
         public static void RequestFilteredModProfiles(IList<int> idFilter, Action<IList<ModProfile>> onComplete)
         {
+            const string FILENAME = "profile.data";
+
             Debug.Assert(IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods", "0")
                          == CacheClient.GenerateModDirectoryPath(0),
                          "[mod.io] This function relies on mod directory path being a generated in"
                          + " a specific way. Changing CacheClient.GenerateModDirectoryPath()"
                          + " necessitates changes in this function.");
 
-            Debug.Assert(IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(0), "profile.data")
+            Debug.Assert(IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(0), FILENAME)
                          == CacheClient.GenerateModProfileFilePath(0),
                          "[mod.io] This function relies on mod directory profile file path being a generated in"
                          + " a specific way. Changing CacheClient.GenerateModProfileFilePath()"
@@ -237,7 +241,7 @@ namespace ModIO
 
                     if(idFilter.Contains(modId))
                     {
-                        string profilePath = IOUtilities.CombinePath(modDirectory, "profile.data");
+                        string profilePath = IOUtilities.CombinePath(modDirectory, FILENAME);
                         ModProfile profile;
 
                         LocalDataStorage.ReadJSONFile(profilePath, out profile);
