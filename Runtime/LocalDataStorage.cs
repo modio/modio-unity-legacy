@@ -161,12 +161,6 @@ namespace ModIO
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.MoveFile(source, destination, onComplete);
         }
 
-        /// <summary>Moves a file.</summary>
-        public static bool MoveFile(string source, string destination)
-        {
-            return LocalDataStorage.PLATFORM_IO.MoveFile(source, destination);
-        }
-
         /// <summary>Checks for the existence of a file.</summary>
         public static bool GetFileExists(string path)
         {
