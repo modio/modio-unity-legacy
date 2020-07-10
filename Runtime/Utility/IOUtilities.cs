@@ -352,7 +352,9 @@ namespace ModIO
         [Obsolete("Use LocalDataStorage.DeleteFile() instead.")]
         public static bool DeleteFile(string filePath)
         {
-            return LocalDataStorage.DeleteFile(filePath);
+            bool result = false;
+            LocalDataStorage.DeleteFile(filePath, (p,s) => result = s);
+            return result;
         }
 
         /// <summary>[Obsolete] Creates a directory.</summary>

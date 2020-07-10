@@ -1,9 +1,12 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
+using File = System.IO.File;
+
 using UnityEngine;
 using UnityEditor;
 
 using ModIO.UI;
+
 
 namespace ModIO.EditorCode
 {
@@ -51,14 +54,8 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear Game Data", false)]
         public static void ClearCachedGameProfile()
         {
-            if(LocalDataStorage.DeleteFile(CacheClient.gameProfileFilePath))
-            {
-                Debug.Log("[mod.io] Cached Game Data Deleted.");
-            }
-            else
-            {
-                Debug.Log("[mod.io] Failed to delete Cached Game Data.");
-            }
+            File.Delete(CacheClient.gameProfileFilePath);
+            Debug.Log("[mod.io] Cached Game Data Deleted.");
         }
 
         [MenuItem("Tools/mod.io/Debugging/Clear Mod Data", false)]

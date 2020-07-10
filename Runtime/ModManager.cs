@@ -153,19 +153,23 @@ namespace ModIO
                     return;
                 }
 
-                LocalDataStorage.DeleteFile(zipFilePath);
-
-                if(ModManager.onModBinaryInstalled != null)
+                LocalDataStorage.DeleteFile(zipFilePath, (p, s) =>
                 {
-                    ModfileIdPair idPair = new ModfileIdPair()
+                    if(ModManager.onModBinaryInstalled != null)
                     {
-                        modId = modId,
-                        modfileId = modfileId,
-                    };
-                    ModManager.onModBinaryInstalled(idPair);
-                }
+                        ModfileIdPair idPair = new ModfileIdPair()
+                        {
+                            modId = modId,
+                            modfileId = modfileId,
+                        };
+                        ModManager.onModBinaryInstalled(idPair);
+                    }
 
-                onComplete.Invoke(true);
+                    if(onComplete != null)
+                    {
+                        onComplete.Invoke(true);
+                    }
+                });
             });
         }
 
