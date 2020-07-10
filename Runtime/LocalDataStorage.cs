@@ -14,7 +14,7 @@ namespace ModIO
     /// <summary>An interface for storing/loading mod.io data on disk.</summary>
     public static class LocalDataStorage
     {
-        // TODO(@jackson): REMOVE
+        // TODO(@jackson): REMOVE!
         public class TEMP_PLATFORM_IO_ASYNC
         {
             public static void ReadFile(string path, ReadFileCallback callback)
@@ -48,9 +48,40 @@ namespace ModIO
         // ---------[ Data Management Interface ]---------
         // ------ File I/O ------
         /// <summary>Reads a file.</summary>
-        public static void ReadFile(string path, ReadFileCallback callback)
+        public static void ReadFile(string path, ReadFileCallback onComplete)
         {
-            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.ReadFile(path, callback);
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.ReadFile(path, onComplete);
+        }
+
+        /// <summary>Reads a file and parses the data as a JSON object instance.</summary>
+        public static void ReadJSONFile<T>(string path, ReadJSONFileCallback<T> onComplete)
+        {
+            Debug.Assert(onComplete != null);
+
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.ReadFile(path, (p, success, data) =>
+            {
+                T jsonObject;
+
+                if(success)
+                {
+                    success = IOUtilities.TryParseUTF8JSONData<T>(data, out jsonObject);
+
+                    if(!success)
+                    {
+                        Debug.LogWarning("[mod.io] Failed parse file content as JSON Object."
+                                         + "\nFile: " + path + "\n\n");
+                    }
+                }
+                else
+                {
+                    jsonObject = default(T);
+                }
+
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(path, success, jsonObject);
+                }
+            });
         }
 
         /// <summary>Reads a file and parses the data as a JSON object instance.</summary>
