@@ -128,7 +128,7 @@ namespace ModIO
 
             if(data != null && data.Length > 0)
             {
-                success = LocalDataStorage.WriteFile(path, data);
+                success = LocalDataStorage.PLATFORM_IO.WriteFile(path, data);
             }
             else
             {
