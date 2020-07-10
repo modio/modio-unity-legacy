@@ -57,6 +57,16 @@ namespace ModIO
                     callback.Invoke(source, destination, success);
                 }
             }
+
+            public static void GetFileExists(string path, GetFileExistsCallback callback)
+            {
+                bool exists = LocalDataStorage.PLATFORM_IO.GetFileExists(path);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, exists);
+                }
+            }
         }
 
         // ---------[ Constants ]---------
@@ -159,6 +169,12 @@ namespace ModIO
         public static void MoveFile(string source, string destination, MoveFileCallback onComplete)
         {
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.MoveFile(source, destination, onComplete);
+        }
+
+        /// <summary>Checks for the existence of a file.</summary>
+        public static void GetFileExists(string path, GetFileExistsCallback onComplete)
+        {
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetFileExists(path, onComplete);
         }
 
         /// <summary>Checks for the existence of a file.</summary>
