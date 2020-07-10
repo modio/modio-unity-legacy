@@ -36,10 +36,10 @@ namespace ModIO
         {
             Debug.Assert(onComplete != null);
 
-            GameProfile profile;
-            LocalDataStorage.ReadJSONFile(gameProfileFilePath, out profile);
-
-            onComplete.Invoke(profile);
+            LocalDataStorage.ReadJSONFile<GameProfile>(CacheClient.gameProfileFilePath, (p, success, data) =>
+            {
+                if(onComplete != null) { onComplete.Invoke(data); }
+            });
         }
 
         // ---------[ MODS ]---------
@@ -79,13 +79,11 @@ namespace ModIO
             Debug.Assert(onComplete != null);
 
             string path = GenerateModProfileFilePath(modId);
-            ModProfile profile;
-            LocalDataStorage.ReadJSONFile(path, out profile);
 
-            if(onComplete != null)
+            LocalDataStorage.ReadJSONFile<ModProfile>(path, (p, success, data) =>
             {
-                onComplete.Invoke(profile);
-            }
+                if(onComplete != null) { onComplete.Invoke(data); }
+            });
         }
 
         /// <summary>Stores a collection of mod profiles in the cache.</summary>
@@ -132,6 +130,7 @@ namespace ModIO
 
             Debug.Assert(onComplete != null);
 
+            List<string> profilePaths = new List<string>();
             List<ModProfile> modProfiles = new List<ModProfile>();
             string profileDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
 
@@ -158,26 +157,46 @@ namespace ModIO
                     for(int i = offset; i < modDirectories.Count; ++i)
                     {
                         string profilePath = IOUtilities.CombinePath(modDirectories[i], FILENAME);
-                        ModProfile profile;
-
-                        LocalDataStorage.ReadJSONFile(profilePath, out profile);
-
-                        if(profile != null)
-                        {
-                            modProfiles.Add(profile);
-                        }
-                        else
-                        {
-                            LocalDataStorage.DeleteFile(profilePath);
-                        }
+                        profilePaths.Add(profilePath);
                     }
                 }
             }
 
-            if(onComplete != null)
+            // Load Profiles
+            Action loadNextProfile = null;
+
+            loadNextProfile = () =>
             {
-                onComplete.Invoke(modProfiles);
-            }
+                if(profilePaths.Count > 0)
+                {
+                    int index = profilePaths.Count-1;
+                    string path = profilePaths[index];
+                    profilePaths.RemoveAt(index);
+
+                    LocalDataStorage.ReadJSONFile<ModProfile>(path, (p, success, data) =>
+                    {
+                        if(success)
+                        {
+                            modProfiles.Add(data);
+                        }
+                        else
+                        {
+                            LocalDataStorage.DeleteFile(path);
+                        }
+
+                        loadNextProfile();
+                    });
+                }
+                else
+                {
+                    if(onComplete != null)
+                    {
+                        onComplete.Invoke(modProfiles);
+                    }
+                }
+            };
+
+            loadNextProfile();
         }
 
         /// <summary>Requests all of the mod profiles returning only those matching the id filter.</summary>
@@ -200,6 +219,7 @@ namespace ModIO
             Debug.Assert(onComplete != null);
 
             // init
+            List<string> profilePaths = new List<string>();
             List<ModProfile> modProfiles = new List<ModProfile>();
 
             // early out
@@ -242,26 +262,46 @@ namespace ModIO
                     if(idFilter.Contains(modId))
                     {
                         string profilePath = IOUtilities.CombinePath(modDirectory, FILENAME);
-                        ModProfile profile;
-
-                        LocalDataStorage.ReadJSONFile(profilePath, out profile);
-
-                        if(profile != null)
-                        {
-                            modProfiles.Add(profile);
-                        }
-                        else
-                        {
-                            LocalDataStorage.DeleteFile(profilePath);
-                        }
+                        profilePaths.Add(profilePath);
                     }
                 }
             }
 
-            if(onComplete != null)
+            // Load Profiles
+            Action loadNextProfile = null;
+
+            loadNextProfile = () =>
             {
-                onComplete.Invoke(modProfiles);
-            }
+                if(profilePaths.Count > 0)
+                {
+                    int index = profilePaths.Count-1;
+                    string path = profilePaths[index];
+                    profilePaths.RemoveAt(index);
+
+                    LocalDataStorage.ReadJSONFile<ModProfile>(path, (p, success, data) =>
+                    {
+                        if(success)
+                        {
+                            modProfiles.Add(data);
+                        }
+                        else
+                        {
+                            LocalDataStorage.DeleteFile(path);
+                        }
+
+                        loadNextProfile();
+                    });
+                }
+                else
+                {
+                    if(onComplete != null)
+                    {
+                        onComplete.Invoke(modProfiles);
+                    }
+                }
+            };
+
+            loadNextProfile();
         }
 
         /// <summary>Deletes all of a mod's data from the cache.</summary>
