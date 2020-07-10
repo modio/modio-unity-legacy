@@ -108,6 +108,27 @@ namespace ModIO
         }
 
         /// <summary>Writes a JSON file.</summary>
+        public static void WriteJSONFile<T>(string path, T jsonObject, WriteFileCallback onComplete)
+        {
+            byte[] data = IOUtilities.GenerateUTF8JSONData<T>(jsonObject);
+
+            if(data != null && data.Length > 0)
+            {
+                LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.WriteFile(path, data, onComplete);
+            }
+            else
+            {
+                Debug.LogWarning("[mod.io] Failed create JSON representation of object before writing file."
+                                 + "\nFile: " + path + "\n\n");
+
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(path, false);
+                }
+            }
+        }
+
+        /// <summary>Writes a JSON file.</summary>
         public static bool WriteJSONFile<T>(string path, T jsonObject)
         {
             bool success = false;
