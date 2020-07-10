@@ -207,13 +207,12 @@ namespace ModIO
                         if(success)
                         {
                             modProfiles.Add(data);
+                            loadNextProfile();
                         }
                         else
                         {
-                            LocalDataStorage.DeleteFile(path);
+                            LocalDataStorage.DeleteFile(path, (delPath, delSuccess) => loadNextProfile());
                         }
-
-                        loadNextProfile();
                     });
                 }
                 else
@@ -312,13 +311,12 @@ namespace ModIO
                         if(success)
                         {
                             modProfiles.Add(data);
+                            loadNextProfile();
                         }
                         else
                         {
-                            LocalDataStorage.DeleteFile(path);
+                            LocalDataStorage.DeleteFile(path, (delPath, delSuccess) => loadNextProfile());
                         }
-
-                        loadNextProfile();
                     });
                 }
                 else
@@ -470,13 +468,12 @@ namespace ModIO
                         if(success)
                         {
                             modStatistics.Add(data);
+                            loadNextStatistics();
                         }
                         else
                         {
-                            LocalDataStorage.DeleteFile(path);
+                            LocalDataStorage.DeleteFile(path, (delPath, delSuccess) => loadNextStatistics());
                         }
-
-                        loadNextStatistics();
                     });
                 }
                 else
@@ -591,21 +588,16 @@ namespace ModIO
             string modfilePath = CacheClient.GenerateModfileFilePath(modId, modfileId);
             string zipPath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
 
-            bool success = true;
-
-            if(!LocalDataStorage.DeleteFile(modfilePath))
+            LocalDataStorage.DeleteFile(modfilePath, (mfP, mfS) =>
             {
-                success = false;
-            }
-            if(!LocalDataStorage.DeleteFile(zipPath))
-            {
-                success = false;
-            }
-
-            if(onComplete != null)
-            {
-                onComplete.Invoke(success);
-            }
+                LocalDataStorage.DeleteFile(zipPath, (zP, zS) =>
+                {
+                    if(onComplete != null)
+                    {
+                        onComplete.Invoke(mfS && zS);
+                    }
+                });
+            });
         }
 
         /// <summary>Deletes all modfiles and binaries from the cache.</summary>
@@ -925,12 +917,13 @@ namespace ModIO
             Debug.Assert(modId != ModProfile.NULL_ID);
 
             string path = CacheClient.GenerateModTeamFilePath(modId);
-            bool result = LocalDataStorage.DeleteFile(path);
-
-            if(onComplete != null)
+            LocalDataStorage.DeleteFile(path, (p, success) =>
             {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(success);
+                }
+            });
         }
 
         // ---------[ USERS ]---------
@@ -1059,8 +1052,10 @@ namespace ModIO
         [Obsolete("User Profiles are no longer accessible via the mod.io API.")]
         public static bool DeleteUserProfile(int userId)
         {
+            bool result = false;
             string path = CacheClient.GenerateUserProfileFilePath(userId);
-            return LocalDataStorage.DeleteFile(path);
+            LocalDataStorage.DeleteFile(path, (p, s) => result = s);
+            return result;
         }
 
         /// <summary>[Obsolete] Iterates through all the user profiles in the cache.</summary>
