@@ -364,7 +364,6 @@ namespace ModIO
         {
             FileDownloadInfo downloadInfo = DownloadClient.modfileDownloadMap[idPair];
             UnityWebRequest request = downloadInfo.request;
-            bool success = false;
 
             downloadInfo.bytesPerSecond = 0;
 
@@ -410,25 +409,27 @@ namespace ModIO
             }
             else
             {
-                success = LocalDataStorage.MoveFile(downloadInfo.target + ".download",
-                                                    downloadInfo.target);
-
-                if(!success)
+                LocalDataStorage.MoveFile(downloadInfo.target + ".download", downloadInfo.target,
+                (src, dst, success) =>
                 {
-                    string errorMessage = ("Download succeeded but failed to rename from"
-                                           + " temporary file name."
-                                           + "\nTemporary file name: "
-                                           + downloadInfo.target + ".download");
+                    if(!success)
+                    {
+                        string errorMessage = ("Download succeeded but failed to rename from"
+                                               + " temporary file name."
+                                               + "\nTemporary file name: "
+                                               + downloadInfo.target + ".download");
 
-                    downloadInfo.error = WebRequestError.GenerateLocal(errorMessage);
-                }
+                        downloadInfo.error = WebRequestError.GenerateLocal(errorMessage);
+                    }
 
-                DownloadClient.FinalizeDownload(idPair, downloadInfo);
+                    DownloadClient.FinalizeDownload(idPair, downloadInfo);
+                });
             }
         }
 
         private static void FinalizeDownload(ModfileIdPair idPair, FileDownloadInfo downloadInfo)
         {
+            downloadInfo.bytesPerSecond = 0;
             downloadInfo.isDone = true;
 
             if(downloadInfo.error == null && DownloadClient.modfileDownloadSucceeded != null)
