@@ -53,13 +53,6 @@ namespace ModIO
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.ReadFile(path, callback);
         }
 
-        /// <summary>Reads a file.</summary>
-        [Obsolete]
-        public static bool ReadFile(string path, out byte[] data)
-        {
-            return LocalDataStorage.PLATFORM_IO.ReadFile(path, out data);
-        }
-
         /// <summary>Reads a file and parses the data as a JSON object instance.</summary>
         public static bool ReadJSONFile<T>(string path, out T jsonObject)
         {
