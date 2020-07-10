@@ -27,6 +27,16 @@ namespace ModIO
                     callback.Invoke(path, success, data);
                 }
             }
+
+            public static void WriteFile(string path, byte[] data, WriteFileCallback callback)
+            {
+                bool success = LocalDataStorage.PLATFORM_IO.WriteFile(path, data);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, success);
+                }
+            }
         }
 
         // ---------[ Constants ]---------
@@ -82,6 +92,19 @@ namespace ModIO
                     onComplete.Invoke(path, success, jsonObject);
                 }
             });
+        }
+
+        /// <summary>Writes a file.</summary>
+        public static void WriteFile(string path, byte[] data, WriteFileCallback onComplete)
+        {
+            #if DEBUG
+            if(data.Length == 0)
+            {
+                Debug.Log("[mod.io] Writing 0-byte user file to: " + path);
+            }
+            #endif // DEBUG
+
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.WriteFile(path, data, onComplete);
         }
 
         /// <summary>Writes a file.</summary>
