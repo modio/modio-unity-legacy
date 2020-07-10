@@ -520,13 +520,14 @@ namespace ModIO
             Debug.Assert(modBinary != null);
             Debug.Assert(modBinary.Length > 0);
 
-            string filePath = GenerateModBinaryZipFilePath(modId, modfileId);
-            bool result = LocalDataStorage.WriteFile(filePath, modBinary);
-
-            if(onComplete != null)
+            string path = GenerateModBinaryZipFilePath(modId, modfileId);
+            LocalDataStorage.WriteFile(path, modBinary, (p, success) =>
             {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(success);
+                }
+            });
         }
 
         /// <summary>Retrieves a mod binary's ZipFile data from the cache.</summary>
@@ -659,15 +660,12 @@ namespace ModIO
             Debug.Assert(!String.IsNullOrEmpty(fileName));
             Debug.Assert(logoTexture != null);
 
-            bool success = false;
-            string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
-            byte[] imageData = logoTexture.EncodeToPNG();
+            string path = CacheClient.GenerateModLogoFilePath(modId, size);
+            byte[] data = logoTexture.EncodeToPNG();
 
             // write file
-            if(LocalDataStorage.WriteFile(logoFilePath, imageData))
+            LocalDataStorage.WriteFile(path, data, (p, success) =>
             {
-                success = true;
-
                 // - Update the versioning info -
                 CacheClient.GetModLogoVersionFileNames(modId, (versionInfo) =>
                 {
@@ -678,12 +676,12 @@ namespace ModIO
                     versionInfo[size] = fileName;
                     LocalDataStorage.WriteJSONFile(GenerateModLogoVersionInfoFilePath(modId), versionInfo);
                 });
-            }
 
-            if(onComplete != null)
-            {
-                onComplete.Invoke(success);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(success);
+                }
+            });
         }
 
         /// <summary>Retrieves a mod logo from the cache.</summary>
@@ -760,16 +758,16 @@ namespace ModIO
             Debug.Assert(!String.IsNullOrEmpty(imageFileName));
             Debug.Assert(imageTexture != null);
 
-            string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
-                                                                               imageFileName,
-                                                                               size);
-            byte[] imageData = imageTexture.EncodeToPNG();
-            bool result = LocalDataStorage.WriteFile(imageFilePath, imageData);
+            string path = CacheClient.GenerateModGalleryImageFilePath(modId, imageFileName, size);
+            byte[] data = imageTexture.EncodeToPNG();
 
-            if(onComplete != null)
+            LocalDataStorage.WriteFile(path, data, (p, success) =>
             {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(success);
+                }
+            });
         }
 
         /// <summary>Retrieves a mod gallery image from the cache.</summary>
@@ -805,15 +803,16 @@ namespace ModIO
             Debug.Assert(!String.IsNullOrEmpty(youTubeId));
             Debug.Assert(thumbnail != null);
 
-            string thumbnailFilePath = CacheClient.GenerateModYouTubeThumbnailFilePath(modId,
-                                                                                       youTubeId);
-            byte[] imageData = thumbnail.EncodeToPNG();
-            bool result = LocalDataStorage.WriteFile(thumbnailFilePath, imageData);
+            string path = CacheClient.GenerateModYouTubeThumbnailFilePath(modId, youTubeId);
+            byte[] data = thumbnail.EncodeToPNG();
 
-            if(onComplete != null)
+            LocalDataStorage.WriteFile(path, data, (p, success) =>
             {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(success);
+                }
+            });
         }
 
         /// <summary>Retrieves a YouTube thumbnail from the cache.</summary>
@@ -919,14 +918,16 @@ namespace ModIO
             Debug.Assert(userId != UserProfile.NULL_ID);
             Debug.Assert(avatarTexture != null);
 
-            string avatarFilePath = CacheClient.GenerateUserAvatarFilePath(userId, size);
-            byte[] imageData = avatarTexture.EncodeToPNG();
-            bool result = LocalDataStorage.WriteFile(avatarFilePath, imageData);
+            string path = CacheClient.GenerateUserAvatarFilePath(userId, size);
+            byte[] data = avatarTexture.EncodeToPNG();
 
-            if(onComplete != null)
+            LocalDataStorage.WriteFile(path, data, (p, success) =>
             {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(success);
+                }
+            });
         }
 
         /// <summary>Retrieves a user's avatar from the cache.</summary>

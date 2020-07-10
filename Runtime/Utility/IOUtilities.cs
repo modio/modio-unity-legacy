@@ -311,16 +311,19 @@ namespace ModIO
 
         /// <summary>[Obsolete] Writes an entire binary file.</summary>
         [Obsolete("Use LocalDataStorage.WriteFile() instead.")]
-        public static bool WriteBinaryFile(string filePath, byte[] data)
+        public static bool WriteBinaryFile(string path, byte[] data)
         {
-            return LocalDataStorage.WriteFile(filePath, data);
+            bool result = false;
+            LocalDataStorage.WriteFile(path, data, (p,s) => result = s);
+            return result;
         }
 
         /// <summary>[Obsolete] Writes a texture to a PNG file.</summary>
         [Obsolete("Use LocalDataStorage.WriteFile() and Texture2D.EncodeToPNG() instead.")]
-        public static bool WritePNGFile(string filePath, Texture2D texture)
+        public static bool WritePNGFile(string path, Texture2D texture)
         {
             byte[] data = null;
+            bool result = false;
 
             if(texture != null)
             {
@@ -328,11 +331,11 @@ namespace ModIO
 
                 if(data != null)
                 {
-                    return LocalDataStorage.WriteFile(filePath, data);
+                    LocalDataStorage.WriteFile(path, data, (p,s) => result = s);
                 }
             }
 
-            return false;
+            return result;
         }
 
         /// <summary>[Obsolete] Writes an object to a file in the JSON Object format.</summary>
