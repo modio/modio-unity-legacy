@@ -84,32 +84,6 @@ namespace ModIO
             });
         }
 
-        /// <summary>Reads a file and parses the data as a JSON object instance.</summary>
-        public static bool ReadJSONFile<T>(string path, out T jsonObject)
-        {
-            bool success = false;
-            byte[] data = null;
-
-            success = LocalDataStorage.PLATFORM_IO.ReadFile(path, out data);
-
-            if(success)
-            {
-                success = IOUtilities.TryParseUTF8JSONData<T>(data, out jsonObject);
-
-                if(!success)
-                {
-                    Debug.LogWarning("[mod.io] Failed translate file data into JSON Object."
-                                     + "\nFile: " + path + "\n\n");
-                }
-            }
-            else
-            {
-                jsonObject = default(T);
-            }
-
-            return success;
-        }
-
         /// <summary>Writes a file.</summary>
         public static bool WriteFile(string path, byte[] data)
         {
