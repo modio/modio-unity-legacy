@@ -37,6 +37,16 @@ namespace ModIO
                     callback.Invoke(path, success);
                 }
             }
+
+            public static void DeleteFile(string path, DeleteFileCallback callback)
+            {
+                bool success = LocalDataStorage.PLATFORM_IO.DeleteFile(path);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, success);
+                }
+            }
         }
 
         // ---------[ Constants ]---------
@@ -129,6 +139,12 @@ namespace ModIO
         }
 
         // ------ File Management ------
+        /// <summary>Deletes a file.</summary>
+        public static void DeleteFile(string path, DeleteFileCallback onComplete)
+        {
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.DeleteFile(path, onComplete);
+        }
+
         /// <summary>Deletes a file.</summary>
         public static bool DeleteFile(string path)
         {
