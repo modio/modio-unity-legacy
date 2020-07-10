@@ -343,7 +343,9 @@ namespace ModIO
         public static bool WriteJsonObjectFile<T>(string filePath,
                                                   T jsonObject)
         {
-            return LocalDataStorage.WriteJSONFile<T>(filePath, jsonObject);;
+            bool result = false;
+            LocalDataStorage.WriteJSONFile<T>(filePath, jsonObject, (p,s) => result = s);
+            return result;
         }
 
         /// <summary>[Obsolete] Deletes a file.</summary>

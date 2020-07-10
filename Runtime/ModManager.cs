@@ -58,7 +58,7 @@ namespace ModIO
                 data.lastRunVersion = ModIOVersion.Current;
                 ModManager.m_data = data;
 
-                LocalDataStorage.WriteJSONFile(PERSISTENTDATA_FILEPATH, ModManager.m_data);
+                LocalDataStorage.WriteJSONFile(PERSISTENTDATA_FILEPATH, ModManager.m_data, null);
             });
         }
 
