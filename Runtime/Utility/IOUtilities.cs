@@ -283,25 +283,29 @@ namespace ModIO
 
         /// <summary>[Obsolete] Reads an entire file and parses the JSON Object it contains.</summary>
         [Obsolete("Use LocalDataStorage.ReadJSONFile() instead.")]
-        public static T ReadJsonObjectFile<T>(string filePath)
+        public static T ReadJsonObjectFile<T>(string path)
         {
-            T parsed;
+            T result = default(T);
 
-            LocalDataStorage.ReadJSONFile<T>(filePath, out parsed);
+            LocalDataStorage.ReadJSONFile<T>(path, (p, s, r) => result = r);
 
-            return parsed;
+            return result;
         }
 
         /// <summary>[Obsolete] Reads an entire file and parses the JSON Object it contains.</summary>
         [Obsolete("Use LocalDataStorage.ReadJSONFile() instead.")]
-        public static bool TryReadJsonObjectFile<T>(string filePath, out T jsonObject)
+        public static bool TryReadJsonObjectFile<T>(string path, out T jsonObject)
         {
-            T parsed;
+            T result = default(T);
             bool success = false;
 
-            success = LocalDataStorage.ReadJSONFile<T>(filePath, out parsed);
-            jsonObject = parsed;
+            LocalDataStorage.ReadJSONFile<T>(path, (p, s, r) =>
+            {
+                success = s;
+                result = r;
+            });
 
+            jsonObject = result;
             return success;
         }
 
