@@ -222,7 +222,12 @@ namespace ModIO
             bool success = false;
             byte[] data = null;
 
-            success = LocalDataStorage.ReadFile(filePath, out data);
+            LocalDataStorage.ReadFile(filePath, (p,s,d) =>
+            {
+                success = s;
+                data = d;
+            });
+
             output = data;
 
             return success;
@@ -234,7 +239,10 @@ namespace ModIO
         {
             byte[] data = null;
 
-            LocalDataStorage.ReadFile(filePath, out data);
+            LocalDataStorage.ReadFile(filePath, (p,s,d) =>
+            {
+                data = d;
+            });
 
             return data;
         }
@@ -244,12 +252,9 @@ namespace ModIO
         public static Texture2D ReadImageFile(string filePath)
         {
             Texture2D parsed = null;
-            bool success = false;
-            byte[] data = null;
+            byte[] data = LoadBinaryFile(filePath);
 
-            success = LocalDataStorage.ReadFile(filePath, out data);
-
-            if(success)
+            if(data != null)
             {
                 parsed = IOUtilities.ParseImageData(data);
             }
@@ -265,7 +270,7 @@ namespace ModIO
             bool success = false;
             byte[] data = null;
 
-            success = LocalDataStorage.ReadFile(filePath, out data);
+            success = TryLoadBinaryFile(filePath, out data);
 
             if(success)
             {
