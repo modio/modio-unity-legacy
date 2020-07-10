@@ -374,6 +374,8 @@ namespace ModIO
                    || request.error.ToUpper() == "REQUEST ABORTED")
                 {
                     downloadInfo.wasAborted = true;
+
+                    DownloadClient.FinalizeDownload(idPair, downloadInfo);
                 }
 
                 // NOTE(@jackson): This workaround addresses an issue in UnityWebRequests on the
@@ -403,10 +405,7 @@ namespace ModIO
                 {
                     downloadInfo.error = WebRequestError.GenerateFromWebRequest(request);
 
-                    if(modfileDownloadFailed != null)
-                    {
-                        modfileDownloadFailed(idPair, downloadInfo.error);
-                    }
+                    DownloadClient.FinalizeDownload(idPair, downloadInfo);
                 }
             }
             else
@@ -414,8 +413,7 @@ namespace ModIO
                 success = LocalDataStorage.MoveFile(downloadInfo.target + ".download",
                                                     downloadInfo.target);
 
-                if(!success
-                   && DownloadClient.modfileDownloadFailed != null)
+                if(!success)
                 {
                     string errorMessage = ("Download succeeded but failed to rename from"
                                            + " temporary file name."
@@ -423,17 +421,23 @@ namespace ModIO
                                            + downloadInfo.target + ".download");
 
                     downloadInfo.error = WebRequestError.GenerateLocal(errorMessage);
-
-                    modfileDownloadFailed(idPair, downloadInfo.error);
                 }
-            }
 
+                DownloadClient.FinalizeDownload(idPair, downloadInfo);
+            }
+        }
+
+        private static void FinalizeDownload(ModfileIdPair idPair, FileDownloadInfo downloadInfo)
+        {
             downloadInfo.isDone = true;
 
-            if(success
-               && modfileDownloadSucceeded != null)
+            if(downloadInfo.error == null && DownloadClient.modfileDownloadSucceeded != null)
             {
-                modfileDownloadSucceeded(idPair, downloadInfo);
+                DownloadClient.modfileDownloadSucceeded(idPair, downloadInfo);
+            }
+            else if(downloadInfo.error != null && DownloadClient.modfileDownloadFailed != null)
+            {
+                DownloadClient.modfileDownloadFailed(idPair, downloadInfo.error);
             }
 
             modfileDownloadMap.Remove(idPair);
