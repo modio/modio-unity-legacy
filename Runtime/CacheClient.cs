@@ -23,12 +23,13 @@ namespace ModIO
         {
             Debug.Assert(profile != null);
 
-            var result = LocalDataStorage.WriteJSONFile(gameProfileFilePath, profile);
-
-            if(onComplete != null)
+            LocalDataStorage.WriteJSONFile(CacheClient.gameProfileFilePath, profile, (p, success) =>
             {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(success);
+                }
+            });
         }
 
         /// <summary>Retrieves the game's profile from the cache.</summary>
@@ -63,14 +64,16 @@ namespace ModIO
         public static void SaveModProfile(ModProfile profile, Action<bool> onComplete)
         {
             Debug.Assert(profile != null);
+            Debug.Assert(profile.id != ModProfile.NULL_ID);
 
             string path = GenerateModProfileFilePath(profile.id);
-            bool result = LocalDataStorage.WriteJSONFile(path, profile);
-
-            if(onComplete != null)
+            LocalDataStorage.WriteJSONFile(path, profile, (p, success) =>
             {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(success);
+                }
+            });
         }
 
         /// <summary>Retrieves a mod's profile from the cache.</summary>
@@ -91,18 +94,44 @@ namespace ModIO
         {
             Debug.Assert(modProfiles != null);
 
-            bool isSuccessful = true;
+            bool success = true;
+            List<ModProfile> profiles = new List<ModProfile>(modProfiles);
 
-            foreach(ModProfile profile in modProfiles)
+            // write
+            Action writeNextProfile = null;
+            writeNextProfile = () =>
             {
-                string path = GenerateModProfileFilePath(profile.id);
-                isSuccessful = LocalDataStorage.WriteJSONFile(path, profile) && isSuccessful;
-            }
+                if(profiles.Count > 0)
+                {
+                    int index = profiles.Count-1;
+                    ModProfile profile = profiles[index];
+                    string path = GenerateModProfileFilePath(profile.id);
 
-            if(onComplete != null)
-            {
-                onComplete.Invoke(isSuccessful);
-            }
+                    profiles.RemoveAt(index);
+
+                    if(profile != null)
+                    {
+                        LocalDataStorage.WriteJSONFile(path, profile, (p,s) =>
+                        {
+                            success &= s;
+                            writeNextProfile();
+                        });
+                    }
+                    else
+                    {
+                        writeNextProfile();
+                    }
+                }
+                else
+                {
+                    if(onComplete != null)
+                    {
+                        onComplete.Invoke(success);
+                    }
+                }
+            };
+
+            writeNextProfile();
         }
 
         /// <summary>Requests all of the mod profiles in the cache.</summary>
@@ -328,14 +357,17 @@ namespace ModIO
         public static void SaveModStatistics(ModStatistics stats, Action<bool> onComplete)
         {
             Debug.Assert(stats != null);
+            Debug.Assert(stats.modId != ModProfile.NULL_ID);
 
-            string statsFilePath = GenerateModStatisticsFilePath(stats.modId);
-            bool result = LocalDataStorage.WriteJSONFile(statsFilePath, stats);
+            string path = GenerateModStatisticsFilePath(stats.modId);
 
-            if(onComplete != null)
+            LocalDataStorage.WriteJSONFile(path, stats, (p, success) =>
             {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(success);
+                }
+            });
         }
 
         /// <summary>Retrieves a mod's statistics from the cache.</summary>
@@ -484,14 +516,17 @@ namespace ModIO
         public static void SaveModfile(Modfile modfile, Action<bool> onComplete)
         {
             Debug.Assert(modfile != null);
+            Debug.Assert(modfile.modId != ModProfile.NULL_ID);
+            Debug.Assert(modfile.id != Modfile.NULL_ID);
 
             string path = GenerateModfileFilePath(modfile.modId, modfile.id);
-            bool result = LocalDataStorage.WriteJSONFile(path, modfile);
-
-            if(onComplete != null)
+            LocalDataStorage.WriteJSONFile(path, modfile, (p, success) =>
             {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(success);
+                }
+            });
         }
 
         /// <summary>Retrieves a modfile from the cache.</summary>
@@ -674,7 +709,9 @@ namespace ModIO
                         versionInfo = new Dictionary<LogoSize, string>();
                     }
                     versionInfo[size] = fileName;
-                    LocalDataStorage.WriteJSONFile(GenerateModLogoVersionInfoFilePath(modId), versionInfo);
+
+                    string versionPath = GenerateModLogoVersionInfoFilePath(modId);
+                    LocalDataStorage.WriteJSONFile(versionPath, versionInfo, null);
                 });
 
                 if(onComplete != null)
@@ -855,13 +892,14 @@ namespace ModIO
             Debug.Assert(modId != ModProfile.NULL_ID);
             Debug.Assert(modTeam != null);
 
-            string filePath = CacheClient.GenerateModTeamFilePath(modId);
-            bool result =  LocalDataStorage.WriteJSONFile(filePath, modTeam);
-
-            if(onComplete != null)
+            string path = CacheClient.GenerateModTeamFilePath(modId);
+            LocalDataStorage.WriteJSONFile(path, modTeam, (p, success) =>
             {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(success);
+                }
+            });
         }
 
         /// <summary>Retrieves a mod team's data from the cache.</summary>
@@ -998,8 +1036,11 @@ namespace ModIO
         {
             Debug.Assert(userProfile != null);
 
-            string filePath = CacheClient.GenerateUserProfileFilePath(userProfile.id);
-            return LocalDataStorage.WriteJSONFile(filePath, userProfile);
+            bool result = false;
+            string path = CacheClient.GenerateUserProfileFilePath(userProfile.id);
+            LocalDataStorage.WriteJSONFile(path, userProfile, (p, s) => result = s);
+
+            return result;
         }
 
         /// <summary>[Obsolete] Retrieves a user's profile from the cache.</summary>
