@@ -82,25 +82,88 @@ namespace ModIO
                 onComplete = (b) => {};
             }
 
-            string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
-            if(!LocalDataStorage.GetFileExists(zipFilePath))
+            // Define vars
+            string installDirectory = ModManager.GetModInstallDirectory(modId, modfileId);
+            string tempLocation = IOUtilities.CombinePath(CacheClient.GenerateModBinariesDirectoryPath(modId),
+                                                          modfileId.ToString());
+            string archivePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
+
+            // Define the callbacks
+            Action<bool> onOldVersionsUninstalled = null;
+            LocalDataIOCallbacks.DeleteFileCallback onArchiveDeleted = null;
+
+            onOldVersionsUninstalled = (success) =>
+            {
+                if(!success)
+                {
+                    Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
+                                     + "\nFailed to uninstall other versions of this mod.");
+
+                    LocalDataStorage.DeleteDirectory(tempLocation);
+
+                    onComplete.Invoke(false);
+                }
+                else
+                {
+                    // Move to permanent folder
+                    try
+                    {
+                        LocalDataStorage.DeleteDirectory(installDirectory);
+                        LocalDataStorage.CreateDirectory(PluginSettings.INSTALLATION_DIRECTORY);
+                        LocalDataStorage.MoveDirectory(tempLocation, installDirectory);
+                    }
+                    catch(Exception e)
+                    {
+                        Debug.LogWarning("[mod.io] Unable to move binary to the mod installation folder."
+                                         + "\nSrc: " + tempLocation
+                                         + "\nDest: " + installDirectory + "\n\n"
+                                         + Utility.GenerateExceptionDebugString(e));
+
+                        LocalDataStorage.DeleteDirectory(tempLocation);
+
+                        onComplete.Invoke(false);
+                        return;
+                    }
+
+                    LocalDataStorage.DeleteFile(archivePath, onArchiveDeleted);
+                }
+            };
+
+            onArchiveDeleted = (path, success) =>
+            {
+                if(ModManager.onModBinaryInstalled != null)
+                {
+                    ModfileIdPair idPair = new ModfileIdPair()
+                    {
+                        modId = modId,
+                        modfileId = modfileId,
+                    };
+                    ModManager.onModBinaryInstalled(idPair);
+                }
+
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(true);
+                }
+            };
+
+            // Run Install Process
+            if(!LocalDataStorage.GetFileExists(archivePath))
             {
                 Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
-                                 + "\nMod Binary ZipFile [" + zipFilePath + "] does not exist.");
+                                 + "\nMod Binary ZipFile [" + archivePath + "] does not exist.");
 
                 onComplete.Invoke(false);
                 return;
             }
 
             // extract
-            string tempLocation = IOUtilities.CombinePath(CacheClient.GenerateModBinariesDirectoryPath(modId),
-                                                          modfileId.ToString());
             try
             {
                 LocalDataStorage.DeleteDirectory(tempLocation);
                 LocalDataStorage.CreateDirectory(tempLocation);
 
-                using (var zip = Ionic.Zip.ZipFile.Read(zipFilePath))
+                using (var zip = Ionic.Zip.ZipFile.Read(archivePath))
                 {
                     zip.ExtractAll(tempLocation);
                 }
@@ -118,59 +181,7 @@ namespace ModIO
             }
 
             // Remove old versions
-            ModManager.UninstallMod(modId, (uninstallSucceeded) =>
-            {
-                if(!uninstallSucceeded)
-                {
-                    Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
-                                     + "\nFailed to uninstall other versions of this mod.");
-
-                    LocalDataStorage.DeleteDirectory(tempLocation);
-
-                    onComplete.Invoke(false);
-                    return;
-                }
-
-                // Move to permanent folder
-                string installDirectory = ModManager.GetModInstallDirectory(modId,
-                                                                            modfileId);
-                try
-                {
-                    LocalDataStorage.DeleteDirectory(installDirectory);
-                    LocalDataStorage.CreateDirectory(PluginSettings.INSTALLATION_DIRECTORY);
-                    LocalDataStorage.MoveDirectory(tempLocation, installDirectory);
-                }
-                catch(Exception e)
-                {
-                    Debug.LogWarning("[mod.io] Unable to move binary to the mod installation folder."
-                                     + "\nSrc: " + tempLocation
-                                     + "\nDest: " + installDirectory + "\n\n"
-                                     + Utility.GenerateExceptionDebugString(e));
-
-                    LocalDataStorage.DeleteDirectory(tempLocation);
-
-                    onComplete.Invoke(false);
-                    return;
-                }
-
-                LocalDataStorage.DeleteFile(zipFilePath, (p, s) =>
-                {
-                    if(ModManager.onModBinaryInstalled != null)
-                    {
-                        ModfileIdPair idPair = new ModfileIdPair()
-                        {
-                            modId = modId,
-                            modfileId = modfileId,
-                        };
-                        ModManager.onModBinaryInstalled(idPair);
-                    }
-
-                    if(onComplete != null)
-                    {
-                        onComplete.Invoke(true);
-                    }
-                });
-            });
+            ModManager.UninstallMod(modId, onOldVersionsUninstalled);
         }
 
         /// <summary>Removes all versions of a mod from the installs folder.</summary>
