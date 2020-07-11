@@ -1285,6 +1285,8 @@ namespace ModIO
                                         Action<ModProfile> onSuccess,
                                         Action<WebRequestError> onError)
         {
+            Debug.Assert(newModProfile != null);
+
             // - Client-Side error-checking -
             WebRequestError error = null;
             if(String.IsNullOrEmpty(newModProfile.name.value))
@@ -1295,20 +1297,33 @@ namespace ModIO
             {
                 error = WebRequestError.GenerateLocal("Mod Profile needs to be given a summary before it can be uploaded");
             }
-            else if(!LocalDataStorage.GetFileExists(newModProfile.logoLocator.value.url))
-            {
-                error = WebRequestError.GenerateLocal("Mod Profile needs to be assigned a logo before it can be uploaded");
-            }
 
             if(error != null)
             {
-                onError(error);
+                if(onError != null)
+                {
+                    onError.Invoke(error);
+                }
                 return;
             }
 
-            // - Initial Mod Submission -
-            LocalDataStorage.ReadFile(newModProfile.logoLocator.value.url, (p, success, data) =>
+            // Define callbacks
+            LocalDataIOCallbacks.ReadFileCallback onReadLogo = null;
+
+            onReadLogo = (path, success, data) =>
             {
+                if(success)
+                {
+                    error = WebRequestError.GenerateLocal("Mod Profile logo could not be accessed before uploading."
+                                                          + "\nLogo Path: " + path);
+
+                    if(onError != null)
+                    {
+                        onError.Invoke(error);
+                    }
+                    return;
+                }
+
                 var parameters = new AddModParameters();
                 parameters.name = newModProfile.name.value;
                 parameters.summary = newModProfile.summary.value;
@@ -1357,7 +1372,10 @@ namespace ModIO
                                                                      onSuccess,
                                                                      onError),
                                  onError);
-            });
+            };
+
+            // - Initial Mod Submission -
+            LocalDataStorage.ReadFile(newModProfile.logoLocator.value.url, onReadLogo);
         }
 
         /// <summary>Submits changes to a mod to the server.</summary>
