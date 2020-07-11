@@ -89,8 +89,48 @@ namespace ModIO
             string archivePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
 
             // Define the callbacks
+            LocalDataIOCallbacks.GetFileExistsCallback onArchiveExists = null;
             Action<bool> onOldVersionsUninstalled = null;
             LocalDataIOCallbacks.DeleteFileCallback onArchiveDeleted = null;
+
+            onArchiveExists = (path, success) =>
+            {
+                if(!success)
+                {
+                    Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
+                                     + "\nMod Binary ZipFile [" + archivePath + "] does not exist.");
+
+                    onComplete.Invoke(false);
+                }
+                else
+                {
+                    // extract
+                    try
+                    {
+                        LocalDataStorage.DeleteDirectory(tempLocation);
+                        LocalDataStorage.CreateDirectory(tempLocation);
+
+                        using (var zip = Ionic.Zip.ZipFile.Read(archivePath))
+                        {
+                            zip.ExtractAll(tempLocation);
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        Debug.LogWarning("[mod.io] Unable to extract binary to a temporary folder."
+                                         + "\nLocation: " + tempLocation + "\n\n"
+                                         + Utility.GenerateExceptionDebugString(e));
+
+                        LocalDataStorage.DeleteDirectory(tempLocation);
+
+                        onComplete.Invoke(false);
+                        return;
+                    }
+
+                    // Remove old versions
+                    ModManager.UninstallMod(modId, onOldVersionsUninstalled);
+                }
+            };
 
             onOldVersionsUninstalled = (success) =>
             {
@@ -148,40 +188,7 @@ namespace ModIO
             };
 
             // Run Install Process
-            if(!LocalDataStorage.GetFileExists(archivePath))
-            {
-                Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
-                                 + "\nMod Binary ZipFile [" + archivePath + "] does not exist.");
-
-                onComplete.Invoke(false);
-                return;
-            }
-
-            // extract
-            try
-            {
-                LocalDataStorage.DeleteDirectory(tempLocation);
-                LocalDataStorage.CreateDirectory(tempLocation);
-
-                using (var zip = Ionic.Zip.ZipFile.Read(archivePath))
-                {
-                    zip.ExtractAll(tempLocation);
-                }
-            }
-            catch(Exception e)
-            {
-                Debug.LogWarning("[mod.io] Unable to extract binary to a temporary folder."
-                                 + "\nLocation: " + tempLocation + "\n\n"
-                                 + Utility.GenerateExceptionDebugString(e));
-
-                LocalDataStorage.DeleteDirectory(tempLocation);
-
-                onComplete.Invoke(false);
-                return;
-            }
-
-            // Remove old versions
-            ModManager.UninstallMod(modId, onOldVersionsUninstalled);
+            LocalDataStorage.GetFileExists(archivePath, onArchiveExists);
         }
 
         /// <summary>Removes all versions of a mod from the installs folder.</summary>
