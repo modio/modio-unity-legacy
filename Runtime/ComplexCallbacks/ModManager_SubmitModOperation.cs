@@ -29,6 +29,8 @@ namespace ModIO
         private AddModParameters addModParams = null;
         private DeleteModMediaParameters deleteMediaParams = null;
         private AddModMediaParameters addMediaParams = null;
+
+        private int modId = ModProfile.NULL_ID;
         private List<string> removedTags = null;
         private List<string> addedTags = null;
         private Dictionary<string, string> removedKVPs = null;
@@ -172,6 +174,7 @@ namespace ModIO
         /// <summary>Calculates changes made to a mod profile and submits them to the servers.</summary>
         private void SubmitModChanges_Internal(ModProfile profile)
         {
+            // early outs
             if(profile == null)
             {
                 if(this.onError != null)
@@ -180,8 +183,24 @@ namespace ModIO
                                                                           + " was null. This was an unexpected error, please try submitting the mod again.");
                     this.onError(error);
                 }
+
+                return;
+            }
+            if(profile.id == ModProfile.NULL_ID)
+            {
+                if(this.onError != null)
+                {
+                    WebRequestError error = WebRequestError.GenerateLocal("Profile parameter passed to ModManager_SubmitModOperation.SubmitModChanges_Internal"
+                                                                          + " has a NULL_ID. This was an unexpected error, please try submitting the mod again.");
+                    this.onError(error);
+                }
+
+                return;
             }
 
+            this.modId = profile.id;
+
+            // - start process -
             List<Action> submissionActions = new List<Action>();
             int nextActionIndex = 0;
             Action<APIMessage> doNextSubmissionAction = (m) =>
