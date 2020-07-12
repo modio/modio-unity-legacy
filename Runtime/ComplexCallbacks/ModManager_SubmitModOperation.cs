@@ -382,31 +382,11 @@ namespace ModIO
                 {
                     this.removedTags.Remove(tag);
                 }
+
                 this.addedTags = new List<string>(this.eModProfile.tags.value);
                 foreach(string tag in profile.tagNames)
                 {
                     this.addedTags.Remove(tag);
-                }
-
-                if(this.removedTags.Count > 0)
-                {
-                    submissionActions.Add(() =>
-                    {
-                        var parameters = new DeleteModTagsParameters();
-                        parameters.tagNames = this.removedTags.ToArray();
-                        APIClient.DeleteModTags(profile.id, parameters,
-                                                () => doNextSubmissionAction(null), this.onError);
-                    });
-                }
-                if(this.addedTags.Count > 0)
-                {
-                    submissionActions.Add(() =>
-                    {
-                        var parameters = new AddModTagsParameters();
-                        parameters.tagNames = this.addedTags.ToArray();
-                        APIClient.AddModTags(profile.id, parameters,
-                                             doNextSubmissionAction, this.onError);
-                    });
                 }
             }
 
@@ -414,8 +394,6 @@ namespace ModIO
             if(this.eModProfile.metadataKVPs.isDirty)
             {
                 this.removedKVPs = MetadataKVP.ArrayToDictionary(profile.metadataKVPs);
-                this.addedKVPs = MetadataKVP.ArrayToDictionary(this.eModProfile.metadataKVPs.value);
-
                 foreach(MetadataKVP kvp in this.eModProfile.metadataKVPs.value)
                 {
                     string profileValue;
@@ -428,6 +406,7 @@ namespace ModIO
                     }
                 }
 
+                this.addedKVPs = MetadataKVP.ArrayToDictionary(this.eModProfile.metadataKVPs.value);
                 foreach(MetadataKVP kvp in profile.metadataKVPs)
                 {
                     string editValue;
@@ -499,7 +478,29 @@ namespace ModIO
 
         private void SubmitNextParameter()
         {
-            if(this.removedKVPs != null && this.removedKVPs.Count > 0)
+            if(this.removedTags != null && this.removedTags.Count > 0)
+            {
+                var parameters = new DeleteModTagsParameters();
+                parameters.tagNames = this.removedTags.ToArray();
+
+                APIClient.DeleteModTags(this.modId, parameters,
+                                        this.SubmitNextParameter,
+                                        this.onError);
+
+                this.removedTags = null;
+            }
+            else if(this.addedTags != null && this.addedTags.Count > 0)
+            {
+                var parameters = new AddModTagsParameters();
+                parameters.tagNames = this.addedTags.ToArray();
+
+                APIClient.AddModTags(this.modId, parameters,
+                                     this.SubmitNextParameter,
+                                     this.onError);
+
+                this.addedTags = null;
+            }
+            else if(this.removedKVPs != null && this.removedKVPs.Count > 0)
             {
                 var parameters = new DeleteModKVPMetadataParameters();
                 parameters.metadataKeys = this.removedKVPs.Keys.ToArray();
