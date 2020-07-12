@@ -413,6 +413,7 @@ namespace ModIO
             }
         }
 
+        // ---------[ Submission Loop Functions ]---------
         private void SubmitNextParameter()
         {
             this.SubmitNextParameter(null);
@@ -449,7 +450,9 @@ namespace ModIO
                 this.removedYouTubeURLs = null;
             }
             else if((this.logoData != null)
-                    || (this.imageArchiveData != null))
+                    || (this.imageArchiveData != null)
+                    || (this.addedSketchfabURLs != null && this.addedSketchfabURLs.Count > 0)
+                    || (this.addedYouTubeURLs != null && this.addedYouTubeURLs.Count > 0) )
             {
                 var parameters = new AddModMediaParameters();
 
@@ -461,6 +464,14 @@ namespace ModIO
                 {
                     parameters.galleryImages = BinaryUpload.Create("images.zip", this.imageArchiveData);
                 }
+                if(this.addedSketchfabURLs != null && this.addedSketchfabURLs.Count > 0)
+                {
+                    parameters.sketchfab = this.addedSketchfabURLs.ToArray();
+                }
+                if(this.addedYouTubeURLs != null && this.addedYouTubeURLs.Count > 0)
+                {
+                    parameters.youtube = this.addedYouTubeURLs.ToArray();
+                }
 
                 APIClient.AddModMedia(this.modId, parameters,
                                       this.SubmitNextParameter,
@@ -468,6 +479,8 @@ namespace ModIO
 
                 this.logoData = null;
                 this.imageArchiveData = null;
+                this.addedSketchfabURLs = null;
+                this.addedYouTubeURLs = null;
             }
             // - Tags -
             else if(this.removedTags != null && this.removedTags.Count > 0)
