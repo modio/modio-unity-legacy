@@ -1285,7 +1285,11 @@ namespace ModIO
                                         Action<ModProfile> onSuccess,
                                         Action<WebRequestError> onError)
         {
-            ModManager_SubmitModOperation.SubmitNewMod(newModProfile, onSuccess, onError);
+            ModManager_SubmitModOperation op = new ModManager_SubmitModOperation();
+            op.onSuccess = onSuccess;
+            op.onError = onError;
+
+            op.SubmitNewMod(newModProfile);
         }
 
         /// <summary>Submits changes to a mod to the server.</summary>
@@ -1294,7 +1298,11 @@ namespace ModIO
                                             Action<ModProfile> onSuccess,
                                             Action<WebRequestError> onError)
         {
-            ModManager_SubmitModOperation.SubmitModChanges(modId, modEdits, onSuccess, onError);
+            ModManager_SubmitModOperation op = new ModManager_SubmitModOperation();
+            op.onSuccess = onSuccess;
+            op.onError = onError;
+
+            op.SubmitModChanges(modId, modEdits);
         }
 
         /// <summary>Zips and uploads a mod data directory as a new build to the servers.</summary>

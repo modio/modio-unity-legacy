@@ -20,12 +20,11 @@ namespace ModIO
 {
     internal class ModManager_SubmitModOperation
     {
-
+        public Action<ModProfile> onSuccess = null;
+        public Action<WebRequestError> onError = null;
 
         /// <summary>Submits a new mod to the server.</summary>
-        public static void SubmitNewMod(EditableModProfile newModProfile,
-                                        Action<ModProfile> onSuccess,
-                                        Action<WebRequestError> onError)
+        public void SubmitNewMod(EditableModProfile newModProfile)
         {
             Debug.Assert(newModProfile != null);
 
@@ -42,9 +41,9 @@ namespace ModIO
 
             if(error != null)
             {
-                if(onError != null)
+                if(this.onError != null)
                 {
-                    onError.Invoke(error);
+                    this.onError.Invoke(error);
                 }
                 return;
             }
@@ -59,9 +58,9 @@ namespace ModIO
                     error = WebRequestError.GenerateLocal("Mod Profile logo could not be accessed before uploading."
                                                           + "\nLogo Path: " + path);
 
-                    if(onError != null)
+                    if(this.onError != null)
                     {
-                        onError.Invoke(error);
+                        this.onError.Invoke(error);
                     }
                     return;
                 }
@@ -110,10 +109,8 @@ namespace ModIO
 
                 APIClient.AddMod(parameters,
                                  result => SubmitModChanges_Internal(result,
-                                                                     remainingModEdits,
-                                                                     onSuccess,
-                                                                     onError),
-                                 onError);
+                                                                     remainingModEdits),
+                                 this.onError);
             };
 
             // - Initial Mod Submission -
@@ -121,10 +118,7 @@ namespace ModIO
         }
 
         /// <summary>Submits changes to a mod to the server.</summary>
-        public static void SubmitModChanges(int modId,
-                                            EditableModProfile modEdits,
-                                            Action<ModProfile> onSuccess,
-                                            Action<WebRequestError> onError)
+        public void SubmitModChanges(int modId, EditableModProfile modEdits)
         {
             Debug.Assert(modId != ModProfile.NULL_ID);
 
@@ -174,35 +168,27 @@ namespace ModIO
                     }
 
                     APIClient.EditMod(modId, parameters,
-                    (p) => SubmitModChanges_Internal(profile, modEdits,
-                                                     onSuccess,
-                                                     onError),
-                    onError);
+                    (p) => SubmitModChanges_Internal(profile, modEdits),
+                    this.onError);
                 }
                 // - Get updated ModProfile -
                 else
                 {
-                    SubmitModChanges_Internal(profile,
-                                              modEdits,
-                                              onSuccess,
-                                              onError);
+                    SubmitModChanges_Internal(profile, modEdits);
                 }
             };
 
-            ModManager.GetModProfile(modId, submitChanges, onError);
+            ModManager.GetModProfile(modId, submitChanges, this.onError);
         }
 
         /// <summary>Calculates changes made to a mod profile and submits them to the servers.</summary>
-        private static void SubmitModChanges_Internal(ModProfile profile,
-                                                      EditableModProfile modEdits,
-                                                      Action<ModProfile> onSuccess,
-                                                      Action<WebRequestError> onError)
+        private void SubmitModChanges_Internal(ModProfile profile, EditableModProfile modEdits)
         {
             if(profile == null)
             {
-                if(onError != null)
+                if(this.onError != null)
                 {
-                    onError(WebRequestError.GenerateLocal("ugh"));
+                    this.onError(WebRequestError.GenerateLocal("ugh"));
                 }
             }
 
@@ -363,7 +349,7 @@ namespace ModIO
                     {
                         APIClient.AddModMedia(profile.id,
                                               addMediaParameters,
-                                              doNextSubmissionAction, onError);
+                                              doNextSubmissionAction, this.onError);
                     });
                 }
                 if(deleteMediaParameters.stringValues.Count > 0)
@@ -373,7 +359,7 @@ namespace ModIO
                         APIClient.DeleteModMedia(profile.id,
                                                  deleteMediaParameters,
                                                  () => doNextSubmissionAction(null),
-                                                 onError);
+                                                 this.onError);
                     });
                 }
             }
@@ -399,7 +385,7 @@ namespace ModIO
                         var parameters = new DeleteModTagsParameters();
                         parameters.tagNames = removedTags.ToArray();
                         APIClient.DeleteModTags(profile.id, parameters,
-                                                () => doNextSubmissionAction(null), onError);
+                                                () => doNextSubmissionAction(null), this.onError);
                     });
                 }
                 if(addedTags.Count > 0)
@@ -409,7 +395,7 @@ namespace ModIO
                         var parameters = new AddModTagsParameters();
                         parameters.tagNames = addedTags.ToArray();
                         APIClient.AddModTags(profile.id, parameters,
-                                             doNextSubmissionAction, onError);
+                                             doNextSubmissionAction, this.onError);
                     });
                 }
             }
@@ -452,7 +438,7 @@ namespace ModIO
                         parameters.metadataKeys = removedKVPs.Keys.ToArray();
                         APIClient.DeleteModKVPMetadata(profile.id, parameters,
                                                        () => doNextSubmissionAction(null),
-                                                       onError);
+                                                       this.onError);
                     });
                 }
 
@@ -466,13 +452,13 @@ namespace ModIO
                         parameters.metadata = addedKVPStrings;
                         APIClient.AddModKVPMetadata(profile.id, parameters,
                                                     doNextSubmissionAction,
-                                                    onError);
+                                                    this.onError);
                     });
                 }
             }
 
             // - Get Updated Profile -
-            submissionActions.Add(() => APIClient.GetMod(profile.id, onSuccess, onError));
+            submissionActions.Add(() => APIClient.GetMod(profile.id, this.onSuccess, this.onError));
 
             // - Start submission chain -
             doNextSubmissionAction(new APIMessage());
