@@ -27,10 +27,14 @@ namespace ModIO
         private EditableModProfile eModProfile = null;
 
         private AddModParameters addModParams = null;
-        private DeleteModMediaParameters deleteMediaParams = null;
         private AddModMediaParameters addMediaParams = null;
 
         private int modId = ModProfile.NULL_ID;
+        private List<string> removedImageFileNames = null;
+        private List<string> removedYouTubeURLs = null;
+        private List<string> removedSketchfabURLs = null;
+        private List<string> addedYouTubeURLs = null;
+        private List<string> addedSketchfabURLs = null;
         private List<string> removedTags = null;
         private List<string> addedTags = null;
         private Dictionary<string, string> removedKVPs = null;
@@ -218,43 +222,40 @@ namespace ModIO
                || this.eModProfile.galleryImageLocators.isDirty)
             {
                 this.addMediaParams = new AddModMediaParameters();
-                this.deleteMediaParams = new DeleteModMediaParameters();
 
-                // - string values -
+                // - YouTube -
                 if(this.eModProfile.youTubeURLs.isDirty)
                 {
-                    var addedYouTubeLinks = new List<string>(this.eModProfile.youTubeURLs.value);
-                    foreach(string youtubeLink in profile.media.youTubeURLs)
+                    this.removedYouTubeURLs = new List<string>(profile.media.youTubeURLs);
+                    foreach(string url in this.eModProfile.youTubeURLs.value)
                     {
-                        addedYouTubeLinks.Remove(youtubeLink);
+                        this.removedYouTubeURLs.Remove(url);
                     }
-                    this.addMediaParams.youtube = addedYouTubeLinks.ToArray();
 
-                    var removedTags = new List<string>(profile.media.youTubeURLs);
-                    foreach(string youtubeLink in this.eModProfile.youTubeURLs.value)
+                    this.addedYouTubeURLs = new List<string>(this.eModProfile.youTubeURLs.value);
+                    foreach(string url in profile.media.youTubeURLs)
                     {
-                        removedTags.Remove(youtubeLink);
+                        this.addedYouTubeURLs.Remove(url);
                     }
-                    this.deleteMediaParams.youtube = addedYouTubeLinks.ToArray();
                 }
 
+                // - Sketchfab -
                 if(this.eModProfile.sketchfabURLs.isDirty)
                 {
-                    var addedSketchfabLinks = new List<string>(this.eModProfile.sketchfabURLs.value);
-                    foreach(string sketchfabLink in profile.media.sketchfabURLs)
+                    this.removedSketchfabURLs = new List<string>(profile.media.sketchfabURLs);
+                    foreach(string url in this.eModProfile.sketchfabURLs.value)
                     {
-                        addedSketchfabLinks.Remove(sketchfabLink);
+                        this.removedSketchfabURLs.Remove(url);
                     }
-                    this.addMediaParams.sketchfab = addedSketchfabLinks.ToArray();
 
-                    var removedTags = new List<string>(profile.media.sketchfabURLs);
-                    foreach(string sketchfabLink in this.eModProfile.sketchfabURLs.value)
+                    this.addedSketchfabURLs = new List<string>(this.eModProfile.sketchfabURLs.value);
+                    foreach(string url in profile.media.sketchfabURLs)
                     {
-                        removedTags.Remove(sketchfabLink);
+                        this.addedSketchfabURLs.Remove(url);
                     }
-                    this.deleteMediaParams.sketchfab = addedSketchfabLinks.ToArray();
                 }
 
+                // - Logo -
                 if(this.eModProfile.logoLocator.isDirty
                    && LocalDataStorage.GetFileExists(this.eModProfile.logoLocator.value.url))
                 {
@@ -275,6 +276,7 @@ namespace ModIO
                     });
                 }
 
+                // - Gallery Images -
                 if(this.eModProfile.galleryImageLocators.isDirty)
                 {
                     var addedImageFilePaths = new List<string>();
@@ -336,19 +338,14 @@ namespace ModIO
                         }
                     }
 
-                    var removedImageFileNames = new List<string>();
+                    this.removedImageFileNames = new List<string>();
                     foreach(var locator in profile.media.galleryImageLocators)
                     {
-                        removedImageFileNames.Add(locator.fileName);
+                        this.removedImageFileNames.Add(locator.fileName);
                     }
                     foreach(var locator in this.eModProfile.galleryImageLocators.value)
                     {
-                        removedImageFileNames.Remove(locator.fileName);
-                    }
-
-                    if(removedImageFileNames.Count > 0)
-                    {
-                        this.deleteMediaParams.images = removedImageFileNames.ToArray();
+                        this.removedImageFileNames.Remove(locator.fileName);
                     }
                 }
 
@@ -360,16 +357,6 @@ namespace ModIO
                         APIClient.AddModMedia(profile.id,
                                               this.addMediaParams,
                                               doNextSubmissionAction, this.onError);
-                    });
-                }
-                if(this.deleteMediaParams.stringValues.Count > 0)
-                {
-                    submissionActions.Add(() =>
-                    {
-                        APIClient.DeleteModMedia(profile.id,
-                                                 this.deleteMediaParams,
-                                                 () => doNextSubmissionAction(null),
-                                                 this.onError);
                     });
                 }
             }
@@ -478,7 +465,34 @@ namespace ModIO
 
         private void SubmitNextParameter()
         {
-            if(this.removedTags != null && this.removedTags.Count > 0)
+            if((this.removedImageFileNames != null && this.removedImageFileNames.Count > 0)
+               || (this.removedSketchfabURLs != null && this.removedSketchfabURLs.Count > 0)
+               || (this.removedYouTubeURLs != null && this.removedYouTubeURLs.Count > 0))
+            {
+                var parameters = new DeleteModMediaParameters();
+
+                if(this.removedImageFileNames != null)
+                {
+                    parameters.images = this.removedImageFileNames.ToArray();
+                }
+                if(this.removedSketchfabURLs != null)
+                {
+                    parameters.sketchfab = this.removedSketchfabURLs.ToArray();
+                }
+                if(this.removedYouTubeURLs != null)
+                {
+                    parameters.youtube = this.removedYouTubeURLs.ToArray();
+                }
+
+                APIClient.DeleteModMedia(this.modId, parameters,
+                                         this.SubmitNextParameter,
+                                         this.onError);
+
+                this.removedImageFileNames = null;
+                this.removedSketchfabURLs = null;
+                this.removedYouTubeURLs = null;
+            }
+            else if(this.removedTags != null && this.removedTags.Count > 0)
             {
                 var parameters = new DeleteModTagsParameters();
                 parameters.tagNames = this.removedTags.ToArray();
