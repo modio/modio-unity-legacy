@@ -62,11 +62,8 @@ namespace ModIO
                 errorMessage = "Mod Profile needs to be given a summary before it can be uploaded";
             }
 
-            if(errorMessage != null)
-            {
-                this.SubmissionError_Local(errorMessage);
-            }
-            else
+            // Send data
+            if(errorMessage == null)
             {
                 // - string params -
                 this.addModParams = new AddModParameters();
@@ -118,6 +115,10 @@ namespace ModIO
 
                 // - data params -
                 LocalDataStorage.ReadFile(newModProfile.logoLocator.value.url, this.SubmitNewMod_OnReadLogo);
+            }
+            else
+            {
+                this.SubmissionError_Local(errorMessage);
             }
         }
 
@@ -327,14 +328,6 @@ namespace ModIO
         }
 
         // ---------[ Internal Callbacks ]---------
-        private void SubmissionSuccess(ModProfile profile)
-        {
-            if(this != null && this.onSuccess != null)
-            {
-                this.onSuccess.Invoke(profile);
-            }
-        }
-
         private void SubmissionError_Local(string errorMessage)
         {
             if(this != null && this.onError != null)
@@ -358,7 +351,7 @@ namespace ModIO
                 if(this.eModProfile == null)
                 {
                     APIClient.AddMod(this.addModParams,
-                                     this.SubmissionSuccess,
+                                     this.onSuccess,
                                      this.onError);
                 }
                 else
