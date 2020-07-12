@@ -50,19 +50,19 @@ namespace ModIO
             Debug.Assert(newModProfile != null);
 
             // - Client-Side error-checking -
-            WebRequestError error = null;
+            string errorMessage = null;
             if(String.IsNullOrEmpty(newModProfile.name.value))
             {
-                error = WebRequestError.GenerateLocal("Mod Profile needs to be named before it can be uploaded");
+                errorMessage = "Mod Profile needs to be named before it can be uploaded";
             }
             else if(String.IsNullOrEmpty(newModProfile.summary.value))
             {
-                error = WebRequestError.GenerateLocal("Mod Profile needs to be given a summary before it can be uploaded");
+                errorMessage = "Mod Profile needs to be given a summary before it can be uploaded";
             }
 
-            if(error != null)
+            if(errorMessage != null)
             {
-                this.SubmissionError(error);
+                this.SubmissionError_Local(errorMessage);
             }
             else
             {
@@ -169,12 +169,12 @@ namespace ModIO
                     parameters.metadataBlob = this.eModProfile.metadataBlob.value;
                 }
 
-                APIClient.EditMod(modId, parameters, this.SubmitModChanges_Internal, this.SubmissionError);
+                APIClient.EditMod(modId, parameters, this.SubmitModChanges_Internal, this.onError);
             }
             // - Get updated ModProfile -
             else
             {
-                ModManager.GetModProfile(modId, this.SubmitModChanges_Internal, this.SubmissionError);
+                ModManager.GetModProfile(modId, this.SubmitModChanges_Internal, this.onError);
             }
         }
 
@@ -184,24 +184,14 @@ namespace ModIO
             // early outs
             if(profile == null)
             {
-                if(this.onError != null)
-                {
-                    WebRequestError error = WebRequestError.GenerateLocal("Profile parameter passed to ModManager_SubmitModOperation.SubmitModChanges_Internal"
-                                                                          + " was null. This was an unexpected error, please try submitting the mod again.");
-                    this.onError(error);
-                }
-
+                this.SubmissionError_Local("Profile parameter passed to ModManager_SubmitModOperation.SubmitModChanges_Internal"
+                                           + " was null. This was an unexpected error, please try submitting the mod again.");
                 return;
             }
             if(profile.id == ModProfile.NULL_ID)
             {
-                if(this.onError != null)
-                {
-                    WebRequestError error = WebRequestError.GenerateLocal("Profile parameter passed to ModManager_SubmitModOperation.SubmitModChanges_Internal"
-                                                                          + " has a NULL_ID. This was an unexpected error, please try submitting the mod again.");
-                    this.onError(error);
-                }
-
+                this.SubmissionError_Local("Profile parameter passed to ModManager_SubmitModOperation.SubmitModChanges_Internal"
+                                           + " has a NULL_ID. This was an unexpected error, please try submitting the mod again.");
                 return;
             }
 
@@ -418,10 +408,11 @@ namespace ModIO
             }
         }
 
-        private void SubmissionError(WebRequestError error)
+        private void SubmissionError_Local(string errorMessage)
         {
             if(this != null && this.onError != null)
             {
+                WebRequestError error = WebRequestError.GenerateLocal(errorMessage);
                 this.onError.Invoke(error);
             }
         }
@@ -430,9 +421,8 @@ namespace ModIO
         {
             if(!success)
             {
-                WebRequestError error = WebRequestError.GenerateLocal("Mod Profile logo file could not be read for uploading."
-                                                                      + "\nLogo Path: " + path);
-                this.SubmissionError(error);
+                this.SubmissionError_Local("Mod Profile logo file could not be read for uploading."
+                                           + "\nLogo Path: " + path);
             }
             else
             {
@@ -462,9 +452,8 @@ namespace ModIO
             }
             else
             {
-                WebRequestError error = WebRequestError.GenerateLocal("Mod Profile logo file could not be read for uploading."
-                                                                      + "\nLogo Path: " + path);
-                this.SubmissionError(error);
+                this.SubmissionError_Local("Mod Profile logo file could not be read for uploading."
+                                           + "\nLogo Path: " + path);
             }
         }
 
