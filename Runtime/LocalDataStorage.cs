@@ -196,12 +196,6 @@ namespace ModIO
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetFileSizeAndHash(path, onComplete);
         }
 
-        /// <summary>Gets the size and md5 hash of a file.</summary>
-        public static bool GetFileSizeAndHash(string path, out Int64 byteCount, out string md5Hash)
-        {
-            return LocalDataStorage.PLATFORM_IO.GetFileSizeAndHash(path, out byteCount, out md5Hash);
-        }
-
         /// <summary>Gets the files at a location.</summary>
         public static IList<string> GetFiles(string path, string nameFilter, bool recurseSubdirectories)
         {
