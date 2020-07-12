@@ -91,7 +91,7 @@ namespace ModIO.EditorCode
         // ------[ UPDATE ]------
         public void OnUpdate()
         {
-            if(LocalDataStorage.GetFileExists(logoLocation))
+            if(File.Exists(logoLocation))
             {
                 try
                 {
