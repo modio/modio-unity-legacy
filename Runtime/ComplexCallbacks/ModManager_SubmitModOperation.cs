@@ -198,75 +198,66 @@ namespace ModIO
                 return;
             }
 
+            // --- Collect Submission Information ---
             this.modId = profile.id;
 
             // - Media -
             if(this.eModProfile.logoLocator.isDirty
-               || this.eModProfile.youTubeURLs.isDirty
-               || this.eModProfile.sketchfabURLs.isDirty
-               || this.eModProfile.galleryImageLocators.isDirty)
+               && !string.IsNullOrEmpty(this.eModProfile.logoLocator.value.url))
             {
-                // - Logo -
-                if(this.eModProfile.logoLocator.isDirty
-                   && !string.IsNullOrEmpty(this.eModProfile.logoLocator.value.url))
+                this.logoPath = this.eModProfile.logoLocator.value.url;
+            }
+
+            if(this.eModProfile.youTubeURLs.isDirty)
+            {
+                this.removedYouTubeURLs = new List<string>(profile.media.youTubeURLs);
+                foreach(string url in this.eModProfile.youTubeURLs.value)
                 {
-                    this.logoPath = this.eModProfile.logoLocator.value.url;
+                    this.removedYouTubeURLs.Remove(url);
                 }
 
-                // - YouTube -
-                if(this.eModProfile.youTubeURLs.isDirty)
+                this.addedYouTubeURLs = new List<string>(this.eModProfile.youTubeURLs.value);
+                foreach(string url in profile.media.youTubeURLs)
                 {
-                    this.removedYouTubeURLs = new List<string>(profile.media.youTubeURLs);
-                    foreach(string url in this.eModProfile.youTubeURLs.value)
-                    {
-                        this.removedYouTubeURLs.Remove(url);
-                    }
+                    this.addedYouTubeURLs.Remove(url);
+                }
+            }
 
-                    this.addedYouTubeURLs = new List<string>(this.eModProfile.youTubeURLs.value);
-                    foreach(string url in profile.media.youTubeURLs)
-                    {
-                        this.addedYouTubeURLs.Remove(url);
-                    }
+            if(this.eModProfile.sketchfabURLs.isDirty)
+            {
+                this.removedSketchfabURLs = new List<string>(profile.media.sketchfabURLs);
+                foreach(string url in this.eModProfile.sketchfabURLs.value)
+                {
+                    this.removedSketchfabURLs.Remove(url);
                 }
 
-                // - Sketchfab -
-                if(this.eModProfile.sketchfabURLs.isDirty)
+                this.addedSketchfabURLs = new List<string>(this.eModProfile.sketchfabURLs.value);
+                foreach(string url in profile.media.sketchfabURLs)
                 {
-                    this.removedSketchfabURLs = new List<string>(profile.media.sketchfabURLs);
-                    foreach(string url in this.eModProfile.sketchfabURLs.value)
-                    {
-                        this.removedSketchfabURLs.Remove(url);
-                    }
+                    this.addedSketchfabURLs.Remove(url);
+                }
+            }
 
-                    this.addedSketchfabURLs = new List<string>(this.eModProfile.sketchfabURLs.value);
-                    foreach(string url in profile.media.sketchfabURLs)
-                    {
-                        this.addedSketchfabURLs.Remove(url);
-                    }
+            if(this.eModProfile.galleryImageLocators.isDirty)
+            {
+                this.removedImageFileNames = new List<string>();
+                foreach(var locator in profile.media.galleryImageLocators)
+                {
+                    this.removedImageFileNames.Add(locator.fileName);
+                }
+                foreach(var locator in this.eModProfile.galleryImageLocators.value)
+                {
+                    this.removedImageFileNames.Remove(locator.fileName);
                 }
 
-                // - Gallery Images -
-                if(this.eModProfile.galleryImageLocators.isDirty)
+                this.addedImageFilePaths = new List<string>();
+                foreach(var locator in this.eModProfile.galleryImageLocators.value)
                 {
-                    this.removedImageFileNames = new List<string>();
-                    foreach(var locator in profile.media.galleryImageLocators)
-                    {
-                        this.removedImageFileNames.Add(locator.fileName);
-                    }
-                    foreach(var locator in this.eModProfile.galleryImageLocators.value)
-                    {
-                        this.removedImageFileNames.Remove(locator.fileName);
-                    }
-
-                    this.addedImageFilePaths = new List<string>();
-                    foreach(var locator in this.eModProfile.galleryImageLocators.value)
-                    {
-                        this.addedImageFilePaths.Add(locator.url);
-                    }
-                    foreach(var locator in profile.media.galleryImageLocators)
-                    {
-                        this.addedImageFilePaths.Remove(locator.GetURL());
-                    }
+                    this.addedImageFilePaths.Add(locator.url);
+                }
+                foreach(var locator in profile.media.galleryImageLocators)
+                {
+                    this.addedImageFilePaths.Remove(locator.GetURL());
                 }
             }
 
