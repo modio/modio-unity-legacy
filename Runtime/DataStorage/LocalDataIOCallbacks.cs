@@ -27,7 +27,7 @@ namespace ModIO.LocalDataIOCallbacks
     public delegate void GetFileSizeAndHashCallback(string path, bool success, Int64 byteCount, string md5Hash);
 
     /// <summary>Delegate for GetFiles callback.</summary>
-    public delegate void GetFilesCallback(string path, IList<string> files);
+    public delegate void GetFilesCallback(string path, bool success, IList<string> files);
 
     // --- Directory Management ---
     /// <summary>Delegate for CreateDirectory callback.</summary>

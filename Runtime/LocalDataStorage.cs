@@ -80,6 +80,17 @@ namespace ModIO
                     callback.Invoke(path, success, byteCount, md5Hash);
                 }
             }
+
+            public static void GetFiles(string path, string nameFilter, bool recurseSubdirectories,
+                                        GetFilesCallback callback)
+            {
+                IList<string> files = LocalDataStorage.PLATFORM_IO.GetFiles(path, nameFilter, recurseSubdirectories);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, files != null, files);
+                }
+            }
         }
 
         // ---------[ Constants ]---------
@@ -194,6 +205,13 @@ namespace ModIO
         public static void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback onComplete)
         {
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetFileSizeAndHash(path, onComplete);
+        }
+
+        /// <summary>Gets the files at a location.</summary>
+        public static void GetFiles(string path, string nameFilter, bool recurseSubdirectories,
+                                    GetFilesCallback onComplete)
+        {
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetFiles(path, nameFilter, recurseSubdirectories, onComplete);
         }
 
         /// <summary>Gets the files at a location.</summary>
