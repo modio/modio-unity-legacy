@@ -25,7 +25,14 @@ namespace ModIO
 
         // - operation vars -
         private EditableModProfile eModProfile = null;
+
         private AddModParameters addModParams = null;
+        private DeleteModMediaParameters deleteMediaParams = null;
+        private AddModMediaParameters addMediaParams = null;
+        private List<string> removedTags = null;
+        private List<string> addedTags = null;
+        private Dictionary<string, string> removedKVPs = null;
+        private Dictionary<string, string> addedKVPs = null;
 
         // ---------[ Submission Functions ]---------
         /// <summary>Submits a new mod to the server.</summary>
@@ -191,29 +198,10 @@ namespace ModIO
                || this.eModProfile.sketchfabURLs.isDirty
                || this.eModProfile.galleryImageLocators.isDirty)
             {
-                var addMediaParameters = new AddModMediaParameters();
-                var deleteMediaParameters = new DeleteModMediaParameters();
+                this.addMediaParams = new AddModMediaParameters();
+                this.deleteMediaParams = new DeleteModMediaParameters();
 
-                if(this.eModProfile.logoLocator.isDirty
-                   && LocalDataStorage.GetFileExists(this.eModProfile.logoLocator.value.url))
-                {
-                    addMediaParameters.logo = new BinaryUpload();
-
-                    submissionActions.Add(() =>
-                    {
-                        LocalDataStorage.ReadFile(this.eModProfile.logoLocator.value.url,
-                        (p, success, data) =>
-                        {
-                            if(success)
-                            {
-                                addMediaParameters.logo = BinaryUpload.Create(Path.GetFileName(this.eModProfile.logoLocator.value.url), data);
-                            }
-
-                            doNextSubmissionAction(null);
-                        });
-                    });
-                }
-
+                // - string values -
                 if(this.eModProfile.youTubeURLs.isDirty)
                 {
                     var addedYouTubeLinks = new List<string>(this.eModProfile.youTubeURLs.value);
@@ -221,14 +209,14 @@ namespace ModIO
                     {
                         addedYouTubeLinks.Remove(youtubeLink);
                     }
-                    addMediaParameters.youtube = addedYouTubeLinks.ToArray();
+                    this.addMediaParams.youtube = addedYouTubeLinks.ToArray();
 
                     var removedTags = new List<string>(profile.media.youTubeURLs);
                     foreach(string youtubeLink in this.eModProfile.youTubeURLs.value)
                     {
                         removedTags.Remove(youtubeLink);
                     }
-                    deleteMediaParameters.youtube = addedYouTubeLinks.ToArray();
+                    this.deleteMediaParams.youtube = addedYouTubeLinks.ToArray();
                 }
 
                 if(this.eModProfile.sketchfabURLs.isDirty)
@@ -238,14 +226,34 @@ namespace ModIO
                     {
                         addedSketchfabLinks.Remove(sketchfabLink);
                     }
-                    addMediaParameters.sketchfab = addedSketchfabLinks.ToArray();
+                    this.addMediaParams.sketchfab = addedSketchfabLinks.ToArray();
 
                     var removedTags = new List<string>(profile.media.sketchfabURLs);
                     foreach(string sketchfabLink in this.eModProfile.sketchfabURLs.value)
                     {
                         removedTags.Remove(sketchfabLink);
                     }
-                    deleteMediaParameters.sketchfab = addedSketchfabLinks.ToArray();
+                    this.deleteMediaParams.sketchfab = addedSketchfabLinks.ToArray();
+                }
+
+                if(this.eModProfile.logoLocator.isDirty
+                   && LocalDataStorage.GetFileExists(this.eModProfile.logoLocator.value.url))
+                {
+                    this.addMediaParams.logo = new BinaryUpload();
+
+                    submissionActions.Add(() =>
+                    {
+                        LocalDataStorage.ReadFile(this.eModProfile.logoLocator.value.url,
+                        (path, success, data) =>
+                        {
+                            if(success)
+                            {
+                                this.addMediaParams.logo = BinaryUpload.Create(Path.GetFileName(path), data);
+                            }
+
+                            doNextSubmissionAction(null);
+                        });
+                    });
                 }
 
                 if(this.eModProfile.galleryImageLocators.isDirty)
@@ -290,7 +298,7 @@ namespace ModIO
 
                         if(archiveCreated)
                         {
-                            addMediaParameters.galleryImages = new BinaryUpload();
+                            this.addMediaParams.galleryImages = new BinaryUpload();
 
                             submissionActions.Add(() =>
                             {
@@ -300,7 +308,7 @@ namespace ModIO
                                     if(success)
                                     {
                                         var imageGalleryUpload = BinaryUpload.Create("images.zip", data);
-                                        addMediaParameters.galleryImages = imageGalleryUpload;
+                                        this.addMediaParams.galleryImages = imageGalleryUpload;
                                     }
 
                                     doNextSubmissionAction(null);
@@ -321,26 +329,26 @@ namespace ModIO
 
                     if(removedImageFileNames.Count > 0)
                     {
-                        deleteMediaParameters.images = removedImageFileNames.ToArray();
+                        this.deleteMediaParams.images = removedImageFileNames.ToArray();
                     }
                 }
 
-                if(addMediaParameters.stringValues.Count > 0
-                   || addMediaParameters.binaryData.Count > 0)
+                if(this.addMediaParams.stringValues.Count > 0
+                   || this.addMediaParams.binaryData.Count > 0)
                 {
                     submissionActions.Add(() =>
                     {
                         APIClient.AddModMedia(profile.id,
-                                              addMediaParameters,
+                                              this.addMediaParams,
                                               doNextSubmissionAction, this.onError);
                     });
                 }
-                if(deleteMediaParameters.stringValues.Count > 0)
+                if(this.deleteMediaParams.stringValues.Count > 0)
                 {
                     submissionActions.Add(() =>
                     {
                         APIClient.DeleteModMedia(profile.id,
-                                                 deleteMediaParameters,
+                                                 this.deleteMediaParams,
                                                  () => doNextSubmissionAction(null),
                                                  this.onError);
                     });
@@ -350,33 +358,33 @@ namespace ModIO
             // - Tags -
             if(this.eModProfile.tags.isDirty)
             {
-                var removedTags = new List<string>(profile.tagNames);
+                this.removedTags = new List<string>(profile.tagNames);
                 foreach(string tag in this.eModProfile.tags.value)
                 {
-                    removedTags.Remove(tag);
+                    this.removedTags.Remove(tag);
                 }
-                var addedTags = new List<string>(this.eModProfile.tags.value);
+                this.addedTags = new List<string>(this.eModProfile.tags.value);
                 foreach(string tag in profile.tagNames)
                 {
-                    addedTags.Remove(tag);
+                    this.addedTags.Remove(tag);
                 }
 
-                if(removedTags.Count > 0)
+                if(this.removedTags.Count > 0)
                 {
                     submissionActions.Add(() =>
                     {
                         var parameters = new DeleteModTagsParameters();
-                        parameters.tagNames = removedTags.ToArray();
+                        parameters.tagNames = this.removedTags.ToArray();
                         APIClient.DeleteModTags(profile.id, parameters,
                                                 () => doNextSubmissionAction(null), this.onError);
                     });
                 }
-                if(addedTags.Count > 0)
+                if(this.addedTags.Count > 0)
                 {
                     submissionActions.Add(() =>
                     {
                         var parameters = new AddModTagsParameters();
-                        parameters.tagNames = addedTags.ToArray();
+                        parameters.tagNames = this.addedTags.ToArray();
                         APIClient.AddModTags(profile.id, parameters,
                                              doNextSubmissionAction, this.onError);
                     });
@@ -386,18 +394,18 @@ namespace ModIO
             // - Metadata KVP -
             if(this.eModProfile.metadataKVPs.isDirty)
             {
-                var removedKVPs = MetadataKVP.ArrayToDictionary(profile.metadataKVPs);
-                var addedKVPs = MetadataKVP.ArrayToDictionary(this.eModProfile.metadataKVPs.value);
+                this.removedKVPs = MetadataKVP.ArrayToDictionary(profile.metadataKVPs);
+                this.addedKVPs = MetadataKVP.ArrayToDictionary(this.eModProfile.metadataKVPs.value);
 
                 foreach(MetadataKVP kvp in this.eModProfile.metadataKVPs.value)
                 {
                     string profileValue;
 
                     // if edited kvp is exact match it's not removed
-                    if(removedKVPs.TryGetValue(kvp.key, out profileValue)
+                    if(this.removedKVPs.TryGetValue(kvp.key, out profileValue)
                         && profileValue == kvp.value)
                     {
-                        removedKVPs.Remove(kvp.key);
+                        this.removedKVPs.Remove(kvp.key);
                     }
                 }
 
@@ -406,28 +414,28 @@ namespace ModIO
                     string editValue;
 
                     // if profile kvp is exact match it's not new
-                    if(addedKVPs.TryGetValue(kvp.key, out editValue)
+                    if(this.addedKVPs.TryGetValue(kvp.key, out editValue)
                         && editValue == kvp.value)
                     {
-                        addedKVPs.Remove(kvp.key);
+                        this.addedKVPs.Remove(kvp.key);
                     }
                 }
 
-                if(removedKVPs.Count > 0)
+                if(this.removedKVPs.Count > 0)
                 {
                     submissionActions.Add(() =>
                     {
                         var parameters = new DeleteModKVPMetadataParameters();
-                        parameters.metadataKeys = removedKVPs.Keys.ToArray();
+                        parameters.metadataKeys = this.removedKVPs.Keys.ToArray();
                         APIClient.DeleteModKVPMetadata(profile.id, parameters,
                                                        () => doNextSubmissionAction(null),
                                                        this.onError);
                     });
                 }
 
-                if(addedKVPs.Count > 0)
+                if(this.addedKVPs.Count > 0)
                 {
-                    string[] addedKVPStrings = AddModKVPMetadataParameters.ConvertMetadataKVPsToAPIStrings(MetadataKVP.DictionaryToArray(addedKVPs));
+                    string[] addedKVPStrings = AddModKVPMetadataParameters.ConvertMetadataKVPsToAPIStrings(MetadataKVP.DictionaryToArray(this.addedKVPs));
 
                     submissionActions.Add(() =>
                     {
