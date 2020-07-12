@@ -169,7 +169,9 @@ namespace ModIO
             {
                 if(this.onError != null)
                 {
-                    this.onError(WebRequestError.GenerateLocal("ugh"));
+                    WebRequestError error = WebRequestError.GenerateLocal("Profile parameter passed to ModManager_SubmitModOperation.SubmitModChanges_Internal"
+                                                                          + " was null. This was an unexpected error, please try submitting the mod again.");
+                    this.onError(error);
                 }
             }
 
