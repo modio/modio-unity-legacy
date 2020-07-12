@@ -24,12 +24,11 @@ namespace ModIO
         public Action<WebRequestError> onError = null;
 
         // - operation vars -
+        private int modId = ModProfile.NULL_ID;
         private EditableModProfile eModProfile = null;
 
         private AddModParameters addModParams = null;
-        private AddModMediaParameters addMediaParams = null;
 
-        private int modId = ModProfile.NULL_ID;
 
         private string logoPath = null;
         private byte[] logoData = null;
@@ -200,25 +199,12 @@ namespace ModIO
 
             this.modId = profile.id;
 
-            // - start process -
-            List<Action> submissionActions = new List<Action>();
-            int nextActionIndex = 0;
-            Action<APIMessage> doNextSubmissionAction = (m) =>
-            {
-                if(nextActionIndex < submissionActions.Count)
-                {
-                    submissionActions[nextActionIndex++]();
-                }
-            };
-
             // - Media -
             if(this.eModProfile.logoLocator.isDirty
                || this.eModProfile.youTubeURLs.isDirty
                || this.eModProfile.sketchfabURLs.isDirty
                || this.eModProfile.galleryImageLocators.isDirty)
             {
-                this.addMediaParams = new AddModMediaParameters();
-
                 // - Logo -
                 if(this.eModProfile.logoLocator.isDirty
                    && !string.IsNullOrEmpty(this.eModProfile.logoLocator.value.url))
@@ -332,14 +318,12 @@ namespace ModIO
             // - Start submission chain -
             if(this.logoPath != null)
             {
-                submissionActions.Add(() => LocalDataStorage.ReadFile(this.logoPath, this.SubmitModChanges_Internal_OnReadLogo));
+                LocalDataStorage.ReadFile(this.logoPath, this.SubmitModChanges_Internal_OnReadLogo);
             }
             else
             {
-                submissionActions.Add(this.SubmitNextParameter);
+                this.SubmitNextParameter();
             }
-
-            doNextSubmissionAction(new APIMessage());
         }
 
         // ---------[ Internal Callbacks ]---------
