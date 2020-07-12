@@ -30,6 +30,9 @@ namespace ModIO
         private AddModMediaParameters addMediaParams = null;
 
         private int modId = ModProfile.NULL_ID;
+
+        private string logoPath = null;
+        private byte[] logoData = null;
         private List<string> removedImageFileNames = null;
         private List<string> removedYouTubeURLs = null;
         private List<string> removedSketchfabURLs = null;
@@ -223,6 +226,13 @@ namespace ModIO
             {
                 this.addMediaParams = new AddModMediaParameters();
 
+                // - Logo -
+                if(this.eModProfile.logoLocator.isDirty
+                   && !string.IsNullOrEmpty(this.eModProfile.logoLocator.value.url))
+                {
+                    this.logoPath = this.eModProfile.logoLocator.value.url;
+                }
+
                 // - YouTube -
                 if(this.eModProfile.youTubeURLs.isDirty)
                 {
@@ -253,27 +263,6 @@ namespace ModIO
                     {
                         this.addedSketchfabURLs.Remove(url);
                     }
-                }
-
-                // - Logo -
-                if(this.eModProfile.logoLocator.isDirty
-                   && LocalDataStorage.GetFileExists(this.eModProfile.logoLocator.value.url))
-                {
-                    this.addMediaParams.logo = new BinaryUpload();
-
-                    submissionActions.Add(() =>
-                    {
-                        LocalDataStorage.ReadFile(this.eModProfile.logoLocator.value.url,
-                        (path, success, data) =>
-                        {
-                            if(success)
-                            {
-                                this.addMediaParams.logo = BinaryUpload.Create(Path.GetFileName(path), data);
-                            }
-
-                            doNextSubmissionAction(null);
-                        });
-                    });
                 }
 
                 // - Gallery Images -
@@ -407,10 +396,16 @@ namespace ModIO
                 }
             }
 
-            // - Get Updated Profile -
-            submissionActions.Add(this.SubmitNextParameter);
-
             // - Start submission chain -
+            if(this.logoPath != null)
+            {
+                submissionActions.Add(() => LocalDataStorage.ReadFile(this.logoPath, this.SubmitModChanges_Internal_OnReadLogo));
+            }
+            else
+            {
+                submissionActions.Add(this.SubmitNextParameter);
+            }
+
             doNextSubmissionAction(new APIMessage());
         }
 
@@ -435,7 +430,7 @@ namespace ModIO
         {
             if(!success)
             {
-                WebRequestError error = WebRequestError.GenerateLocal("Mod Profile logo could not be accessed before uploading."
+                WebRequestError error = WebRequestError.GenerateLocal("Mod Profile logo file could not be read for uploading."
                                                                       + "\nLogo Path: " + path);
                 this.SubmissionError(error);
             }
@@ -455,6 +450,21 @@ namespace ModIO
                                      this.SubmitModChanges_Internal,
                                      this.onError);
                 }
+            }
+        }
+
+        private void SubmitModChanges_Internal_OnReadLogo(string path, bool success, byte[] data)
+        {
+            if(success)
+            {
+                this.logoData = data;
+                this.SubmitNextParameter();
+            }
+            else
+            {
+                WebRequestError error = WebRequestError.GenerateLocal("Mod Profile logo file could not be read for uploading."
+                                                                      + "\nLogo Path: " + path);
+                this.SubmissionError(error);
             }
         }
 
@@ -492,6 +502,21 @@ namespace ModIO
                 this.removedImageFileNames = null;
                 this.removedSketchfabURLs = null;
                 this.removedYouTubeURLs = null;
+            }
+            else if(this.logoData != null)
+            {
+                var parameters = new AddModMediaParameters();
+
+                if(this.logoData != null)
+                {
+                    parameters.logo = BinaryUpload.Create(Path.GetFileName(this.logoPath), this.logoData);
+                }
+
+                APIClient.AddModMedia(this.modId, parameters,
+                                      this.SubmitNextParameter,
+                                      this.onError);
+
+                this.logoData = null;
             }
             // - Tags -
             else if(this.removedTags != null && this.removedTags.Count > 0)
@@ -541,7 +566,7 @@ namespace ModIO
                 this.addedKVPs = null;
             }
             // - FINALIZE -
-            else if(o is ModProfile && ((ModProfile)o).id == this.modId)
+            else if(o != null && o is ModProfile && ((ModProfile)o).id == this.modId)
             {
                 if(this.onSuccess != null)
                 {
