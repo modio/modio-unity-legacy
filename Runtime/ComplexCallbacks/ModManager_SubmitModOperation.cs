@@ -4,6 +4,11 @@
  *  It is a temporary solution to simplify the complex callback chain of
  *  the ModManager.SubmitNewMod/SubmitModChanges functionality.
  *
+ * NOTE(@jackson):
+ *  If the process of submitting a new mod succeeds in the initial APIClient.AddMod request,
+ *  but fails in the second half when uploading media, the *whole process* returns an error,
+ *  which can be unhelpful as the mod will now exist on the server.
+ *
  * TODO(@jackson): Remove
  ***/
 
