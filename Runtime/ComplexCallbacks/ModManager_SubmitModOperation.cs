@@ -23,6 +23,11 @@ namespace ModIO
         public Action<ModProfile> onSuccess = null;
         public Action<WebRequestError> onError = null;
 
+        // - operation vars -
+        private EditableModProfile eModProfile = null;
+        private AddModParameters addModParams = null;
+
+        // ---------[ Submission Functions ]---------
         /// <summary>Submits a new mod to the server.</summary>
         public void SubmitNewMod(EditableModProfile newModProfile)
         {
@@ -41,80 +46,61 @@ namespace ModIO
 
             if(error != null)
             {
-                if(this.onError != null)
-                {
-                    this.onError.Invoke(error);
-                }
-                return;
+                this.SubmissionError(error);
             }
-
-            // Define callbacks
-            LocalDataIOCallbacks.ReadFileCallback onReadLogo = null;
-
-            onReadLogo = (path, success, data) =>
+            else
             {
-                if(success)
-                {
-                    error = WebRequestError.GenerateLocal("Mod Profile logo could not be accessed before uploading."
-                                                          + "\nLogo Path: " + path);
-
-                    if(this.onError != null)
-                    {
-                        this.onError.Invoke(error);
-                    }
-                    return;
-                }
-
-                var parameters = new AddModParameters();
-                parameters.name = newModProfile.name.value;
-                parameters.summary = newModProfile.summary.value;
-                parameters.logo = BinaryUpload.Create(Path.GetFileName(newModProfile.logoLocator.value.url), data);
+                // - string params -
+                this.addModParams = new AddModParameters();
+                this.addModParams.name = newModProfile.name.value;
+                this.addModParams.summary = newModProfile.summary.value;
 
                 if(newModProfile.visibility.isDirty)
                 {
-                    parameters.visibility = newModProfile.visibility.value;
+                    this.addModParams.visibility = newModProfile.visibility.value;
                 }
                 if(newModProfile.nameId.isDirty)
                 {
-                    parameters.nameId = newModProfile.nameId.value;
+                    this.addModParams.nameId = newModProfile.nameId.value;
                 }
                 if(newModProfile.descriptionAsHTML.isDirty)
                 {
-                    parameters.descriptionAsHTML = newModProfile.descriptionAsHTML.value;
+                    this.addModParams.descriptionAsHTML = newModProfile.descriptionAsHTML.value;
                 }
                 if(newModProfile.homepageURL.isDirty)
                 {
-                    parameters.nameId = newModProfile.homepageURL.value;
+                    this.addModParams.nameId = newModProfile.homepageURL.value;
                 }
                 if(newModProfile.metadataBlob.isDirty)
                 {
-                    parameters.metadataBlob = newModProfile.metadataBlob.value;
+                    this.addModParams.metadataBlob = newModProfile.metadataBlob.value;
                 }
                 if(newModProfile.nameId.isDirty)
                 {
-                    parameters.nameId = newModProfile.nameId.value;
+                    this.addModParams.nameId = newModProfile.nameId.value;
                 }
                 if(newModProfile.tags.isDirty)
                 {
-                    parameters.tags = newModProfile.tags.value;
+                    this.addModParams.tags = newModProfile.tags.value;
                 }
 
-                // NOTE(@jackson): As add Mod takes more parameters than edit,
-                //  we can ignore some of the elements in the EditModParameters
-                //  when passing to SubmitModChanges_Internal
-                var remainingModEdits = new EditableModProfile();
-                remainingModEdits.youTubeURLs = newModProfile.youTubeURLs;
-                remainingModEdits.sketchfabURLs = newModProfile.sketchfabURLs;
-                remainingModEdits.galleryImageLocators = newModProfile.galleryImageLocators;
+                // - editable params -
+                if(newModProfile.youTubeURLs.isDirty
+                   || newModProfile.sketchfabURLs.isDirty
+                   || newModProfile.galleryImageLocators.isDirty)
+                {
+                    // NOTE(@jackson): As add Mod takes more parameters than edit,
+                    //  we can ignore some of the elements in the EditModParameters
+                    //  when passing to SubmitModChanges_Internal
+                    this.eModProfile = new EditableModProfile();
+                    this.eModProfile.youTubeURLs = newModProfile.youTubeURLs;
+                    this.eModProfile.sketchfabURLs = newModProfile.sketchfabURLs;
+                    this.eModProfile.galleryImageLocators = newModProfile.galleryImageLocators;
+                }
 
-                APIClient.AddMod(parameters,
-                                 result => SubmitModChanges_Internal(result,
-                                                                     remainingModEdits),
-                                 this.onError);
-            };
-
-            // - Initial Mod Submission -
-            LocalDataStorage.ReadFile(newModProfile.logoLocator.value.url, onReadLogo);
+                // - data params -
+                LocalDataStorage.ReadFile(newModProfile.logoLocator.value.url, this.SubmitNewMod_OnReadLogo);
+            }
         }
 
         /// <summary>Submits changes to a mod to the server.</summary>
@@ -462,6 +448,51 @@ namespace ModIO
 
             // - Start submission chain -
             doNextSubmissionAction(new APIMessage());
+        }
+
+        // ---------[ Internal Callbacks ]---------
+        private void SubmissionSuccess(ModProfile profile)
+        {
+            if(this != null && this.onSuccess != null)
+            {
+                this.onSuccess.Invoke(profile);
+            }
+        }
+
+        private void SubmissionError(WebRequestError error)
+        {
+            if(this != null && this.onError != null)
+            {
+                this.onError.Invoke(error);
+            }
+        }
+
+        private void SubmitNewMod_OnReadLogo(string path, bool success, byte[] data)
+        {
+            if(!success)
+            {
+                WebRequestError error = WebRequestError.GenerateLocal("Mod Profile logo could not be accessed before uploading."
+                                                                      + "\nLogo Path: " + path);
+                this.SubmissionError(error);
+            }
+            else
+            {
+                this.addModParams.logo = BinaryUpload.Create(Path.GetFileName(path), data);
+
+                if(this.eModProfile == null)
+                {
+                    APIClient.AddMod(this.addModParams,
+                                     this.SubmissionSuccess,
+                                     this.onError);
+                }
+                else
+                {
+                    APIClient.AddMod(this.addModParams,
+                                     result => this.SubmitModChanges_Internal(result,
+                                                                              this.eModProfile),
+                                     this.onError);
+                }
+            }
         }
     }
 }
