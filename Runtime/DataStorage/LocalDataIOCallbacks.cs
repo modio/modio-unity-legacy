@@ -23,9 +23,6 @@ namespace ModIO.LocalDataIOCallbacks
     /// <summary>Delegate for GetFileExists callback.</summary>
     public delegate void GetFileExistsCallback(string path, bool doesExist);
 
-    /// <summary>Delegate for GetFileSize callback.</summary>
-    public delegate void GetFileSizeCallback(string path, Int64 byteCount);
-
     /// <summary>Delegate for GetFileSizeAndHash callback.</summary>
     public delegate void GetFileSizeAndHashCallback(string path, bool success, Int64 byteCount, string md5Hash);
 
