@@ -371,6 +371,7 @@ namespace ModIO
 
             // --- local callbacks ---
             Action<ModProfile> onGetModProfile = null;
+            LocalDataIOCallbacks.GetFileSizeAndHashCallback onGetModProfile_OnGetFileInfo = null;
             Action<ModfileIdPair, FileDownloadInfo> onDownloadSucceeded = null;
             Action<ModfileIdPair, WebRequestError> onDownloadFailed = null;
             Action<bool> onInstalled = null;
@@ -391,34 +392,31 @@ namespace ModIO
                 }
                 else
                 {
-                    bool fileExists;
-                    Int64 binarySize;
-                    string binaryHash;
-
-                    zipFilePath = CacheClient.GenerateModBinaryZipFilePath(p.id, modfile.id);
-                    fileExists = LocalDataStorage.GetFileSizeAndHash(zipFilePath,
-                                                                     out binarySize,
-                                                                     out binaryHash);
-
-                    bool isBinaryZipValid = (fileExists
-                                             && modfile.fileSize == binarySize
-                                             && (modfile.fileHash == null
-                                                 || modfile.fileHash.md5 == binaryHash));
-
-                    if(isBinaryZipValid)
-                    {
-                        ModManager.TryInstallMod(profile.id, modfile.id, onInstalled);
-                    }
-                    else
-                    {
-                        DownloadClient.StartModBinaryDownload(modfile,
-                                                              CacheClient.GenerateModBinaryZipFilePath(p.id, p.currentBuild.id));
-
-                        DownloadClient.modfileDownloadSucceeded += onDownloadSucceeded;
-                        DownloadClient.modfileDownloadFailed += onDownloadFailed;
-                    }
+                    zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id, modfile.id);
+                    LocalDataStorage.GetFileSizeAndHash(zipFilePath, onGetModProfile_OnGetFileInfo);
                 }
             };
+
+            onGetModProfile_OnGetFileInfo = (path, success, fileSize, fileHash) =>
+            {
+                bool isBinaryZipValid = (success
+                                         && modfile.fileSize == fileSize
+                                         && (modfile.fileHash == null || modfile.fileHash.md5 == fileHash));
+
+                if(isBinaryZipValid)
+                {
+                    ModManager.TryInstallMod(profile.id, modfile.id, onInstalled);
+                }
+                else
+                {
+                    DownloadClient.StartModBinaryDownload(modfile,
+                                                          CacheClient.GenerateModBinaryZipFilePath(profile.id, profile.currentBuild.id));
+
+                    DownloadClient.modfileDownloadSucceeded += onDownloadSucceeded;
+                    DownloadClient.modfileDownloadFailed += onDownloadFailed;
+                }
+            };
+
 
             onDownloadSucceeded = (mip, downloadInfo) =>
             {
@@ -638,14 +636,21 @@ namespace ModIO
                     {
                         string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(m.modId, m.id);
 
-                        bool fileExists;
-                        Int64 fileSize;
-                        string fileHash;
+                        bool fileExists = false;
+                        Int64 fileSize = -1;
+                        string fileHash = null;
 
-                        fileExists = LocalDataStorage.GetFileSizeAndHash(zipFilePath,
-                                                                         out fileSize,
-                                                                         out fileHash);
+                        bool isIOOpDone = false;
+                        LocalDataStorage.GetFileSizeAndHash(zipFilePath, (p, success, byteCount, md5Hash) =>
+                        {
+                            fileExists = success;
+                            fileSize = byteCount;
+                            fileHash = md5Hash;
 
+                            isIOOpDone = true;
+                        });
+
+                        while(!isIOOpDone) { yield return null; }
 
                         bool isDownloadedAndValid = (fileExists
                                                      && m.fileSize == fileSize
@@ -1426,11 +1431,11 @@ namespace ModIO
                                                   Action<Modfile> onSuccess,
                                                   Action<WebRequestError> onError)
         {
-            LocalDataStorage.ReadFile(binaryZipLocation, (p, success, data) =>
+            LocalDataStorage.ReadFile(binaryZipLocation, (rf_path, rf_success, rf_data) =>
             {
                 string buildFilename = Path.GetFileName(binaryZipLocation);
                 var parameters = new AddModfileParameters();
-                parameters.zippedBinaryData = BinaryUpload.Create(buildFilename, data);
+                parameters.zippedBinaryData = BinaryUpload.Create(buildFilename, rf_data);
                 if(modfileValues.version.isDirty)
                 {
                     parameters.version = modfileValues.version.value;
@@ -1447,13 +1452,12 @@ namespace ModIO
                 parameters.isActiveBuild = setActiveBuild;
 
                 // - Generate Hash -
-                string hash;
-                Int64 fileSize;
+                LocalDataStorage.GetFileSizeAndHash(binaryZipLocation, (fi_path, fi_success, fi_fileSize, fi_hash) =>
+                {
+                    parameters.fileHash = fi_hash;
+                    APIClient.AddModfile(modId, parameters, onSuccess, onError);
+                });
 
-                LocalDataStorage.GetFileSizeAndHash(binaryZipLocation, out fileSize, out hash);
-                parameters.fileHash = hash;
-
-                APIClient.AddModfile(modId, parameters, onSuccess, onError);
             });
         }
         // ---------[ USER DATA ]---------
