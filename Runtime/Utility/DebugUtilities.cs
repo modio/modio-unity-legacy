@@ -590,6 +590,8 @@ namespace ModIO
                         elementStartIndex = searchIndex + searchString.Length;
                         newStringParam.value = s.Substring(elementStartIndex).Trim();
                     }
+
+                    stringFields.Add(newStringParam);
                 }
                 // process literally anything else
                 else
