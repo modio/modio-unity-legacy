@@ -67,6 +67,19 @@ namespace ModIO
                     callback.Invoke(path, exists);
                 }
             }
+
+            public static void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback callback)
+            {
+                Int64 byteCount;
+                string md5Hash;
+
+                bool success = LocalDataStorage.PLATFORM_IO.GetFileSizeAndHash(path, out byteCount, out md5Hash);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, success, byteCount, md5Hash);
+                }
+            }
         }
 
         // ---------[ Constants ]---------
@@ -175,6 +188,12 @@ namespace ModIO
         public static void GetFileExists(string path, GetFileExistsCallback onComplete)
         {
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetFileExists(path, onComplete);
+        }
+
+        /// <summary>Gets the size and md5 hash of a file.</summary>
+        public static void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback onComplete)
+        {
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetFileSizeAndHash(path, onComplete);
         }
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
