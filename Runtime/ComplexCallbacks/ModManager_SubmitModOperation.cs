@@ -33,9 +33,12 @@ namespace ModIO
 
         private string logoPath = null;
         private byte[] logoData = null;
+        private byte[] imageArchiveData = null;
+
         private List<string> removedImageFileNames = null;
         private List<string> removedYouTubeURLs = null;
         private List<string> removedSketchfabURLs = null;
+        private List<string> addedImageFilePaths = null;
         private List<string> addedYouTubeURLs = null;
         private List<string> addedSketchfabURLs = null;
         private List<string> removedTags = null;
@@ -258,65 +261,6 @@ namespace ModIO
                 // - Gallery Images -
                 if(this.eModProfile.galleryImageLocators.isDirty)
                 {
-                    var addedImageFilePaths = new List<string>();
-                    foreach(var locator in this.eModProfile.galleryImageLocators.value)
-                    {
-                        if(LocalDataStorage.GetFileExists(locator.url))
-                        {
-                            addedImageFilePaths.Add(locator.url);
-                        }
-                    }
-                    // - Create Images.Zip -
-                    if(addedImageFilePaths.Count > 0)
-                    {
-                        string galleryZipLocation = IOUtilities.CombinePath(Application.temporaryCachePath,
-                                                                            "modio",
-                                                                            "imageGallery_" + DateTime.Now.ToFileTime() + ".zip");
-
-                        bool archiveCreated = false;
-
-                        try
-                        {
-                            LocalDataStorage.CreateDirectory(Path.GetDirectoryName(galleryZipLocation));
-
-                            using(var zip = new Ionic.Zip.ZipFile())
-                            {
-                                foreach(string imageFilePath in addedImageFilePaths)
-                                {
-                                    zip.AddFile(imageFilePath);
-                                }
-                                zip.Save(galleryZipLocation);
-                            }
-
-                            archiveCreated = true;
-                        }
-                        catch(Exception e)
-                        {
-                            Debug.LogError("[mod.io] Unable to zip image gallery prior to uploading.\n\n"
-                                           + Utility.GenerateExceptionDebugString(e));
-                        }
-
-                        if(archiveCreated)
-                        {
-                            this.addMediaParams.galleryImages = new BinaryUpload();
-
-                            submissionActions.Add(() =>
-                            {
-                                LocalDataStorage.ReadFile(galleryZipLocation,
-                                (p, success, data) =>
-                                {
-                                    if(success)
-                                    {
-                                        var imageGalleryUpload = BinaryUpload.Create("images.zip", data);
-                                        this.addMediaParams.galleryImages = imageGalleryUpload;
-                                    }
-
-                                    doNextSubmissionAction(null);
-                                });
-                            });
-                        }
-                    }
-
                     this.removedImageFileNames = new List<string>();
                     foreach(var locator in profile.media.galleryImageLocators)
                     {
@@ -326,17 +270,16 @@ namespace ModIO
                     {
                         this.removedImageFileNames.Remove(locator.fileName);
                     }
-                }
 
-                if(this.addMediaParams.stringValues.Count > 0
-                   || this.addMediaParams.binaryData.Count > 0)
-                {
-                    submissionActions.Add(() =>
+                    this.addedImageFilePaths = new List<string>();
+                    foreach(var locator in this.eModProfile.galleryImageLocators.value)
                     {
-                        APIClient.AddModMedia(profile.id,
-                                              this.addMediaParams,
-                                              doNextSubmissionAction, this.onError);
-                    });
+                        this.addedImageFilePaths.Add(locator.url);
+                    }
+                    foreach(var locator in profile.media.galleryImageLocators)
+                    {
+                        this.addedImageFilePaths.Remove(locator.GetURL());
+                    }
                 }
             }
 
@@ -448,12 +391,57 @@ namespace ModIO
             if(success)
             {
                 this.logoData = data;
-                this.SubmitNextParameter();
+                this.SubmitModChanges_Internal_ZipImages();
             }
             else
             {
                 this.SubmissionError_Local("Mod Profile logo file could not be read for uploading."
                                            + "\nLogo Path: " + path);
+            }
+        }
+
+        private void SubmitModChanges_Internal_ZipImages()
+        {
+            if(this.addedImageFilePaths != null
+               && this.addedImageFilePaths.Count > 0)
+            {
+                string imageArchivePath = IOUtilities.CombinePath(Application.temporaryCachePath,
+                                                                  "modio",
+                                                                  "imageGallery_" + DateTime.Now.ToFileTime() + ".zip");
+
+                try
+                {
+                    LocalDataStorage.CreateDirectory(Path.GetDirectoryName(imageArchivePath));
+
+                    using(var zip = new Ionic.Zip.ZipFile())
+                    {
+                        foreach(string imageFilePath in this.addedImageFilePaths)
+                        {
+                            zip.AddFile(imageFilePath);
+                        }
+                        zip.Save(imageArchivePath);
+                    }
+
+                    LocalDataStorage.ReadFile(imageArchivePath, this.SubmitModChanges_Internal_OnReadImageArchive);
+                }
+                catch(Exception e)
+                {
+                    this.SubmissionError_Local("Unable to zip image gallery prior to uploading.\n"
+                                               + Utility.GenerateExceptionDebugString(e));
+                }
+            }
+            else
+            {
+                this.SubmitNextParameter();
+            }
+        }
+
+        private void SubmitModChanges_Internal_OnReadImageArchive(string path, bool success, byte[] data)
+        {
+            if(success)
+            {
+                this.imageArchiveData = data;
+                this.SubmitNextParameter();
             }
         }
 
@@ -492,7 +480,8 @@ namespace ModIO
                 this.removedSketchfabURLs = null;
                 this.removedYouTubeURLs = null;
             }
-            else if(this.logoData != null)
+            else if((this.logoData != null)
+                    || (this.imageArchiveData != null))
             {
                 var parameters = new AddModMediaParameters();
 
@@ -500,12 +489,17 @@ namespace ModIO
                 {
                     parameters.logo = BinaryUpload.Create(Path.GetFileName(this.logoPath), this.logoData);
                 }
+                if(this.imageArchiveData != null)
+                {
+                    parameters.galleryImages = BinaryUpload.Create("images.zip", this.imageArchiveData);
+                }
 
                 APIClient.AddModMedia(this.modId, parameters,
                                       this.SubmitNextParameter,
                                       this.onError);
 
                 this.logoData = null;
+                this.imageArchiveData = null;
             }
             // - Tags -
             else if(this.removedTags != null && this.removedTags.Count > 0)
