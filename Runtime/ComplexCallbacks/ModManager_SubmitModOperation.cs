@@ -439,32 +439,6 @@ namespace ModIO
                         this.addedKVPs.Remove(kvp.key);
                     }
                 }
-
-                if(this.removedKVPs.Count > 0)
-                {
-                    submissionActions.Add(() =>
-                    {
-                        var parameters = new DeleteModKVPMetadataParameters();
-                        parameters.metadataKeys = this.removedKVPs.Keys.ToArray();
-                        APIClient.DeleteModKVPMetadata(profile.id, parameters,
-                                                       () => doNextSubmissionAction(null),
-                                                       this.onError);
-                    });
-                }
-
-                if(this.addedKVPs.Count > 0)
-                {
-                    string[] addedKVPStrings = AddModKVPMetadataParameters.ConvertMetadataKVPsToAPIStrings(MetadataKVP.DictionaryToArray(this.addedKVPs));
-
-                    submissionActions.Add(() =>
-                    {
-                        var parameters = new AddModKVPMetadataParameters();
-                        parameters.metadata = addedKVPStrings;
-                        APIClient.AddModKVPMetadata(profile.id, parameters,
-                                                    doNextSubmissionAction,
-                                                    this.onError);
-                    });
-                }
             }
 
             // - Get Updated Profile -
@@ -525,7 +499,33 @@ namespace ModIO
 
         private void SubmitNextParameter()
         {
-            APIClient.GetMod(this.modId, this.onSuccess, this.onError);
+            if(this.removedKVPs != null && this.removedKVPs.Count > 0)
+            {
+                var parameters = new DeleteModKVPMetadataParameters();
+                parameters.metadataKeys = this.removedKVPs.Keys.ToArray();
+
+                APIClient.DeleteModKVPMetadata(this.modId, parameters,
+                                               this.SubmitNextParameter,
+                                               this.onError);
+                this.removedKVPs = null;
+            }
+            else if(this.addedKVPs != null && this.addedKVPs.Count > 0)
+            {
+                string[] addedKVPStrings = AddModKVPMetadataParameters.ConvertMetadataKVPsToAPIStrings(MetadataKVP.DictionaryToArray(this.addedKVPs));
+
+                var parameters = new AddModKVPMetadataParameters();
+                parameters.metadata = addedKVPStrings;
+
+                APIClient.AddModKVPMetadata(this.modId, parameters,
+                                            this.SubmitNextParameter,
+                                            this.onError);
+
+                this.addedKVPs = null;
+            }
+            else
+            {
+                APIClient.GetMod(this.modId, this.onSuccess, this.onError);
+            }
         }
     }
 }
