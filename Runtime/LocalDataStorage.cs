@@ -177,12 +177,6 @@ namespace ModIO
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetFileExists(path, onComplete);
         }
 
-        /// <summary>Checks for the existence of a file.</summary>
-        public static bool GetFileExists(string path)
-        {
-            return LocalDataStorage.PLATFORM_IO.GetFileExists(path);
-        }
-
         /// <summary>Gets the size of a file in bytes.</summary>
         public static Int64 GetFileSize(string path)
         {
