@@ -208,36 +208,6 @@ namespace ModIO
                 this.logoPath = this.eModProfile.logoLocator.value.url;
             }
 
-            if(this.eModProfile.youTubeURLs.isDirty)
-            {
-                this.removedYouTubeURLs = new List<string>(profile.media.youTubeURLs);
-                foreach(string url in this.eModProfile.youTubeURLs.value)
-                {
-                    this.removedYouTubeURLs.Remove(url);
-                }
-
-                this.addedYouTubeURLs = new List<string>(this.eModProfile.youTubeURLs.value);
-                foreach(string url in profile.media.youTubeURLs)
-                {
-                    this.addedYouTubeURLs.Remove(url);
-                }
-            }
-
-            if(this.eModProfile.sketchfabURLs.isDirty)
-            {
-                this.removedSketchfabURLs = new List<string>(profile.media.sketchfabURLs);
-                foreach(string url in this.eModProfile.sketchfabURLs.value)
-                {
-                    this.removedSketchfabURLs.Remove(url);
-                }
-
-                this.addedSketchfabURLs = new List<string>(this.eModProfile.sketchfabURLs.value);
-                foreach(string url in profile.media.sketchfabURLs)
-                {
-                    this.addedSketchfabURLs.Remove(url);
-                }
-            }
-
             if(this.eModProfile.galleryImageLocators.isDirty)
             {
                 this.removedImageFileNames = new List<string>();
@@ -258,6 +228,36 @@ namespace ModIO
                 foreach(var locator in profile.media.galleryImageLocators)
                 {
                     this.addedImageFilePaths.Remove(locator.GetURL());
+                }
+            }
+
+            if(this.eModProfile.sketchfabURLs.isDirty)
+            {
+                this.removedSketchfabURLs = new List<string>(profile.media.sketchfabURLs);
+                foreach(string url in this.eModProfile.sketchfabURLs.value)
+                {
+                    this.removedSketchfabURLs.Remove(url);
+                }
+
+                this.addedSketchfabURLs = new List<string>(this.eModProfile.sketchfabURLs.value);
+                foreach(string url in profile.media.sketchfabURLs)
+                {
+                    this.addedSketchfabURLs.Remove(url);
+                }
+            }
+
+            if(this.eModProfile.youTubeURLs.isDirty)
+            {
+                this.removedYouTubeURLs = new List<string>(profile.media.youTubeURLs);
+                foreach(string url in this.eModProfile.youTubeURLs.value)
+                {
+                    this.removedYouTubeURLs.Remove(url);
+                }
+
+                this.addedYouTubeURLs = new List<string>(this.eModProfile.youTubeURLs.value);
+                foreach(string url in profile.media.youTubeURLs)
+                {
+                    this.addedYouTubeURLs.Remove(url);
                 }
             }
 
@@ -314,7 +314,7 @@ namespace ModIO
             }
             else
             {
-                this.SubmitNextParameter();
+                this.SubmitModChanges_Internal_ZipImages();
             }
         }
 
