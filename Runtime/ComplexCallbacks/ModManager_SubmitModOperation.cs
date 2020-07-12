@@ -468,7 +468,7 @@ namespace ModIO
             }
 
             // - Get Updated Profile -
-            submissionActions.Add(() => APIClient.GetMod(profile.id, this.onSuccess, this.onError));
+            submissionActions.Add(this.SubmitNextParameter);
 
             // - Start submission chain -
             doNextSubmissionAction(new APIMessage());
@@ -516,6 +516,16 @@ namespace ModIO
                                      this.onError);
                 }
             }
+        }
+
+        private void SubmitNextParameter(object o)
+        {
+            this.SubmitNextParameter();
+        }
+
+        private void SubmitNextParameter()
+        {
+            APIClient.GetMod(this.modId, this.onSuccess, this.onError);
         }
     }
 }
