@@ -458,13 +458,14 @@ namespace ModIO
             }
         }
 
-        private void SubmitNextParameter(object o)
-        {
-            this.SubmitNextParameter();
-        }
-
         private void SubmitNextParameter()
         {
+            this.SubmitNextParameter(null);
+        }
+
+        private void SubmitNextParameter(object o)
+        {
+            // - Media -
             if((this.removedImageFileNames != null && this.removedImageFileNames.Count > 0)
                || (this.removedSketchfabURLs != null && this.removedSketchfabURLs.Count > 0)
                || (this.removedYouTubeURLs != null && this.removedYouTubeURLs.Count > 0))
@@ -492,6 +493,7 @@ namespace ModIO
                 this.removedSketchfabURLs = null;
                 this.removedYouTubeURLs = null;
             }
+            // - Tags -
             else if(this.removedTags != null && this.removedTags.Count > 0)
             {
                 var parameters = new DeleteModTagsParameters();
@@ -514,6 +516,7 @@ namespace ModIO
 
                 this.addedTags = null;
             }
+            // - KVPs -
             else if(this.removedKVPs != null && this.removedKVPs.Count > 0)
             {
                 var parameters = new DeleteModKVPMetadataParameters();
@@ -536,6 +539,14 @@ namespace ModIO
                                             this.onError);
 
                 this.addedKVPs = null;
+            }
+            // - FINALIZE -
+            else if(o is ModProfile && ((ModProfile)o).id == this.modId)
+            {
+                if(this.onSuccess != null)
+                {
+                    this.onSuccess.Invoke((ModProfile)o);
+                }
             }
             else
             {
