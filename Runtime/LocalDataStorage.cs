@@ -294,11 +294,5 @@ namespace ModIO
         {
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetDirectories(path, onComplete);
         }
-
-        /// <summary>Gets a list of directories found at the given location.</summary>
-        public static IList<string> GetDirectories(string path)
-        {
-            return LocalDataStorage.PLATFORM_IO.GetDirectories(path);
-        }
     }
 }
