@@ -12,6 +12,217 @@ namespace ModIO
         // ---------[ IPlatformIO Interface ]---------
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
+        bool IPlatformIO.ReadFile(string path, out byte[] data)
+        {
+            return this.ReadFile(path, out data);
+        }
+
+        /// <summary>Writes a file.</summary>
+        bool IPlatformIO.WriteFile(string path, byte[] data)
+        {
+            return this.WriteFile(path, data);
+        }
+
+        // --- File Management ---
+        /// <summary>Deletes a file.</summary>
+        bool IPlatformIO.DeleteFile(string path)
+        {
+            return this.DeleteFile(path);
+        }
+
+        /// <summary>Moves a file.</summary>
+        bool IPlatformIO.MoveFile(string source, string destination)
+        {
+            return this.MoveFile(source, destination);
+        }
+
+        /// <summary>Gets the size of a file.</summary>
+        bool IPlatformIO.GetFileExists(string path)
+        {
+            return this.GetFileExists(path);
+        }
+
+        /// <summary>Gets the size of a file.</summary>
+        Int64 IPlatformIO.GetFileSize(string path)
+        {
+            return this.GetFileSize(path);
+        }
+
+        /// <summary>Gets the size and md5 hash of a file.</summary>
+        bool IPlatformIO.GetFileSizeAndHash(string path, out Int64 byteCount, out string md5Hash)
+        {
+            return this.GetFileSizeAndHash(path, out byteCount, out md5Hash);
+        }
+
+        /// <summary>Gets the files at a location.</summary>
+        IList<string> IPlatformIO.GetFiles(string path, string nameFilter, bool recurseSubdirectories)
+        {
+            return this.GetFiles(path, nameFilter, recurseSubdirectories);
+        }
+
+        // --- Directory Management ---
+        /// <summary>Creates a directory.</summary>
+        bool IPlatformIO.CreateDirectory(string path)
+        {
+            return this.CreateDirectory(path);
+        }
+
+        /// <summary>Deletes a directory.</summary>
+        bool IPlatformIO.DeleteDirectory(string path)
+        {
+            return this.DeleteDirectory(path);
+        }
+
+        /// <summary>Moves a directory.</summary>
+        bool IPlatformIO.MoveDirectory(string source, string destination)
+        {
+            return this.MoveDirectory(source, destination);
+        }
+
+        /// <summary>Checks for the existence of a directory.</summary>
+        bool IPlatformIO.GetDirectoryExists(string path)
+        {
+            return this.GetDirectoryExists(path);
+        }
+
+        /// <summary>Gets the sub-directories at a location.</summary>
+        IList<string> IPlatformIO.GetDirectories(string path)
+        {
+            return this.GetDirectories(path);
+        }
+
+        // ---------[ IUserDataIO Interface ]---------
+        /// <summary>The directory for the active user's data.</summary>
+        public string userDir = PluginSettings.USER_DIRECTORY;
+
+        // --- Initialization ---
+        /// <summary>Initializes the storage system for the given user.</summary>
+        public virtual void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
+        {
+            this.userDir = this.GenerateActiveUserDirectory(platformUserId);
+
+            bool success = this.CreateDirectory(this.userDir);
+            if(callback != null)
+            {
+                callback.Invoke(platformUserId, success);
+            }
+        }
+
+        /// <summary>Initializes the storage system for the given user.</summary>
+        public virtual void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback)
+        {
+            this.userDir = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
+
+            bool success = this.CreateDirectory(this.userDir);
+            if(callback != null)
+            {
+                callback.Invoke(platformUserId, success);
+            }
+        }
+
+        /// <summary>Determines the user directory for a given user id..</summary>
+        protected virtual string GenerateActiveUserDirectory(string platformUserId)
+        {
+            string userDir = PluginSettings.USER_DIRECTORY;
+
+            if(!string.IsNullOrEmpty(platformUserId))
+            {
+                string folderName = IOUtilities.MakeValidFileName(platformUserId);
+                userDir = IOUtilities.CombinePath(PluginSettings.USER_DIRECTORY, folderName);
+            }
+
+            return userDir;
+        }
+
+        /// <summary>Deletes all of the active user's data.</summary>
+        void IUserDataIO.ClearActiveUserData(UserDataIOCallbacks.ClearActiveUserDataCallback callback)
+        {
+            bool success = this.DeleteDirectory(this.userDir);
+
+            if(callback != null)
+            {
+                callback.Invoke(success);
+            }
+        }
+
+        // --- File I/O ---
+        /// <summary>Reads a file.</summary>
+        void IUserDataIO.ReadFile(string relativePath, UserDataIOCallbacks.ReadFileCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(relativePath));
+            Debug.Assert(callback != null);
+
+            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            byte[] data;
+            bool success = this.ReadFile(path, out data);
+
+            callback.Invoke(relativePath, success, data);
+        }
+
+        /// <summary>Writes a file.</summary>
+        void IUserDataIO.WriteFile(string relativePath, byte[] data, UserDataIOCallbacks.WriteFileCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(relativePath));
+            Debug.Assert(data != null);
+
+            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            bool success = this.WriteFile(path, data);
+
+            if(callback != null) { callback.Invoke(relativePath, success); }
+        }
+
+        // --- File Management ---
+        /// <summary>Deletes a file.</summary>
+        void IUserDataIO.DeleteFile(string relativePath, UserDataIOCallbacks.DeleteFileCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(relativePath));
+
+            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            bool success = this.DeleteFile(path);
+
+            if(callback != null) { callback.Invoke(relativePath, success); }
+        }
+
+        /// <summary>Checks for the existence of a file.</summary>
+        void IUserDataIO.GetFileExists(string relativePath, UserDataIOCallbacks.GetFileExistsCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(relativePath));
+            Debug.Assert(callback != null);
+
+            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            bool doesExist = this.GetFileExists(path);
+
+            callback.Invoke(relativePath, doesExist);
+        }
+
+        /// <summary>Gets the size of a file.</summary>
+        void IUserDataIO.GetFileSize(string relativePath, UserDataIOCallbacks.GetFileSizeCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(relativePath));
+            Debug.Assert(callback != null);
+
+            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            Int64 byteCount = this.GetFileSize(path);
+
+            callback.Invoke(relativePath, byteCount);
+        }
+
+        /// <summary>Gets the size and md5 hash of a file.</summary>
+        void IUserDataIO.GetFileSizeAndHash(string relativePath, UserDataIOCallbacks.GetFileSizeAndHashCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(relativePath));
+            Debug.Assert(callback != null);
+
+            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            Int64 byteCount;
+            string md5Hash;
+            bool success = this.GetFileSizeAndHash(path, out byteCount, out md5Hash);
+
+            callback.Invoke(relativePath, success, byteCount, md5Hash);
+        }
+
+        // ---------[ File I/O Functionality ]---------
+        /// <summary>Reads a file.</summary>
         public virtual bool ReadFile(string path, out byte[] data)
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
@@ -302,136 +513,6 @@ namespace ModIO
                                  + Utility.GenerateExceptionDebugString(e));
 
                 return null;
-            }
-        }
-
-        // ---------[ IUserDataIO Interface ]---------
-        /// <summary>The directory for the active user's data.</summary>
-        public string userDir = PluginSettings.USER_DIRECTORY;
-
-        // --- Initialization ---
-        /// <summary>Initializes the storage system for the given user.</summary>
-        public virtual void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
-        {
-            this.userDir = this.GenerateActiveUserDirectory(platformUserId);
-
-            bool success = this.CreateDirectory(this.userDir);
-            if(callback != null)
-            {
-                callback.Invoke(platformUserId, success);
-            }
-        }
-
-        /// <summary>Initializes the storage system for the given user.</summary>
-        public virtual void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback)
-        {
-            this.userDir = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
-
-            bool success = this.CreateDirectory(this.userDir);
-            if(callback != null)
-            {
-                callback.Invoke(platformUserId, success);
-            }
-        }
-
-        /// <summary>Determines the user directory for a given user id..</summary>
-        protected virtual string GenerateActiveUserDirectory(string platformUserId)
-        {
-            string userDir = PluginSettings.USER_DIRECTORY;
-
-            if(!string.IsNullOrEmpty(platformUserId))
-            {
-                string folderName = IOUtilities.MakeValidFileName(platformUserId);
-                userDir = IOUtilities.CombinePath(PluginSettings.USER_DIRECTORY, folderName);
-            }
-
-            return userDir;
-        }
-
-        // --- File I/O ---
-        /// <summary>Reads a file.</summary>
-        void IUserDataIO.ReadFile(string relativePath, UserDataIOCallbacks.ReadFileCallback callback)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(relativePath));
-            Debug.Assert(callback != null);
-
-            string path = IOUtilities.CombinePath(this.userDir, relativePath);
-            byte[] data;
-            bool success = this.ReadFile(path, out data);
-
-            callback.Invoke(relativePath, success, data);
-        }
-
-        /// <summary>Writes a file.</summary>
-        void IUserDataIO.WriteFile(string relativePath, byte[] data, UserDataIOCallbacks.WriteFileCallback callback)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(relativePath));
-            Debug.Assert(data != null);
-
-            string path = IOUtilities.CombinePath(this.userDir, relativePath);
-            bool success = this.WriteFile(path, data);
-
-            if(callback != null) { callback.Invoke(relativePath, success); }
-        }
-
-        // --- File Management ---
-        /// <summary>Deletes a file.</summary>
-        void IUserDataIO.DeleteFile(string relativePath, UserDataIOCallbacks.DeleteFileCallback callback)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(relativePath));
-
-            string path = IOUtilities.CombinePath(this.userDir, relativePath);
-            bool success = this.DeleteFile(path);
-
-            if(callback != null) { callback.Invoke(relativePath, success); }
-        }
-
-        /// <summary>Checks for the existence of a file.</summary>
-        void IUserDataIO.GetFileExists(string relativePath, UserDataIOCallbacks.GetFileExistsCallback callback)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(relativePath));
-            Debug.Assert(callback != null);
-
-            string path = IOUtilities.CombinePath(this.userDir, relativePath);
-            bool doesExist = this.GetFileExists(path);
-
-            callback.Invoke(relativePath, doesExist);
-        }
-
-        /// <summary>Gets the size of a file.</summary>
-        void IUserDataIO.GetFileSize(string relativePath, UserDataIOCallbacks.GetFileSizeCallback callback)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(relativePath));
-            Debug.Assert(callback != null);
-
-            string path = IOUtilities.CombinePath(this.userDir, relativePath);
-            Int64 byteCount = this.GetFileSize(path);
-
-            callback.Invoke(relativePath, byteCount);
-        }
-
-        /// <summary>Gets the size and md5 hash of a file.</summary>
-        void IUserDataIO.GetFileSizeAndHash(string relativePath, UserDataIOCallbacks.GetFileSizeAndHashCallback callback)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(relativePath));
-            Debug.Assert(callback != null);
-
-            string path = IOUtilities.CombinePath(this.userDir, relativePath);
-            Int64 byteCount;
-            string md5Hash;
-            bool success = this.GetFileSizeAndHash(path, out byteCount, out md5Hash);
-
-            callback.Invoke(relativePath, success, byteCount, md5Hash);
-        }
-
-        /// <summary>Deletes all of the active user's data.</summary>
-        void IUserDataIO.ClearActiveUserData(UserDataIOCallbacks.ClearActiveUserDataCallback callback)
-        {
-            bool success = this.DeleteDirectory(this.userDir);
-
-            if(callback != null)
-            {
-                callback.Invoke(success);
             }
         }
     }
