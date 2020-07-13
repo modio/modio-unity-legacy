@@ -1091,30 +1091,7 @@ namespace ModIO
         [Obsolete("No longer supported.", true)]
         public static int CountModProfiles()
         {
-            string profileDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
-
-            if(LocalDataStorage.GetDirectoryExists(profileDirectory))
-            {
-                IList<string> modDirectories;
-                try
-                {
-                    modDirectories = LocalDataStorage.GetDirectories(profileDirectory);
-                }
-                catch(Exception e)
-                {
-                    string warningInfo = ("[mod.io] Failed to read mod profile directory."
-                                          + "\nDirectory: " + profileDirectory + "\n\n");
-
-                    Debug.LogWarning(warningInfo
-                                     + Utility.GenerateExceptionDebugString(e));
-
-                    modDirectories = new string[0];
-                }
-
-                return modDirectories.Count;
-            }
-
-            return 0;
+            return -1;
         }
 
         /// <summary>[Obsolete] Stores a mod's statistics in the cache.</summary>
