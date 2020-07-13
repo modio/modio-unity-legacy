@@ -121,6 +121,16 @@ namespace ModIO
                     callback.Invoke(source, destination, success);
                 }
             }
+
+            public static void GetDirectoryExists(string path, GetDirectoryExistsCallback callback)
+            {
+                bool exists = LocalDataStorage.PLATFORM_IO.GetDirectoryExists(path);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, exists);
+                }
+            }
         }
 
         // ---------[ Constants ]---------
@@ -261,6 +271,12 @@ namespace ModIO
         public static void MoveDirectory(string source, string destination, MoveDirectoryCallback onComplete)
         {
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.MoveDirectory(source, destination, onComplete);
+        }
+
+        /// <summary>Checks for the existence of a directory.</summary>
+        public static void GetDirectoryExists(string path, GetDirectoryExistsCallback onComplete)
+        {
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetDirectoryExists(path, onComplete);
         }
 
         /// <summary>Checks for the existence of a directory.</summary>
