@@ -7,12 +7,142 @@ using UnityEngine;
 using Newtonsoft.Json;
 
 using ModIO.API;
+using ModIO.LocalDataIOCallbacks;
 
 namespace ModIO
 {
     /// <summary>An interface for storing/loading mod.io data on disk.</summary>
     public static class LocalDataStorage
     {
+        // TODO(@jackson): REMOVE!
+        public class TEMP_PLATFORM_IO_ASYNC
+        {
+            public static void ReadFile(string path, ReadFileCallback callback)
+            {
+                byte[] data = null;
+                bool success = LocalDataStorage.PLATFORM_IO.ReadFile(path, out data);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, success, data);
+                }
+            }
+
+            public static void WriteFile(string path, byte[] data, WriteFileCallback callback)
+            {
+                bool success = LocalDataStorage.PLATFORM_IO.WriteFile(path, data);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, success);
+                }
+            }
+
+            public static void DeleteFile(string path, DeleteFileCallback callback)
+            {
+                bool success = LocalDataStorage.PLATFORM_IO.DeleteFile(path);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, success);
+                }
+            }
+
+            public static void MoveFile(string source, string destination, MoveFileCallback callback)
+            {
+                bool success = LocalDataStorage.PLATFORM_IO.MoveFile(source, destination);
+
+                if(callback != null)
+                {
+                    callback.Invoke(source, destination, success);
+                }
+            }
+
+            public static void GetFileExists(string path, GetFileExistsCallback callback)
+            {
+                bool exists = LocalDataStorage.PLATFORM_IO.GetFileExists(path);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, exists);
+                }
+            }
+
+            public static void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback callback)
+            {
+                Int64 byteCount;
+                string md5Hash;
+
+                bool success = LocalDataStorage.PLATFORM_IO.GetFileSizeAndHash(path, out byteCount, out md5Hash);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, success, byteCount, md5Hash);
+                }
+            }
+
+            public static void GetFiles(string path, string nameFilter, bool recurseSubdirectories,
+                                        GetFilesCallback callback)
+            {
+                IList<string> files = LocalDataStorage.PLATFORM_IO.GetFiles(path, nameFilter, recurseSubdirectories);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, files != null, files);
+                }
+            }
+
+            public static void CreateDirectory(string path, CreateDirectoryCallback callback)
+            {
+                bool success = LocalDataStorage.PLATFORM_IO.CreateDirectory(path);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, success);
+                }
+            }
+
+            public static void DeleteDirectory(string path, DeleteDirectoryCallback callback)
+            {
+                bool success = LocalDataStorage.PLATFORM_IO.DeleteDirectory(path);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, success);
+                }
+            }
+
+            public static void MoveDirectory(string source, string destination, MoveDirectoryCallback callback)
+            {
+                bool success = LocalDataStorage.PLATFORM_IO.MoveDirectory(source, destination);
+
+                if(callback != null)
+                {
+                    callback.Invoke(source, destination, success);
+                }
+            }
+
+            public static void GetDirectoryExists(string path, GetDirectoryExistsCallback callback)
+            {
+                bool exists = LocalDataStorage.PLATFORM_IO.GetDirectoryExists(path);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, exists);
+                }
+            }
+
+            public static void GetDirectories(string path, GetDirectoriesCallback callback)
+            {
+                IList<string> dirs = LocalDataStorage.PLATFORM_IO.GetDirectories(path);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, dirs != null, dirs);
+                }
+            }
+        }
+
         // ---------[ Constants ]---------
         /// <summary>Defines the I/O functions to use for this platform.</summary>
         public static readonly IPlatformIO PLATFORM_IO;
@@ -32,135 +162,137 @@ namespace ModIO
         // ---------[ Data Management Interface ]---------
         // ------ File I/O ------
         /// <summary>Reads a file.</summary>
-        public static bool ReadFile(string path, out byte[] data)
+        public static void ReadFile(string path, ReadFileCallback onComplete)
         {
-            return LocalDataStorage.PLATFORM_IO.ReadFile(path, out data);
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.ReadFile(path, onComplete);
         }
 
         /// <summary>Reads a file and parses the data as a JSON object instance.</summary>
-        public static bool ReadJSONFile<T>(string path, out T jsonObject)
+        public static void ReadJSONFile<T>(string path, ReadJSONFileCallback<T> onComplete)
         {
-            bool success = false;
-            byte[] data = null;
+            Debug.Assert(onComplete != null);
 
-            success = LocalDataStorage.PLATFORM_IO.ReadFile(path, out data);
-
-            if(success)
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.ReadFile(path, (p, success, data) =>
             {
-                success = IOUtilities.TryParseUTF8JSONData<T>(data, out jsonObject);
+                T jsonObject;
 
-                if(!success)
+                if(success)
                 {
-                    Debug.LogWarning("[mod.io] Failed translate file data into JSON Object."
-                                     + "\nFile: " + path + "\n\n");
-                }
-            }
-            else
-            {
-                jsonObject = default(T);
-            }
+                    success = IOUtilities.TryParseUTF8JSONData<T>(data, out jsonObject);
 
-            return success;
+                    if(!success)
+                    {
+                        Debug.LogWarning("[mod.io] Failed parse file content as JSON Object."
+                                         + "\nFile: " + path + "\n\n");
+                    }
+                }
+                else
+                {
+                    jsonObject = default(T);
+                }
+
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(path, success, jsonObject);
+                }
+            });
         }
 
         /// <summary>Writes a file.</summary>
-        public static bool WriteFile(string path, byte[] data)
+        public static void WriteFile(string path, byte[] data, WriteFileCallback onComplete)
         {
             #if DEBUG
             if(data.Length == 0)
             {
-                Debug.Log("[mod.io] Writing 0-byte user file to: " + path);
+                Debug.Log("[mod.io] Writing 0-byte file to: " + path);
             }
             #endif // DEBUG
 
-            return LocalDataStorage.PLATFORM_IO.WriteFile(path, data);
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.WriteFile(path, data, onComplete);
         }
 
         /// <summary>Writes a JSON file.</summary>
-        public static bool WriteJSONFile<T>(string path, T jsonObject)
+        public static void WriteJSONFile<T>(string path, T jsonObject, WriteFileCallback onComplete)
         {
-            bool success = false;
             byte[] data = IOUtilities.GenerateUTF8JSONData<T>(jsonObject);
 
             if(data != null && data.Length > 0)
             {
-                success = LocalDataStorage.WriteFile(path, data);
+                LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.WriteFile(path, data, onComplete);
             }
             else
             {
                 Debug.LogWarning("[mod.io] Failed create JSON representation of object before writing file."
                                  + "\nFile: " + path + "\n\n");
-            }
 
-            return success;
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(path, false);
+                }
+            }
         }
 
         // ------ File Management ------
         /// <summary>Deletes a file.</summary>
-        public static bool DeleteFile(string path)
+        public static void DeleteFile(string path, DeleteFileCallback onComplete)
         {
-            return LocalDataStorage.PLATFORM_IO.DeleteFile(path);
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.DeleteFile(path, onComplete);
         }
 
         /// <summary>Moves a file.</summary>
-        public static bool MoveFile(string source, string destination)
+        public static void MoveFile(string source, string destination, MoveFileCallback onComplete)
         {
-            return LocalDataStorage.PLATFORM_IO.MoveFile(source, destination);
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.MoveFile(source, destination, onComplete);
         }
 
         /// <summary>Checks for the existence of a file.</summary>
-        public static bool GetFileExists(string path)
+        public static void GetFileExists(string path, GetFileExistsCallback onComplete)
         {
-            return LocalDataStorage.PLATFORM_IO.GetFileExists(path);
-        }
-
-        /// <summary>Gets the size of a file in bytes.</summary>
-        public static Int64 GetFileSize(string path)
-        {
-            return LocalDataStorage.PLATFORM_IO.GetFileSize(path);
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetFileExists(path, onComplete);
         }
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
-        public static bool GetFileSizeAndHash(string path, out Int64 byteCount, out string md5Hash)
+        public static void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback onComplete)
         {
-            return LocalDataStorage.PLATFORM_IO.GetFileSizeAndHash(path, out byteCount, out md5Hash);
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetFileSizeAndHash(path, onComplete);
         }
 
         /// <summary>Gets the files at a location.</summary>
-        public static IList<string> GetFiles(string path, string nameFilter, bool recurseSubdirectories)
+        public static void GetFiles(string path, string nameFilter, bool recurseSubdirectories,
+                                    GetFilesCallback onComplete)
         {
-            return LocalDataStorage.PLATFORM_IO.GetFiles(path, nameFilter, recurseSubdirectories);
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetFiles(path, nameFilter, recurseSubdirectories, onComplete);
         }
 
         // ------ Directory Management ------
         /// <summary>Creates a directory.</summary>
-        public static bool CreateDirectory(string path)
+        public static void CreateDirectory(string path, CreateDirectoryCallback onComplete)
         {
-            return LocalDataStorage.PLATFORM_IO.CreateDirectory(path);
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.CreateDirectory(path, onComplete);
         }
 
         /// <summary>Deletes a directory.</summary>
-        public static bool DeleteDirectory(string path)
+        public static void DeleteDirectory(string path, DeleteDirectoryCallback onComplete)
         {
-            return LocalDataStorage.PLATFORM_IO.DeleteDirectory(path);
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.DeleteDirectory(path, onComplete);
         }
 
         /// <summary>Moves a directory.</summary>
-        public static bool MoveDirectory(string source, string destination)
+        public static void MoveDirectory(string source, string destination, MoveDirectoryCallback onComplete)
         {
-            return LocalDataStorage.PLATFORM_IO.MoveDirectory(source, destination);
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.MoveDirectory(source, destination, onComplete);
         }
 
         /// <summary>Checks for the existence of a directory.</summary>
-        public static bool GetDirectoryExists(string path)
+        public static void GetDirectoryExists(string path, GetDirectoryExistsCallback onComplete)
         {
-            return LocalDataStorage.PLATFORM_IO.GetDirectoryExists(path);
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetDirectoryExists(path, onComplete);
         }
 
         /// <summary>Gets a list of directories found at the given location.</summary>
-        public static IList<string> GetDirectories(string path)
+        public static void GetDirectories(string path, GetDirectoriesCallback onComplete)
         {
-            return LocalDataStorage.PLATFORM_IO.GetDirectories(path);
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetDirectories(path, onComplete);
         }
     }
 }

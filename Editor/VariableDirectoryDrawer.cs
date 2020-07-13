@@ -2,6 +2,7 @@
 
 using System;
 using Path = System.IO.Path;
+using Directory = System.IO.Directory;
 
 using UnityEngine;
 using UnityEditor;
@@ -50,7 +51,7 @@ namespace ModIO.UI.EditorCode
                 while(!directoryIsValid && !string.IsNullOrEmpty(testDir))
                 {
                     testDir = Path.GetDirectoryName(testDir);
-                    directoryIsValid = LocalDataStorage.GetDirectoryExists(testDir);
+                    directoryIsValid = Directory.Exists(testDir);
                 }
             }
             catch
@@ -72,9 +73,9 @@ namespace ModIO.UI.EditorCode
 
                 if(GUI.Button(buttonRect, new GUIContent("...", toolTip)))
                 {
-                    if(!LocalDataStorage.GetDirectoryExists(dir))
+                    if(!Directory.Exists(dir))
                     {
-                        LocalDataStorage.CreateDirectory(dir);
+                        System.IO.Directory.CreateDirectory(dir);
                     }
 
                     if(dir.StartsWith(Application.dataPath))

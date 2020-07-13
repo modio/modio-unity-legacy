@@ -1,9 +1,13 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
+using File = System.IO.File;
+using Directory = System.IO.Directory;
+
 using UnityEngine;
 using UnityEditor;
 
 using ModIO.UI;
+
 
 namespace ModIO.EditorCode
 {
@@ -19,14 +23,8 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear All Cached Data", false)]
         public static void ClearCache()
         {
-            if(LocalDataStorage.DeleteDirectory(PluginSettings.CACHE_DIRECTORY))
-            {
-                Debug.Log("[mod.io] Cache Cleared.");
-            }
-            else
-            {
-                Debug.Log("[mod.io] Failed to clear cache.");
-            }
+            Directory.Delete(PluginSettings.CACHE_DIRECTORY);
+            Debug.Log("[mod.io] Cache Cleared.");
         }
 
         [MenuItem("Tools/mod.io/Debugging/Clear All User Data", false)]
@@ -51,14 +49,8 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear Game Data", false)]
         public static void ClearCachedGameProfile()
         {
-            if(LocalDataStorage.DeleteFile(CacheClient.gameProfileFilePath))
-            {
-                Debug.Log("[mod.io] Cached Game Data Deleted.");
-            }
-            else
-            {
-                Debug.Log("[mod.io] Failed to delete Cached Game Data.");
-            }
+            File.Delete(CacheClient.gameProfileFilePath);
+            Debug.Log("[mod.io] Cached Game Data Deleted.");
         }
 
         [MenuItem("Tools/mod.io/Debugging/Clear Mod Data", false)]
@@ -66,27 +58,15 @@ namespace ModIO.EditorCode
         {
             string modDir = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
 
-            if(LocalDataStorage.DeleteDirectory(modDir))
-            {
-                Debug.Log("[mod.io] Cached Mod Data Deleted.");
-            }
-            else
-            {
-                Debug.Log("[mod.io] Failed to clear cached Mod Data.");
-            }
+            Directory.Delete(modDir);
+            Debug.Log("[mod.io] Cached Mod Data Deleted.");
         }
 
         [MenuItem("Tools/mod.io/Debugging/Delete Installed Mods", false)]
         public static void RemoveAllInstalledMods()
         {
-            if(LocalDataStorage.DeleteDirectory(PluginSettings.INSTALLATION_DIRECTORY))
-            {
-                Debug.Log("[mod.io] Mod Installation Data removed.");
-            }
-            else
-            {
-                Debug.Log("[mod.io] Failed to removed installed mods.");
-            }
+            Directory.Delete(PluginSettings.INSTALLATION_DIRECTORY);
+            Debug.Log("[mod.io] Mod Installation Data removed.");
         }
 
         [MenuItem("Tools/mod.io/Update ALL Color Scheme Applicators", false)]

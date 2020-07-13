@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using Directory = System.IO.Directory;
 using Path = System.IO.Path;
 
 using UnityEditor;
@@ -342,7 +343,7 @@ namespace ModIO.EditorCode
                             string smpDir = Path.GetDirectoryName(smpFilePath);
 
                             int profileCount
-                            = LocalDataStorage.GetFiles(smpDir, profile.name + "*.asset", false).Count;
+                            = Directory.GetFiles(smpDir, profile.name + "*.asset", System.IO.SearchOption.TopDirectoryOnly).Length;
 
                             string fileNameAddition = (profileCount > 0
                                                        ? " (" + profileCount.ToString() + ")"

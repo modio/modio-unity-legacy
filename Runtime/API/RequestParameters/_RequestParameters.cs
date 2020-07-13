@@ -7,7 +7,7 @@ namespace ModIO.API
         // ---------[ STRING VALUE FIELDS ]---------
         public List<StringValueParameter> stringValues = new List<StringValueParameter>();
 
-        protected void SetStringValue<T>(string key, T value)
+        public void SetStringValue<T>(string key, T value)
         {
             foreach(StringValueParameter valueField in stringValues)
             {
@@ -21,7 +21,7 @@ namespace ModIO.API
             stringValues.Add(StringValueParameter.Create(key, value));
         }
 
-        protected void SetStringArrayValue<T>(string key, T[] valueArray)
+        public void SetStringArrayValue<T>(string key, T[] valueArray)
         {
             int i = 0;
             while(i < stringValues.Count)
@@ -45,7 +45,7 @@ namespace ModIO.API
         // ---------[ BINARY DATA FIELDS ]---------
         public List<BinaryDataParameter> binaryData = new List<BinaryDataParameter>();
 
-        protected void SetBinaryData(string key, string fileName, byte[] data)
+        public void SetBinaryData(string key, string fileName, byte[] data)
         {
             foreach(BinaryDataParameter dataField in binaryData)
             {

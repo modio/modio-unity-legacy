@@ -271,45 +271,45 @@ namespace ModIO
             downloadInfo.request = UnityWebRequest.Get(downloadURL);
 
             string tempFilePath = downloadInfo.target + ".download";
-            bool success = false;
 
-            success = LocalDataStorage.WriteFile(tempFilePath, new byte[0]);
-
-            if(success)
+            LocalDataStorage.WriteFile(tempFilePath, new byte[0], (p, success) =>
             {
-                downloadInfo.request.downloadHandler = new DownloadHandlerFile(tempFilePath);
-
-                #if PLATFORM_PS4
-                // NOTE(@jackson): This workaround addresses an issue in UnityWebRequests on the
-                //  PS4 whereby redirects fail in specific cases. Special thanks to @Eamon of
-                //  Spiderling Studios (http://spiderlinggames.co.uk/)
-                downloadInfo.request.redirectLimit = 0;
-                #endif
-
-                var operation = downloadInfo.request.SendWebRequest();
-
-                #if DEBUG
-                    DebugUtilities.DebugDownload(operation, LocalUser.instance, tempFilePath);
-                #endif
-
-                operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(idPair);
-
-                DownloadClient.StartMonitoringSpeed();
-
-                // notify download started
-                if(DownloadClient.modfileDownloadStarted != null)
+                if(success)
                 {
-                    DownloadClient.modfileDownloadStarted(idPair, downloadInfo);
-                }
-            }
-            else if(DownloadClient.modfileDownloadFailed != null)
-            {
-                string warningInfo = ("Failed to create download file on disk."
-                                      + "\nSource: " + downloadURL
-                                      + "\nDestination: " + tempFilePath + "\n\n");
+                    downloadInfo.request.downloadHandler = new DownloadHandlerFile(tempFilePath);
 
-                modfileDownloadFailed(idPair, WebRequestError.GenerateLocal(warningInfo));
-            }
+                    #if PLATFORM_PS4
+                    // NOTE(@jackson): This workaround addresses an issue in UnityWebRequests on the
+                    //  PS4 whereby redirects fail in specific cases. Special thanks to @Eamon of
+                    //  Spiderling Studios (http://spiderlinggames.co.uk/)
+                    downloadInfo.request.redirectLimit = 0;
+                    #endif
+
+                    var operation = downloadInfo.request.SendWebRequest();
+
+                    #if DEBUG
+                        DebugUtilities.DebugDownload(operation, LocalUser.instance, tempFilePath);
+                    #endif
+
+                    operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(idPair);
+
+                    DownloadClient.StartMonitoringSpeed();
+
+                    // notify download started
+                    if(DownloadClient.modfileDownloadStarted != null)
+                    {
+                        DownloadClient.modfileDownloadStarted(idPair, downloadInfo);
+                    }
+                }
+                else if(DownloadClient.modfileDownloadFailed != null)
+                {
+                    string warningInfo = ("Failed to create download file on disk."
+                                          + "\nSource: " + downloadURL
+                                          + "\nDestination: " + tempFilePath + "\n\n");
+
+                    modfileDownloadFailed(idPair, WebRequestError.GenerateLocal(warningInfo));
+                }
+            });
         }
 
         public static void CancelModBinaryDownload(int modId, int modfileId)
@@ -364,7 +364,6 @@ namespace ModIO
         {
             FileDownloadInfo downloadInfo = DownloadClient.modfileDownloadMap[idPair];
             UnityWebRequest request = downloadInfo.request;
-            bool success = false;
 
             downloadInfo.bytesPerSecond = 0;
 
@@ -374,6 +373,8 @@ namespace ModIO
                    || request.error.ToUpper() == "REQUEST ABORTED")
                 {
                     downloadInfo.wasAborted = true;
+
+                    DownloadClient.FinalizeDownload(idPair, downloadInfo);
                 }
 
                 // NOTE(@jackson): This workaround addresses an issue in UnityWebRequests on the
@@ -403,37 +404,41 @@ namespace ModIO
                 {
                     downloadInfo.error = WebRequestError.GenerateFromWebRequest(request);
 
-                    if(modfileDownloadFailed != null)
-                    {
-                        modfileDownloadFailed(idPair, downloadInfo.error);
-                    }
+                    DownloadClient.FinalizeDownload(idPair, downloadInfo);
                 }
             }
             else
             {
-                success = LocalDataStorage.MoveFile(downloadInfo.target + ".download",
-                                                    downloadInfo.target);
-
-                if(!success
-                   && DownloadClient.modfileDownloadFailed != null)
+                LocalDataStorage.MoveFile(downloadInfo.target + ".download", downloadInfo.target,
+                (src, dst, success) =>
                 {
-                    string errorMessage = ("Download succeeded but failed to rename from"
-                                           + " temporary file name."
-                                           + "\nTemporary file name: "
-                                           + downloadInfo.target + ".download");
+                    if(!success)
+                    {
+                        string errorMessage = ("Download succeeded but failed to rename from"
+                                               + " temporary file name."
+                                               + "\nTemporary file name: "
+                                               + downloadInfo.target + ".download");
 
-                    downloadInfo.error = WebRequestError.GenerateLocal(errorMessage);
+                        downloadInfo.error = WebRequestError.GenerateLocal(errorMessage);
+                    }
 
-                    modfileDownloadFailed(idPair, downloadInfo.error);
-                }
+                    DownloadClient.FinalizeDownload(idPair, downloadInfo);
+                });
             }
+        }
 
+        private static void FinalizeDownload(ModfileIdPair idPair, FileDownloadInfo downloadInfo)
+        {
+            downloadInfo.bytesPerSecond = 0;
             downloadInfo.isDone = true;
 
-            if(success
-               && modfileDownloadSucceeded != null)
+            if(downloadInfo.error == null && DownloadClient.modfileDownloadSucceeded != null)
             {
-                modfileDownloadSucceeded(idPair, downloadInfo);
+                DownloadClient.modfileDownloadSucceeded(idPair, downloadInfo);
+            }
+            else if(downloadInfo.error != null && DownloadClient.modfileDownloadFailed != null)
+            {
+                DownloadClient.modfileDownloadFailed(idPair, downloadInfo.error);
             }
 
             modfileDownloadMap.Remove(idPair);

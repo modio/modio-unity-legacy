@@ -1,8 +1,11 @@
-﻿#if UNITY_EDITOR
+﻿using UnityEngine;
+
+#if UNITY_EDITOR
+using Directory = System.IO.Directory;
+
 using UnityEditor;
 #endif
 
-using UnityEngine;
 
 namespace ModIO.EditorCode
 {
@@ -17,7 +20,7 @@ namespace ModIO.EditorCode
             ScriptableModProfile asset = ScriptableObject.CreateInstance<ScriptableModProfile>();
 
             int profileCount
-            = LocalDataStorage.GetFiles(Application.dataPath, "NewModProfile*.asset", false).Count;
+            = Directory.GetFiles(Application.dataPath, "NewModProfile*.asset", System.IO.SearchOption.TopDirectoryOnly).Length;
 
             string fileNameAddition = (profileCount > 0
                                        ? " (" + profileCount.ToString() + ")"
