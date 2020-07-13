@@ -16,7 +16,7 @@ namespace ModIO
     {
         // ---------[ Constants ]---------
         /// <summary>Defines the I/O functions to use for this platform.</summary>
-        public static readonly IPlatformIO_Async PLATFORM_IO;
+        public static readonly IPlatformIO PLATFORM_IO;
 
         // ---------[ Initialization ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>

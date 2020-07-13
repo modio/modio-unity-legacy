@@ -7,13 +7,13 @@ using Debug = UnityEngine.Debug;
 namespace ModIO
 {
     /// <summary>Wraps the System.IO functionality in an IPlatformIO class.</summary>
-    public class SystemIOWrapper : IPlatformIO_Async, IUserDataIO
+    public class SystemIOWrapper : IPlatformIO, IUserDataIO
     {
-        // ---------[ IPlatformIO_Async Interface ]---------
+        // ---------[ IPlatformIO Interface ]---------
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
-        void IPlatformIO_Async.ReadFile(string path,
-                                        PlatformIOCallbacks.ReadFileCallback callback)
+        void IPlatformIO.ReadFile(string path,
+                                  PlatformIOCallbacks.ReadFileCallback callback)
         {
             byte[] data = null;
             bool success = this.ReadFile(path, out data);
@@ -25,8 +25,8 @@ namespace ModIO
         }
 
         /// <summary>Writes a file.</summary>
-        void IPlatformIO_Async.WriteFile(string path, byte[] data,
-                                         PlatformIOCallbacks.WriteFileCallback callback)
+        void IPlatformIO.WriteFile(string path, byte[] data,
+                                   PlatformIOCallbacks.WriteFileCallback callback)
         {
             bool success = this.WriteFile(path, data);
 
@@ -38,8 +38,8 @@ namespace ModIO
 
         // --- File Management ---
         /// <summary>Deletes a file.</summary>
-        void IPlatformIO_Async.DeleteFile(string path,
-                                          PlatformIOCallbacks.DeleteFileCallback callback)
+        void IPlatformIO.DeleteFile(string path,
+                                    PlatformIOCallbacks.DeleteFileCallback callback)
         {
             bool success = this.DeleteFile(path);
 
@@ -50,8 +50,8 @@ namespace ModIO
         }
 
         /// <summary>Moves a file.</summary>
-        void IPlatformIO_Async.MoveFile(string source, string destination,
-                                        PlatformIOCallbacks.MoveFileCallback callback)
+        void IPlatformIO.MoveFile(string source, string destination,
+                                  PlatformIOCallbacks.MoveFileCallback callback)
         {
             bool success = this.MoveFile(source, destination);
 
@@ -62,8 +62,8 @@ namespace ModIO
         }
 
         /// <summary>Checks for the existence of a file.</summary>
-        void IPlatformIO_Async.GetFileExists(string path,
-                                             PlatformIOCallbacks.GetFileExistsCallback callback)
+        void IPlatformIO.GetFileExists(string path,
+                                       PlatformIOCallbacks.GetFileExistsCallback callback)
         {
             bool exists = this.GetFileExists(path);
 
@@ -74,8 +74,8 @@ namespace ModIO
         }
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
-        void IPlatformIO_Async.GetFileSizeAndHash(string path,
-                                                  PlatformIOCallbacks.GetFileSizeAndHashCallback callback)
+        void IPlatformIO.GetFileSizeAndHash(string path,
+                                            PlatformIOCallbacks.GetFileSizeAndHashCallback callback)
         {
             Int64 byteCount;
             string md5Hash;
@@ -89,8 +89,8 @@ namespace ModIO
         }
 
         /// <summary>Gets the files at a location.</summary>
-        void IPlatformIO_Async.GetFiles(string path, string nameFilter, bool recurseSubdirectories,
-                                        PlatformIOCallbacks.GetFilesCallback callback)
+        void IPlatformIO.GetFiles(string path, string nameFilter, bool recurseSubdirectories,
+                                  PlatformIOCallbacks.GetFilesCallback callback)
         {
             IList<string> files = this.GetFiles(path, nameFilter, recurseSubdirectories);
 
@@ -102,8 +102,8 @@ namespace ModIO
 
         // --- Directory Management ---
         /// <summary>Creates a directory.</summary>
-        void IPlatformIO_Async.CreateDirectory(string path,
-                                               PlatformIOCallbacks.CreateDirectoryCallback callback)
+        void IPlatformIO.CreateDirectory(string path,
+                                         PlatformIOCallbacks.CreateDirectoryCallback callback)
         {
             bool success = this.CreateDirectory(path);
 
@@ -114,8 +114,8 @@ namespace ModIO
         }
 
         /// <summary>Deletes a directory.</summary>
-        void IPlatformIO_Async.DeleteDirectory(string path,
-                                               PlatformIOCallbacks.DeleteDirectoryCallback callback)
+        void IPlatformIO.DeleteDirectory(string path,
+                                         PlatformIOCallbacks.DeleteDirectoryCallback callback)
         {
             bool success = this.DeleteDirectory(path);
 
@@ -126,8 +126,8 @@ namespace ModIO
         }
 
         /// <summary>Moves a directory.</summary>
-        void IPlatformIO_Async.MoveDirectory(string source, string destination,
-                                             PlatformIOCallbacks.MoveDirectoryCallback callback)
+        void IPlatformIO.MoveDirectory(string source, string destination,
+                                       PlatformIOCallbacks.MoveDirectoryCallback callback)
         {
             bool success = this.MoveDirectory(source, destination);
 
@@ -138,8 +138,8 @@ namespace ModIO
         }
 
         /// <summary>Checks for the existence of a directory.</summary>
-        void IPlatformIO_Async.GetDirectoryExists(string path,
-                                                  PlatformIOCallbacks.GetDirectoryExistsCallback callback)
+        void IPlatformIO.GetDirectoryExists(string path,
+                                            PlatformIOCallbacks.GetDirectoryExistsCallback callback)
         {
             bool exists = this.GetDirectoryExists(path);
 
@@ -150,8 +150,8 @@ namespace ModIO
         }
 
         /// <summary>Gets the sub-directories at a location.</summary>
-        void IPlatformIO_Async.GetDirectories(string path,
-                                              PlatformIOCallbacks.GetDirectoriesCallback callback)
+        void IPlatformIO.GetDirectories(string path,
+                                        PlatformIOCallbacks.GetDirectoriesCallback callback)
         {
             IList<string> dirs = this.GetDirectories(path);
 
