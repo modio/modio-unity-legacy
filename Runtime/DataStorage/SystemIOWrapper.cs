@@ -98,7 +98,7 @@ namespace ModIO
                                         PlatformIOCallbacks.ReadFileCallback callback)
         {
             byte[] data = null;
-            bool success = LocalDataStorage.PLATFORM_IO.ReadFile(path, out data);
+            bool success = this.ReadFile(path, out data);
 
             if(callback != null)
             {
@@ -110,7 +110,7 @@ namespace ModIO
         void IPlatformIO_Async.WriteFile(string path, byte[] data,
                                          PlatformIOCallbacks.WriteFileCallback callback)
         {
-            bool success = LocalDataStorage.PLATFORM_IO.WriteFile(path, data);
+            bool success = this.WriteFile(path, data);
 
             if(callback != null)
             {
@@ -123,7 +123,7 @@ namespace ModIO
         void IPlatformIO_Async.DeleteFile(string path,
                                           PlatformIOCallbacks.DeleteFileCallback callback)
         {
-            bool success = LocalDataStorage.PLATFORM_IO.DeleteFile(path);
+            bool success = this.DeleteFile(path);
 
             if(callback != null)
             {
@@ -135,7 +135,7 @@ namespace ModIO
         void IPlatformIO_Async.MoveFile(string source, string destination,
                                         PlatformIOCallbacks.MoveFileCallback callback)
         {
-            bool success = LocalDataStorage.PLATFORM_IO.MoveFile(source, destination);
+            bool success = this.MoveFile(source, destination);
 
             if(callback != null)
             {
@@ -147,7 +147,7 @@ namespace ModIO
         void IPlatformIO_Async.GetFileExists(string path,
                                              PlatformIOCallbacks.GetFileExistsCallback callback)
         {
-            bool exists = LocalDataStorage.PLATFORM_IO.GetFileExists(path);
+            bool exists = this.GetFileExists(path);
 
             if(callback != null)
             {
@@ -162,7 +162,7 @@ namespace ModIO
             Int64 byteCount;
             string md5Hash;
 
-            bool success = LocalDataStorage.PLATFORM_IO.GetFileSizeAndHash(path, out byteCount, out md5Hash);
+            bool success = this.GetFileSizeAndHash(path, out byteCount, out md5Hash);
 
             if(callback != null)
             {
@@ -174,7 +174,7 @@ namespace ModIO
         void IPlatformIO_Async.GetFiles(string path, string nameFilter, bool recurseSubdirectories,
                                         PlatformIOCallbacks.GetFilesCallback callback)
         {
-            IList<string> files = LocalDataStorage.PLATFORM_IO.GetFiles(path, nameFilter, recurseSubdirectories);
+            IList<string> files = this.GetFiles(path, nameFilter, recurseSubdirectories);
 
             if(callback != null)
             {
@@ -187,7 +187,7 @@ namespace ModIO
         void IPlatformIO_Async.CreateDirectory(string path,
                                                PlatformIOCallbacks.CreateDirectoryCallback callback)
         {
-            bool success = LocalDataStorage.PLATFORM_IO.CreateDirectory(path);
+            bool success = this.CreateDirectory(path);
 
             if(callback != null)
             {
@@ -199,7 +199,7 @@ namespace ModIO
         void IPlatformIO_Async.DeleteDirectory(string path,
                                                PlatformIOCallbacks.DeleteDirectoryCallback callback)
         {
-            bool success = LocalDataStorage.PLATFORM_IO.DeleteDirectory(path);
+            bool success = this.DeleteDirectory(path);
 
             if(callback != null)
             {
@@ -211,7 +211,7 @@ namespace ModIO
         void IPlatformIO_Async.MoveDirectory(string source, string destination,
                                              PlatformIOCallbacks.MoveDirectoryCallback callback)
         {
-            bool success = LocalDataStorage.PLATFORM_IO.MoveDirectory(source, destination);
+            bool success = this.MoveDirectory(source, destination);
 
             if(callback != null)
             {
@@ -223,7 +223,7 @@ namespace ModIO
         void IPlatformIO_Async.GetDirectoryExists(string path,
                                                   PlatformIOCallbacks.GetDirectoryExistsCallback callback)
         {
-            bool exists = LocalDataStorage.PLATFORM_IO.GetDirectoryExists(path);
+            bool exists = this.GetDirectoryExists(path);
 
             if(callback != null)
             {
@@ -235,7 +235,7 @@ namespace ModIO
         void IPlatformIO_Async.GetDirectories(string path,
                                               PlatformIOCallbacks.GetDirectoriesCallback callback)
         {
-            IList<string> dirs = LocalDataStorage.PLATFORM_IO.GetDirectories(path);
+            IList<string> dirs = this.GetDirectories(path);
 
             if(callback != null)
             {
