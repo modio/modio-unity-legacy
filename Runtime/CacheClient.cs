@@ -163,68 +163,71 @@ namespace ModIO
             List<ModProfile> modProfiles = new List<ModProfile>();
             string profileDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
 
-            if(LocalDataStorage.GetDirectoryExists(profileDirectory))
+            LocalDataStorage.GetDirectoryExists(profileDirectory, (gde_path, gde_exists) =>
             {
-                IList<string> modDirectories;
-                try
+                if(gde_exists)
                 {
-                    modDirectories = LocalDataStorage.GetDirectories(profileDirectory);
-                }
-                catch(Exception e)
-                {
-                    string warningInfo = ("[mod.io] Failed to read mod profile directory."
-                                          + "\nDirectory: " + profileDirectory + "\n\n");
-
-                    Debug.LogWarning(warningInfo
-                                     + Utility.GenerateExceptionDebugString(e));
-
-                    modDirectories = new string[0];
-                }
-
-                if(modDirectories.Count - offset > 0)
-                {
-                    for(int i = offset; i < modDirectories.Count; ++i)
+                    IList<string> modDirectories;
+                    try
                     {
-                        string profilePath = IOUtilities.CombinePath(modDirectories[i], FILENAME);
-                        profilePaths.Add(profilePath);
+                        modDirectories = LocalDataStorage.GetDirectories(profileDirectory);
+                    }
+                    catch(Exception e)
+                    {
+                        string warningInfo = ("[mod.io] Failed to read mod profile directory."
+                                              + "\nDirectory: " + profileDirectory + "\n\n");
+
+                        Debug.LogWarning(warningInfo
+                                         + Utility.GenerateExceptionDebugString(e));
+
+                        modDirectories = new string[0];
+                    }
+
+                    if(modDirectories.Count - offset > 0)
+                    {
+                        for(int i = offset; i < modDirectories.Count; ++i)
+                        {
+                            string profilePath = IOUtilities.CombinePath(modDirectories[i], FILENAME);
+                            profilePaths.Add(profilePath);
+                        }
                     }
                 }
-            }
 
-            // Load Profiles
-            Action loadNextProfile = null;
+                // Load Profiles
+                Action loadNextProfile = null;
 
-            loadNextProfile = () =>
-            {
-                if(profilePaths.Count > 0)
+                loadNextProfile = () =>
                 {
-                    int index = profilePaths.Count-1;
-                    string path = profilePaths[index];
-                    profilePaths.RemoveAt(index);
+                    if(profilePaths.Count > 0)
+                    {
+                        int index = profilePaths.Count-1;
+                        string path = profilePaths[index];
+                        profilePaths.RemoveAt(index);
 
-                    LocalDataStorage.ReadJSONFile<ModProfile>(path, (p, success, data) =>
-                    {
-                        if(success)
+                        LocalDataStorage.ReadJSONFile<ModProfile>(path, (p, success, data) =>
                         {
-                            modProfiles.Add(data);
-                            loadNextProfile();
-                        }
-                        else
-                        {
-                            LocalDataStorage.DeleteFile(path, (delPath, delSuccess) => loadNextProfile());
-                        }
-                    });
-                }
-                else
-                {
-                    if(onComplete != null)
-                    {
-                        onComplete.Invoke(modProfiles);
+                            if(success)
+                            {
+                                modProfiles.Add(data);
+                                loadNextProfile();
+                            }
+                            else
+                            {
+                                LocalDataStorage.DeleteFile(path, (delPath, delSuccess) => loadNextProfile());
+                            }
+                        });
                     }
-                }
-            };
+                    else
+                    {
+                        if(onComplete != null)
+                        {
+                            onComplete.Invoke(modProfiles);
+                        }
+                    }
+                };
 
-            loadNextProfile();
+                loadNextProfile();
+            });
         }
 
         /// <summary>Requests all of the mod profiles returning only those matching the id filter.</summary>
@@ -331,75 +334,78 @@ namespace ModIO
             // get statistics
             string statisticsDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
 
-            if(LocalDataStorage.GetDirectoryExists(statisticsDirectory))
+            LocalDataStorage.GetDirectoryExists(statisticsDirectory, (gde_path, gde_exists) =>
             {
-                IList<string> modDirectories;
-                try
+                if(gde_exists)
                 {
-                    modDirectories = LocalDataStorage.GetDirectories(statisticsDirectory);
-                }
-                catch(Exception e)
-                {
-                    string warningInfo = ("[mod.io] Failed to read mod statistics directory."
-                                          + "\nDirectory: " + statisticsDirectory + "\n\n");
-
-                    Debug.LogWarning(warningInfo
-                                     + Utility.GenerateExceptionDebugString(e));
-
-                    modDirectories = new string[0];
-                }
-
-                foreach(string modDirectory in modDirectories)
-                {
-                    string idPart = modDirectory.Substring(statisticsDirectory.Length + 1);
-                    int modId = ModProfile.NULL_ID;
-                    if(!int.TryParse(idPart, out modId))
+                    IList<string> modDirectories;
+                    try
                     {
-                        modId = ModProfile.NULL_ID;
+                        modDirectories = LocalDataStorage.GetDirectories(statisticsDirectory);
+                    }
+                    catch(Exception e)
+                    {
+                        string warningInfo = ("[mod.io] Failed to read mod statistics directory."
+                                              + "\nDirectory: " + statisticsDirectory + "\n\n");
+
+                        Debug.LogWarning(warningInfo
+                                         + Utility.GenerateExceptionDebugString(e));
+
+                        modDirectories = new string[0];
                     }
 
-                    if(idFilter.Contains(modId))
+                    foreach(string modDirectory in modDirectories)
                     {
-                        string statisticsPath = IOUtilities.CombinePath(modDirectory, FILENAME);
-                        statsPaths.Add(statisticsPath);
-                    }
-                }
-            }
-
-            // Load Statisticss
-            Action loadNextStatistics = null;
-
-            loadNextStatistics = () =>
-            {
-                if(statsPaths.Count > 0)
-                {
-                    int index = statsPaths.Count-1;
-                    string path = statsPaths[index];
-                    statsPaths.RemoveAt(index);
-
-                    LocalDataStorage.ReadJSONFile<ModStatistics>(path, (p, success, data) =>
-                    {
-                        if(success)
+                        string idPart = modDirectory.Substring(statisticsDirectory.Length + 1);
+                        int modId = ModProfile.NULL_ID;
+                        if(!int.TryParse(idPart, out modId))
                         {
-                            modStatistics.Add(data);
-                            loadNextStatistics();
+                            modId = ModProfile.NULL_ID;
                         }
-                        else
+
+                        if(idFilter.Contains(modId))
                         {
-                            LocalDataStorage.DeleteFile(path, (delPath, delSuccess) => loadNextStatistics());
+                            string statisticsPath = IOUtilities.CombinePath(modDirectory, FILENAME);
+                            statsPaths.Add(statisticsPath);
                         }
-                    });
-                }
-                else
-                {
-                    if(onComplete != null)
-                    {
-                        onComplete.Invoke(modStatistics);
                     }
                 }
-            };
 
-            loadNextStatistics();
+                // Load Statisticss
+                Action loadNextStatistics = null;
+
+                loadNextStatistics = () =>
+                {
+                    if(statsPaths.Count > 0)
+                    {
+                        int index = statsPaths.Count-1;
+                        string path = statsPaths[index];
+                        statsPaths.RemoveAt(index);
+
+                        LocalDataStorage.ReadJSONFile<ModStatistics>(path, (p, success, data) =>
+                        {
+                            if(success)
+                            {
+                                modStatistics.Add(data);
+                                loadNextStatistics();
+                            }
+                            else
+                            {
+                                LocalDataStorage.DeleteFile(path, (delPath, delSuccess) => loadNextStatistics());
+                            }
+                        });
+                    }
+                    else
+                    {
+                        if(onComplete != null)
+                        {
+                            onComplete.Invoke(modStatistics);
+                        }
+                    }
+                };
+
+                loadNextStatistics();
+            });
         }
 
         // ------[ MODFILES ]------
