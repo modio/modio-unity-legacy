@@ -163,26 +163,10 @@ namespace ModIO
             List<ModProfile> modProfiles = new List<ModProfile>();
             string profileDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
 
-            LocalDataStorage.GetDirectoryExists(profileDirectory, (gde_path, gde_exists) =>
+            LocalDataStorage.GetDirectories(profileDirectory, (gd_path, gd_exists, modDirectories) =>
             {
-                if(gde_exists)
+                if(gd_exists && modDirectories != null)
                 {
-                    IList<string> modDirectories;
-                    try
-                    {
-                        modDirectories = LocalDataStorage.GetDirectories(profileDirectory);
-                    }
-                    catch(Exception e)
-                    {
-                        string warningInfo = ("[mod.io] Failed to read mod profile directory."
-                                              + "\nDirectory: " + profileDirectory + "\n\n");
-
-                        Debug.LogWarning(warningInfo
-                                         + Utility.GenerateExceptionDebugString(e));
-
-                        modDirectories = new string[0];
-                    }
-
                     if(modDirectories.Count - offset > 0)
                     {
                         for(int i = offset; i < modDirectories.Count; ++i)
@@ -191,6 +175,15 @@ namespace ModIO
                             profilePaths.Add(profilePath);
                         }
                     }
+                }
+                else
+                {
+                    string warningInfo = ("[mod.io] Failed to read mod profile directory."
+                                          + "\nDirectory: " + profileDirectory);
+
+                    Debug.LogWarning(warningInfo);
+
+                    modDirectories = new string[0];
                 }
 
                 // Load Profiles
@@ -334,26 +327,10 @@ namespace ModIO
             // get statistics
             string statisticsDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
 
-            LocalDataStorage.GetDirectoryExists(statisticsDirectory, (gde_path, gde_exists) =>
+            LocalDataStorage.GetDirectories(statisticsDirectory, (gd_path, gd_exists, modDirectories) =>
             {
-                if(gde_exists)
+                if(gd_exists && modDirectories != null)
                 {
-                    IList<string> modDirectories;
-                    try
-                    {
-                        modDirectories = LocalDataStorage.GetDirectories(statisticsDirectory);
-                    }
-                    catch(Exception e)
-                    {
-                        string warningInfo = ("[mod.io] Failed to read mod statistics directory."
-                                              + "\nDirectory: " + statisticsDirectory + "\n\n");
-
-                        Debug.LogWarning(warningInfo
-                                         + Utility.GenerateExceptionDebugString(e));
-
-                        modDirectories = new string[0];
-                    }
-
                     foreach(string modDirectory in modDirectories)
                     {
                         string idPart = modDirectory.Substring(statisticsDirectory.Length + 1);
@@ -369,6 +346,15 @@ namespace ModIO
                             statsPaths.Add(statisticsPath);
                         }
                     }
+                }
+                else
+                {
+                    string warningInfo = ("[mod.io] Failed to read mod statistics directory."
+                                          + "\nDirectory: " + statisticsDirectory);
+
+                    Debug.LogWarning(warningInfo);
+
+                    modDirectories = new string[0];
                 }
 
                 // Load Statisticss
