@@ -347,46 +347,51 @@ namespace ModIO
         {
             Debug.Assert(onComplete != null);
 
-            Dictionary<ModfileIdPair, string> installedModMap = new Dictionary<ModfileIdPair, string>();
-
-            IList<string> modDirectories = LocalDataStorage.GetDirectories(PluginSettings.INSTALLATION_DIRECTORY);
-            if(modDirectories != null)
+            LocalDataStorage.GetDirectories(PluginSettings.INSTALLATION_DIRECTORY, (path, exists, modDirectories) =>
             {
-                foreach(string modDirectory in modDirectories)
+                Dictionary<ModfileIdPair, string> installedModMap = new Dictionary<ModfileIdPair, string>();
+
+                if(exists && modDirectories != null)
                 {
-                    string folderName = IOUtilities.GetPathItemName(modDirectory);
-                    string[] folderNameParts = folderName.Split('_');
-
-                    int modId;
-                    int modfileId;
-                    if(!(folderNameParts.Length > 0
-                         && Int32.TryParse(folderNameParts[0], out modId)))
+                    foreach(string modDirectory in modDirectories)
                     {
-                        modId = ModProfile.NULL_ID;
-                    }
+                        string folderName = IOUtilities.GetPathItemName(modDirectory);
+                        string[] folderNameParts = folderName.Split('_');
 
-                    if(modIdFilter == null
-                       || modIdFilter.Contains(modId))
-                    {
-                        if(!(modId != ModProfile.NULL_ID
-                             && folderNameParts.Length > 1
-                             && Int32.TryParse(folderNameParts[1], out modfileId)))
+                        int modId;
+                        int modfileId;
+                        if(!(folderNameParts.Length > 0
+                             && Int32.TryParse(folderNameParts[0], out modId)))
                         {
-                            modfileId = Modfile.NULL_ID;
+                            modId = ModProfile.NULL_ID;
                         }
 
-                        ModfileIdPair idPair = new ModfileIdPair()
+                        if(modIdFilter == null
+                           || modIdFilter.Contains(modId))
                         {
-                            modId = modId,
-                            modfileId = modfileId,
-                        };
+                            if(!(modId != ModProfile.NULL_ID
+                                 && folderNameParts.Length > 1
+                                 && Int32.TryParse(folderNameParts[1], out modfileId)))
+                            {
+                                modfileId = Modfile.NULL_ID;
+                            }
 
-                        installedModMap.Add(idPair, modDirectory);
+                            ModfileIdPair idPair = new ModfileIdPair()
+                            {
+                                modId = modId,
+                                modfileId = modfileId,
+                            };
+
+                            installedModMap.Add(idPair, modDirectory);
+                        }
                     }
                 }
-            }
 
-            onComplete.Invoke(installedModMap);
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(installedModMap);
+                }
+            });
         }
 
         /// <summary>Downloads and installs a single mod</summary>
