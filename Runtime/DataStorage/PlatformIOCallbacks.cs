@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ModIO.LocalDataIOCallbacks
+namespace ModIO.PlatformIOCallbacks
 {
     // --- File I/O ---
     /// <summary>Delegate for ReadFile callback.</summary>
