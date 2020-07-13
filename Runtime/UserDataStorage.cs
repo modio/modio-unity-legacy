@@ -317,9 +317,7 @@ namespace ModIO
             }
         }
 
-    #endif // MODIO_FACEPUNCH_SUPPORT
-
-    #if MODIO_STEAMWORKSNET_SUPPORT
+    #elif MODIO_STEAMWORKSNET_SUPPORT
 
         /// <summary>Steamworks.NET User Data I/O interface.</summary>
         public class SteamworksNETUserDataIO : IUserDataIO
@@ -504,5 +502,5 @@ namespace ModIO
             }
         }
 
-    #endif // MODIO_STEAMWORKSNET_SUPPORT
+    #endif // ---[ Futher User Data Interfaces ]---
 }
