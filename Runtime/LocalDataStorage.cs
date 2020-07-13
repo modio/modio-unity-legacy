@@ -214,12 +214,6 @@ namespace ModIO
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetFiles(path, nameFilter, recurseSubdirectories, onComplete);
         }
 
-        /// <summary>Gets the files at a location.</summary>
-        public static IList<string> GetFiles(string path, string nameFilter, bool recurseSubdirectories)
-        {
-            return LocalDataStorage.PLATFORM_IO.GetFiles(path, nameFilter, recurseSubdirectories);
-        }
-
         // ------ Directory Management ------
         /// <summary>Creates a directory.</summary>
         public static bool CreateDirectory(string path)
