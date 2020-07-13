@@ -414,18 +414,21 @@ namespace ModIO
 
                 installDir = ModManager.GetModInstallDirectory(p.id, modfile.id);
 
-                if(LocalDataStorage.GetDirectoryExists(installDir))
+                LocalDataStorage.GetDirectoryExists(installDir, (gde_path, gde_exists) =>
                 {
-                    if(onSuccess != null)
+                    if(gde_exists)
                     {
-                        onSuccess();
+                        if(onSuccess != null)
+                        {
+                            onSuccess.Invoke();
+                        }
                     }
-                }
-                else
-                {
-                    zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id, modfile.id);
-                    LocalDataStorage.GetFileSizeAndHash(zipFilePath, onGetModProfile_OnGetFileInfo);
-                }
+                    else
+                    {
+                        zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id, modfile.id);
+                        LocalDataStorage.GetFileSizeAndHash(zipFilePath, onGetModProfile_OnGetFileInfo);
+                    }
+                });
             };
 
             onGetModProfile_OnGetFileInfo = (path, success, fileSize, fileHash) =>
@@ -1349,28 +1352,32 @@ namespace ModIO
                                                     Action<Modfile> onSuccess,
                                                     Action<WebRequestError> onError)
         {
-            if(!LocalDataStorage.GetDirectoryExists(binaryDirectory))
+            LocalDataStorage.GetDirectoryExists(binaryDirectory, (dir_path, dir_exists) =>
             {
-                if(onError != null)
+                if(dir_exists)
                 {
-                    onError(WebRequestError.GenerateLocal("Mod Binary directory [" + binaryDirectory + "] doesn't exist"));
+                    char lastCharacter = binaryDirectory[binaryDirectory.Length - 1];
+                    if(lastCharacter == Path.DirectorySeparatorChar
+                       || lastCharacter == Path.DirectorySeparatorChar)
+                    {
+                        binaryDirectory = binaryDirectory.Remove(binaryDirectory.Length - 1);
+                    }
+
+                    // - Zip Directory -
+                    LocalDataStorage.GetFiles(binaryDirectory, null, true, (path, success, fileList) =>
+                    {
+                        ModManager.UploadModBinaryFileList(modId, modfileValues, binaryDirectory,
+                                                           fileList, setActiveBuild,
+                                                           onSuccess, onError);
+                    });
                 }
-                return;
-            }
-
-            char lastCharacter = binaryDirectory[binaryDirectory.Length - 1];
-            if(lastCharacter == Path.DirectorySeparatorChar
-               || lastCharacter == Path.DirectorySeparatorChar)
-            {
-                binaryDirectory = binaryDirectory.Remove(binaryDirectory.Length - 1);
-            }
-
-            // - Zip Directory -
-            LocalDataStorage.GetFiles(binaryDirectory, null, true, (path, success, fileList) =>
-            {
-                ModManager.UploadModBinaryFileList(modId, modfileValues, binaryDirectory,
-                                                   fileList, setActiveBuild,
-                                                   onSuccess, onError);
+                else
+                {
+                    if(onError != null)
+                    {
+                        onError(WebRequestError.GenerateLocal("Mod Binary directory [" + binaryDirectory + "] doesn't exist"));
+                    }
+                }
             });
         }
 
