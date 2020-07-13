@@ -263,12 +263,6 @@ namespace ModIO
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.MoveDirectory(source, destination, onComplete);
         }
 
-        /// <summary>Moves a directory.</summary>
-        public static bool MoveDirectory(string source, string destination)
-        {
-            return LocalDataStorage.PLATFORM_IO.MoveDirectory(source, destination);
-        }
-
         /// <summary>Checks for the existence of a directory.</summary>
         public static bool GetDirectoryExists(string path)
         {
