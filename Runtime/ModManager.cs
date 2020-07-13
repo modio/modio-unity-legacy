@@ -76,12 +76,6 @@ namespace ModIO
             // Needs to have a valid mod id otherwise we mess with player-added mods!
             Debug.Assert(modId != ModProfile.NULL_ID);
 
-            // Check onComplete is not null
-            if(onComplete == null)
-            {
-                onComplete = (b) => {};
-            }
-
             // Define vars
             string installDirectory = ModManager.GetModInstallDirectory(modId, modfileId);
             string tempLocation = IOUtilities.CombinePath(CacheClient.GenerateModBinariesDirectoryPath(modId),
@@ -100,7 +94,10 @@ namespace ModIO
                     Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
                                      + "\nMod Binary ZipFile [" + archivePath + "] does not exist.");
 
-                    onComplete.Invoke(false);
+                    if(onComplete != null)
+                    {
+                        onComplete.Invoke(false);
+                    }
                 }
                 else
                 {
@@ -114,6 +111,9 @@ namespace ModIO
                         {
                             zip.ExtractAll(tempLocation);
                         }
+
+                        // Remove old versions
+                        ModManager.UninstallMod(modId, onOldVersionsUninstalled);
                     }
                     catch(Exception e)
                     {
@@ -123,12 +123,11 @@ namespace ModIO
 
                         LocalDataStorage.DeleteDirectory(tempLocation);
 
-                        onComplete.Invoke(false);
-                        return;
+                        if(onComplete != null)
+                        {
+                            onComplete.Invoke(false);
+                        }
                     }
-
-                    // Remove old versions
-                    ModManager.UninstallMod(modId, onOldVersionsUninstalled);
                 }
             };
 
@@ -140,8 +139,12 @@ namespace ModIO
                                      + "\nFailed to uninstall other versions of this mod.");
 
                     LocalDataStorage.DeleteDirectory(tempLocation);
+                    LocalDataStorage.DeleteFile(archivePath, null);
 
-                    onComplete.Invoke(false);
+                    if(onComplete != null)
+                    {
+                        onComplete.Invoke(false);
+                    }
                 }
                 else
                 {
@@ -151,6 +154,7 @@ namespace ModIO
                         LocalDataStorage.DeleteDirectory(installDirectory);
                         LocalDataStorage.CreateDirectory(PluginSettings.INSTALLATION_DIRECTORY);
                         LocalDataStorage.MoveDirectory(tempLocation, installDirectory);
+                        LocalDataStorage.DeleteFile(archivePath, onArchiveDeleted);
                     }
                     catch(Exception e)
                     {
@@ -161,11 +165,11 @@ namespace ModIO
 
                         LocalDataStorage.DeleteDirectory(tempLocation);
 
-                        onComplete.Invoke(false);
-                        return;
+                        if(onComplete != null)
+                        {
+                            onComplete.Invoke(false);
+                        }
                     }
-
-                    LocalDataStorage.DeleteFile(archivePath, onArchiveDeleted);
                 }
             };
 
