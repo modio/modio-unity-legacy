@@ -6,7 +6,7 @@ namespace ModIO
     {
         // ---------[ Singleton ]---------
         /// <summary>Singleton instance for current version.</summary>
-        public static readonly ModIOVersion Current = new ModIOVersion(2, 2, 0);
+        public static readonly ModIOVersion Current = new ModIOVersion(3, 0, 0);
 
         // ---------[ Fields ]---------
         /// <summary>Major version number.</summary>
