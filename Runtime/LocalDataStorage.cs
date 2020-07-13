@@ -14,135 +14,6 @@ namespace ModIO
     /// <summary>An interface for storing/loading mod.io data on disk.</summary>
     public static class LocalDataStorage
     {
-        // TODO(@jackson): REMOVE!
-        public class AsyncIOWrapper : IPlatformIO_Async
-        {
-            public void ReadFile(string path, ReadFileCallback callback)
-            {
-                byte[] data = null;
-                bool success = LocalDataStorage.PLATFORM_IO.ReadFile(path, out data);
-
-                if(callback != null)
-                {
-                    callback.Invoke(path, success, data);
-                }
-            }
-
-            public void WriteFile(string path, byte[] data, WriteFileCallback callback)
-            {
-                bool success = LocalDataStorage.PLATFORM_IO.WriteFile(path, data);
-
-                if(callback != null)
-                {
-                    callback.Invoke(path, success);
-                }
-            }
-
-            public void DeleteFile(string path, DeleteFileCallback callback)
-            {
-                bool success = LocalDataStorage.PLATFORM_IO.DeleteFile(path);
-
-                if(callback != null)
-                {
-                    callback.Invoke(path, success);
-                }
-            }
-
-            public void MoveFile(string source, string destination, MoveFileCallback callback)
-            {
-                bool success = LocalDataStorage.PLATFORM_IO.MoveFile(source, destination);
-
-                if(callback != null)
-                {
-                    callback.Invoke(source, destination, success);
-                }
-            }
-
-            public void GetFileExists(string path, GetFileExistsCallback callback)
-            {
-                bool exists = LocalDataStorage.PLATFORM_IO.GetFileExists(path);
-
-                if(callback != null)
-                {
-                    callback.Invoke(path, exists);
-                }
-            }
-
-            public void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback callback)
-            {
-                Int64 byteCount;
-                string md5Hash;
-
-                bool success = LocalDataStorage.PLATFORM_IO.GetFileSizeAndHash(path, out byteCount, out md5Hash);
-
-                if(callback != null)
-                {
-                    callback.Invoke(path, success, byteCount, md5Hash);
-                }
-            }
-
-            public void GetFiles(string path, string nameFilter, bool recurseSubdirectories,
-                                        GetFilesCallback callback)
-            {
-                IList<string> files = LocalDataStorage.PLATFORM_IO.GetFiles(path, nameFilter, recurseSubdirectories);
-
-                if(callback != null)
-                {
-                    callback.Invoke(path, files != null, files);
-                }
-            }
-
-            public void CreateDirectory(string path, CreateDirectoryCallback callback)
-            {
-                bool success = LocalDataStorage.PLATFORM_IO.CreateDirectory(path);
-
-                if(callback != null)
-                {
-                    callback.Invoke(path, success);
-                }
-            }
-
-            public void DeleteDirectory(string path, DeleteDirectoryCallback callback)
-            {
-                bool success = LocalDataStorage.PLATFORM_IO.DeleteDirectory(path);
-
-                if(callback != null)
-                {
-                    callback.Invoke(path, success);
-                }
-            }
-
-            public void MoveDirectory(string source, string destination, MoveDirectoryCallback callback)
-            {
-                bool success = LocalDataStorage.PLATFORM_IO.MoveDirectory(source, destination);
-
-                if(callback != null)
-                {
-                    callback.Invoke(source, destination, success);
-                }
-            }
-
-            public void GetDirectoryExists(string path, GetDirectoryExistsCallback callback)
-            {
-                bool exists = LocalDataStorage.PLATFORM_IO.GetDirectoryExists(path);
-
-                if(callback != null)
-                {
-                    callback.Invoke(path, exists);
-                }
-            }
-
-            public void GetDirectories(string path, GetDirectoriesCallback callback)
-            {
-                IList<string> dirs = LocalDataStorage.PLATFORM_IO.GetDirectories(path);
-
-                if(callback != null)
-                {
-                    callback.Invoke(path, dirs != null, dirs);
-                }
-            }
-        }
-
         // ---------[ Constants ]---------
         /// <summary>Defines the I/O functions to use for this platform.</summary>
         public static readonly IPlatformIO PLATFORM_IO;
@@ -157,11 +28,12 @@ namespace ModIO
             // Selects the platform appropriate functions
             #if UNITY_EDITOR
                 LocalDataStorage.PLATFORM_IO = new SystemIOWrapper_Editor();
+                LocalDataStorage.TEMP_PLATFORM_IO_ASYNC = new SystemIOWrapper_Editor();
             #else
                 LocalDataStorage.PLATFORM_IO = new SystemIOWrapper();
+                LocalDataStorage.TEMP_PLATFORM_IO_ASYNC = new SystemIOWrapper();
             #endif
 
-            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC = new AsyncIOWrapper();
         }
 
         // ---------[ Data Management Interface ]---------
