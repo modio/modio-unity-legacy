@@ -382,26 +382,35 @@ namespace ModIO
                                                                   "modio",
                                                                   "imageGallery_" + DateTime.Now.ToFileTime() + ".zip");
 
-                try
+                LocalDataStorage.CreateDirectory(Path.GetDirectoryName(imageArchivePath), (path, success) =>
                 {
-                    LocalDataStorage.CreateDirectory(Path.GetDirectoryName(imageArchivePath));
-
-                    using(var zip = new Ionic.Zip.ZipFile())
+                    if(success)
                     {
-                        foreach(string imageFilePath in this.addedImageFilePaths)
+                        try
                         {
-                            zip.AddFile(imageFilePath);
-                        }
-                        zip.Save(imageArchivePath);
-                    }
+                            using(var zip = new Ionic.Zip.ZipFile())
+                            {
+                                foreach(string imageFilePath in this.addedImageFilePaths)
+                                {
+                                    zip.AddFile(imageFilePath);
+                                }
+                                zip.Save(imageArchivePath);
+                            }
 
-                    LocalDataStorage.ReadFile(imageArchivePath, this.SubmitModChanges_Internal_OnReadImageArchive);
-                }
-                catch(Exception e)
-                {
-                    this.SubmissionError_Local("Unable to zip image gallery prior to uploading.\n"
-                                               + Utility.GenerateExceptionDebugString(e));
-                }
+                            LocalDataStorage.ReadFile(imageArchivePath, this.SubmitModChanges_Internal_OnReadImageArchive);
+                        }
+                        catch(Exception e)
+                        {
+                            this.SubmissionError_Local("Unable to zip image gallery prior to uploading.\n"
+                                                       + Utility.GenerateExceptionDebugString(e));
+                        }
+                    }
+                    else
+                    {
+                        this.SubmissionError_Local("Unable to create temp directory for image gallery prior to uploading.");
+                    }
+                });
+
             }
             else
             {
