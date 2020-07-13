@@ -23,15 +23,6 @@ namespace ModIO
         /// <summary>Deletes a file.</summary>
         void DeleteFile(string pathRelative, DeleteFileCallback callback);
 
-        /// <summary>Checks for the existence of a file.</summary>
-        void GetFileExists(string pathRelative, GetFileExistsCallback callback);
-
-        /// <summary>Gets the size of a file.</summary>
-        void GetFileSize(string pathRelative, GetFileSizeCallback callback);
-
-        /// <summary>Gets the size and md5 hash of a file.</summary>
-        void GetFileSizeAndHash(string pathRelative, GetFileSizeAndHashCallback callback);
-
         /// <summary>Clears all of the active user's data.</summary>
         void ClearActiveUserData(ClearActiveUserDataCallback callback);
     }

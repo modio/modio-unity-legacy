@@ -209,10 +209,7 @@ namespace ModIO
         {
             bool success = this.DeleteDirectory(this.userDir);
 
-            if(callback != null)
-            {
-                callback.Invoke(success);
-            }
+            if(callback != null) { callback.Invoke(success); }
         }
 
         // --- File I/O ---
@@ -226,7 +223,10 @@ namespace ModIO
             byte[] data;
             bool success = this.ReadFile(path, out data);
 
-            callback.Invoke(relativePath, success, data);
+            if(callback != null)
+            {
+                callback.Invoke(relativePath, success, data);
+            }
         }
 
         /// <summary>Writes a file.</summary>
@@ -251,44 +251,6 @@ namespace ModIO
             bool success = this.DeleteFile(path);
 
             if(callback != null) { callback.Invoke(relativePath, success); }
-        }
-
-        /// <summary>Checks for the existence of a file.</summary>
-        void IUserDataIO.GetFileExists(string relativePath, UserDataIOCallbacks.GetFileExistsCallback callback)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(relativePath));
-            Debug.Assert(callback != null);
-
-            string path = IOUtilities.CombinePath(this.userDir, relativePath);
-            bool doesExist = this.GetFileExists(path);
-
-            callback.Invoke(relativePath, doesExist);
-        }
-
-        /// <summary>Gets the size of a file.</summary>
-        void IUserDataIO.GetFileSize(string relativePath, UserDataIOCallbacks.GetFileSizeCallback callback)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(relativePath));
-            Debug.Assert(callback != null);
-
-            string path = IOUtilities.CombinePath(this.userDir, relativePath);
-            Int64 byteCount = this.GetFileSize(path);
-
-            callback.Invoke(relativePath, byteCount);
-        }
-
-        /// <summary>Gets the size and md5 hash of a file.</summary>
-        void IUserDataIO.GetFileSizeAndHash(string relativePath, UserDataIOCallbacks.GetFileSizeAndHashCallback callback)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(relativePath));
-            Debug.Assert(callback != null);
-
-            string path = IOUtilities.CombinePath(this.userDir, relativePath);
-            Int64 byteCount;
-            string md5Hash;
-            bool success = this.GetFileSizeAndHash(path, out byteCount, out md5Hash);
-
-            callback.Invoke(relativePath, success, byteCount, md5Hash);
         }
 
         // ---------[ File I/O Functionality ]---------
