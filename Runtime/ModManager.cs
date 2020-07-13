@@ -162,35 +162,24 @@ namespace ModIO
                 {
                     LocalDataStorage.DeleteDirectory(installDirectory, (dd_path, dd_success) =>
                     LocalDataStorage.CreateDirectory(PluginSettings.INSTALLATION_DIRECTORY, (cd_path, cd_success) =>
+                    LocalDataStorage.MoveDirectory(tempLocation, installDirectory, (md_src, md_dst, md_success) =>
                     {
-                        bool relocateSuccess = dd_success && cd_success;
-
-                        if(relocateSuccess)
-                        {
-                            relocateSuccess = LocalDataStorage.MoveDirectory(tempLocation, installDirectory);
-
-                            if(!relocateSuccess)
-                            {
-                                Debug.LogWarning("[mod.io] Unable to move binary to the mod installation folder."
-                                                 + "\nSrc: " + tempLocation
-                                                 + "\nDest: " + installDirectory);
-                            }
-
-                            LocalDataStorage.DeleteDirectory(tempLocation, null);
-                        }
-
-                        if(relocateSuccess)
+                        if(dd_success && cd_success && md_success)
                         {
                             LocalDataStorage.DeleteFile(archivePath, onArchiveDeleted);
                         }
                         else
                         {
+                            Debug.LogWarning("[mod.io] Unable to relocate the mod data from a temp folder to the installations folder."
+                                             + "\nSrc: " + tempLocation
+                                             + "\nDest: " + installDirectory);
+
                             if(onComplete != null)
                             {
                                 onComplete.Invoke(false);
                             }
                         }
-                    }));
+                    })));
                 }
             };
 
