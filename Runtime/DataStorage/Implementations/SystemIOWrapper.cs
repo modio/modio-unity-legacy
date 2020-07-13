@@ -209,10 +209,7 @@ namespace ModIO
         {
             bool success = this.DeleteDirectory(this.userDir);
 
-            if(callback != null)
-            {
-                callback.Invoke(success);
-            }
+            if(callback != null) { callback.Invoke(success); }
         }
 
         // --- File I/O ---
@@ -226,7 +223,10 @@ namespace ModIO
             byte[] data;
             bool success = this.ReadFile(path, out data);
 
-            callback.Invoke(relativePath, success, data);
+            if(callback != null)
+            {
+                callback.Invoke(relativePath, success, data);
+            }
         }
 
         /// <summary>Writes a file.</summary>
