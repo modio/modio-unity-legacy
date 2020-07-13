@@ -111,6 +111,16 @@ namespace ModIO
                     callback.Invoke(path, success);
                 }
             }
+
+            public static void MoveDirectory(string source, string destination, MoveDirectoryCallback callback)
+            {
+                bool success = LocalDataStorage.PLATFORM_IO.MoveDirectory(source, destination);
+
+                if(callback != null)
+                {
+                    callback.Invoke(source, destination, success);
+                }
+            }
         }
 
         // ---------[ Constants ]---------
@@ -245,6 +255,12 @@ namespace ModIO
         public static void DeleteDirectory(string path, DeleteDirectoryCallback onComplete)
         {
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.DeleteDirectory(path, onComplete);
+        }
+
+        /// <summary>Moves a directory.</summary>
+        public static void MoveDirectory(string source, string destination, MoveDirectoryCallback onComplete)
+        {
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.MoveDirectory(source, destination, onComplete);
         }
 
         /// <summary>Moves a directory.</summary>
