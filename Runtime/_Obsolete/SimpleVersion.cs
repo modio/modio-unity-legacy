@@ -1,5 +1,6 @@
 namespace ModIO
 {
+    [System.Obsolete("Use ModIOVersion instead")]
     [System.Serializable]
     public struct SimpleVersion : System.IComparable<SimpleVersion>
     {
