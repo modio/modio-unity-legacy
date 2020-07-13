@@ -3,7 +3,7 @@ using ModIO.UserDataIOCallbacks;
 namespace ModIO
 {
     /// <summary>Defines the functions necessary for the platform user data IO.</summary>
-    public interface IPlatformUserDataIO
+    public interface IUserDataIO
     {
         // --- Initialization ---
         /// <summary>Initializes the storage system for the given user.</summary>

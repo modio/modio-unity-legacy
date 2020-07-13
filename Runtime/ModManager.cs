@@ -83,9 +83,9 @@ namespace ModIO
             string archivePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
 
             // Define the callbacks
-            LocalDataIOCallbacks.GetFileExistsCallback onArchiveExists = null;
+            PlatformIOCallbacks.GetFileExistsCallback onArchiveExists = null;
             Action<bool> onOldVersionsUninstalled = null;
-            LocalDataIOCallbacks.DeleteFileCallback onArchiveDeleted = null;
+            PlatformIOCallbacks.DeleteFileCallback onArchiveDeleted = null;
 
             onArchiveExists = (path, success) =>
             {
@@ -407,7 +407,7 @@ namespace ModIO
 
             // --- local callbacks ---
             Action<ModProfile> onGetModProfile = null;
-            LocalDataIOCallbacks.GetFileSizeAndHashCallback onGetModProfile_OnGetFileInfo = null;
+            PlatformIOCallbacks.GetFileSizeAndHashCallback onGetModProfile_OnGetFileInfo = null;
             Action<ModfileIdPair, FileDownloadInfo> onDownloadSucceeded = null;
             Action<ModfileIdPair, WebRequestError> onDownloadFailed = null;
             Action<bool> onInstalled = null;

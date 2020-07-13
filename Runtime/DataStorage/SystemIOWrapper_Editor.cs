@@ -17,7 +17,6 @@ namespace ModIO
             return path.StartsWith(Application.dataPath);
         }
 
-        // ---------[ IPlatformIO Interface ]---------
         // --- File I/O ---
         /// <summary>Writes a file.</summary>
         public override bool WriteFile(string path, byte[] data)
@@ -115,7 +114,6 @@ namespace ModIO
             return success;
         }
 
-        // ---------[ IPlatformUserDataIO Interface ]---------
         /// <summary>Initializes the storage system for the given user.</summary>
         public override void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
         {
@@ -132,18 +130,6 @@ namespace ModIO
         public override void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback)
         {
             base.SetActiveUser(platformUserId, callback);
-
-            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir)
-               && !Application.isPlaying)
-            {
-                AssetDatabase.Refresh();
-            }
-        }
-
-        /// <summary>Deletes all of the active user's data.</summary>
-        public override void ClearActiveUserData(UserDataIOCallbacks.ClearActiveUserDataCallback callback)
-        {
-            base.ClearActiveUserData(callback);
 
             if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir)
                && !Application.isPlaying)
