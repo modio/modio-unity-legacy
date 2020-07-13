@@ -7,7 +7,7 @@ using Debug = UnityEngine.Debug;
 namespace ModIO
 {
     /// <summary>Wraps the System.IO functionality in an IPlatformIO class.</summary>
-    public class SystemIOWrapper : IPlatformIO, IUserDataIO
+    public class SystemIOWrapper : IPlatformIO, IPlatformIO_Async, IUserDataIO
     {
         // ---------[ IPlatformIO Interface ]---------
         // --- File I/O ---
@@ -89,6 +89,158 @@ namespace ModIO
         IList<string> IPlatformIO.GetDirectories(string path)
         {
             return this.GetDirectories(path);
+        }
+
+        // ---------[ IPlatformIO_Async Interface ]---------
+        // --- File I/O ---
+        /// <summary>Reads a file.</summary>
+        void IPlatformIO_Async.ReadFile(string path,
+                                        PlatformIOCallbacks.ReadFileCallback callback)
+        {
+            byte[] data = null;
+            bool success = LocalDataStorage.PLATFORM_IO.ReadFile(path, out data);
+
+            if(callback != null)
+            {
+                callback.Invoke(path, success, data);
+            }
+        }
+
+        /// <summary>Writes a file.</summary>
+        void IPlatformIO_Async.WriteFile(string path, byte[] data,
+                                         PlatformIOCallbacks.WriteFileCallback callback)
+        {
+            bool success = LocalDataStorage.PLATFORM_IO.WriteFile(path, data);
+
+            if(callback != null)
+            {
+                callback.Invoke(path, success);
+            }
+        }
+
+        // --- File Management ---
+        /// <summary>Deletes a file.</summary>
+        void IPlatformIO_Async.DeleteFile(string path,
+                                          PlatformIOCallbacks.DeleteFileCallback callback)
+        {
+            bool success = LocalDataStorage.PLATFORM_IO.DeleteFile(path);
+
+            if(callback != null)
+            {
+                callback.Invoke(path, success);
+            }
+        }
+
+        /// <summary>Moves a file.</summary>
+        void IPlatformIO_Async.MoveFile(string source, string destination,
+                                        PlatformIOCallbacks.MoveFileCallback callback)
+        {
+            bool success = LocalDataStorage.PLATFORM_IO.MoveFile(source, destination);
+
+            if(callback != null)
+            {
+                callback.Invoke(source, destination, success);
+            }
+        }
+
+        /// <summary>Checks for the existence of a file.</summary>
+        void IPlatformIO_Async.GetFileExists(string path,
+                                             PlatformIOCallbacks.GetFileExistsCallback callback)
+        {
+            bool exists = LocalDataStorage.PLATFORM_IO.GetFileExists(path);
+
+            if(callback != null)
+            {
+                callback.Invoke(path, exists);
+            }
+        }
+
+        /// <summary>Gets the size and md5 hash of a file.</summary>
+        void IPlatformIO_Async.GetFileSizeAndHash(string path,
+                                                  PlatformIOCallbacks.GetFileSizeAndHashCallback callback)
+        {
+            Int64 byteCount;
+            string md5Hash;
+
+            bool success = LocalDataStorage.PLATFORM_IO.GetFileSizeAndHash(path, out byteCount, out md5Hash);
+
+            if(callback != null)
+            {
+                callback.Invoke(path, success, byteCount, md5Hash);
+            }
+        }
+
+        /// <summary>Gets the files at a location.</summary>
+        void IPlatformIO_Async.GetFiles(string path, string nameFilter, bool recurseSubdirectories,
+                                        PlatformIOCallbacks.GetFilesCallback callback)
+        {
+            IList<string> files = LocalDataStorage.PLATFORM_IO.GetFiles(path, nameFilter, recurseSubdirectories);
+
+            if(callback != null)
+            {
+                callback.Invoke(path, files != null, files);
+            }
+        }
+
+        // --- Directory Management ---
+        /// <summary>Creates a directory.</summary>
+        void IPlatformIO_Async.CreateDirectory(string path,
+                                               PlatformIOCallbacks.CreateDirectoryCallback callback)
+        {
+            bool success = LocalDataStorage.PLATFORM_IO.CreateDirectory(path);
+
+            if(callback != null)
+            {
+                callback.Invoke(path, success);
+            }
+        }
+
+        /// <summary>Deletes a directory.</summary>
+        void IPlatformIO_Async.DeleteDirectory(string path,
+                                               PlatformIOCallbacks.DeleteDirectoryCallback callback)
+        {
+            bool success = LocalDataStorage.PLATFORM_IO.DeleteDirectory(path);
+
+            if(callback != null)
+            {
+                callback.Invoke(path, success);
+            }
+        }
+
+        /// <summary>Moves a directory.</summary>
+        void IPlatformIO_Async.MoveDirectory(string source, string destination,
+                                             PlatformIOCallbacks.MoveDirectoryCallback callback)
+        {
+            bool success = LocalDataStorage.PLATFORM_IO.MoveDirectory(source, destination);
+
+            if(callback != null)
+            {
+                callback.Invoke(source, destination, success);
+            }
+        }
+
+        /// <summary>Checks for the existence of a directory.</summary>
+        void IPlatformIO_Async.GetDirectoryExists(string path,
+                                                  PlatformIOCallbacks.GetDirectoryExistsCallback callback)
+        {
+            bool exists = LocalDataStorage.PLATFORM_IO.GetDirectoryExists(path);
+
+            if(callback != null)
+            {
+                callback.Invoke(path, exists);
+            }
+        }
+
+        /// <summary>Gets the sub-directories at a location.</summary>
+        void IPlatformIO_Async.GetDirectories(string path,
+                                              PlatformIOCallbacks.GetDirectoriesCallback callback)
+        {
+            IList<string> dirs = LocalDataStorage.PLATFORM_IO.GetDirectories(path);
+
+            if(callback != null)
+            {
+                callback.Invoke(path, dirs != null, dirs);
+            }
         }
 
         // ---------[ IUserDataIO Interface ]---------
