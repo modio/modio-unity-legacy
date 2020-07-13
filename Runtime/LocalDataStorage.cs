@@ -164,7 +164,7 @@ namespace ModIO
             #if DEBUG
             if(data.Length == 0)
             {
-                Debug.Log("[mod.io] Writing 0-byte user file to: " + path);
+                Debug.Log("[mod.io] Writing 0-byte file to: " + path);
             }
             #endif // DEBUG
 
@@ -229,12 +229,6 @@ namespace ModIO
         public static void CreateDirectory(string path, CreateDirectoryCallback onComplete)
         {
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.CreateDirectory(path, onComplete);
-        }
-
-        /// <summary>Creates a directory.</summary>
-        public static bool CreateDirectory(string path)
-        {
-            return LocalDataStorage.PLATFORM_IO.CreateDirectory(path);
         }
 
         /// <summary>Deletes a directory.</summary>
