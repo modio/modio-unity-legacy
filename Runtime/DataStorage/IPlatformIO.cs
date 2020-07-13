@@ -56,7 +56,7 @@ namespace ModIO
     {
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
-        void ReadFile(string path, out byte[] data, ReadFileCallback callback);
+        void ReadFile(string path, ReadFileCallback callback);
 
         /// <summary>Writes a file.</summary>
         void WriteFile(string path, byte[] data, WriteFileCallback callback);
@@ -72,7 +72,7 @@ namespace ModIO
         void GetFileExists(string path, GetFileExistsCallback callback);
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
-        void GetFileSizeAndHash(string path, out Int64 byteCount, out string md5Hash, GetFileSizeAndHashCallback callback);
+        void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback callback);
 
         /// <summary>Gets the files at a location.</summary>
         void GetFiles(string path, string nameFilter, bool recurseSubdirectories, GetFilesCallback callback);
