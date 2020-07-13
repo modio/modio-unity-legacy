@@ -335,12 +335,13 @@ namespace ModIO
         public static void DeleteMod(int modId, Action<bool> onComplete)
         {
             string modDir = CacheClient.GenerateModDirectoryPath(modId);
-            bool result = LocalDataStorage.DeleteDirectory(modDir);
-
-            if(onComplete != null)
+            LocalDataStorage.DeleteDirectory(modDir, (path, success) =>
             {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(success);
+                }
+            });
         }
 
         // ------[ STATISTICS ]------
@@ -606,12 +607,13 @@ namespace ModIO
             Debug.Assert(modId != ModProfile.NULL_ID);
 
             string path = CacheClient.GenerateModBinariesDirectoryPath(modId);
-            bool result = LocalDataStorage.DeleteDirectory(path);
-
-            if(onComplete != null)
+            LocalDataStorage.DeleteDirectory(path, (p, success) =>
             {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(success);
+                }
+            });
         }
 
         // ------[ MEDIA ]------
@@ -990,12 +992,13 @@ namespace ModIO
             Debug.Assert(userId != UserProfile.NULL_ID);
 
             string path = CacheClient.GenerateUserAvatarDirectoryPath(userId);
-            bool result = LocalDataStorage.DeleteDirectory(path);
-
-            if(onComplete != null)
+            LocalDataStorage.DeleteDirectory(path, (p, success) =>
             {
-                onComplete.Invoke(result);
-            }
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(success);
+                }
+            });
         }
 
         // ---------[ OBSOLETE ]---------
