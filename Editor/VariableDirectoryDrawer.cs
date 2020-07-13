@@ -74,7 +74,7 @@ namespace ModIO.UI.EditorCode
                 {
                     if(!LocalDataStorage.GetDirectoryExists(dir))
                     {
-                        LocalDataStorage.CreateDirectory(dir);
+                        System.IO.Directory.CreateDirectory(dir);
                     }
 
                     if(dir.StartsWith(Application.dataPath))

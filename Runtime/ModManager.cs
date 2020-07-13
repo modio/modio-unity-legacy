@@ -101,33 +101,46 @@ namespace ModIO
                 }
                 else
                 {
-                    // extract
-                    try
+
+                    LocalDataStorage.DeleteDirectory(tempLocation);
+                    LocalDataStorage.CreateDirectory(tempLocation, (cd_path, cd_success) =>
                     {
-                        LocalDataStorage.DeleteDirectory(tempLocation);
-                        LocalDataStorage.CreateDirectory(tempLocation);
-
-                        using (var zip = Ionic.Zip.ZipFile.Read(archivePath))
+                        if(cd_success)
                         {
-                            zip.ExtractAll(tempLocation);
+                            // extract
+                            try
+                            {
+
+                                using (var zip = Ionic.Zip.ZipFile.Read(archivePath))
+                                {
+                                    zip.ExtractAll(tempLocation);
+                                }
+
+                                // Remove old versions
+                                ModManager.UninstallMod(modId, onOldVersionsUninstalled);
+                            }
+                            catch(Exception e)
+                            {
+                                Debug.LogWarning("[mod.io] Unable to extract binary to a temporary folder."
+                                                 + "\nLocation: " + tempLocation + "\n\n"
+                                                 + Utility.GenerateExceptionDebugString(e));
+
+                                LocalDataStorage.DeleteDirectory(tempLocation);
+
+                                if(onComplete != null)
+                                {
+                                    onComplete.Invoke(false);
+                                }
+                            }
                         }
-
-                        // Remove old versions
-                        ModManager.UninstallMod(modId, onOldVersionsUninstalled);
-                    }
-                    catch(Exception e)
-                    {
-                        Debug.LogWarning("[mod.io] Unable to extract binary to a temporary folder."
-                                         + "\nLocation: " + tempLocation + "\n\n"
-                                         + Utility.GenerateExceptionDebugString(e));
-
-                        LocalDataStorage.DeleteDirectory(tempLocation);
-
-                        if(onComplete != null)
+                        else
                         {
-                            onComplete.Invoke(false);
+                            if(onComplete != null)
+                            {
+                                onComplete.Invoke(false);
+                            }
                         }
-                    }
+                    });
                 }
             };
 
@@ -148,28 +161,35 @@ namespace ModIO
                 }
                 else
                 {
-                    // Move to permanent folder
-                    try
+                    LocalDataStorage.DeleteDirectory(installDirectory);
+                    LocalDataStorage.CreateDirectory(PluginSettings.INSTALLATION_DIRECTORY, (cdir_path, relocate_success) =>
                     {
-                        LocalDataStorage.DeleteDirectory(installDirectory);
-                        LocalDataStorage.CreateDirectory(PluginSettings.INSTALLATION_DIRECTORY);
-                        LocalDataStorage.MoveDirectory(tempLocation, installDirectory);
-                        LocalDataStorage.DeleteFile(archivePath, onArchiveDeleted);
-                    }
-                    catch(Exception e)
-                    {
-                        Debug.LogWarning("[mod.io] Unable to move binary to the mod installation folder."
-                                         + "\nSrc: " + tempLocation
-                                         + "\nDest: " + installDirectory + "\n\n"
-                                         + Utility.GenerateExceptionDebugString(e));
-
-                        LocalDataStorage.DeleteDirectory(tempLocation);
-
-                        if(onComplete != null)
+                        if(relocate_success)
                         {
-                            onComplete.Invoke(false);
+                            relocate_success = LocalDataStorage.MoveDirectory(tempLocation, installDirectory);
+
+                            if(!relocate_success)
+                            {
+                                Debug.LogWarning("[mod.io] Unable to move binary to the mod installation folder."
+                                                 + "\nSrc: " + tempLocation
+                                                 + "\nDest: " + installDirectory);
+                            }
+
+                            LocalDataStorage.DeleteDirectory(tempLocation);
                         }
-                    }
+
+                        if(relocate_success)
+                        {
+                            LocalDataStorage.DeleteFile(archivePath, onArchiveDeleted);
+                        }
+                        else
+                        {
+                            if(onComplete != null)
+                            {
+                                onComplete.Invoke(false);
+                            }
+                        }
+                    });
                 }
             };
 
@@ -1445,35 +1465,36 @@ namespace ModIO
                                                                Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + "_" + DateTime.Now.ToFileTime() + ".zip");
             bool zipSucceeded = false;
 
-            try
+            LocalDataStorage.CreateDirectory(Path.GetDirectoryName(binaryZipLocation), (path, success) =>
             {
-                LocalDataStorage.CreateDirectory(Path.GetDirectoryName(binaryZipLocation));
-
-                using(var zip = new Ionic.Zip.ZipFile())
+                try
                 {
-                    zip.AddFile(unzippedBinaryLocation, "");
-                    zip.Save(binaryZipLocation);
+                    using(var zip = new Ionic.Zip.ZipFile())
+                    {
+                        zip.AddFile(unzippedBinaryLocation, "");
+                        zip.Save(binaryZipLocation);
+                    }
+
+                    zipSucceeded = true;
+                }
+                catch(Exception e)
+                {
+                    Debug.LogError("[mod.io] Unable to zip mod binary prior to uploading.\n\n"
+                                   + Utility.GenerateExceptionDebugString(e));
+
+                    if(onError != null)
+                    {
+                        WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
+
+                        onError(error);
+                    }
                 }
 
-                zipSucceeded = true;
-            }
-            catch(Exception e)
-            {
-                Debug.LogError("[mod.io] Unable to zip mod binary prior to uploading.\n\n"
-                               + Utility.GenerateExceptionDebugString(e));
-
-                if(onError != null)
+                if(zipSucceeded)
                 {
-                    WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
-
-                    onError(error);
+                    UploadModBinary_Zipped(modId, modfileValues, binaryZipLocation, setActiveBuild, onSuccess, onError);
                 }
-            }
-
-            if(zipSucceeded)
-            {
-                UploadModBinary_Zipped(modId, modfileValues, binaryZipLocation, setActiveBuild, onSuccess, onError);
-            }
+            });
         }
 
         /// <summary>Uploads a zipped mod binary as a new build to the servers.</summary>

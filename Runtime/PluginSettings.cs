@@ -373,7 +373,7 @@ namespace ModIO
 
             // creates the containing folder
             string assetFolder = Path.GetDirectoryName(assetPath);
-            LocalDataStorage.CreateDirectory(assetFolder);
+            System.IO.Directory.CreateDirectory(assetFolder);
 
             // create asset
             PluginSettings settings = ScriptableObject.CreateInstance<PluginSettings>();

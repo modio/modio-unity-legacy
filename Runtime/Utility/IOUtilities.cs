@@ -361,7 +361,9 @@ namespace ModIO
         [Obsolete("Use LocalDataStorage.CreateDirectory() instead.")]
         public static bool CreateDirectory(string directoryPath)
         {
-            return LocalDataStorage.CreateDirectory(directoryPath);
+            bool result = false;
+            LocalDataStorage.CreateDirectory(directoryPath, (p,s) => result = s);
+            return result;
         }
 
         /// <summary>[Obsolete] Deletes a directory.</summary>
