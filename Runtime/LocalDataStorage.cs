@@ -247,12 +247,6 @@ namespace ModIO
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.DeleteDirectory(path, onComplete);
         }
 
-        /// <summary>Deletes a directory.</summary>
-        public static bool DeleteDirectory(string path)
-        {
-            return LocalDataStorage.PLATFORM_IO.DeleteDirectory(path);
-        }
-
         /// <summary>Moves a directory.</summary>
         public static bool MoveDirectory(string source, string destination)
         {
