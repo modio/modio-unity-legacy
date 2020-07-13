@@ -31,17 +31,17 @@ namespace ModIO.LocalDataIOCallbacks
 
     // --- Directory Management ---
     /// <summary>Delegate for CreateDirectory callback.</summary>
-    public delegate void CreateDirectoryDelegate(string path, bool success);
+    public delegate void CreateDirectoryCallback(string path, bool success);
 
     /// <summary>Delegate for DeleteDirectory callback.</summary>
-    public delegate void DeleteDirectoryDelegate(string path, bool success);
+    public delegate void DeleteDirectoryCallback(string path, bool success);
 
     /// <summary>Delegate for MoveDirectory callback.</summary>
-    public delegate void MoveDirectoryDelegate(string source, string destination, bool success);
+    public delegate void MoveDirectoryCallback(string source, string destination, bool success);
 
     /// <summary>Delegate for GetDirectoryExists callback.</summary>
-    public delegate void GetDirectoryExistsDelegate(string path, bool success);
+    public delegate void GetDirectoryExistsCallback(string path, bool success);
 
     /// <summary>Delegate for GetDirectories callback.</summary>
-    public delegate void GetDirectoriesDelegate(string path, IList<string> directories);
+    public delegate void GetDirectoriesCallback(string path, IList<string> directoryList);
 }
