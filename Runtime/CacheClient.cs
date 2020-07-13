@@ -23,7 +23,7 @@ namespace ModIO
         {
             Debug.Assert(profile != null);
 
-            LocalDataStorage.WriteJSONFile(CacheClient.gameProfileFilePath, profile, (p, success) =>
+            DataStorage.WriteJSONFile(CacheClient.gameProfileFilePath, profile, (p, success) =>
             {
                 if(onComplete != null)
                 {
@@ -37,7 +37,7 @@ namespace ModIO
         {
             Debug.Assert(onComplete != null);
 
-            LocalDataStorage.ReadJSONFile<GameProfile>(CacheClient.gameProfileFilePath, (p, success, data) =>
+            DataStorage.ReadJSONFile<GameProfile>(CacheClient.gameProfileFilePath, (p, success, data) =>
             {
                 if(onComplete != null) { onComplete.Invoke(data); }
             });
@@ -67,7 +67,7 @@ namespace ModIO
             Debug.Assert(profile.id != ModProfile.NULL_ID);
 
             string path = GenerateModProfileFilePath(profile.id);
-            LocalDataStorage.WriteJSONFile(path, profile, (p, success) =>
+            DataStorage.WriteJSONFile(path, profile, (p, success) =>
             {
                 if(onComplete != null)
                 {
@@ -83,7 +83,7 @@ namespace ModIO
 
             string path = GenerateModProfileFilePath(modId);
 
-            LocalDataStorage.ReadJSONFile<ModProfile>(path, (p, success, data) =>
+            DataStorage.ReadJSONFile<ModProfile>(path, (p, success, data) =>
             {
                 if(onComplete != null) { onComplete.Invoke(data); }
             });
@@ -111,7 +111,7 @@ namespace ModIO
 
                     if(profile != null)
                     {
-                        LocalDataStorage.WriteJSONFile(path, profile, (p,s) =>
+                        DataStorage.WriteJSONFile(path, profile, (p,s) =>
                         {
                             success &= s;
                             writeNextProfile();
@@ -163,7 +163,7 @@ namespace ModIO
             List<ModProfile> modProfiles = new List<ModProfile>();
             string profileDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
 
-            LocalDataStorage.GetDirectories(profileDirectory, (gd_path, gd_exists, modDirectories) =>
+            DataStorage.GetDirectories(profileDirectory, (gd_path, gd_exists, modDirectories) =>
             {
                 if(gd_exists && modDirectories != null)
                 {
@@ -197,7 +197,7 @@ namespace ModIO
                         string path = profilePaths[index];
                         profilePaths.RemoveAt(index);
 
-                        LocalDataStorage.ReadJSONFile<ModProfile>(path, (p, success, data) =>
+                        DataStorage.ReadJSONFile<ModProfile>(path, (p, success, data) =>
                         {
                             if(success)
                             {
@@ -206,7 +206,7 @@ namespace ModIO
                             }
                             else
                             {
-                                LocalDataStorage.DeleteFile(path, (delPath, delSuccess) => loadNextProfile());
+                                DataStorage.DeleteFile(path, (delPath, delSuccess) => loadNextProfile());
                             }
                         });
                     }
@@ -244,7 +244,7 @@ namespace ModIO
         public static void DeleteMod(int modId, Action<bool> onComplete)
         {
             string modDir = CacheClient.GenerateModDirectoryPath(modId);
-            LocalDataStorage.DeleteDirectory(modDir, (path, success) =>
+            DataStorage.DeleteDirectory(modDir, (path, success) =>
             {
                 if(onComplete != null)
                 {
@@ -269,7 +269,7 @@ namespace ModIO
 
             string path = GenerateModStatisticsFilePath(stats.modId);
 
-            LocalDataStorage.WriteJSONFile(path, stats, (p, success) =>
+            DataStorage.WriteJSONFile(path, stats, (p, success) =>
             {
                 if(onComplete != null)
                 {
@@ -285,7 +285,7 @@ namespace ModIO
             Debug.Assert(onComplete != null);
 
             string path = GenerateModStatisticsFilePath(modId);
-            LocalDataStorage.ReadJSONFile<ModStatistics>(path, (p, success, data) =>
+            DataStorage.ReadJSONFile<ModStatistics>(path, (p, success, data) =>
             {
                 if(onComplete != null)
                 {
@@ -327,7 +327,7 @@ namespace ModIO
             // get statistics
             string statisticsDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
 
-            LocalDataStorage.GetDirectories(statisticsDirectory, (gd_path, gd_exists, modDirectories) =>
+            DataStorage.GetDirectories(statisticsDirectory, (gd_path, gd_exists, modDirectories) =>
             {
                 if(gd_exists && modDirectories != null)
                 {
@@ -368,7 +368,7 @@ namespace ModIO
                         string path = statsPaths[index];
                         statsPaths.RemoveAt(index);
 
-                        LocalDataStorage.ReadJSONFile<ModStatistics>(path, (p, success, data) =>
+                        DataStorage.ReadJSONFile<ModStatistics>(path, (p, success, data) =>
                         {
                             if(success)
                             {
@@ -377,7 +377,7 @@ namespace ModIO
                             }
                             else
                             {
-                                LocalDataStorage.DeleteFile(path, (delPath, delSuccess) => loadNextStatistics());
+                                DataStorage.DeleteFile(path, (delPath, delSuccess) => loadNextStatistics());
                             }
                         });
                     }
@@ -423,7 +423,7 @@ namespace ModIO
             Debug.Assert(modfile.id != Modfile.NULL_ID);
 
             string path = GenerateModfileFilePath(modfile.modId, modfile.id);
-            LocalDataStorage.WriteJSONFile(path, modfile, (p, success) =>
+            DataStorage.WriteJSONFile(path, modfile, (p, success) =>
             {
                 if(onComplete != null)
                 {
@@ -440,7 +440,7 @@ namespace ModIO
             Debug.Assert(onComplete != null);
 
             string path = GenerateModfileFilePath(modId, modfileId);
-            LocalDataStorage.ReadJSONFile<Modfile>(path, (p, success, data) =>
+            DataStorage.ReadJSONFile<Modfile>(path, (p, success, data) =>
             {
                 if(onComplete != null)
                 {
@@ -459,7 +459,7 @@ namespace ModIO
             Debug.Assert(modBinary.Length > 0);
 
             string path = GenerateModBinaryZipFilePath(modId, modfileId);
-            LocalDataStorage.WriteFile(path, modBinary, (p, success) =>
+            DataStorage.WriteFile(path, modBinary, (p, success) =>
             {
                 if(onComplete != null)
                 {
@@ -476,7 +476,7 @@ namespace ModIO
             Debug.Assert(onComplete != null);
 
             string filePath = GenerateModBinaryZipFilePath(modId, modfileId);
-            LocalDataStorage.ReadFile(filePath, (p,s,data) =>
+            DataStorage.ReadFile(filePath, (p,s,data) =>
             {
                 if(onComplete != null)
                 {
@@ -494,9 +494,9 @@ namespace ModIO
             string modfilePath = CacheClient.GenerateModfileFilePath(modId, modfileId);
             string zipPath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
 
-            LocalDataStorage.DeleteFile(modfilePath, (mfP, mfS) =>
+            DataStorage.DeleteFile(modfilePath, (mfP, mfS) =>
             {
-                LocalDataStorage.DeleteFile(zipPath, (zP, zS) =>
+                DataStorage.DeleteFile(zipPath, (zP, zS) =>
                 {
                     if(onComplete != null)
                     {
@@ -512,7 +512,7 @@ namespace ModIO
             Debug.Assert(modId != ModProfile.NULL_ID);
 
             string path = CacheClient.GenerateModBinariesDirectoryPath(modId);
-            LocalDataStorage.DeleteDirectory(path, (p, success) =>
+            DataStorage.DeleteDirectory(path, (p, success) =>
             {
                 if(onComplete != null)
                 {
@@ -576,7 +576,7 @@ namespace ModIO
             Debug.Assert(modId != ModProfile.NULL_ID);
 
             string path = CacheClient.GenerateModLogoVersionInfoFilePath(modId);
-            LocalDataStorage.ReadJSONFile<Dictionary<LogoSize, string>>(path, (p, success, data) =>
+            DataStorage.ReadJSONFile<Dictionary<LogoSize, string>>(path, (p, success, data) =>
             {
                 if(onComplete != null)
                 {
@@ -598,7 +598,7 @@ namespace ModIO
             byte[] data = logoTexture.EncodeToPNG();
 
             // write file
-            LocalDataStorage.WriteFile(path, data, (p, success) =>
+            DataStorage.WriteFile(path, data, (p, success) =>
             {
                 // - Update the versioning info -
                 CacheClient.GetModLogoVersionFileNames(modId, (versionInfo) =>
@@ -610,7 +610,7 @@ namespace ModIO
                     versionInfo[size] = fileName;
 
                     string versionPath = GenerateModLogoVersionInfoFilePath(modId);
-                    LocalDataStorage.WriteJSONFile(versionPath, versionInfo, null);
+                    DataStorage.WriteJSONFile(versionPath, versionInfo, null);
                 });
 
                 if(onComplete != null)
@@ -627,7 +627,7 @@ namespace ModIO
 
             string filePath = CacheClient.GenerateModLogoFilePath(modId, size);
 
-            LocalDataStorage.ReadFile(filePath, (p, success, data) =>
+            DataStorage.ReadFile(filePath, (p, success, data) =>
             {
                 Texture2D texture = null;
                 if(success && data != null)
@@ -697,7 +697,7 @@ namespace ModIO
             string path = CacheClient.GenerateModGalleryImageFilePath(modId, imageFileName, size);
             byte[] data = imageTexture.EncodeToPNG();
 
-            LocalDataStorage.WriteFile(path, data, (p, success) =>
+            DataStorage.WriteFile(path, data, (p, success) =>
             {
                 if(onComplete != null)
                 {
@@ -716,7 +716,7 @@ namespace ModIO
 
             string filePath = CacheClient.GenerateModGalleryImageFilePath(modId, imageFileName, size);
 
-            LocalDataStorage.ReadFile(filePath, (p, success, data) =>
+            DataStorage.ReadFile(filePath, (p, success, data) =>
             {
                 Texture2D texture = null;
                 if(success && data != null)
@@ -742,7 +742,7 @@ namespace ModIO
             string path = CacheClient.GenerateModYouTubeThumbnailFilePath(modId, youTubeId);
             byte[] data = thumbnail.EncodeToPNG();
 
-            LocalDataStorage.WriteFile(path, data, (p, success) =>
+            DataStorage.WriteFile(path, data, (p, success) =>
             {
                 if(onComplete != null)
                 {
@@ -761,7 +761,7 @@ namespace ModIO
 
             string filePath = CacheClient.GenerateModYouTubeThumbnailFilePath(modId, youTubeId);
 
-            LocalDataStorage.ReadFile(filePath, (p, success, data) =>
+            DataStorage.ReadFile(filePath, (p, success, data) =>
             {
                 Texture2D texture = null;
                 if(success && data != null)
@@ -792,7 +792,7 @@ namespace ModIO
             Debug.Assert(modTeam != null);
 
             string path = CacheClient.GenerateModTeamFilePath(modId);
-            LocalDataStorage.WriteJSONFile(path, modTeam, (p, success) =>
+            DataStorage.WriteJSONFile(path, modTeam, (p, success) =>
             {
                 if(onComplete != null)
                 {
@@ -809,7 +809,7 @@ namespace ModIO
 
             string path = CacheClient.GenerateModTeamFilePath(modId);
 
-            LocalDataStorage.ReadJSONFile<List<ModTeamMember>>(path, (p, success, data) =>
+            DataStorage.ReadJSONFile<List<ModTeamMember>>(path, (p, success, data) =>
             {
                 if(onComplete != null)
                 {
@@ -824,7 +824,7 @@ namespace ModIO
             Debug.Assert(modId != ModProfile.NULL_ID);
 
             string path = CacheClient.GenerateModTeamFilePath(modId);
-            LocalDataStorage.DeleteFile(path, (p, success) =>
+            DataStorage.DeleteFile(path, (p, success) =>
             {
                 if(onComplete != null)
                 {
@@ -859,7 +859,7 @@ namespace ModIO
             string path = CacheClient.GenerateUserAvatarFilePath(userId, size);
             byte[] data = avatarTexture.EncodeToPNG();
 
-            LocalDataStorage.WriteFile(path, data, (p, success) =>
+            DataStorage.WriteFile(path, data, (p, success) =>
             {
                 if(onComplete != null)
                 {
@@ -876,7 +876,7 @@ namespace ModIO
 
             string filePath = CacheClient.GenerateUserAvatarFilePath(userId, size);
 
-            LocalDataStorage.ReadFile(filePath, (p, success, data) =>
+            DataStorage.ReadFile(filePath, (p, success, data) =>
             {
                 Texture2D texture = null;
                 if(success && data != null)
@@ -897,7 +897,7 @@ namespace ModIO
             Debug.Assert(userId != UserProfile.NULL_ID);
 
             string path = CacheClient.GenerateUserAvatarDirectoryPath(userId);
-            LocalDataStorage.DeleteDirectory(path, (p, success) =>
+            DataStorage.DeleteDirectory(path, (p, success) =>
             {
                 if(onComplete != null)
                 {
@@ -939,7 +939,7 @@ namespace ModIO
 
             bool result = false;
             string path = CacheClient.GenerateUserProfileFilePath(userProfile.id);
-            LocalDataStorage.WriteJSONFile(path, userProfile, (p, s) => result = s);
+            DataStorage.WriteJSONFile(path, userProfile, (p, s) => result = s);
 
             return result;
         }
@@ -951,7 +951,7 @@ namespace ModIO
             string path = CacheClient.GenerateUserProfileFilePath(userId);
             UserProfile result = null;
 
-            LocalDataStorage.ReadJSONFile<UserProfile>(path, (p, s, r) => result = r);
+            DataStorage.ReadJSONFile<UserProfile>(path, (p, s, r) => result = r);
 
             return result;
         }
@@ -962,7 +962,7 @@ namespace ModIO
         {
             bool result = false;
             string path = CacheClient.GenerateUserProfileFilePath(userId);
-            LocalDataStorage.DeleteFile(path, (p, s) => result = s);
+            DataStorage.DeleteFile(path, (p, s) => result = s);
             return result;
         }
 

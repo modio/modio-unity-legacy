@@ -272,7 +272,7 @@ namespace ModIO
 
             string tempFilePath = downloadInfo.target + ".download";
 
-            LocalDataStorage.WriteFile(tempFilePath, new byte[0], (p, success) =>
+            DataStorage.WriteFile(tempFilePath, new byte[0], (p, success) =>
             {
                 if(success)
                 {
@@ -409,7 +409,7 @@ namespace ModIO
             }
             else
             {
-                LocalDataStorage.MoveFile(downloadInfo.target + ".download", downloadInfo.target,
+                DataStorage.MoveFile(downloadInfo.target + ".download", downloadInfo.target,
                 (src, dst, success) =>
                 {
                     if(!success)

@@ -216,13 +216,13 @@ namespace ModIO
 
         // ---------[ Obsolete ]---------
         /// <summary>[Obsolete] Loads an entire binary file as a byte array.</summary>
-        [Obsolete("Use LocalDataStorage.ReadFile() instead.")]
+        [Obsolete("Use DataStorage.ReadFile() instead.")]
         public static bool TryLoadBinaryFile(string filePath, out byte[] output)
         {
             bool success = false;
             byte[] data = null;
 
-            LocalDataStorage.ReadFile(filePath, (p,s,d) =>
+            DataStorage.ReadFile(filePath, (p,s,d) =>
             {
                 success = s;
                 data = d;
@@ -234,12 +234,12 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Loads an entire binary file as a byte array.</summary>
-        [Obsolete("Use LocalDataStorage.ReadFile() instead.")]
+        [Obsolete("Use DataStorage.ReadFile() instead.")]
         public static byte[] LoadBinaryFile(string filePath)
         {
             byte[] data = null;
 
-            LocalDataStorage.ReadFile(filePath, (p,s,d) =>
+            DataStorage.ReadFile(filePath, (p,s,d) =>
             {
                 data = d;
             });
@@ -248,7 +248,7 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Loads the image data from a file into a new Texture.</summary>
-        [Obsolete("Use LocalDataStorage.ReadFile() and IOUtilities.ParseImageData() instead.")]
+        [Obsolete("Use DataStorage.ReadFile() and IOUtilities.ParseImageData() instead.")]
         public static Texture2D ReadImageFile(string filePath)
         {
             Texture2D parsed = null;
@@ -263,7 +263,7 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Loads the image data from a file into a new Texture.</summary>
-        [Obsolete("Use LocalDataStorage.ReadFile() and IOUtilities.ParseImageData() instead.")]
+        [Obsolete("Use DataStorage.ReadFile() and IOUtilities.ParseImageData() instead.")]
         public static bool TryReadImageFile(string filePath, out Texture2D texture)
         {
             Texture2D parsed = null;
@@ -282,24 +282,24 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Reads an entire file and parses the JSON Object it contains.</summary>
-        [Obsolete("Use LocalDataStorage.ReadJSONFile() instead.")]
+        [Obsolete("Use DataStorage.ReadJSONFile() instead.")]
         public static T ReadJsonObjectFile<T>(string path)
         {
             T result = default(T);
 
-            LocalDataStorage.ReadJSONFile<T>(path, (p, s, r) => result = r);
+            DataStorage.ReadJSONFile<T>(path, (p, s, r) => result = r);
 
             return result;
         }
 
         /// <summary>[Obsolete] Reads an entire file and parses the JSON Object it contains.</summary>
-        [Obsolete("Use LocalDataStorage.ReadJSONFile() instead.")]
+        [Obsolete("Use DataStorage.ReadJSONFile() instead.")]
         public static bool TryReadJsonObjectFile<T>(string path, out T jsonObject)
         {
             T result = default(T);
             bool success = false;
 
-            LocalDataStorage.ReadJSONFile<T>(path, (p, s, r) =>
+            DataStorage.ReadJSONFile<T>(path, (p, s, r) =>
             {
                 success = s;
                 result = r;
@@ -310,16 +310,16 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Writes an entire binary file.</summary>
-        [Obsolete("Use LocalDataStorage.WriteFile() instead.")]
+        [Obsolete("Use DataStorage.WriteFile() instead.")]
         public static bool WriteBinaryFile(string path, byte[] data)
         {
             bool result = false;
-            LocalDataStorage.WriteFile(path, data, (p,s) => result = s);
+            DataStorage.WriteFile(path, data, (p,s) => result = s);
             return result;
         }
 
         /// <summary>[Obsolete] Writes a texture to a PNG file.</summary>
-        [Obsolete("Use LocalDataStorage.WriteFile() and Texture2D.EncodeToPNG() instead.")]
+        [Obsolete("Use DataStorage.WriteFile() and Texture2D.EncodeToPNG() instead.")]
         public static bool WritePNGFile(string path, Texture2D texture)
         {
             byte[] data = null;
@@ -331,7 +331,7 @@ namespace ModIO
 
                 if(data != null)
                 {
-                    LocalDataStorage.WriteFile(path, data, (p,s) => result = s);
+                    DataStorage.WriteFile(path, data, (p,s) => result = s);
                 }
             }
 
@@ -339,49 +339,49 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Writes an object to a file in the JSON Object format.</summary>
-        [Obsolete("Use LocalDataStorage.WriteJSONFile() instead.")]
+        [Obsolete("Use DataStorage.WriteJSONFile() instead.")]
         public static bool WriteJsonObjectFile<T>(string filePath,
                                                   T jsonObject)
         {
             bool result = false;
-            LocalDataStorage.WriteJSONFile<T>(filePath, jsonObject, (p,s) => result = s);
+            DataStorage.WriteJSONFile<T>(filePath, jsonObject, (p,s) => result = s);
             return result;
         }
 
         /// <summary>[Obsolete] Deletes a file.</summary>
-        [Obsolete("Use LocalDataStorage.DeleteFile() instead.")]
+        [Obsolete("Use DataStorage.DeleteFile() instead.")]
         public static bool DeleteFile(string filePath)
         {
             bool result = false;
-            LocalDataStorage.DeleteFile(filePath, (p,s) => result = s);
+            DataStorage.DeleteFile(filePath, (p,s) => result = s);
             return result;
         }
 
         /// <summary>[Obsolete] Creates a directory.</summary>
-        [Obsolete("Use LocalDataStorage.CreateDirectory() instead.")]
+        [Obsolete("Use DataStorage.CreateDirectory() instead.")]
         public static bool CreateDirectory(string directoryPath)
         {
             bool result = false;
-            LocalDataStorage.CreateDirectory(directoryPath, (p,s) => result = s);
+            DataStorage.CreateDirectory(directoryPath, (p,s) => result = s);
             return result;
         }
 
         /// <summary>[Obsolete] Deletes a directory.</summary>
-        [Obsolete("Use LocalDataStorage.DeleteDirectory() instead.")]
+        [Obsolete("Use DataStorage.DeleteDirectory() instead.")]
         public static bool DeleteDirectory(string directoryPath)
         {
             bool result = false;
-            LocalDataStorage.DeleteDirectory(directoryPath, (p,s) => result = s);
+            DataStorage.DeleteDirectory(directoryPath, (p,s) => result = s);
             return result;
         }
 
         /// <summary>[Obsolete] Gets the size (in bytes) of a given file.</summary>
-        [Obsolete("Use LocalDataStorage.GetFileSizeAndHash() instead.")]
+        [Obsolete("Use DataStorage.GetFileSizeAndHash() instead.")]
         public static Int64 GetFileSize(string filePath)
         {
             Int64 byteCount = -1;
 
-            LocalDataStorage.GetFileSizeAndHash(filePath, (path, success, fileSize, fileHash) =>
+            DataStorage.GetFileSizeAndHash(filePath, (path, success, fileSize, fileHash) =>
             {
                 byteCount = fileSize;
             });
@@ -390,12 +390,12 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Calculates the MD5 Hash for a given file.</summary>
-        [Obsolete("Use LocalDataStorage.GetFileSizeAndHash() instead.")]
+        [Obsolete("Use DataStorage.GetFileSizeAndHash() instead.")]
         public static string CalculateFileMD5Hash(string filePath)
         {
             string hash = string.Empty;
 
-            LocalDataStorage.GetFileSizeAndHash(filePath, (path, success, fileSize, fileHash) =>
+            DataStorage.GetFileSizeAndHash(filePath, (path, success, fileSize, fileHash) =>
             {
                 hash = fileHash;
             });

@@ -44,7 +44,7 @@ namespace ModIO
         {
             ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, PERSISTENTDATA_FILENAME);
 
-            LocalDataStorage.ReadJSONFile<PersistentData>(ModManager.PERSISTENTDATA_FILEPATH, (p, success, data) =>
+            DataStorage.ReadJSONFile<PersistentData>(ModManager.PERSISTENTDATA_FILEPATH, (p, success, data) =>
             {
                 if(!success)
                 {
@@ -58,7 +58,7 @@ namespace ModIO
                 data.lastRunVersion = ModIOVersion.Current;
                 ModManager.m_data = data;
 
-                LocalDataStorage.WriteJSONFile(PERSISTENTDATA_FILEPATH, ModManager.m_data, null);
+                DataStorage.WriteJSONFile(PERSISTENTDATA_FILEPATH, ModManager.m_data, null);
             });
         }
 
@@ -102,8 +102,8 @@ namespace ModIO
                 else
                 {
 
-                    LocalDataStorage.DeleteDirectory(tempLocation, (dd_path, dd_success) =>
-                    LocalDataStorage.CreateDirectory(tempLocation, (cd_path, cd_success) =>
+                    DataStorage.DeleteDirectory(tempLocation, (dd_path, dd_success) =>
+                    DataStorage.CreateDirectory(tempLocation, (cd_path, cd_success) =>
                     {
                         if(dd_success && cd_success)
                         {
@@ -124,7 +124,7 @@ namespace ModIO
                                                  + "\nLocation: " + tempLocation + "\n\n"
                                                  + Utility.GenerateExceptionDebugString(e));
 
-                                LocalDataStorage.DeleteDirectory(tempLocation, null);
+                                DataStorage.DeleteDirectory(tempLocation, null);
 
                                 if(onComplete != null)
                                 {
@@ -150,8 +150,8 @@ namespace ModIO
                     Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
                                      + "\nFailed to uninstall other versions of this mod.");
 
-                    LocalDataStorage.DeleteDirectory(tempLocation, null);
-                    LocalDataStorage.DeleteFile(archivePath, null);
+                    DataStorage.DeleteDirectory(tempLocation, null);
+                    DataStorage.DeleteFile(archivePath, null);
 
                     if(onComplete != null)
                     {
@@ -160,13 +160,13 @@ namespace ModIO
                 }
                 else
                 {
-                    LocalDataStorage.DeleteDirectory(installDirectory, (dd_path, dd_success) =>
-                    LocalDataStorage.CreateDirectory(PluginSettings.INSTALLATION_DIRECTORY, (cd_path, cd_success) =>
-                    LocalDataStorage.MoveDirectory(tempLocation, installDirectory, (md_src, md_dst, md_success) =>
+                    DataStorage.DeleteDirectory(installDirectory, (dd_path, dd_success) =>
+                    DataStorage.CreateDirectory(PluginSettings.INSTALLATION_DIRECTORY, (cd_path, cd_success) =>
+                    DataStorage.MoveDirectory(tempLocation, installDirectory, (md_src, md_dst, md_success) =>
                     {
                         if(dd_success && cd_success && md_success)
                         {
-                            LocalDataStorage.DeleteFile(archivePath, onArchiveDeleted);
+                            DataStorage.DeleteFile(archivePath, onArchiveDeleted);
                         }
                         else
                         {
@@ -202,7 +202,7 @@ namespace ModIO
             };
 
             // Run Install Process
-            LocalDataStorage.GetFileExists(archivePath, onArchiveExists);
+            DataStorage.GetFileExists(archivePath, onArchiveExists);
         }
 
         /// <summary>Removes all versions of a mod from the installs folder.</summary>
@@ -222,7 +222,7 @@ namespace ModIO
                     if(index < installedMods.Count)
                     {
                         var installInfo = installedMods.ElementAt(index++);
-                        LocalDataStorage.DeleteDirectory(installInfo.Value, (p, success) =>
+                        DataStorage.DeleteDirectory(installInfo.Value, (p, success) =>
                         {
                             if(success) { successfulUninstalls.Add(installInfo.Key); }
 
@@ -259,7 +259,7 @@ namespace ModIO
                 {
                     if(installInfo.Key.modfileId == modfileId)
                     {
-                        LocalDataStorage.DeleteDirectory(installInfo.Value, (path, success) =>
+                        DataStorage.DeleteDirectory(installInfo.Value, (path, success) =>
                         {
                             if(success && ModManager.onModBinariesUninstalled != null)
                             {
@@ -347,7 +347,7 @@ namespace ModIO
         {
             Debug.Assert(onComplete != null);
 
-            LocalDataStorage.GetDirectories(PluginSettings.INSTALLATION_DIRECTORY, (path, exists, modDirectories) =>
+            DataStorage.GetDirectories(PluginSettings.INSTALLATION_DIRECTORY, (path, exists, modDirectories) =>
             {
                 Dictionary<ModfileIdPair, string> installedModMap = new Dictionary<ModfileIdPair, string>();
 
@@ -419,7 +419,7 @@ namespace ModIO
 
                 installDir = ModManager.GetModInstallDirectory(p.id, modfile.id);
 
-                LocalDataStorage.GetDirectoryExists(installDir, (gde_path, gde_exists) =>
+                DataStorage.GetDirectoryExists(installDir, (gde_path, gde_exists) =>
                 {
                     if(gde_exists)
                     {
@@ -431,7 +431,7 @@ namespace ModIO
                     else
                     {
                         zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id, modfile.id);
-                        LocalDataStorage.GetFileSizeAndHash(zipFilePath, onGetModProfile_OnGetFileInfo);
+                        DataStorage.GetFileSizeAndHash(zipFilePath, onGetModProfile_OnGetFileInfo);
                     }
                 });
             };
@@ -680,7 +680,7 @@ namespace ModIO
                         string fileHash = null;
 
                         bool isIOOpDone = false;
-                        LocalDataStorage.GetFileSizeAndHash(zipFilePath, (p, success, byteCount, md5Hash) =>
+                        DataStorage.GetFileSizeAndHash(zipFilePath, (p, success, byteCount, md5Hash) =>
                         {
                             fileExists = success;
                             fileSize = byteCount;
@@ -1357,7 +1357,7 @@ namespace ModIO
                                                     Action<Modfile> onSuccess,
                                                     Action<WebRequestError> onError)
         {
-            LocalDataStorage.GetDirectoryExists(binaryDirectory, (dir_path, dir_exists) =>
+            DataStorage.GetDirectoryExists(binaryDirectory, (dir_path, dir_exists) =>
             {
                 if(dir_exists)
                 {
@@ -1369,7 +1369,7 @@ namespace ModIO
                     }
 
                     // - Zip Directory -
-                    LocalDataStorage.GetFiles(binaryDirectory, null, true, (path, success, fileList) =>
+                    DataStorage.GetFiles(binaryDirectory, null, true, (path, success, fileList) =>
                     {
                         ModManager.UploadModBinaryFileList(modId, modfileValues, binaryDirectory,
                                                            fileList, setActiveBuild,
@@ -1484,7 +1484,7 @@ namespace ModIO
                                                                Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + "_" + DateTime.Now.ToFileTime() + ".zip");
             bool zipSucceeded = false;
 
-            LocalDataStorage.CreateDirectory(Path.GetDirectoryName(binaryZipLocation), (path, success) =>
+            DataStorage.CreateDirectory(Path.GetDirectoryName(binaryZipLocation), (path, success) =>
             {
                 try
                 {
@@ -1524,7 +1524,7 @@ namespace ModIO
                                                   Action<Modfile> onSuccess,
                                                   Action<WebRequestError> onError)
         {
-            LocalDataStorage.ReadFile(binaryZipLocation, (rf_path, rf_success, rf_data) =>
+            DataStorage.ReadFile(binaryZipLocation, (rf_path, rf_success, rf_data) =>
             {
                 string buildFilename = Path.GetFileName(binaryZipLocation);
                 var parameters = new AddModfileParameters();
@@ -1545,7 +1545,7 @@ namespace ModIO
                 parameters.isActiveBuild = setActiveBuild;
 
                 // - Generate Hash -
-                LocalDataStorage.GetFileSizeAndHash(binaryZipLocation, (fi_path, fi_success, fi_fileSize, fi_hash) =>
+                DataStorage.GetFileSizeAndHash(binaryZipLocation, (fi_path, fi_success, fi_fileSize, fi_hash) =>
                 {
                     parameters.fileHash = fi_hash;
                     APIClient.AddModfile(modId, parameters, onSuccess, onError);

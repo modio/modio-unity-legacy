@@ -119,7 +119,7 @@ namespace ModIO
                 }
 
                 // - data params -
-                LocalDataStorage.ReadFile(newModProfile.logoLocator.value.url, this.SubmitNewMod_OnReadLogo);
+                DataStorage.ReadFile(newModProfile.logoLocator.value.url, this.SubmitNewMod_OnReadLogo);
             }
             else
             {
@@ -315,7 +315,7 @@ namespace ModIO
             // - Start submission chain -
             if(this.logoPath != null)
             {
-                LocalDataStorage.ReadFile(this.logoPath, this.SubmitModChanges_Internal_OnReadLogo);
+                DataStorage.ReadFile(this.logoPath, this.SubmitModChanges_Internal_OnReadLogo);
             }
             else
             {
@@ -382,7 +382,7 @@ namespace ModIO
                                                                   "modio",
                                                                   "imageGallery_" + DateTime.Now.ToFileTime() + ".zip");
 
-                LocalDataStorage.CreateDirectory(Path.GetDirectoryName(imageArchivePath), (path, success) =>
+                DataStorage.CreateDirectory(Path.GetDirectoryName(imageArchivePath), (path, success) =>
                 {
                     if(success)
                     {
@@ -397,7 +397,7 @@ namespace ModIO
                                 zip.Save(imageArchivePath);
                             }
 
-                            LocalDataStorage.ReadFile(imageArchivePath, this.SubmitModChanges_Internal_OnReadImageArchive);
+                            DataStorage.ReadFile(imageArchivePath, this.SubmitModChanges_Internal_OnReadImageArchive);
                         }
                         catch(Exception e)
                         {
