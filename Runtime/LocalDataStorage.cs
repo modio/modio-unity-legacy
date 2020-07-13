@@ -91,6 +91,16 @@ namespace ModIO
                     callback.Invoke(path, files != null, files);
                 }
             }
+
+            public static void CreateDirectory(string path, CreateDirectoryCallback callback)
+            {
+                bool success = LocalDataStorage.PLATFORM_IO.CreateDirectory(path);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, success);
+                }
+            }
         }
 
         // ---------[ Constants ]---------
@@ -215,6 +225,12 @@ namespace ModIO
         }
 
         // ------ Directory Management ------
+        /// <summary>Creates a directory.</summary>
+        public static void CreateDirectory(string path, CreateDirectoryCallback onComplete)
+        {
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.CreateDirectory(path, onComplete);
+        }
+
         /// <summary>Creates a directory.</summary>
         public static bool CreateDirectory(string path)
         {
