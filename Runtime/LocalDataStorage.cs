@@ -131,6 +131,16 @@ namespace ModIO
                     callback.Invoke(path, exists);
                 }
             }
+
+            public static void GetDirectories(string path, GetDirectoriesCallback callback)
+            {
+                IList<string> dirs = LocalDataStorage.PLATFORM_IO.GetDirectories(path);
+
+                if(callback != null)
+                {
+                    callback.Invoke(path, dirs != null, dirs);
+                }
+            }
         }
 
         // ---------[ Constants ]---------
@@ -277,6 +287,12 @@ namespace ModIO
         public static void GetDirectoryExists(string path, GetDirectoryExistsCallback onComplete)
         {
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetDirectoryExists(path, onComplete);
+        }
+
+        /// <summary>Gets a list of directories found at the given location.</summary>
+        public static void GetDirectories(string path, GetDirectoriesCallback onComplete)
+        {
+            LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetDirectories(path, onComplete);
         }
 
         /// <summary>Gets a list of directories found at the given location.</summary>

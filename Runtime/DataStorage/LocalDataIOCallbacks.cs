@@ -43,5 +43,5 @@ namespace ModIO.LocalDataIOCallbacks
     public delegate void GetDirectoryExistsCallback(string path, bool success);
 
     /// <summary>Delegate for GetDirectories callback.</summary>
-    public delegate void GetDirectoriesCallback(string path, IList<string> directoryList);
+    public delegate void GetDirectoriesCallback(string path, bool success, IList<string> directoryList);
 }
