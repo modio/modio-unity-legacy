@@ -139,18 +139,6 @@ namespace ModIO
                 AssetDatabase.Refresh();
             }
         }
-
-        /// <summary>Deletes all of the active user's data.</summary>
-        public override void ClearActiveUserData(UserDataIOCallbacks.ClearActiveUserDataCallback callback)
-        {
-            base.ClearActiveUserData(callback);
-
-            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir)
-               && !Application.isPlaying)
-            {
-                AssetDatabase.Refresh();
-            }
-        }
     }
 }
 

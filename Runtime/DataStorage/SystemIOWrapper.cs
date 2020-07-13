@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-using ModIO.UserDataIOCallbacks;
-
 using Debug = UnityEngine.Debug;
 
 namespace ModIO
@@ -313,7 +311,7 @@ namespace ModIO
 
         // --- Initialization ---
         /// <summary>Initializes the storage system for the given user.</summary>
-        public virtual void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
+        public virtual void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
         {
             this.userDir = this.GenerateActiveUserDirectory(platformUserId);
 
@@ -325,7 +323,7 @@ namespace ModIO
         }
 
         /// <summary>Initializes the storage system for the given user.</summary>
-        public virtual void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback)
+        public virtual void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback)
         {
             this.userDir = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
 
@@ -352,7 +350,7 @@ namespace ModIO
 
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
-        public void ReadFile(string relativePath, ReadFileCallback callback)
+        void IUserDataIO.ReadFile(string relativePath, UserDataIOCallbacks.ReadFileCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
             Debug.Assert(callback != null);
@@ -365,7 +363,7 @@ namespace ModIO
         }
 
         /// <summary>Writes a file.</summary>
-        public void WriteFile(string relativePath, byte[] data, WriteFileCallback callback)
+        void IUserDataIO.WriteFile(string relativePath, byte[] data, UserDataIOCallbacks.WriteFileCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
             Debug.Assert(data != null);
@@ -378,7 +376,7 @@ namespace ModIO
 
         // --- File Management ---
         /// <summary>Deletes a file.</summary>
-        public void DeleteFile(string relativePath, DeleteFileCallback callback)
+        void IUserDataIO.DeleteFile(string relativePath, UserDataIOCallbacks.DeleteFileCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
 
@@ -389,7 +387,7 @@ namespace ModIO
         }
 
         /// <summary>Checks for the existence of a file.</summary>
-        public void GetFileExists(string relativePath, GetFileExistsCallback callback)
+        void IUserDataIO.GetFileExists(string relativePath, UserDataIOCallbacks.GetFileExistsCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
             Debug.Assert(callback != null);
@@ -401,7 +399,7 @@ namespace ModIO
         }
 
         /// <summary>Gets the size of a file.</summary>
-        public void GetFileSize(string relativePath, GetFileSizeCallback callback)
+        void IUserDataIO.GetFileSize(string relativePath, UserDataIOCallbacks.GetFileSizeCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
             Debug.Assert(callback != null);
@@ -413,7 +411,7 @@ namespace ModIO
         }
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
-        public void GetFileSizeAndHash(string relativePath, GetFileSizeAndHashCallback callback)
+        void IUserDataIO.GetFileSizeAndHash(string relativePath, UserDataIOCallbacks.GetFileSizeAndHashCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
             Debug.Assert(callback != null);
@@ -427,7 +425,7 @@ namespace ModIO
         }
 
         /// <summary>Deletes all of the active user's data.</summary>
-        public virtual void ClearActiveUserData(ClearActiveUserDataCallback callback)
+        void IUserDataIO.ClearActiveUserData(UserDataIOCallbacks.ClearActiveUserDataCallback callback)
         {
             bool success = this.DeleteDirectory(this.userDir);
 
