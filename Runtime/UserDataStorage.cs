@@ -18,7 +18,7 @@ namespace ModIO
     {
         // ---------[ Constants ]---------
         /// <summary>Defines the i/o functions to use for this platform.</summary>
-        public static readonly IPlatformUserDataIO PLATFORM_IO;
+        public static readonly IUserDataIO PLATFORM_IO;
 
         // ---------[ Initialization ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
@@ -146,7 +146,7 @@ namespace ModIO
     #if MODIO_FACEPUNCH_SUPPORT
 
         /// <summary>Facepunch User Data I/O interface.</summary>
-        public class FacepunchUserDataIO : IPlatformUserDataIO
+        public class FacepunchUserDataIO : IUserDataIO
         {
             // ---------[ Constants ]---------
             /// <summary>Defines the base directory for the user-specific data.</summary>
@@ -322,7 +322,7 @@ namespace ModIO
     #if MODIO_STEAMWORKSNET_SUPPORT
 
         /// <summary>Steamworks.NET User Data I/O interface.</summary>
-        public class SteamworksNETUserDataIO : IPlatformUserDataIO
+        public class SteamworksNETUserDataIO : IUserDataIO
         {
             // ---------[ Constants ]---------
             /// <summary>Defines the base directory for the user-specific data.</summary>

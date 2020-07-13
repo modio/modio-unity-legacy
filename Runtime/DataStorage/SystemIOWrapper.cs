@@ -9,7 +9,7 @@ using Debug = UnityEngine.Debug;
 namespace ModIO
 {
     /// <summary>Wraps the System.IO functionality in an IPlatformIO class.</summary>
-    public class SystemIOWrapper : IPlatformIO, IPlatformUserDataIO
+    public class SystemIOWrapper : IPlatformIO, IUserDataIO
     {
         // ---------[ IPlatformIO Interface ]---------
         // --- File I/O ---
@@ -307,7 +307,7 @@ namespace ModIO
             }
         }
 
-        // ---------[ IPlatformUserDataIO Interface ]---------
+        // ---------[ IUserDataIO Interface ]---------
         /// <summary>The directory for the active user's data.</summary>
         public string userDir = PluginSettings.USER_DIRECTORY;
 

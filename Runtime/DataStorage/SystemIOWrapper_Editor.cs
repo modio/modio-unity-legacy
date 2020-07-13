@@ -115,7 +115,7 @@ namespace ModIO
             return success;
         }
 
-        // ---------[ IPlatformUserDataIO Interface ]---------
+        // ---------[ IUserDataIO Interface ]---------
         /// <summary>Initializes the storage system for the given user.</summary>
         public override void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
         {
