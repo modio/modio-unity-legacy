@@ -230,105 +230,18 @@ namespace ModIO
         /// <summary>Requests all of the mod profiles returning only those matching the id filter.</summary>
         public static void RequestFilteredModProfiles(IList<int> idFilter, Action<IList<ModProfile>> onComplete)
         {
-            const string FILENAME = "profile.data";
-
-            Debug.Assert(IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods", "0")
-                         == CacheClient.GenerateModDirectoryPath(0),
-                         "[mod.io] This function relies on mod directory path being a generated in"
-                         + " a specific way. Changing CacheClient.GenerateModDirectoryPath()"
-                         + " necessitates changes in this function.");
-
-            Debug.Assert(IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(0), FILENAME)
-                         == CacheClient.GenerateModProfileFilePath(0),
-                         "[mod.io] This function relies on mod directory profile file path being a generated in"
-                         + " a specific way. Changing CacheClient.GenerateModProfileFilePath()"
-                         + " necessitates changes in this function.");
-
-            Debug.Assert(onComplete != null);
-
-            // init
-            List<string> profilePaths = new List<string>();
-            List<ModProfile> modProfiles = new List<ModProfile>();
-
-            // early out
-            if(idFilter == null || idFilter.Count == 0)
+            CacheClient.RequestAllModProfilesFromOffset(0, (modProfiles) =>
             {
-                onComplete.Invoke(modProfiles);
-                return;
-            }
+                List<ModProfile> filterProfiles = new List<ModProfile>();
 
-            // get profiles
-            string profileDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
-
-            if(LocalDataStorage.GetDirectoryExists(profileDirectory))
-            {
-                IList<string> modDirectories;
-                try
+                foreach(ModProfile profile in modProfiles)
                 {
-                    modDirectories = LocalDataStorage.GetDirectories(profileDirectory);
-                }
-                catch(Exception e)
-                {
-                    string warningInfo = ("[mod.io] Failed to read mod profile directory."
-                                          + "\nDirectory: " + profileDirectory + "\n\n");
-
-                    Debug.LogWarning(warningInfo
-                                     + Utility.GenerateExceptionDebugString(e));
-
-                    modDirectories = new string[0];
-                }
-
-                foreach(string modDirectory in modDirectories)
-                {
-                    string idPart = modDirectory.Substring(profileDirectory.Length + 1);
-                    int modId = ModProfile.NULL_ID;
-                    if(!int.TryParse(idPart, out modId))
+                    if(profile != null && idFilter.Contains(profile.id))
                     {
-                        modId = ModProfile.NULL_ID;
-                    }
-
-                    if(idFilter.Contains(modId))
-                    {
-                        string profilePath = IOUtilities.CombinePath(modDirectory, FILENAME);
-                        profilePaths.Add(profilePath);
+                        filterProfiles.Add(profile);
                     }
                 }
-            }
-
-            // Load Profiles
-            Action loadNextProfile = null;
-
-            loadNextProfile = () =>
-            {
-                if(profilePaths.Count > 0)
-                {
-                    int index = profilePaths.Count-1;
-                    string path = profilePaths[index];
-                    profilePaths.RemoveAt(index);
-
-                    LocalDataStorage.ReadJSONFile<ModProfile>(path, (p, success, data) =>
-                    {
-                        if(success)
-                        {
-                            modProfiles.Add(data);
-                            loadNextProfile();
-                        }
-                        else
-                        {
-                            LocalDataStorage.DeleteFile(path, (delPath, delSuccess) => loadNextProfile());
-                        }
-                    });
-                }
-                else
-                {
-                    if(onComplete != null)
-                    {
-                        onComplete.Invoke(modProfiles);
-                    }
-                }
-            };
-
-            loadNextProfile();
+            });
         }
 
         /// <summary>Deletes all of a mod's data from the cache.</summary>
