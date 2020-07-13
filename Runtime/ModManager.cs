@@ -102,15 +102,14 @@ namespace ModIO
                 else
                 {
 
-                    LocalDataStorage.DeleteDirectory(tempLocation);
+                    LocalDataStorage.DeleteDirectory(tempLocation, (dd_path, dd_success) =>
                     LocalDataStorage.CreateDirectory(tempLocation, (cd_path, cd_success) =>
                     {
-                        if(cd_success)
+                        if(dd_success && cd_success)
                         {
                             // extract
                             try
                             {
-
                                 using (var zip = Ionic.Zip.ZipFile.Read(archivePath))
                                 {
                                     zip.ExtractAll(tempLocation);
@@ -125,7 +124,7 @@ namespace ModIO
                                                  + "\nLocation: " + tempLocation + "\n\n"
                                                  + Utility.GenerateExceptionDebugString(e));
 
-                                LocalDataStorage.DeleteDirectory(tempLocation);
+                                LocalDataStorage.DeleteDirectory(tempLocation, null);
 
                                 if(onComplete != null)
                                 {
@@ -140,7 +139,7 @@ namespace ModIO
                                 onComplete.Invoke(false);
                             }
                         }
-                    });
+                    }));
                 }
             };
 
@@ -151,7 +150,7 @@ namespace ModIO
                     Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
                                      + "\nFailed to uninstall other versions of this mod.");
 
-                    LocalDataStorage.DeleteDirectory(tempLocation);
+                    LocalDataStorage.DeleteDirectory(tempLocation, null);
                     LocalDataStorage.DeleteFile(archivePath, null);
 
                     if(onComplete != null)
@@ -161,24 +160,26 @@ namespace ModIO
                 }
                 else
                 {
-                    LocalDataStorage.DeleteDirectory(installDirectory);
-                    LocalDataStorage.CreateDirectory(PluginSettings.INSTALLATION_DIRECTORY, (cdir_path, relocate_success) =>
+                    LocalDataStorage.DeleteDirectory(installDirectory, (dd_path, dd_success) =>
+                    LocalDataStorage.CreateDirectory(PluginSettings.INSTALLATION_DIRECTORY, (cd_path, cd_success) =>
                     {
-                        if(relocate_success)
-                        {
-                            relocate_success = LocalDataStorage.MoveDirectory(tempLocation, installDirectory);
+                        bool relocateSuccess = dd_success && cd_success;
 
-                            if(!relocate_success)
+                        if(relocateSuccess)
+                        {
+                            relocateSuccess = LocalDataStorage.MoveDirectory(tempLocation, installDirectory);
+
+                            if(!relocateSuccess)
                             {
                                 Debug.LogWarning("[mod.io] Unable to move binary to the mod installation folder."
                                                  + "\nSrc: " + tempLocation
                                                  + "\nDest: " + installDirectory);
                             }
 
-                            LocalDataStorage.DeleteDirectory(tempLocation);
+                            LocalDataStorage.DeleteDirectory(tempLocation, null);
                         }
 
-                        if(relocate_success)
+                        if(relocateSuccess)
                         {
                             LocalDataStorage.DeleteFile(archivePath, onArchiveDeleted);
                         }
@@ -189,7 +190,7 @@ namespace ModIO
                                 onComplete.Invoke(false);
                             }
                         }
-                    });
+                    }));
                 }
             };
 
@@ -224,26 +225,36 @@ namespace ModIO
             ModManager.QueryInstalledMods(new int[] { modId }, (installedMods) =>
             {
                 List<ModfileIdPair> successfulUninstalls = new List<ModfileIdPair>();
+                int index = 0;
+                Action uninstallAction = null;
 
-                foreach(var installInfo in installedMods)
+                uninstallAction = () =>
                 {
-                    if(LocalDataStorage.DeleteDirectory(installInfo.Value))
+                    if(index < installedMods.Count)
                     {
-                        successfulUninstalls.Add(installInfo.Key);
+                        var installInfo = installedMods.ElementAt(index++);
+                        LocalDataStorage.DeleteDirectory(installInfo.Value, (p, success) =>
+                        {
+                            if(success) { successfulUninstalls.Add(installInfo.Key); }
+
+                            uninstallAction();
+                        });
                     }
-                }
+                    else
+                    {
+                        // notify uninstall listeners
+                        if(ModManager.onModBinariesUninstalled != null)
+                        {
+                            ModManager.onModBinariesUninstalled(successfulUninstalls.ToArray());
+                        }
 
-                // notify uninstall listeners
-                if(ModManager.onModBinariesUninstalled != null)
-                {
-                    ModManager.onModBinariesUninstalled(successfulUninstalls.ToArray());
-                }
-
-                // invoke callback
-                if(onComplete != null)
-                {
-                    onComplete.Invoke(successfulUninstalls.Count == installedMods.Count);
-                }
+                        // invoke callback
+                        if(onComplete != null)
+                        {
+                            onComplete.Invoke(successfulUninstalls.Count == installedMods.Count);
+                        }
+                    }
+                };
             });
         }
 
@@ -255,29 +266,36 @@ namespace ModIO
 
             ModManager.QueryInstalledMods(new int[] { modId }, (installedMods) =>
             {
-                bool succeeded = true;
                 foreach(var installInfo in installedMods)
                 {
                     if(installInfo.Key.modfileId == modfileId)
                     {
-                        succeeded = LocalDataStorage.DeleteDirectory(installInfo.Value) && succeeded;
+                        LocalDataStorage.DeleteDirectory(installInfo.Value, (path, success) =>
+                        {
+                            if(success && ModManager.onModBinariesUninstalled != null)
+                            {
+                                ModfileIdPair idPair = new ModfileIdPair()
+                                {
+                                    modId = modId,
+                                    modfileId = modfileId,
+                                };
+
+                                ModManager.onModBinariesUninstalled(new ModfileIdPair[] { idPair });
+                            }
+
+                            if(onComplete != null)
+                            {
+                                onComplete.Invoke(success);
+                            }
+                        });
+
+                        return;
                     }
-                }
-
-                if(succeeded && ModManager.onModBinariesUninstalled != null)
-                {
-                    ModfileIdPair idPair = new ModfileIdPair()
-                    {
-                        modId = modId,
-                        modfileId = modfileId,
-                    };
-
-                    ModManager.onModBinariesUninstalled(new ModfileIdPair[] { idPair });
                 }
 
                 if(onComplete != null)
                 {
-                    onComplete.Invoke(succeeded);
+                    onComplete.Invoke(true);
                 }
             });
         }
