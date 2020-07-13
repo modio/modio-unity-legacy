@@ -227,60 +227,6 @@ namespace ModIO
                 }
             }
 
-            /// <summary>Checks for the existence of a file.</summary>
-            public void GetFileExists(string relativePath, GetFileExistsCallback callback)
-            {
-                Debug.Assert(!string.IsNullOrEmpty(relativePath));
-                Debug.Assert(callback != null);
-
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
-                bool fileExists = Steamworks.SteamRemoteStorage.FileExists(path);
-
-                callback.Invoke(relativePath, fileExists);
-            }
-
-            /// <summary>Gets the size of a file.</summary>
-            public void GetFileSize(string relativePath, GetFileSizeCallback callback)
-            {
-                Debug.Assert(!string.IsNullOrEmpty(relativePath));
-                Debug.Assert(callback != null);
-
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
-                int fileSize = Steamworks.SteamRemoteStorage.FileSize(path);
-
-                callback.Invoke(relativePath, (Int64)fileSize);
-            }
-
-            /// <summary>Gets the size and md5 hash of a file.</summary>
-            public void GetFileSizeAndHash(string relativePath, GetFileSizeAndHashCallback callback)
-            {
-                Debug.Assert(!string.IsNullOrEmpty(relativePath));
-                Debug.Assert(callback != null);
-
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
-                byte[] data = null;
-                Int64 byteCount = -1;
-                string md5Hash = null;
-
-                if(Steamworks.SteamRemoteStorage.FileExists(path))
-                {
-                    data = Steamworks.SteamRemoteStorage.FileRead(path);
-
-                    if(data != null)
-                    {
-                        byteCount = data.Length;
-
-                        using (var md5 = System.Security.Cryptography.MD5.Create())
-                        {
-                            var hash = md5.ComputeHash(data);
-                            md5Hash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                        }
-                    }
-                }
-
-                callback.Invoke(relativePath, (data != null), byteCount, md5Hash);
-            }
-
             /// <summary>Clears all of the active user's data.</summary>
             public void ClearActiveUserData(ClearActiveUserDataCallback callback)
             {
@@ -405,60 +351,6 @@ namespace ModIO
                 {
                     callback.Invoke(relativePath, success);
                 }
-            }
-
-            /// <summary>Checks for the existence of a file.</summary>
-            public void GetFileExists(string relativePath, GetFileExistsCallback callback)
-            {
-                Debug.Assert(!string.IsNullOrEmpty(relativePath));
-                Debug.Assert(callback != null);
-
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
-                bool fileExists = Steamworks.SteamRemoteStorage.FileExists(path);
-
-                callback.Invoke(relativePath, fileExists);
-            }
-
-            /// <summary>Gets the size of a file.</summary>
-            public void GetFileSize(string relativePath, GetFileSizeCallback callback)
-            {
-                Debug.Assert(!string.IsNullOrEmpty(relativePath));
-                Debug.Assert(callback != null);
-
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
-                int fileSize = Steamworks.SteamRemoteStorage.FileSize(path);
-
-                callback.Invoke(relativePath, (Int64)fileSize);
-            }
-
-            /// <summary>Gets the size and md5 hash of a file.</summary>
-            public void GetFileSizeAndHash(string relativePath, GetFileSizeAndHashCallback callback)
-            {
-                Debug.Assert(!string.IsNullOrEmpty(relativePath));
-                Debug.Assert(callback != null);
-
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
-                byte[] data = null;
-                Int64 byteCount = -1;
-                string md5Hash = null;
-
-                if(Steamworks.SteamRemoteStorage.FileExists(path))
-                {
-                    data = Steamworks.SteamRemoteStorage.FileRead(path);
-
-                    if(data != null)
-                    {
-                        byteCount = data.Length;
-
-                        using (var md5 = System.Security.Cryptography.MD5.Create())
-                        {
-                            var hash = md5.ComputeHash(data);
-                            md5Hash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                        }
-                    }
-                }
-
-                callback.Invoke(relativePath, (data != null), byteCount, md5Hash);
             }
 
             /// <summary>Clears all of the active user's data.</summary>
