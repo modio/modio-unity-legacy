@@ -279,12 +279,6 @@ namespace ModIO
             LocalDataStorage.TEMP_PLATFORM_IO_ASYNC.GetDirectoryExists(path, onComplete);
         }
 
-        /// <summary>Checks for the existence of a directory.</summary>
-        public static bool GetDirectoryExists(string path)
-        {
-            return LocalDataStorage.PLATFORM_IO.GetDirectoryExists(path);
-        }
-
         /// <summary>Gets a list of directories found at the given location.</summary>
         public static IList<string> GetDirectories(string path)
         {
