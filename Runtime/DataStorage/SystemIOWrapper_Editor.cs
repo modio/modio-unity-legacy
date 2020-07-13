@@ -17,7 +17,6 @@ namespace ModIO
             return path.StartsWith(Application.dataPath);
         }
 
-        // ---------[ IPlatformIO Interface ]---------
         // --- File I/O ---
         /// <summary>Writes a file.</summary>
         public override bool WriteFile(string path, byte[] data)
@@ -115,7 +114,6 @@ namespace ModIO
             return success;
         }
 
-        // ---------[ IUserDataIO Interface ]---------
         /// <summary>Initializes the storage system for the given user.</summary>
         public override void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
         {
