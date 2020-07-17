@@ -1450,7 +1450,7 @@ namespace ModIO
                             {
                                 foreach(string filePath in fileList)
                                 {
-                                    string relativeFilePath = filePath.Substring(rootDirectoryLength+1);
+                                    string relativeFilePath = filePath.Substring(rootDirectoryLength);
                                     string relativeDirectory = Path.GetDirectoryName(relativeFilePath);
 
                                     zip.AddFile(filePath, relativeDirectory);
