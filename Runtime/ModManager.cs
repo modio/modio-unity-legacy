@@ -1431,7 +1431,7 @@ namespace ModIO
 
                 char lastCharacter = rootDirectory[rootDirectoryLength-1];
                 if(lastCharacter != Path.DirectorySeparatorChar
-                   && lastCharacter != Path.DirectorySeparatorChar)
+                   && lastCharacter != Path.AltDirectorySeparatorChar)
                 {
                     ++rootDirectoryLength;
                 }
