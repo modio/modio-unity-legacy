@@ -1644,7 +1644,7 @@ namespace ModIO
 
             char lastCharacter = binaryDirectory[binaryDirectory.Length - 1];
             if(lastCharacter == Path.DirectorySeparatorChar
-               || lastCharacter == Path.DirectorySeparatorChar)
+               || lastCharacter == Path.AltDirectorySeparatorChar)
             {
                 binaryDirectory = binaryDirectory.Remove(binaryDirectory.Length - 1);
             }
