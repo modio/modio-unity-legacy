@@ -70,25 +70,38 @@ namespace ModIO
             for(int i = 0; i < frameCount; ++i)
             {
                 var stackFrame = stackTrace.GetFrame(i);
+                if(stackFrame == null)
+                {
+                    debugString.AppendLine("[NULL STACK FRAME]");
+                    continue;
+                }
+
                 var method = stackFrame.GetMethod();
-
-                debugString.Append(method.ReflectedType
-                                   + "." + method.Name + "(");
-
-                var methodsParameters = method.GetParameters();
-                foreach(var parameter in methodsParameters)
+                if(method != null)
                 {
-                    debugString.Append(parameter.ParameterType.Name + " "
-                                       + parameter.Name + ", ");
+                    debugString.Append(method.ReflectedType
+                                       + "." + method.Name + "(");
+
+                    var methodsParameters = method.GetParameters();
+                    foreach(var parameter in methodsParameters)
+                    {
+                        debugString.Append(parameter.ParameterType.Name + " "
+                                           + parameter.Name + ", ");
+                    }
+                    if(methodsParameters.Length > 0)
+                    {
+                        debugString.Length -= 2;
+                    }
+
+                    debugString.Append(")");
                 }
-                if(methodsParameters.Length > 0)
+                else
                 {
-                    debugString.Length -= 2;
+                    debugString.Append("[NULL METHOD REFERENCE]");
                 }
 
-                debugString.Append(") @ " + stackFrame.GetFileName()
-                                   + ":" + stackFrame.GetFileLineNumber()
-                                   + "\n");
+                debugString.AppendLine(" @ " + stackFrame.GetFileName()
+                                       + ":" + stackFrame.GetFileLineNumber());
             }
 
             return debugString.ToString();
