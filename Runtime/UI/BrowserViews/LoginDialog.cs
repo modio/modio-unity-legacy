@@ -138,8 +138,7 @@ namespace ModIO.UI
             MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
                                        "Login Successful");
 
-            this.gameObject.SetActive(false);
-
+            ViewManager.instance.CloseWindowedView(this);
             ModBrowser.instance.OnUserLogin();
         }
 
