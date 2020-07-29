@@ -228,14 +228,19 @@ namespace ModIO
         {
             CacheClient.RequestAllModProfilesFromOffset(0, (modProfiles) =>
             {
-                List<ModProfile> filterProfiles = new List<ModProfile>();
+                List<ModProfile> filteredProfiles = new List<ModProfile>();
 
                 foreach(ModProfile profile in modProfiles)
                 {
                     if(profile != null && idFilter.Contains(profile.id))
                     {
-                        filterProfiles.Add(profile);
+                        filteredProfiles.Add(profile);
                     }
+                }
+
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(filteredProfiles);
                 }
             });
         }
