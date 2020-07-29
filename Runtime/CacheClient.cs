@@ -163,11 +163,15 @@ namespace ModIO
             List<ModProfile> modProfiles = new List<ModProfile>();
             string profileDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
 
-            DataStorage.GetDirectories(profileDirectory, (gd_path, gd_exists, modDirectories) =>
+            DataStorage.GetDirectories(profileDirectory, (gd_path, gd_success, modDirectories) =>
             {
-                if(gd_exists && modDirectories != null)
+                if(gd_success)
                 {
-                    if(modDirectories.Count - offset > 0)
+                    if(modDirectories == null)
+                    {
+                        modDirectories = new string[0];
+                    }
+                    else if(modDirectories.Count - offset > 0)
                     {
                         for(int i = offset; i < modDirectories.Count; ++i)
                         {
@@ -332,23 +336,30 @@ namespace ModIO
             // get statistics
             string statisticsDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
 
-            DataStorage.GetDirectories(statisticsDirectory, (gd_path, gd_exists, modDirectories) =>
+            DataStorage.GetDirectories(statisticsDirectory, (gd_path, gd_success, modDirectories) =>
             {
-                if(gd_exists && modDirectories != null)
+                if(gd_success)
                 {
-                    foreach(string modDirectory in modDirectories)
+                    if(modDirectories == null)
                     {
-                        string idPart = modDirectory.Substring(statisticsDirectory.Length + 1);
-                        int modId = ModProfile.NULL_ID;
-                        if(!int.TryParse(idPart, out modId))
+                        modDirectories = new string[0];
+                    }
+                    else
+                    {
+                        foreach(string modDirectory in modDirectories)
                         {
-                            modId = ModProfile.NULL_ID;
-                        }
+                            string idPart = modDirectory.Substring(statisticsDirectory.Length + 1);
+                            int modId = ModProfile.NULL_ID;
+                            if(!int.TryParse(idPart, out modId))
+                            {
+                                modId = ModProfile.NULL_ID;
+                            }
 
-                        if(idFilter.Contains(modId))
-                        {
-                            string statisticsPath = IOUtilities.CombinePath(modDirectory, FILENAME);
-                            statsPaths.Add(statisticsPath);
+                            if(idFilter.Contains(modId))
+                            {
+                                string statisticsPath = IOUtilities.CombinePath(modDirectory, FILENAME);
+                                statsPaths.Add(statisticsPath);
+                            }
                         }
                     }
                 }
