@@ -148,7 +148,7 @@ namespace ModIO
                 if(!success)
                 {
                     Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
-                                     + "\nFailed to uninstall other versions of this mod.");
+                                     + "\nFailed to uninstall existing versions of this mod.");
 
                     DataStorage.DeleteDirectory(tempLocation, null);
                     DataStorage.DeleteFile(archivePath, null);
@@ -244,6 +244,8 @@ namespace ModIO
                         }
                     }
                 };
+
+                uninstallAction.Invoke();
             });
         }
 
