@@ -345,13 +345,16 @@ namespace ModIO
         }
 
         /// <summary>Returns the data of all the mods installed.</summary>
-        public static void QueryInstalledMods(IList<int> modIdFilter, Action<IDictionary<ModfileIdPair, string>> onComplete)
+        /// <remarks>This does not ensure a unique collection of ModfileIdPair objects, as there
+        /// may be multiple directories in this folder are not named in the modId_modfileId
+        /// format.</remarks>
+        public static void QueryInstalledMods(IList<int> modIdFilter, Action<IList<KeyValuePair<ModfileIdPair, string>>> onComplete)
         {
             Debug.Assert(onComplete != null);
 
             DataStorage.GetDirectories(PluginSettings.INSTALLATION_DIRECTORY, (path, exists, modDirectories) =>
             {
-                Dictionary<ModfileIdPair, string> installedModMap = new Dictionary<ModfileIdPair, string>();
+                var installedModMap = new List<KeyValuePair<ModfileIdPair, string>>();
 
                 if(exists && modDirectories != null)
                 {
@@ -384,7 +387,8 @@ namespace ModIO
                                 modfileId = modfileId,
                             };
 
-                            installedModMap.Add(idPair, modDirectory);
+                            var kvp = new KeyValuePair<ModfileIdPair, string>(idPair, modDirectory);
+                            installedModMap.Add(kvp);
                         }
                     }
                 }
@@ -1830,10 +1834,10 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Returns the data of all the mods installed.</summary>
-        [Obsolete("Use QueryInstalledMods(bool, Action<IDictionary<ModfileIdPair, string>>) instead.")]
+        [Obsolete("Use QueryInstalledMods(bool, Action<IList<ModfileIdPair, string>>) instead.")]
         public static IEnumerable<KeyValuePair<ModfileIdPair, string>> IterateInstalledMods(IList<int> modIdFilter)
         {
-            IDictionary<ModfileIdPair, string> result = null;
+            IEnumerable<KeyValuePair<ModfileIdPair, string>> result = null;
 
             ModManager.QueryInstalledMods(modIdFilter, (r) => result = r);
             return result;
