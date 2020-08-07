@@ -1367,9 +1367,7 @@ namespace ModIO
             {
                 if(dir_exists)
                 {
-                    char lastCharacter = binaryDirectory[binaryDirectory.Length - 1];
-                    if(lastCharacter == Path.DirectorySeparatorChar
-                       || lastCharacter == Path.AltDirectorySeparatorChar)
+                    if(IOUtilities.PathEndsWithDirectorySeparator(binaryDirectory))
                     {
                         binaryDirectory = binaryDirectory.Remove(binaryDirectory.Length - 1);
                     }
@@ -1434,10 +1432,7 @@ namespace ModIO
             else
             {
                 int rootDirectoryLength = rootDirectory.Length;
-
-                char lastCharacter = rootDirectory[rootDirectoryLength-1];
-                if(lastCharacter != Path.DirectorySeparatorChar
-                   && lastCharacter != Path.AltDirectorySeparatorChar)
+                if(!IOUtilities.PathEndsWithDirectorySeparator(rootDirectory))
                 {
                     ++rootDirectoryLength;
                 }

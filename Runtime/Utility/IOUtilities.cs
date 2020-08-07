@@ -96,15 +96,12 @@ namespace ModIO
             Debug.Assert(!String.IsNullOrEmpty(path));
 
             // remove any separators
-            char lastCharacter = path[path.Length - 1];
-
-            while(path.Length > 1
-                  && (lastCharacter == Path.DirectorySeparatorChar
-                      || lastCharacter == Path.DirectorySeparatorChar))
+            while(IOUtilities.PathEndsWithDirectorySeparator(path))
             {
                 path = path.Remove(path.Length - 1);
-                lastCharacter = path[path.Length - 1];
             }
+
+            if(path.Length == 0) { return string.Empty; }
 
             // get parent directory and remove
             string folderName = path;
@@ -115,6 +112,18 @@ namespace ModIO
             }
 
             return folderName;
+        }
+
+        /// <summary>Determines if the final character of the string is a directory separator.</summary>
+        public static bool PathEndsWithDirectorySeparator(string path)
+        {
+            Debug.Assert(path != null);
+
+            if(path.Length == 0) { return false; }
+
+            char lastCharacter = path[path.Length - 1];
+            return (lastCharacter == Path.DirectorySeparatorChar
+                    || lastCharacter == Path.AltDirectorySeparatorChar);
         }
 
         /// <summary>Collection of invalid Windows file names.</summary>

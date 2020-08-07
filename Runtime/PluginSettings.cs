@@ -299,14 +299,31 @@ namespace ModIO
         /// <summary>Replaces variables in the directory values.</summary>
         public static string ReplaceDirectoryVariables(string directory, int gameId)
         {
+            // remove any trailing DSCs from Application paths
+            string app_persistentDataPath = Application.persistentDataPath;
+            if(IOUtilities.PathEndsWithDirectorySeparator(app_persistentDataPath))
+            {
+                app_persistentDataPath = app_persistentDataPath.Remove(app_persistentDataPath.Length-1);
+            }
+            string app_dataPath = Application.dataPath;
+            if(IOUtilities.PathEndsWithDirectorySeparator(app_dataPath))
+            {
+                app_dataPath = app_dataPath.Remove(app_dataPath.Length-1);
+            }
+            string app_temporaryCachePath = Application.temporaryCachePath;
+            if(IOUtilities.PathEndsWithDirectorySeparator(app_temporaryCachePath))
+            {
+                app_temporaryCachePath = app_temporaryCachePath.Remove(app_temporaryCachePath.Length-1);
+            }
+
             // straight replaces
             directory = (directory
-                         .Replace("$PERSISTENT_DATA_PATH$", Application.persistentDataPath)
-                         .Replace("$DATA_PATH$", Application.dataPath)
+                         .Replace("$PERSISTENT_DATA_PATH$", app_persistentDataPath)
+                         .Replace("$DATA_PATH$", app_dataPath)
+                         .Replace("$TEMPORARY_CACHE_PATH$", app_temporaryCachePath)
                          .Replace("$BUILD_GUID$", Application.buildGUID)
                          .Replace("$COMPANY_NAME$", Application.companyName)
                          .Replace("$PRODUCT_NAME$", Application.productName)
-                         .Replace("$TEMPORARY_CACHE_PATH$", Application.temporaryCachePath)
                          .Replace("$APPLICATION_IDENTIFIER", Application.identifier)
                          .Replace("$GAME_ID$", gameId.ToString())
                          );
@@ -347,13 +364,13 @@ namespace ModIO
                     logOnSend = false,
                 },
 
-                installationDirectory = @"$DATA_PATH$/mod.io/mods",
-                cacheDirectory = @"$DATA_PATH$/mod.io/cache",
-                userDirectory = @"$PERSISTENT_DATA_PATH$/mod.io-$GAME_ID$",
+                installationDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","mods"),
+                cacheDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","cache"),
+                userDirectory = IOUtilities.CombinePath("$PERSISTENT_DATA_PATH$","mod.io-$GAME_ID$"),
 
-                installationDirectoryEditor = @"$DATA_PATH$/Resources/mod.io/Editor/mods",
-                cacheDirectoryEditor = @"$DATA_PATH$/Resources/mod.io/Editor/cache",
-                userDirectoryEditor = @"$DATA_PATH$/Resources/mod.io/Editor/user",
+                installationDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","mods"),
+                cacheDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","cache"),
+                userDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","user"),
             };
 
             return data;
