@@ -117,6 +117,18 @@ namespace ModIO
             return folderName;
         }
 
+        /// <summary>Determines if the final character of the string is a directory separator.</summary>
+        public static bool PathEndsWithDirectorySeparator(string path)
+        {
+            Debug.Assert(path != null);
+
+            if(path.Length == 0) { return false; }
+
+            char lastCharacter = path[path.Length - 1];
+            return (lastCharacter == Path.DirectorySeparatorChar
+                    || lastCharacter == Path.AltDirectorySeparatorChar);
+        }
+
         /// <summary>Collection of invalid Windows file names.</summary>
         public static readonly string[] INVALID_FILENAMES_WIN = new string[]
         {
