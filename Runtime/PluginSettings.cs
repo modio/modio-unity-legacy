@@ -364,13 +364,13 @@ namespace ModIO
                     logOnSend = false,
                 },
 
-                installationDirectory = @"$DATA_PATH$/mod.io/mods",
-                cacheDirectory = @"$DATA_PATH$/mod.io/cache",
-                userDirectory = @"$PERSISTENT_DATA_PATH$/mod.io-$GAME_ID$",
+                installationDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","mods"),
+                cacheDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","cache"),
+                userDirectory = IOUtilities.CombinePath("$PERSISTENT_DATA_PATH$","mod.io-$GAME_ID$"),
 
-                installationDirectoryEditor = @"$DATA_PATH$/Resources/mod.io/Editor/mods",
-                cacheDirectoryEditor = @"$DATA_PATH$/Resources/mod.io/Editor/cache",
-                userDirectoryEditor = @"$DATA_PATH$/Resources/mod.io/Editor/user",
+                installationDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","mods"),
+                cacheDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","cache"),
+                userDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","user"),
             };
 
             return data;
