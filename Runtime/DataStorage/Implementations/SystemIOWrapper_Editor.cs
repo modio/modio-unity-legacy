@@ -16,15 +16,13 @@ namespace ModIO
         private static readonly string TEMPORARY_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
                                                                                           "Resources",
                                                                                           "mod.io",
-                                                                                          "Editor",
-                                                                                          "game_" + PluginSettings.GAME_ID.ToString(),
+                                                                                          "Editor_" + PluginSettings.GAME_ID.ToString("x0000"),
                                                                                           "Temp");
         /// <summary>Persistent Data directory path.</summary>
         private static readonly string PERSISTENT_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
                                                                                            "Resources",
                                                                                            "mod.io",
-                                                                                           "Editor",
-                                                                                           "game_" + PluginSettings.GAME_ID.ToString(),
+                                                                                           "Editor_" + PluginSettings.GAME_ID.ToString("x0000"),
                                                                                            "Cache");
 
         // ---------[ IPlatformIO Interface ]---------

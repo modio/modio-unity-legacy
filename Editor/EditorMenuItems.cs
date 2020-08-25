@@ -65,7 +65,8 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Delete Installed Mods", false)]
         public static void RemoveAllInstalledMods()
         {
-            Directory.Delete(PluginSettings.INSTALLATION_DIRECTORY);
+            Directory.Delete(IOUtilities.CombinePath(DataStorage.PersistentDataDirectory,
+                                                     ModManager.INSTALLATION_FOLDER));
             Debug.Log("[mod.io] Mod Installation Data removed.");
         }
 
