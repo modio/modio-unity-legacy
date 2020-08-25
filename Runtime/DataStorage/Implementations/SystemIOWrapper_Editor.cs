@@ -11,10 +11,34 @@ namespace ModIO
     /// <summary>Wraps the System.IO functionality and adds AssetDatabase refreshes.</summary>
     public class SystemIOWrapper_Editor : SystemIOWrapper
     {
-        /// <summary>Determines whether an AssetDatabase refresh is applicable.</summary>
-        public static bool IsPathWithinEditorAssetDatabase(string path)
+        // ---------[ CONSTANTS ]---------
+        /// <summary>Temporary Data directory path.</summary>
+        private static readonly string TEMPORARY_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
+                                                                                          "Resources",
+                                                                                          "mod.io",
+                                                                                          "Editor",
+                                                                                          "game_" + PluginSettings.GAME_ID.ToString(),
+                                                                                          "Temp");
+        /// <summary>Persistent Data directory path.</summary>
+        private static readonly string PERSISTENT_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
+                                                                                           "Resources",
+                                                                                           "mod.io",
+                                                                                           "Editor",
+                                                                                           "game_" + PluginSettings.GAME_ID.ToString(),
+                                                                                           "Cache");
+
+        // ---------[ IPlatformIO Interface ]---------
+        // --- Accessors ---
+        /// <summary>Temporary Data directory path.</summary>
+        public override string TemporaryDataDirectory
         {
-            return path.StartsWith(Application.dataPath);
+            get { return SystemIOWrapper_Editor.TEMPORARY_DATA_DIRECTORY; }
+        }
+
+        /// <summary>Persistent Data directory path.</summary>
+        public override string PersistentDataDirectory
+        {
+            get { return SystemIOWrapper_Editor.PERSISTENT_DATA_DIRECTORY; }
         }
 
         // --- File I/O ---
@@ -136,6 +160,13 @@ namespace ModIO
             {
                 AssetDatabase.Refresh();
             }
+        }
+
+        // ---------[ UTIL ]---------
+        /// <summary>Determines whether an AssetDatabase refresh is applicable.</summary>
+        public static bool IsPathWithinEditorAssetDatabase(string path)
+        {
+            return path.StartsWith(Application.dataPath);
         }
     }
 }

@@ -9,7 +9,28 @@ namespace ModIO
     /// <summary>Wraps the System.IO functionality in an IPlatformIO class.</summary>
     public class SystemIOWrapper : IPlatformIO, IUserDataIO
     {
+        // ---------[ CONSTANTS ]---------
+        /// <summary>Temporary Data directory path.</summary>
+        private static readonly string TEMPORARY_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.temporaryCachePath,
+                                                                                          "modio_" + PluginSettings.GAME_ID.ToString("x0000000000"));
+        /// <summary>Persistent Data directory path.</summary>
+        private static readonly string PERSISTENT_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
+                                                                                           "modio");
+
         // ---------[ IPlatformIO Interface ]---------
+        // --- Accessors ---
+        /// <summary>Temporary Data directory path.</summary>
+        public virtual string TemporaryDataDirectory
+        {
+            get { return SystemIOWrapper.TEMPORARY_DATA_DIRECTORY; }
+        }
+
+        /// <summary>Persistent Data directory path.</summary>
+        public virtual string PersistentDataDirectory
+        {
+            get { return SystemIOWrapper.PERSISTENT_DATA_DIRECTORY; }
+        }
+
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
         void IPlatformIO.ReadFile(string path,
