@@ -69,6 +69,10 @@ namespace ModIO
             [VariableDirectory]
             public string userDirectoryEditor;
 
+            [Header("Modules")]
+            [Tooltip("IPlatformIO class to use for DataStorage operations.")]
+            public string IOModuleClassName;
+
             // ---------[ Obsolete ]---------
             [System.Obsolete("Use requestLogging.logAllResponses instead.")]
             public bool logAllRequests
@@ -145,6 +149,12 @@ namespace ModIO
                         else if(string.IsNullOrEmpty(PluginSettings._dataInstance.userDirectory))
                         {
                             errorMessage = ("[mod.io] User Directory is missing from the Plugin Settings.\n"
+                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                           + " item before the mod.io Unity Plugin can be used.");
+                        }
+                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.IOModuleClassName))
+                        {
+                            errorMessage = ("[mod.io] IO Module is missing from the Plugin Settings.\n"
                                            + "This must be configured by selecting the mod.io > Edit Settings menu"
                                            + " item before the mod.io Unity Plugin can be used.");
                         }
@@ -371,6 +381,8 @@ namespace ModIO
                 installationDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","mods"),
                 cacheDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","cache"),
                 userDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","user"),
+
+                IOModuleClassName = "ModIO.SystemIOWrapper, modio.UnityPlugin, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
             };
 
             return data;
