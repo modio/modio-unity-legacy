@@ -16,7 +16,7 @@ namespace ModIO
         // ---------[ GAME PROFILE ]---------
         /// <summary>File path for the game profile data.</summary>
         public static string gameProfileFilePath
-        { get { return IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "game_profile.data"); } }
+        { get { return IOUtilities.CombinePath(DataStorage.PersistentDataDirectory, "game_profile.data"); } }
 
         /// <summary>Stores the game's profile in the cache.</summary>
         public static void SaveGameProfile(GameProfile profile, Action<bool> onComplete)
@@ -47,7 +47,7 @@ namespace ModIO
         /// <summary>Generates the path for a mod cache directory.</summary>
         public static string GenerateModDirectoryPath(int modId)
         {
-            return IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY,
+            return IOUtilities.CombinePath(DataStorage.PersistentDataDirectory,
                                            "mods",
                                            modId.ToString());
         }
@@ -145,7 +145,7 @@ namespace ModIO
         {
             const string FILENAME = "profile.data";
 
-            Debug.Assert(IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods", "0")
+            Debug.Assert(IOUtilities.CombinePath(DataStorage.PersistentDataDirectory, "mods", "0")
                          == CacheClient.GenerateModDirectoryPath(0),
                          "[mod.io] This function relies on mod directory path being a generated in"
                          + " a specific way. Changing CacheClient.GenerateModDirectoryPath()"
@@ -161,7 +161,7 @@ namespace ModIO
 
             List<string> profilePaths = new List<string>();
             List<ModProfile> modProfiles = new List<ModProfile>();
-            string profileDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
+            string profileDirectory = IOUtilities.CombinePath(DataStorage.PersistentDataDirectory, "mods");
 
             DataStorage.GetDirectories(profileDirectory, (gd_path, gd_success, modDirectories) =>
             {
@@ -308,7 +308,7 @@ namespace ModIO
         {
             const string FILENAME = "stats.data";
 
-            Debug.Assert(IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods", "0")
+            Debug.Assert(IOUtilities.CombinePath(DataStorage.PersistentDataDirectory, "mods", "0")
                          == CacheClient.GenerateModDirectoryPath(0),
                          "[mod.io] This function relies on mod directory path being a generated in"
                          + " a specific way. Changing CacheClient.GenerateModDirectoryPath()"
@@ -334,7 +334,7 @@ namespace ModIO
             }
 
             // get statistics
-            string statisticsDirectory = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, "mods");
+            string statisticsDirectory = IOUtilities.CombinePath(DataStorage.PersistentDataDirectory, "mods");
 
             DataStorage.GetDirectories(statisticsDirectory, (gd_path, gd_success, modDirectories) =>
             {
@@ -853,7 +853,7 @@ namespace ModIO
         /// <summary>Generates the file path for a user's profile.</summary>
         public static string GenerateUserAvatarDirectoryPath(int userId)
         {
-            return IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY,
+            return IOUtilities.CombinePath(DataStorage.PersistentDataDirectory,
                                            "users",
                                            userId + "_avatar");
         }
@@ -924,10 +924,10 @@ namespace ModIO
 
         // ---------[ OBSOLETE ]---------
         /// <summary>[Obsolete] Directory that the CacheClient uses to store data.</summary>
-        [Obsolete("Use PluginSettings.CACHE_DIRECTORY instead")]
+        [Obsolete("Use DataStorage.PersistentDataDirectory instead")]
         public static string cacheDirectory
         {
-            get { return PluginSettings.CACHE_DIRECTORY; }
+            get { return DataStorage.PersistentDataDirectory; }
         }
 
         /// <summary>[Obsolete] Retrieves the file paths for the mod logos in the cache.</summary>
@@ -941,7 +941,7 @@ namespace ModIO
         [Obsolete("User Profiles are no longer accessible via the mod.io API.")]
         public static string GenerateUserProfileFilePath(int userId)
         {
-            return IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY,
+            return IOUtilities.CombinePath(DataStorage.PersistentDataDirectory,
                                            "users",
                                            userId.ToString(),
                                            "profile.data");

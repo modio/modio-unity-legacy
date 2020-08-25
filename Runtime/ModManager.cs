@@ -42,7 +42,8 @@ namespace ModIO
         /// <summary>Initializes the ModManager settings.</summary>
         static ModManager()
         {
-            ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, PERSISTENTDATA_FILENAME);
+            ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(DataStorage.PersistentDataDirectory,
+                                                                         PERSISTENTDATA_FILENAME);
 
             DataStorage.ReadJSONFile<PersistentData>(ModManager.PERSISTENTDATA_FILEPATH, (p, success, data) =>
             {
