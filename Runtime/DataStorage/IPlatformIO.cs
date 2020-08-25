@@ -8,6 +8,13 @@ namespace ModIO
     /// <summary>Defines the functions necessary for a complete platform IO.</summary>
     public interface IPlatformIO
     {
+        // --- Accessors ---
+        /// <summary>Persistent Data directory path.</summary>
+        string PersistentDataDirectory { get; }
+
+        /// <summary>Temporary Data directory path.</summary>
+        string TemporaryDataDirectory { get; }
+
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
         void ReadFile(string path, ReadFileCallback callback);

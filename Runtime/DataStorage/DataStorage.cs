@@ -33,6 +33,19 @@ namespace ModIO
         }
 
         // ---------[ Data Management Interface ]---------
+        // ------ Accessors ------
+        /// <summary>Persistent Data directory path.</summary>
+        public static string PersistentDataDirectory
+        {
+            get { return DataStorage.PLATFORM_IO.PersistentDataDirectory; }
+        }
+
+        /// <summary>Temporary Data directory path.</summary>
+        public static string TemporaryDataDirectory
+        {
+            get { return DataStorage.PLATFORM_IO.TemporaryDataDirectory; }
+        }
+
         // ------ File I/O ------
         /// <summary>Reads a file.</summary>
         public static void ReadFile(string path, ReadFileCallback onComplete)
