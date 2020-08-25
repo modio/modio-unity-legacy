@@ -219,22 +219,6 @@ namespace ModIO
         {
             get { return PluginSettings.data.requestLogging; }
         }
-        public static string INSTALLATION_DIRECTORY
-        {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.installationDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.installationDirectory; }
-            #endif // UNITY_EDITOR
-        }
-        public static string CACHE_DIRECTORY
-        {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.cacheDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.cacheDirectory; }
-            #endif // UNITY_EDITOR
-        }
         public static string USER_DIRECTORY
         {
             #if UNITY_EDITOR
@@ -415,8 +399,30 @@ namespace ModIO
 
             return settings;
         }
+        #endif // UNITY_EDITOR
 
         // ---------[ Obsolete ]---------
+        [System.Obsolete("Use DataStorage.PersistentDataDirectory instead.")]
+        public static string CACHE_DIRECTORY
+        {
+            #if UNITY_EDITOR
+                get { return PluginSettings.data.cacheDirectoryEditor; }
+            #else
+                get { return PluginSettings.data.cacheDirectory; }
+            #endif // UNITY_EDITOR
+        }
+
+        [System.Obsolete("No longer supported. Try ModManager.GetModInstallDirectory() instead.")]
+        public static string INSTALLATION_DIRECTORY
+        {
+            #if UNITY_EDITOR
+                get { return PluginSettings.data.installationDirectoryEditor; }
+            #else
+                get { return PluginSettings.data.installationDirectory; }
+            #endif // UNITY_EDITOR
+        }
+
+        #if UNITY_EDITOR
         /// <summary>[Obsolete] Sets the values of the Plugin Settings.</summary>
         [System.Obsolete("Use PluginSettings.SetRuntimeData() instead.")]
         public static PluginSettings SetGlobalValues(PluginSettings.Data data)
@@ -431,6 +437,6 @@ namespace ModIO
             PluginSettings.Data data = PluginSettings.GenerateDefaultData();
             return PluginSettings.SetRuntimeData(data);
         }
-        #endif
+        #endif // UNITY_EDITOR
     }
 }
