@@ -43,37 +43,37 @@ namespace ModIO
             /// <summary>Request logging options.</summary>
             public RequestLoggingOptions requestLogging;
 
+            [Header("Runtime Modules")]
+            [Tooltip("IPlatformIO class to use for DataStorage operations.")]
+            public string IOModuleClassName;
+
             [Header("Runtime Directories")]
-            [Tooltip("Directory to use for mod installations")]
-            [VariableDirectory]
-            public string installationDirectory;
-
-            [Tooltip("Directory to use for cached server data")]
-            [VariableDirectory]
-            public string cacheDirectory;
-
             [Tooltip("Directory to use for user data")]
             [VariableDirectory]
             public string userDirectory;
 
             [Header("Editor Directories")]
-            [Tooltip("Directory to use for mod installations")]
-            [VariableDirectory]
-            public string installationDirectoryEditor;
-
-            [Tooltip("Directory to use for cached server data")]
-            [VariableDirectory]
-            public string cacheDirectoryEditor;
-
             [Tooltip("Directory to use for user data")]
             [VariableDirectory]
             public string userDirectoryEditor;
 
-            [Header("Modules")]
-            [Tooltip("IPlatformIO class to use for DataStorage operations.")]
-            public string IOModuleClassName;
-
             // ---------[ Obsolete ]---------
+            [System.Obsolete("No longer supported.")]
+            [HideInInspector]
+            public string installationDirectory;
+
+            [System.Obsolete("No longer supported.")]
+            [HideInInspector]
+            public string cacheDirectory;
+
+            [System.Obsolete("No longer supported.")]
+            [HideInInspector]
+            public string installationDirectoryEditor;
+
+            [System.Obsolete("No longer supported.")]
+            [HideInInspector]
+            public string cacheDirectoryEditor;
+
             [System.Obsolete("Use requestLogging.logAllResponses instead.")]
             public bool logAllRequests
             {
@@ -134,18 +134,6 @@ namespace ModIO
                                            + "This must be configured by selecting the mod.io > Edit Settings menu"
                                            + " item before the mod.io Unity Plugin can be used.");
                         }
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.installationDirectory))
-                        {
-                            errorMessage = ("[mod.io] Installation Directory is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
-                        }
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.cacheDirectory))
-                        {
-                            errorMessage = ("[mod.io] Cache Directory is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
-                        }
                         else if(string.IsNullOrEmpty(PluginSettings._dataInstance.userDirectory))
                         {
                             errorMessage = ("[mod.io] User Directory is missing from the Plugin Settings.\n"
@@ -159,18 +147,6 @@ namespace ModIO
                                            + " item before the mod.io Unity Plugin can be used.");
                         }
                         #if UNITY_EDITOR
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.installationDirectoryEditor))
-                        {
-                            errorMessage = ("[mod.io] Installation Directory (Editor) is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
-                        }
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.cacheDirectoryEditor))
-                        {
-                            errorMessage = ("[mod.io] Cache Directory (Editor) is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
-                        }
                         else if(string.IsNullOrEmpty(PluginSettings._dataInstance.userDirectoryEditor))
                         {
                             errorMessage = ("[mod.io] User Directory (Editor) is missing from the Plugin Settings.\n"
@@ -244,39 +220,11 @@ namespace ModIO
                 settings = wrapper.m_data;
 
                 // - Path variable replacement -
-                // cachedir
-                if(settings.cacheDirectory != null)
-                {
-                    settings.cacheDirectory = ReplaceDirectoryVariables(settings.cacheDirectory,
-                                                                        settings.gameId);
-                }
-
-                // installdir
-                if(settings.installationDirectory != null)
-                {
-                    settings.installationDirectory = ReplaceDirectoryVariables(settings.installationDirectory,
-                                                                               settings.gameId);
-                }
-
                 // userdir
                 if(settings.userDirectory != null)
                 {
                     settings.userDirectory = ReplaceDirectoryVariables(settings.userDirectory,
                                                                        settings.gameId);
-                }
-
-                // cachedir
-                if(settings.cacheDirectoryEditor != null)
-                {
-                    settings.cacheDirectoryEditor = ReplaceDirectoryVariables(settings.cacheDirectoryEditor,
-                                                                              settings.gameId);
-                }
-
-                // installdir
-                if(settings.installationDirectoryEditor != null)
-                {
-                    settings.installationDirectoryEditor = ReplaceDirectoryVariables(settings.installationDirectoryEditor,
-                                                                                     settings.gameId);
                 }
 
                 // userdir
@@ -358,15 +306,11 @@ namespace ModIO
                     logOnSend = false,
                 },
 
-                installationDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","mods"),
-                cacheDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","cache"),
+                IOModuleClassName = "ModIO.SystemIOWrapper, modio.UnityPlugin, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+
                 userDirectory = IOUtilities.CombinePath("$PERSISTENT_DATA_PATH$","mod.io-$GAME_ID$"),
 
-                installationDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","mods"),
-                cacheDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","cache"),
                 userDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","user"),
-
-                IOModuleClassName = "ModIO.SystemIOWrapper, modio.UnityPlugin, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
             };
 
             return data;
