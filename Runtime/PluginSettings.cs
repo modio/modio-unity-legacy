@@ -8,9 +8,6 @@ namespace ModIO
     public class PluginSettings : ScriptableObject
     {
         // ---------[ NESTED CLASSES ]---------
-        /// <summary>Attribute for denoting a field as containing directory variables.</summary>
-        public class VariableDirectoryAttribute : PropertyAttribute {}
-
         /// <summary>Request logging options.</summary>
         [System.Serializable]
         public struct RequestLoggingOptions
