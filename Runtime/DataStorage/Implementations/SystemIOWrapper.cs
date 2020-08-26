@@ -187,12 +187,19 @@ namespace ModIO
 
         // ---------[ IUserDataIO Interface ]---------
         /// <summary>The directory for the active user's data.</summary>
-        protected string m_activeUserDirectory = SystemIOWrapper.USER_DATA_DIRECTORY;
+        protected string m_activeUserDirectory = null;
 
         /// <summary>Active User Data directory.</summary>
         public virtual string ActiveUserDirectory
         {
-            get { return this.m_activeUserDirectory; }
+            get
+            {
+                if(this.m_activeUserDirectory == null)
+                {
+                    this.m_activeUserDirectory = this.GenerateActiveUserDirectory(null);
+                }
+                return this.m_activeUserDirectory;
+            }
         }
 
         // --- Initialization ---
@@ -201,7 +208,7 @@ namespace ModIO
         {
             this.m_activeUserDirectory = this.GenerateActiveUserDirectory(platformUserId);
 
-            bool success = this.CreateDirectory(this.m_activeUserDirectory);
+            bool success = this.CreateDirectory(this.ActiveUserDirectory);
             if(callback != null)
             {
                 callback.Invoke(platformUserId, success);
@@ -213,7 +220,7 @@ namespace ModIO
         {
             this.m_activeUserDirectory = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
 
-            bool success = this.CreateDirectory(this.m_activeUserDirectory);
+            bool success = this.CreateDirectory(this.ActiveUserDirectory);
             if(callback != null)
             {
                 callback.Invoke(platformUserId, success);
@@ -237,7 +244,7 @@ namespace ModIO
         /// <summary>Deletes all of the active user's data.</summary>
         void IUserDataIO.ClearActiveUserData(UserDataIOCallbacks.ClearActiveUserDataCallback callback)
         {
-            bool success = this.DeleteDirectory(this.m_activeUserDirectory);
+            bool success = this.DeleteDirectory(this.ActiveUserDirectory);
 
             if(callback != null) { callback.Invoke(success); }
         }
@@ -249,7 +256,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
             Debug.Assert(callback != null);
 
-            string path = IOUtilities.CombinePath(this.m_activeUserDirectory, relativePath);
+            string path = IOUtilities.CombinePath(this.ActiveUserDirectory, relativePath);
             byte[] data;
             bool success = this.ReadFile(path, out data);
 
@@ -265,7 +272,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
             Debug.Assert(data != null);
 
-            string path = IOUtilities.CombinePath(this.m_activeUserDirectory, relativePath);
+            string path = IOUtilities.CombinePath(this.ActiveUserDirectory, relativePath);
             bool success = this.WriteFile(path, data);
 
             if(callback != null) { callback.Invoke(relativePath, success); }
@@ -277,7 +284,7 @@ namespace ModIO
         {
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
 
-            string path = IOUtilities.CombinePath(this.m_activeUserDirectory, relativePath);
+            string path = IOUtilities.CombinePath(this.ActiveUserDirectory, relativePath);
             bool success = this.DeleteFile(path);
 
             if(callback != null) { callback.Invoke(relativePath, success); }
