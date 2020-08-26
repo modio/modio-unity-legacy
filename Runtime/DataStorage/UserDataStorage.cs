@@ -20,6 +20,13 @@ namespace ModIO
         /// <summary>Defines the i/o functions to use for this platform.</summary>
         public static readonly IUserDataIO PLATFORM_IO;
 
+        // ---------[ Accessors ]---------
+        /// <summary>Active User Data directory.</summary>
+        public static string ActiveUserDirectory
+        {
+            get { return PLATFORM_IO.ActiveUserDirectory; }
+        }
+
         // ---------[ Initialization ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
         static UserDataStorage()

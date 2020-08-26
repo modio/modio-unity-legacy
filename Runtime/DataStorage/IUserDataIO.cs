@@ -5,6 +5,10 @@ namespace ModIO
     /// <summary>Defines the functions necessary for the platform user data IO.</summary>
     public interface IUserDataIO
     {
+        // --- Accessors ---
+        /// <summary>Active User Data directory.</summary>
+        string ActiveUserDirectory { get; }
+
         // --- Initialization ---
         /// <summary>Initializes the storage system for the given user.</summary>
         void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback);
