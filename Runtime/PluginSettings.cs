@@ -47,6 +47,9 @@ namespace ModIO
             [Tooltip("IPlatformIO class to use for DataStorage operations.")]
             public string IOModuleClassName;
 
+            [Tooltip("IUserDataIO class to use for DataStorage operations.")]
+            public string UserDataModuleClassName;
+
             // ---------[ Obsolete ]---------
             [System.Obsolete("No longer supported.")]
             [HideInInspector]
@@ -89,6 +92,15 @@ namespace ModIO
 
         /// <summary>Singleton instance.</summary>
         private static Data _dataInstance;
+
+        /// <summary>IPlatformIO class name for SystemIOWrapper.</summary>
+        private const string CLASSNAME_IOMODULE_SYSTEMIOWRAPPER = "ModIO.SystemIOWrapper, modio.UnityPlugin, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
+
+        /// <summary>IUserDataIO class name for FacepunchUserData.</summary>
+        private const string CLASSNAME_UDMODULE_FACEPUNCHUSERDATA = "ModIO.FacepunchUserDataIO, modio.UnityPlugin, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
+
+        /// <summary>IUserDataIO class name for SteamworksNetUserData.</summary>
+        private const string CLASSNAME_UDMODULE_STEAMWORKSNETUSERDATA = "ModIO.SteamworksNETUserDataIO, modio.UnityPlugin, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
 
         /// <summary>The values that the plugin should use.</summary>
         public static Data data
@@ -232,7 +244,8 @@ namespace ModIO
                     logOnSend = false,
                 },
 
-                IOModuleClassName = "ModIO.SystemIOWrapper, modio.UnityPlugin, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                IOModuleClassName = PluginSettings.CLASSNAME_IOMODULE_SYSTEMIOWRAPPER,
+                UserDataModuleClassName = PluginSettings.CLASSNAME_IOMODULE_SYSTEMIOWRAPPER,
             };
 
             return data;
