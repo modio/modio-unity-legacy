@@ -34,12 +34,10 @@ namespace ModIO
             // Select the platform appropriate functions
             #if UNITY_EDITOR && !DISABLE_EDITOR_CODEPATH
                 UserDataStorage.PLATFORM_IO = new SystemIOWrapper_Editor();
-            #elif MODIO_FACEPUNCH_SUPPORT
-                UserDataStorage.PLATFORM_IO = new FacepunchUserDataIO();
-            #elif MODIO_STEAMWORKSNET_SUPPORT
-                UserDataStorage.PLATFORM_IO = new SteamworksNETUserDataIO();
             #else
-                UserDataStorage.PLATFORM_IO = new SystemIOWrapper();
+                var udModuleType = System.Type.GetType(PluginSettings.data.UserDataModuleClassName);
+                IUserDataIO udModuleInstance = (IUserDataIO)System.Activator.CreateInstance(udModuleType);
+                UserDataStorage.PLATFORM_IO = udModuleInstance;
             #endif
         }
 
