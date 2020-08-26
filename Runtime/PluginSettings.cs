@@ -47,16 +47,6 @@ namespace ModIO
             [Tooltip("IPlatformIO class to use for DataStorage operations.")]
             public string IOModuleClassName;
 
-            [Header("Runtime Directories")]
-            [Tooltip("Directory to use for user data")]
-            [VariableDirectory]
-            public string userDirectory;
-
-            [Header("Editor Directories")]
-            [Tooltip("Directory to use for user data")]
-            [VariableDirectory]
-            public string userDirectoryEditor;
-
             // ---------[ Obsolete ]---------
             [System.Obsolete("No longer supported.")]
             [HideInInspector]
@@ -68,11 +58,19 @@ namespace ModIO
 
             [System.Obsolete("No longer supported.")]
             [HideInInspector]
+            public string userDirectory;
+
+            [System.Obsolete("No longer supported.")]
+            [HideInInspector]
             public string installationDirectoryEditor;
 
             [System.Obsolete("No longer supported.")]
             [HideInInspector]
             public string cacheDirectoryEditor;
+
+            [System.Obsolete("No longer supported.")]
+            [HideInInspector]
+            public string userDirectoryEditor;
 
             [System.Obsolete("Use requestLogging.logAllResponses instead.")]
             public bool logAllRequests
@@ -134,26 +132,12 @@ namespace ModIO
                                            + "This must be configured by selecting the mod.io > Edit Settings menu"
                                            + " item before the mod.io Unity Plugin can be used.");
                         }
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.userDirectory))
-                        {
-                            errorMessage = ("[mod.io] User Directory is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
-                        }
                         else if(string.IsNullOrEmpty(PluginSettings._dataInstance.IOModuleClassName))
                         {
                             errorMessage = ("[mod.io] IO Module is missing from the Plugin Settings.\n"
                                            + "This must be configured by selecting the mod.io > Edit Settings menu"
                                            + " item before the mod.io Unity Plugin can be used.");
                         }
-                        #if UNITY_EDITOR
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.userDirectoryEditor))
-                        {
-                            errorMessage = ("[mod.io] User Directory (Editor) is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
-                        }
-                        #endif
 
                         if(errorMessage != null)
                         {
@@ -195,14 +179,6 @@ namespace ModIO
         {
             get { return PluginSettings.data.requestLogging; }
         }
-        public static string USER_DIRECTORY
-        {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.userDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.userDirectory; }
-            #endif // UNITY_EDITOR
-        }
 
         // ---------[ FUNCTIONALITY ]---------
         /// <summary>Loads the data from a PluginSettings asset.</summary>
@@ -218,21 +194,6 @@ namespace ModIO
             else
             {
                 settings = wrapper.m_data;
-
-                // - Path variable replacement -
-                // userdir
-                if(settings.userDirectory != null)
-                {
-                    settings.userDirectory = ReplaceDirectoryVariables(settings.userDirectory,
-                                                                       settings.gameId);
-                }
-
-                // userdir
-                if(settings.userDirectoryEditor != null)
-                {
-                    settings.userDirectoryEditor = ReplaceDirectoryVariables(settings.userDirectoryEditor,
-                                                                             settings.gameId);
-                }
             }
 
             return settings;
@@ -307,10 +268,6 @@ namespace ModIO
                 },
 
                 IOModuleClassName = "ModIO.SystemIOWrapper, modio.UnityPlugin, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-
-                userDirectory = IOUtilities.CombinePath("$PERSISTENT_DATA_PATH$","mod.io-$GAME_ID$"),
-
-                userDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","user"),
             };
 
             return data;
@@ -363,6 +320,16 @@ namespace ModIO
                 get { return PluginSettings.data.installationDirectoryEditor; }
             #else
                 get { return PluginSettings.data.installationDirectory; }
+            #endif // UNITY_EDITOR
+        }
+
+        [System.Obsolete("No longer supported. Try UserDataStorage.ActiveDirectory instead.")]
+        public static string USER_DIRECTORY
+        {
+            #if UNITY_EDITOR
+                get { return PluginSettings.data.userDirectoryEditor; }
+            #else
+                get { return PluginSettings.data.userDirectory; }
             #endif // UNITY_EDITOR
         }
 
