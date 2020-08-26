@@ -17,7 +17,7 @@ namespace ModIO
                                                                                      "Resources",
                                                                                      "mod.io",
                                                                                      "Editor",
-                                                                                     PluginSettings.GAME_ID.ToString("x0000"));
+                                                                                     PluginSettings.GAME_ID.ToString("x4"));
 
         /// <summary>Temporary Data directory path.</summary>
         private static readonly string TEMPORARY_DATA_DIRECTORY = IOUtilities.CombinePath(ROOT_DATA_DIRECTORY, "Temp");
@@ -43,11 +43,43 @@ namespace ModIO
         }
 
         // ---------[ IUserDataIO Interface ]---------
-        // --- Accessors ---
-        /// <summary>User Data directory path.</summary>
-        public override string UserDataDirectory
+        // --- Initialization ---
+        /// <summary>Determines the user directory for a given user id.</summary>
+        protected override string GenerateActiveUserDirectory(string platformUserId)
         {
-            get { return SystemIOWrapper_Editor.USER_DATA_DIRECTORY; }
+            string dir = SystemIOWrapper_Editor.USER_DATA_DIRECTORY;
+
+            if(!string.IsNullOrEmpty(platformUserId))
+            {
+                string folderName = IOUtilities.MakeValidFileName(platformUserId);
+                dir = IOUtilities.CombinePath(SystemIOWrapper_Editor.USER_DATA_DIRECTORY, folderName);
+            }
+
+            return dir;
+        }
+
+        /// <summary>Initializes the storage system for the given user.</summary>
+        public override void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
+        {
+            base.SetActiveUser(platformUserId, callback);
+
+            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.m_activeUserDirectory)
+               && !Application.isPlaying)
+            {
+                AssetDatabase.Refresh();
+            }
+        }
+
+        /// <summary>Initializes the storage system for the given user.</summary>
+        public override void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback)
+        {
+            base.SetActiveUser(platformUserId, callback);
+
+            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.m_activeUserDirectory)
+               && !Application.isPlaying)
+            {
+                AssetDatabase.Refresh();
+            }
         }
 
         // ---------[ Core Functionality ]---------
@@ -146,30 +178,6 @@ namespace ModIO
             }
 
             return success;
-        }
-
-        /// <summary>Initializes the storage system for the given user.</summary>
-        public override void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
-        {
-            base.SetActiveUser(platformUserId, callback);
-
-            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir)
-               && !Application.isPlaying)
-            {
-                AssetDatabase.Refresh();
-            }
-        }
-
-        /// <summary>Initializes the storage system for the given user.</summary>
-        public override void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback)
-        {
-            base.SetActiveUser(platformUserId, callback);
-
-            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir)
-               && !Application.isPlaying)
-            {
-                AssetDatabase.Refresh();
-            }
         }
 
         // ---------[ UTIL ]---------

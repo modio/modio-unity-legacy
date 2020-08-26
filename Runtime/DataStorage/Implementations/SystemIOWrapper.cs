@@ -12,13 +12,13 @@ namespace ModIO
         // ---------[ CONSTANTS ]---------
         /// <summary>Temporary Data directory path.</summary>
         private static readonly string TEMPORARY_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.temporaryCachePath,
-                                                                                          "modio_" + PluginSettings.GAME_ID.ToString("x0000000000"));
+                                                                                          "modio_" + PluginSettings.GAME_ID.ToString("x8"));
         /// <summary>Persistent Data directory path.</summary>
         private static readonly string PERSISTENT_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
                                                                                            "modio");
         /// <summary>User Data directory path.</summary>
         private static readonly string USER_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath,
-                                                                                     "modio_" + PluginSettings.GAME_ID.ToString("x0000000000"));
+                                                                                     "modio_" + PluginSettings.GAME_ID.ToString("x8"));
 
         // ---------[ IPlatformIO Interface ]---------
         // --- Accessors ---
@@ -187,21 +187,21 @@ namespace ModIO
 
         // ---------[ IUserDataIO Interface ]---------
         /// <summary>The directory for the active user's data.</summary>
-        public string userDir = SystemIOWrapper.USER_DATA_DIRECTORY;
+        protected string m_activeUserDirectory = SystemIOWrapper.USER_DATA_DIRECTORY;
 
-        /// <summary>User Data directory path.</summary>
-        public virtual string UserDataDirectory
+        /// <summary>Active User Data directory.</summary>
+        public virtual string ActiveUserDirectory
         {
-            get { return SystemIOWrapper.USER_DATA_DIRECTORY; }
+            get { return this.m_activeUserDirectory; }
         }
 
         // --- Initialization ---
         /// <summary>Initializes the storage system for the given user.</summary>
         public virtual void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
         {
-            this.userDir = this.GenerateActiveUserDirectory(platformUserId);
+            this.m_activeUserDirectory = this.GenerateActiveUserDirectory(platformUserId);
 
-            bool success = this.CreateDirectory(this.userDir);
+            bool success = this.CreateDirectory(this.m_activeUserDirectory);
             if(callback != null)
             {
                 callback.Invoke(platformUserId, success);
@@ -211,9 +211,9 @@ namespace ModIO
         /// <summary>Initializes the storage system for the given user.</summary>
         public virtual void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback)
         {
-            this.userDir = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
+            this.m_activeUserDirectory = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
 
-            bool success = this.CreateDirectory(this.userDir);
+            bool success = this.CreateDirectory(this.m_activeUserDirectory);
             if(callback != null)
             {
                 callback.Invoke(platformUserId, success);
@@ -223,7 +223,7 @@ namespace ModIO
         /// <summary>Determines the user directory for a given user id.</summary>
         protected virtual string GenerateActiveUserDirectory(string platformUserId)
         {
-            string dir = this.UserDataDirectory;
+            string dir = SystemIOWrapper.USER_DATA_DIRECTORY;
 
             if(!string.IsNullOrEmpty(platformUserId))
             {
@@ -237,7 +237,7 @@ namespace ModIO
         /// <summary>Deletes all of the active user's data.</summary>
         void IUserDataIO.ClearActiveUserData(UserDataIOCallbacks.ClearActiveUserDataCallback callback)
         {
-            bool success = this.DeleteDirectory(this.userDir);
+            bool success = this.DeleteDirectory(this.m_activeUserDirectory);
 
             if(callback != null) { callback.Invoke(success); }
         }
@@ -249,7 +249,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
             Debug.Assert(callback != null);
 
-            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            string path = IOUtilities.CombinePath(this.m_activeUserDirectory, relativePath);
             byte[] data;
             bool success = this.ReadFile(path, out data);
 
@@ -265,7 +265,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
             Debug.Assert(data != null);
 
-            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            string path = IOUtilities.CombinePath(this.m_activeUserDirectory, relativePath);
             bool success = this.WriteFile(path, data);
 
             if(callback != null) { callback.Invoke(relativePath, success); }
@@ -277,7 +277,7 @@ namespace ModIO
         {
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
 
-            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            string path = IOUtilities.CombinePath(this.m_activeUserDirectory, relativePath);
             bool success = this.DeleteFile(path);
 
             if(callback != null) { callback.Invoke(relativePath, success); }
