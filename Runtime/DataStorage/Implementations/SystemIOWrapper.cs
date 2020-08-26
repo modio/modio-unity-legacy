@@ -16,6 +16,9 @@ namespace ModIO
         /// <summary>Persistent Data directory path.</summary>
         private static readonly string PERSISTENT_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
                                                                                            "modio");
+        /// <summary>User Data directory path.</summary>
+        private static readonly string USER_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath,
+                                                                                     "modio_" + PluginSettings.GAME_ID.ToString("x0000000000"));
 
         // ---------[ IPlatformIO Interface ]---------
         // --- Accessors ---
@@ -184,7 +187,13 @@ namespace ModIO
 
         // ---------[ IUserDataIO Interface ]---------
         /// <summary>The directory for the active user's data.</summary>
-        public string userDir = PluginSettings.USER_DIRECTORY;
+        public string userDir = SystemIOWrapper.USER_DATA_DIRECTORY;
+
+        /// <summary>User Data directory path.</summary>
+        public virtual string UserDataDirectory
+        {
+            get { return SystemIOWrapper.USER_DATA_DIRECTORY; }
+        }
 
         // --- Initialization ---
         /// <summary>Initializes the storage system for the given user.</summary>
@@ -211,18 +220,18 @@ namespace ModIO
             }
         }
 
-        /// <summary>Determines the user directory for a given user id..</summary>
+        /// <summary>Determines the user directory for a given user id.</summary>
         protected virtual string GenerateActiveUserDirectory(string platformUserId)
         {
-            string userDir = PluginSettings.USER_DIRECTORY;
+            string dir = this.UserDataDirectory;
 
             if(!string.IsNullOrEmpty(platformUserId))
             {
                 string folderName = IOUtilities.MakeValidFileName(platformUserId);
-                userDir = IOUtilities.CombinePath(PluginSettings.USER_DIRECTORY, folderName);
+                dir = IOUtilities.CombinePath(SystemIOWrapper.USER_DATA_DIRECTORY, folderName);
             }
 
-            return userDir;
+            return dir;
         }
 
         /// <summary>Deletes all of the active user's data.</summary>

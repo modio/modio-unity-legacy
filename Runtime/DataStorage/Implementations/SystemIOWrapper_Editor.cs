@@ -12,18 +12,21 @@ namespace ModIO
     public class SystemIOWrapper_Editor : SystemIOWrapper
     {
         // ---------[ CONSTANTS ]---------
+        /// <summary>Root data directory.</summary>
+        private static readonly string ROOT_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
+                                                                                     "Resources",
+                                                                                     "mod.io",
+                                                                                     "Editor",
+                                                                                     PluginSettings.GAME_ID.ToString("x0000"));
+
         /// <summary>Temporary Data directory path.</summary>
-        private static readonly string TEMPORARY_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
-                                                                                          "Resources",
-                                                                                          "mod.io",
-                                                                                          "Editor_" + PluginSettings.GAME_ID.ToString("x0000"),
-                                                                                          "Temp");
+        private static readonly string TEMPORARY_DATA_DIRECTORY = IOUtilities.CombinePath(ROOT_DATA_DIRECTORY, "Temp");
+
         /// <summary>Persistent Data directory path.</summary>
-        private static readonly string PERSISTENT_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
-                                                                                           "Resources",
-                                                                                           "mod.io",
-                                                                                           "Editor_" + PluginSettings.GAME_ID.ToString("x0000"),
-                                                                                           "Cache");
+        private static readonly string PERSISTENT_DATA_DIRECTORY = IOUtilities.CombinePath(ROOT_DATA_DIRECTORY, "Cache");
+
+        /// <summary>User Data directory path.</summary>
+        private static readonly string USER_DATA_DIRECTORY = IOUtilities.CombinePath(ROOT_DATA_DIRECTORY, "User");
 
         // ---------[ IPlatformIO Interface ]---------
         // --- Accessors ---
@@ -39,6 +42,15 @@ namespace ModIO
             get { return SystemIOWrapper_Editor.PERSISTENT_DATA_DIRECTORY; }
         }
 
+        // ---------[ IUserDataIO Interface ]---------
+        // --- Accessors ---
+        /// <summary>User Data directory path.</summary>
+        public override string UserDataDirectory
+        {
+            get { return SystemIOWrapper_Editor.USER_DATA_DIRECTORY; }
+        }
+
+        // ---------[ Core Functionality ]---------
         // --- File I/O ---
         /// <summary>Writes a file.</summary>
         public override bool WriteFile(string path, byte[] data)
