@@ -28,7 +28,7 @@ namespace ModIO
         static UserDataStorage()
         {
             // Select the platform appropriate functions
-            #if UNITY_EDITOR && !DISABLE_EDITOR_CODEPATH
+            #if UNITY_EDITOR
                 UserDataStorage.PLATFORM_IO = new SystemIOWrapper_Editor();
             #else
                 var udModuleType = System.Type.GetType(PluginSettings.data.UserDataModuleClassName);
