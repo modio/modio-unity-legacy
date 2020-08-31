@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace ModIO
 {
     /// <summary>Wraps the System.IO functionality and adds AssetDatabase refreshes.</summary>
-    public class UserDataIO_Editor : UserDataIOBase
+    public class UserDataIO_Editor : UserDataIOBase, IUserDataIO<object>
     {
         // ---------[ CONSTANTS ]---------
         /// <summary>User Data directory path.</summary>
@@ -69,6 +69,25 @@ namespace ModIO
         public override void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback)
         {
             this.m_activeUserDirectory = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
+
+            bool success = SystemIOWrapper.CreateDirectory(this.ActiveUserDirectory);
+            if(callback != null)
+            {
+                callback.Invoke(platformUserId, success);
+            }
+        }
+
+        /// <summary>Initializes the storage system for the given user.</summary>
+        public void SetActiveUser(object platformUserId, UserDataIOCallbacks.SetActiveUserCallback<object> callback)
+        {
+            if(platformUserId != null)
+            {
+                this.m_activeUserDirectory = this.GenerateActiveUserDirectory(platformUserId.ToString());
+            }
+            else
+            {
+                this.m_activeUserDirectory = this.GenerateActiveUserDirectory(null);
+            }
 
             bool success = SystemIOWrapper.CreateDirectory(this.ActiveUserDirectory);
             if(callback != null)

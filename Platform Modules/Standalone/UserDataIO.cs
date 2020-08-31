@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace ModIO
 {
     /// <summary>Wraps the System.IO functionality and adds AssetDatabase refreshes.</summary>
-    public class UserDataIO : UserDataIOBase
+    public class UserDataIO : UserDataIOBase, IUserDataIO<string>, IUserDataIO<int>
     {
         // ---------[ CONSTANTS ]---------
         /// <summary>User Data directory path.</summary>
