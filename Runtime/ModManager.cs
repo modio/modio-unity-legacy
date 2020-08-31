@@ -1581,7 +1581,35 @@ namespace ModIO
 
             });
         }
+
         // ---------[ USER DATA ]---------
+        /// <summary>Configures the ModManager to use the given platform user.</summary>
+        public static void SetPlatformUser<TPlatformUserId, TPlatformUserCredentials>(PlatformUser<TPlatformUserId, TPlatformUserCredentials> platformUser,
+                                                                                      Action onSuccess,
+                                                                                      Action onError)
+        {
+            UserDataStorage.SetActiveUser(platformUser.identifier, (uid, s) =>
+            {
+                if(s)
+                {
+                    LocalUser.Load(() =>
+                    {
+                        if(onSuccess != null)
+                        {
+                            onSuccess.Invoke();
+                        }
+                    });
+                }
+                else
+                {
+                    if(onError != null)
+                    {
+                        onError.Invoke();
+                    }
+                }
+            });
+        }
+
         /// <summary>Fetches and caches the User Profile for the values in UserAuthenticationData.</summary>
         public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
