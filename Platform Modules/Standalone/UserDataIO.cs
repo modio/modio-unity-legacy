@@ -48,7 +48,7 @@ namespace ModIO
         }
 
         /// <summary>Initializes the storage system for the given user.</summary>
-        public override void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
+        public virtual void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
         {
             this.m_activeUserDirectory = this.GenerateActiveUserDirectory(platformUserId);
 
@@ -60,7 +60,7 @@ namespace ModIO
         }
 
         /// <summary>Initializes the storage system for the given user.</summary>
-        public override void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback)
+        public virtual void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback)
         {
             this.m_activeUserDirectory = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
 

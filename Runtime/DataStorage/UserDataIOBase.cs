@@ -13,13 +13,6 @@ namespace ModIO
         /// <summary>Active User Data directory.</summary>
         public abstract string ActiveUserDirectory { get; }
 
-        // --- Initialization ---
-        /// <summary>Initializes the storage system for the given user.</summary>
-        public abstract void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback);
-
-        /// <summary>Initializes the storage system for the given user.</summary>
-        public abstract void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback);
-
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
         public virtual void ReadFile(string relativePath, UserDataIOCallbacks.ReadFileCallback callback)

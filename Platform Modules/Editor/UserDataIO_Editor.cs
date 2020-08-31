@@ -54,30 +54,6 @@ namespace ModIO
         }
 
         /// <summary>Initializes the storage system for the given user.</summary>
-        public override void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
-        {
-            this.m_activeUserDirectory = this.GenerateActiveUserDirectory(platformUserId);
-
-            bool success = SystemIOWrapper.CreateDirectory(this.ActiveUserDirectory);
-            if(callback != null)
-            {
-                callback.Invoke(platformUserId, success);
-            }
-        }
-
-        /// <summary>Initializes the storage system for the given user.</summary>
-        public override void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback)
-        {
-            this.m_activeUserDirectory = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
-
-            bool success = SystemIOWrapper.CreateDirectory(this.ActiveUserDirectory);
-            if(callback != null)
-            {
-                callback.Invoke(platformUserId, success);
-            }
-        }
-
-        /// <summary>Initializes the storage system for the given user.</summary>
         public void SetActiveUser(object platformUserId, UserDataIOCallbacks.SetActiveUserCallback<object> callback)
         {
             if(platformUserId != null)
