@@ -27,13 +27,10 @@ namespace ModIO
         /// <summary>Loads the platform I/O behaviour.</summary>
         static UserDataStorage()
         {
-            // Select the platform appropriate functions
             #if UNITY_EDITOR
                 UserDataStorage.PLATFORM_IO = new UserDataIO_Editor();
             #else
-                var udModuleType = System.Type.GetType(PluginSettings.data.UserDataModuleClassName);
-                IUserDataIO udModuleInstance = (IUserDataIO)System.Activator.CreateInstance(udModuleType);
-                UserDataStorage.PLATFORM_IO = udModuleInstance;
+                UserDataStorage.PLATFORM_IO = new UserDataIO();
             #endif
         }
 
