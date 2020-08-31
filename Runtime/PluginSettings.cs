@@ -8,9 +8,6 @@ namespace ModIO
     public class PluginSettings : ScriptableObject
     {
         // ---------[ NESTED CLASSES ]---------
-        /// <summary>Attribute for denoting a field as containing directory variables.</summary>
-        public class VariableDirectoryAttribute : PropertyAttribute {}
-
         /// <summary>Request logging options.</summary>
         [System.Serializable]
         public struct RequestLoggingOptions
@@ -43,33 +40,31 @@ namespace ModIO
             /// <summary>Request logging options.</summary>
             public RequestLoggingOptions requestLogging;
 
-            [Header("Runtime Directories")]
-            [Tooltip("Directory to use for mod installations")]
-            [VariableDirectory]
+            // ---------[ Obsolete ]---------
+            [System.Obsolete("No longer supported.")]
+            [HideInInspector]
             public string installationDirectory;
 
-            [Tooltip("Directory to use for cached server data")]
-            [VariableDirectory]
+            [System.Obsolete("No longer supported.")]
+            [HideInInspector]
             public string cacheDirectory;
 
-            [Tooltip("Directory to use for user data")]
-            [VariableDirectory]
+            [System.Obsolete("No longer supported.")]
+            [HideInInspector]
             public string userDirectory;
 
-            [Header("Editor Directories")]
-            [Tooltip("Directory to use for mod installations")]
-            [VariableDirectory]
+            [System.Obsolete("No longer supported.")]
+            [HideInInspector]
             public string installationDirectoryEditor;
 
-            [Tooltip("Directory to use for cached server data")]
-            [VariableDirectory]
+            [System.Obsolete("No longer supported.")]
+            [HideInInspector]
             public string cacheDirectoryEditor;
 
-            [Tooltip("Directory to use for user data")]
-            [VariableDirectory]
+            [System.Obsolete("No longer supported.")]
+            [HideInInspector]
             public string userDirectoryEditor;
 
-            // ---------[ Obsolete ]---------
             [System.Obsolete("Use requestLogging.logAllResponses instead.")]
             public bool logAllRequests
             {
@@ -130,44 +125,6 @@ namespace ModIO
                                            + "This must be configured by selecting the mod.io > Edit Settings menu"
                                            + " item before the mod.io Unity Plugin can be used.");
                         }
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.installationDirectory))
-                        {
-                            errorMessage = ("[mod.io] Installation Directory is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
-                        }
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.cacheDirectory))
-                        {
-                            errorMessage = ("[mod.io] Cache Directory is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
-                        }
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.userDirectory))
-                        {
-                            errorMessage = ("[mod.io] User Directory is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
-                        }
-                        #if UNITY_EDITOR
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.installationDirectoryEditor))
-                        {
-                            errorMessage = ("[mod.io] Installation Directory (Editor) is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
-                        }
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.cacheDirectoryEditor))
-                        {
-                            errorMessage = ("[mod.io] Cache Directory (Editor) is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
-                        }
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.userDirectoryEditor))
-                        {
-                            errorMessage = ("[mod.io] User Directory (Editor) is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
-                        }
-                        #endif
 
                         if(errorMessage != null)
                         {
@@ -209,30 +166,6 @@ namespace ModIO
         {
             get { return PluginSettings.data.requestLogging; }
         }
-        public static string INSTALLATION_DIRECTORY
-        {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.installationDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.installationDirectory; }
-            #endif // UNITY_EDITOR
-        }
-        public static string CACHE_DIRECTORY
-        {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.cacheDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.cacheDirectory; }
-            #endif // UNITY_EDITOR
-        }
-        public static string USER_DIRECTORY
-        {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.userDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.userDirectory; }
-            #endif // UNITY_EDITOR
-        }
 
         // ---------[ FUNCTIONALITY ]---------
         /// <summary>Loads the data from a PluginSettings asset.</summary>
@@ -248,87 +181,9 @@ namespace ModIO
             else
             {
                 settings = wrapper.m_data;
-
-                // - Path variable replacement -
-                // cachedir
-                if(settings.cacheDirectory != null)
-                {
-                    settings.cacheDirectory = ReplaceDirectoryVariables(settings.cacheDirectory,
-                                                                        settings.gameId);
-                }
-
-                // installdir
-                if(settings.installationDirectory != null)
-                {
-                    settings.installationDirectory = ReplaceDirectoryVariables(settings.installationDirectory,
-                                                                               settings.gameId);
-                }
-
-                // userdir
-                if(settings.userDirectory != null)
-                {
-                    settings.userDirectory = ReplaceDirectoryVariables(settings.userDirectory,
-                                                                       settings.gameId);
-                }
-
-                // cachedir
-                if(settings.cacheDirectoryEditor != null)
-                {
-                    settings.cacheDirectoryEditor = ReplaceDirectoryVariables(settings.cacheDirectoryEditor,
-                                                                              settings.gameId);
-                }
-
-                // installdir
-                if(settings.installationDirectoryEditor != null)
-                {
-                    settings.installationDirectoryEditor = ReplaceDirectoryVariables(settings.installationDirectoryEditor,
-                                                                                     settings.gameId);
-                }
-
-                // userdir
-                if(settings.userDirectoryEditor != null)
-                {
-                    settings.userDirectoryEditor = ReplaceDirectoryVariables(settings.userDirectoryEditor,
-                                                                             settings.gameId);
-                }
             }
 
             return settings;
-        }
-
-        /// <summary>Replaces variables in the directory values.</summary>
-        public static string ReplaceDirectoryVariables(string directory, int gameId)
-        {
-            // remove any trailing DSCs from Application paths
-            string app_persistentDataPath = Application.persistentDataPath;
-            if(IOUtilities.PathEndsWithDirectorySeparator(app_persistentDataPath))
-            {
-                app_persistentDataPath = app_persistentDataPath.Remove(app_persistentDataPath.Length-1);
-            }
-            string app_dataPath = Application.dataPath;
-            if(IOUtilities.PathEndsWithDirectorySeparator(app_dataPath))
-            {
-                app_dataPath = app_dataPath.Remove(app_dataPath.Length-1);
-            }
-            string app_temporaryCachePath = Application.temporaryCachePath;
-            if(IOUtilities.PathEndsWithDirectorySeparator(app_temporaryCachePath))
-            {
-                app_temporaryCachePath = app_temporaryCachePath.Remove(app_temporaryCachePath.Length-1);
-            }
-
-            // straight replaces
-            directory = (directory
-                         .Replace("$PERSISTENT_DATA_PATH$", app_persistentDataPath)
-                         .Replace("$DATA_PATH$", app_dataPath)
-                         .Replace("$TEMPORARY_CACHE_PATH$", app_temporaryCachePath)
-                         .Replace("$BUILD_GUID$", Application.buildGUID)
-                         .Replace("$COMPANY_NAME$", Application.companyName)
-                         .Replace("$PRODUCT_NAME$", Application.productName)
-                         .Replace("$APPLICATION_IDENTIFIER", Application.identifier)
-                         .Replace("$GAME_ID$", gameId.ToString())
-                         );
-
-            return directory;
         }
 
         // ---------[ EDITOR CODE ]---------
@@ -363,14 +218,6 @@ namespace ModIO
                     logAllResponses = false,
                     logOnSend = false,
                 },
-
-                installationDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","mods"),
-                cacheDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","cache"),
-                userDirectory = IOUtilities.CombinePath("$PERSISTENT_DATA_PATH$","mod.io-$GAME_ID$"),
-
-                installationDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","mods"),
-                cacheDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","cache"),
-                userDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","user"),
             };
 
             return data;
@@ -403,8 +250,40 @@ namespace ModIO
 
             return settings;
         }
+        #endif // UNITY_EDITOR
 
         // ---------[ Obsolete ]---------
+        [System.Obsolete("Use DataStorage.PersistentDataDirectory instead.")]
+        public static string CACHE_DIRECTORY
+        {
+            #if UNITY_EDITOR
+                get { return PluginSettings.data.cacheDirectoryEditor; }
+            #else
+                get { return PluginSettings.data.cacheDirectory; }
+            #endif // UNITY_EDITOR
+        }
+
+        [System.Obsolete("No longer supported. Try ModManager.GetModInstallDirectory() instead.")]
+        public static string INSTALLATION_DIRECTORY
+        {
+            #if UNITY_EDITOR
+                get { return PluginSettings.data.installationDirectoryEditor; }
+            #else
+                get { return PluginSettings.data.installationDirectory; }
+            #endif // UNITY_EDITOR
+        }
+
+        [System.Obsolete("No longer supported. Try UserDataStorage.ActiveDirectory instead.")]
+        public static string USER_DIRECTORY
+        {
+            #if UNITY_EDITOR
+                get { return PluginSettings.data.userDirectoryEditor; }
+            #else
+                get { return PluginSettings.data.userDirectory; }
+            #endif // UNITY_EDITOR
+        }
+
+        #if UNITY_EDITOR
         /// <summary>[Obsolete] Sets the values of the Plugin Settings.</summary>
         [System.Obsolete("Use PluginSettings.SetRuntimeData() instead.")]
         public static PluginSettings SetGlobalValues(PluginSettings.Data data)
@@ -419,6 +298,6 @@ namespace ModIO
             PluginSettings.Data data = PluginSettings.GenerateDefaultData();
             return PluginSettings.SetRuntimeData(data);
         }
-        #endif
+        #endif // UNITY_EDITOR
     }
 }

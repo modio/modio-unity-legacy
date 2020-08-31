@@ -34,6 +34,9 @@ namespace ModIO
         /// <summary>File name used to store the persistent data.</summary>
         public static readonly string PERSISTENTDATA_FILEPATH;
 
+        /// <summary>Folder name for installed UGC.</summary>
+        public const string INSTALLATION_FOLDER = "mods";
+
         // ---------[ FIELDS ]---------
         /// <summary>Data that needs to be stored across sessions.</summary>
         private static PersistentData m_data;
@@ -42,7 +45,8 @@ namespace ModIO
         /// <summary>Initializes the ModManager settings.</summary>
         static ModManager()
         {
-            ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, PERSISTENTDATA_FILENAME);
+            ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(DataStorage.PersistentDataDirectory,
+                                                                         PERSISTENTDATA_FILENAME);
 
             DataStorage.ReadJSONFile<PersistentData>(ModManager.PERSISTENTDATA_FILEPATH, (p, success, data) =>
             {
@@ -66,7 +70,8 @@ namespace ModIO
         /// <summary>Generates the path for a given modfile install directory.</summary>
         public static string GetModInstallDirectory(int modId, int modfileId)
         {
-            return IOUtilities.CombinePath(PluginSettings.INSTALLATION_DIRECTORY,
+            return IOUtilities.CombinePath(DataStorage.PersistentDataDirectory,
+                                           ModManager.INSTALLATION_FOLDER,
                                            modId.ToString() + "_" + modfileId.ToString());
         }
 
@@ -161,7 +166,7 @@ namespace ModIO
                 else
                 {
                     DataStorage.DeleteDirectory(installDirectory, (dd_path, dd_success) =>
-                    DataStorage.CreateDirectory(PluginSettings.INSTALLATION_DIRECTORY, (cd_path, cd_success) =>
+                    DataStorage.CreateDirectory(installDirectory, (cd_path, cd_success) =>
                     DataStorage.MoveDirectory(tempLocation, installDirectory, (md_src, md_dst, md_success) =>
                     {
                         if(dd_success && cd_success && md_success)
@@ -352,7 +357,10 @@ namespace ModIO
         {
             Debug.Assert(onComplete != null);
 
-            DataStorage.GetDirectories(PluginSettings.INSTALLATION_DIRECTORY, (path, exists, modDirectories) =>
+            string installationDirectory = IOUtilities.CombinePath(DataStorage.PersistentDataDirectory,
+                                                                   ModManager.INSTALLATION_FOLDER);
+
+            DataStorage.GetDirectories(installationDirectory, (path, exists, modDirectories) =>
             {
                 var installedModMap = new List<KeyValuePair<ModfileIdPair, string>>();
 
@@ -1573,7 +1581,35 @@ namespace ModIO
 
             });
         }
+
         // ---------[ USER DATA ]---------
+        /// <summary>Configures the ModManager to use the given platform user.</summary>
+        public static void SetPlatformUser<TPlatformUserId, TPlatformUserCredentials>(PlatformUser<TPlatformUserId, TPlatformUserCredentials> platformUser,
+                                                                                      Action onSuccess,
+                                                                                      Action onError)
+        {
+            UserDataStorage.SetActiveUser(platformUser.identifier, (uid, s) =>
+            {
+                if(s)
+                {
+                    LocalUser.Load(() =>
+                    {
+                        if(onSuccess != null)
+                        {
+                            onSuccess.Invoke();
+                        }
+                    });
+                }
+                else
+                {
+                    if(onError != null)
+                    {
+                        onError.Invoke();
+                    }
+                }
+            });
+        }
+
         /// <summary>Fetches and caches the User Profile for the values in UserAuthenticationData.</summary>
         public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)

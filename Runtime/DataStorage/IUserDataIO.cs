@@ -5,12 +5,9 @@ namespace ModIO
     /// <summary>Defines the functions necessary for the platform user data IO.</summary>
     public interface IUserDataIO
     {
-        // --- Initialization ---
-        /// <summary>Initializes the storage system for the given user.</summary>
-        void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback);
-
-        /// <summary>Initializes the storage system for the given user.</summary>
-        void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback);
+        // --- Accessors ---
+        /// <summary>Active User Data directory.</summary>
+        string ActiveUserDirectory { get; }
 
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
@@ -25,5 +22,13 @@ namespace ModIO
 
         /// <summary>Clears all of the active user's data.</summary>
         void ClearActiveUserData(ClearActiveUserDataCallback callback);
+    }
+
+    /// <summary>Adds SetActiveUser to the IUserDataIO interface.</summary>
+    public interface IUserDataIO<TPlatformUserIdentifier> : IUserDataIO
+    {
+        // --- Initialization ---
+        /// <summary>Initializes the storage system for the given user.</summary>
+        void SetActiveUser(TPlatformUserIdentifier platformUserId, SetActiveUserCallback<TPlatformUserIdentifier> callback);
     }
 }

@@ -24,14 +24,26 @@ namespace ModIO
         {
             // Selects the platform appropriate functions
             #if UNITY_EDITOR
-                DataStorage.PLATFORM_IO = new SystemIOWrapper_Editor();
+                DataStorage.PLATFORM_IO = new PlatformIO_Editor();
             #else
-                DataStorage.PLATFORM_IO = new SystemIOWrapper();
+                DataStorage.PLATFORM_IO = new PlatformIO();
             #endif
-
         }
 
         // ---------[ Data Management Interface ]---------
+        // ------ Accessors ------
+        /// <summary>Persistent Data directory path.</summary>
+        public static string PersistentDataDirectory
+        {
+            get { return DataStorage.PLATFORM_IO.PersistentDataDirectory; }
+        }
+
+        /// <summary>Temporary Data directory path.</summary>
+        public static string TemporaryDataDirectory
+        {
+            get { return DataStorage.PLATFORM_IO.TemporaryDataDirectory; }
+        }
+
         // ------ File I/O ------
         /// <summary>Reads a file.</summary>
         public static void ReadFile(string path, ReadFileCallback onComplete)
