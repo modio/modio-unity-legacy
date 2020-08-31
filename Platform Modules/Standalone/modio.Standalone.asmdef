@@ -1,0 +1,15 @@
+{
+    "name": "modio.Standalone",
+    "references": [
+        "modio.UnityPlugin"
+    ],
+    "includePlatforms": [
+        "LinuxStandalone32",
+        "LinuxStandalone64",
+        "LinuxStandaloneUniversal",
+        "macOSStandalone",
+        "WindowsStandalone32",
+        "WindowsStandalone64"
+    ],
+    "excludePlatforms": []
+}
