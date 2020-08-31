@@ -35,18 +35,6 @@ namespace ModIO
         }
 
         /// <summary>Initializes the data storage functionality for a given user.</summary>
-        public static void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
-        {
-            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId, callback);
-        }
-
-        /// <summary>Initializes the data storage functionality for a given user.</summary>
-        public static void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback)
-        {
-            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId, callback);
-        }
-
-        /// <summary>Initializes the data storage functionality for a given user.</summary>
         public static void SetActiveUser<T>(T userId, SetActiveUserCallback<T> callback)
         {
             #if DEBUG

@@ -9,13 +9,6 @@ namespace ModIO
         /// <summary>Active User Data directory.</summary>
         string ActiveUserDirectory { get; }
 
-        // --- Initialization ---
-        /// <summary>Initializes the storage system for the given user.</summary>
-        void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback);
-
-        /// <summary>Initializes the storage system for the given user.</summary>
-        void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback);
-
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
         void ReadFile(string pathRelative, ReadFileCallback callback);
