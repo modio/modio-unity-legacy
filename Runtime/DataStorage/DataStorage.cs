@@ -24,7 +24,7 @@ namespace ModIO
         {
             // Selects the platform appropriate functions
             #if UNITY_EDITOR
-                DataStorage.PLATFORM_IO = new SystemIOWrapper_Editor();
+                DataStorage.PLATFORM_IO = new PlatformIO_Editor();
             #else
                 var ioModuleType = System.Type.GetType(PluginSettings.data.IOModuleClassName);
                 IPlatformIO ioModuleInstance = (IPlatformIO)System.Activator.CreateInstance(ioModuleType);

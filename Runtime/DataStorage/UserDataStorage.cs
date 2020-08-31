@@ -29,7 +29,7 @@ namespace ModIO
         {
             // Select the platform appropriate functions
             #if UNITY_EDITOR
-                UserDataStorage.PLATFORM_IO = new SystemIOWrapper_Editor();
+                UserDataStorage.PLATFORM_IO = new UserDataIO_Editor();
             #else
                 var udModuleType = System.Type.GetType(PluginSettings.data.UserDataModuleClassName);
                 IUserDataIO udModuleInstance = (IUserDataIO)System.Activator.CreateInstance(udModuleType);
