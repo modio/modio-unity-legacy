@@ -40,9 +40,10 @@ namespace ModIO
             #if DEBUG
             if(!(UserDataStorage.PLATFORM_IO is IUserDataIO<T>))
             {
-                Debug.LogError("[mod.io] IUserDataIO type defined in the PluginSettings does not"
-                               + " allow for initialization with a user identifier of type "
-                               + typeof(T).ToString());
+                Debug.LogError("[mod.io] Loaded IUserDataIO type does not allow for initialization"
+                               + " with the provided PlatformUserIdentifier type."
+                               + "\nIUserDataIO.type = " + UserDataStorage.PLATFORM_IO.GetType().ToString()
+                               + "\nuserid.type = " + typeof(T).ToString());
 
                 if(callback != null)
                 {
