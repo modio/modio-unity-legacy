@@ -40,13 +40,6 @@ namespace ModIO
             /// <summary>Request logging options.</summary>
             public RequestLoggingOptions requestLogging;
 
-            [Header("Runtime Modules")]
-            [Tooltip("IPlatformIO class to use for DataStorage operations.")]
-            public string IOModuleClassName;
-
-            [Tooltip("IUserDataIO class to use for DataStorage operations.")]
-            public string UserDataModuleClassName;
-
             // ---------[ Obsolete ]---------
             [System.Obsolete("No longer supported.")]
             [HideInInspector]
@@ -90,15 +83,6 @@ namespace ModIO
         /// <summary>Singleton instance.</summary>
         private static Data _dataInstance;
 
-        /// <summary>IPlatformIO class name for SystemIOWrapper.</summary>
-        private const string CLASSNAME_IOMODULE_SYSTEMIOWRAPPER = "ModIO.SystemIOWrapper, modio.UnityPlugin, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
-
-        /// <summary>IUserDataIO class name for FacepunchUserData.</summary>
-        private const string CLASSNAME_UDMODULE_FACEPUNCHUSERDATA = "ModIO.FacepunchUserDataIO, modio.UnityPlugin, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
-
-        /// <summary>IUserDataIO class name for SteamworksNetUserData.</summary>
-        private const string CLASSNAME_UDMODULE_STEAMWORKSNETUSERDATA = "ModIO.SteamworksNETUserDataIO, modio.UnityPlugin, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
-
         /// <summary>The values that the plugin should use.</summary>
         public static Data data
         {
@@ -138,12 +122,6 @@ namespace ModIO
                         else if(string.IsNullOrEmpty(PluginSettings._dataInstance.gameAPIKey))
                         {
                             errorMessage = ("[mod.io] Game API Key is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
-                        }
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.IOModuleClassName))
-                        {
-                            errorMessage = ("[mod.io] IO Module is missing from the Plugin Settings.\n"
                                            + "This must be configured by selecting the mod.io > Edit Settings menu"
                                            + " item before the mod.io Unity Plugin can be used.");
                         }
@@ -240,9 +218,6 @@ namespace ModIO
                     logAllResponses = false,
                     logOnSend = false,
                 },
-
-                IOModuleClassName = PluginSettings.CLASSNAME_IOMODULE_SYSTEMIOWRAPPER,
-                UserDataModuleClassName = PluginSettings.CLASSNAME_IOMODULE_SYSTEMIOWRAPPER,
             };
 
             return data;
