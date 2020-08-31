@@ -1445,11 +1445,10 @@ namespace ModIO
                     ++rootDirectoryLength;
                 }
 
-                string archiveDirPath = IOUtilities.CombinePath(Application.temporaryCachePath, "modio");
-                string archiveFilePath = IOUtilities.CombinePath(archiveDirPath,
+                string archiveFilePath = IOUtilities.CombinePath(DataStorage.TemporaryDataDirectory,
                                                                  DateTime.Now.ToFileTime() + "_" + modId.ToString() + ".zip");
 
-                DataStorage.CreateDirectory(archiveDirPath, (path, success) =>
+                DataStorage.CreateDirectory(DataStorage.TemporaryDataDirectory, (path, success) =>
                 {
                     if(success)
                     {
@@ -1507,8 +1506,7 @@ namespace ModIO
                                                     Action<Modfile> onSuccess,
                                                     Action<WebRequestError> onError)
         {
-            string binaryZipLocation = IOUtilities.CombinePath(Application.temporaryCachePath,
-                                                               "modio",
+            string binaryZipLocation = IOUtilities.CombinePath(DataStorage.TemporaryDataDirectory,
                                                                Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + "_" + DateTime.Now.ToFileTime() + ".zip");
             bool zipSucceeded = false;
 

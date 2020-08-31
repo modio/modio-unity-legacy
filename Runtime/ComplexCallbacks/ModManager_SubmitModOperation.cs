@@ -378,8 +378,7 @@ namespace ModIO
             if(this.addedImageFilePaths != null
                && this.addedImageFilePaths.Count > 0)
             {
-                string imageArchivePath = IOUtilities.CombinePath(Application.temporaryCachePath,
-                                                                  "modio",
+                string imageArchivePath = IOUtilities.CombinePath(DataStorage.TemporaryDataDirectory,
                                                                   "imageGallery_" + DateTime.Now.ToFileTime() + ".zip");
 
                 DataStorage.CreateDirectory(Path.GetDirectoryName(imageArchivePath), (path, success) =>
