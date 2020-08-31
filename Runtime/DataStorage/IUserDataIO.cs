@@ -30,4 +30,12 @@ namespace ModIO
         /// <summary>Clears all of the active user's data.</summary>
         void ClearActiveUserData(ClearActiveUserDataCallback callback);
     }
+
+    /// <summary>Adds SetActiveUser to the IUserDataIO interface.</summary>
+    public interface IUserDataIO<TPlatformUserIdentifier> : IUserDataIO
+    {
+        // --- Initialization ---
+        /// <summary>Initializes the storage system for the given user.</summary>
+        void SetActiveUser(TPlatformUserIdentifier platformUserId, SetActiveUserCallback<TPlatformUserIdentifier> callback);
+    }
 }

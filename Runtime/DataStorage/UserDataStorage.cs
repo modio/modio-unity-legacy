@@ -46,6 +46,28 @@ namespace ModIO
             UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId, callback);
         }
 
+        /// <summary>Initializes the data storage functionality for a given user.</summary>
+        public static void SetActiveUser<T>(T userId, SetActiveUserCallback<T> callback)
+        {
+            #if DEBUG
+            if(!(UserDataStorage.PLATFORM_IO is IUserDataIO<T>))
+            {
+                Debug.LogError("[mod.io] IUserDataIO type defined in the PluginSettings does not"
+                               + " allow for initialization with a user identifier of type "
+                               + typeof(T).ToString());
+
+                if(callback != null)
+                {
+                    callback.Invoke(userId, false);
+                }
+
+                return;
+            }
+            #endif
+
+            ((IUserDataIO<T>)UserDataStorage.PLATFORM_IO).SetActiveUser(userId, callback);
+        }
+
         // ---------[ I/O Interface ]---------
         /// <summary>Function for reading a user-specific file.</summary>
         public static void ReadFile(string relativePath, ReadFileCallback callback)
