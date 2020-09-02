@@ -1583,7 +1583,7 @@ namespace ModIO
         // ---------[ USER DATA ]---------
         /// <summary>Configures the ModManager to use the given platform user.</summary>
         public static void SetPlatformUser<TPlatformUserId, TPlatformUserCredentials>(PlatformUser<TPlatformUserId, TPlatformUserCredentials> platformUser,
-                                                                                      Action onSuccess,
+                                                                                      Action<UserProfile> onSuccess,
                                                                                       Action onError)
         {
             Debug.Assert(platformUser != null);
@@ -1596,9 +1596,15 @@ namespace ModIO
 
                     LocalUser.Load(() =>
                     {
-                        if(onSuccess != null)
+                        if(!string.IsNullOrEmpty(platformUser.ExternalAuthenticationEndpoint))
                         {
-                            onSuccess.Invoke();
+                            UserAccountManagement.AuthenticateUsingExternalEndpoint(platformUser.ExternalAuthenticationEndpoint,
+                                                                                    platformUser.GenerateAuthenticationHeaders(),
+                                                                                    onSuccess,
+                                                                                    (e) =>
+                                                                                    {
+                                                                                        if(onError != null) { onError.Invoke(); }
+                                                                                    });
                         }
                     });
                 }
