@@ -12,26 +12,16 @@ namespace ModIO
     /// <summary>Functions for user-specific data I/O.</summary>
     public static class UserDataStorage
     {
-        // ---------[ Constants ]---------
-        /// <summary>Defines the i/o functions to use for this platform.</summary>
-        public static readonly IUserDataIO PLATFORM_IO;
-
-        // ---------[ Accessors ]---------
-        /// <summary>Active User Data directory.</summary>
-        public static string ActiveUserDirectory
-        {
-            get { return PLATFORM_IO.ActiveUserDirectory; }
-        }
-
         // ---------[ Initialization ]---------
-        /// <summary>Loads the platform I/O behaviour.</summary>
-        static UserDataStorage()
+        /// <summary>Defines the I/O functions to use for this platform.</summary>
+        private static IUserDataIO PLATFORM_IO = null;
+
+        /// <summary>Sets the IO Module for UserDataStorage.</summary>
+        public static void SetIOModule(IUserDataIO ioModule)
         {
-            #if UNITY_EDITOR
-                UserDataStorage.PLATFORM_IO = new UserDataIO_Editor();
-            #else
-                UserDataStorage.PLATFORM_IO = new UserDataIO();
-            #endif
+            Debug.Assert(ioModule != null);
+
+            UserDataStorage.PLATFORM_IO = ioModule;
         }
 
         /// <summary>Initializes the data storage functionality for a given user.</summary>
@@ -58,6 +48,13 @@ namespace ModIO
         }
 
         // ---------[ I/O Interface ]---------
+        // ---------[ Accessors ]---------
+        /// <summary>Active User Data directory.</summary>
+        public static string ActiveUserDirectory
+        {
+            get { return PLATFORM_IO.ActiveUserDirectory; }
+        }
+
         /// <summary>Function for reading a user-specific file.</summary>
         public static void ReadFile(string relativePath, ReadFileCallback callback)
         {
