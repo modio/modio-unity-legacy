@@ -1,4 +1,6 @@
-﻿namespace ModIO
+﻿#if UNITY_EDITOR
+
+namespace ModIO
 {
     /// <summary>Editor Platform User definition</summary>
     public class PlatformUser_Editor : PlatformUser<object, object>
@@ -36,3 +38,5 @@
         }
     }
 }
+
+#endif // UNITY_EDITOR
