@@ -1583,7 +1583,7 @@ namespace ModIO
         // ---------[ USER DATA ]---------
         /// <summary>Configures the ModManager to use the given platform user.</summary>
         public static void SetPlatformUser<TPlatformUserId, TPlatformUserCredentials>(PlatformUser<TPlatformUserId, TPlatformUserCredentials> platformUser,
-                                                                                      Action<UserProfile> onSuccess,
+                                                                                      Action onSuccess,
                                                                                       Action onError)
         {
             Debug.Assert(platformUser != null);
@@ -1600,11 +1600,18 @@ namespace ModIO
                         {
                             UserAccountManagement.AuthenticateUsingExternalEndpoint(platformUser.ExternalAuthenticationEndpoint,
                                                                                     platformUser.GenerateAuthenticationHeaders(),
-                                                                                    onSuccess,
+                                                                                    (p) =>
+                                                                                    {
+                                                                                        if(onSuccess != null) { onSuccess.Invoke(); }
+                                                                                    },
                                                                                     (e) =>
                                                                                     {
                                                                                         if(onError != null) { onError.Invoke(); }
                                                                                     });
+                        }
+                        else if(onSuccess != null)
+                        {
+                            onSuccess.Invoke();
                         }
                     });
                 }
