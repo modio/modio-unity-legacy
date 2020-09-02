@@ -7,6 +7,9 @@
         /// <summary>User Identifier to use for the user data storage initialization.</summary>
         public TUserIdentifier identifier;
 
+        /// <summary>Creates and initializes a user data storage instance.</summary>
+        protected internal abstract void CreateUserDataStore(System.Action<IUserDataIO> onComplete);
+
         // ---------[ External Authentication ]---------
         /// <summary>Credentials to use for the mod.io external auth request.</summary>
         public TPlatformCredentials credentials;
