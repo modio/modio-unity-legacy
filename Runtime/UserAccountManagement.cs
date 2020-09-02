@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Debug = UnityEngine.Debug;
+using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
 
 namespace ModIO
 {
@@ -535,6 +536,44 @@ namespace ModIO
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
                 LocalUser.Save();
+
+                UserAccountManagement.UpdateUserProfile(onSuccess, onError);
+            },
+            onError);
+        }
+
+        /// <summary>Wrapper object for [[ModIO.APIClient.GetOAuthToken]] requests.</summary>
+        [System.Serializable]
+        #pragma warning disable 0649
+        private struct AccessTokenObject { public string access_token; }
+        #pragma warning restore 0649
+
+        /// <summary>Attempts to authenticate using the given parameters</summary>
+        public static void AuthenticateUsingExternalEndpoint(string endpoint, Dictionary<string, string> headers,
+                                                             Action<UserProfile> onSuccess,
+                                                             Action<WebRequestError> onError)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(endpoint));
+            Debug.Assert(headers != null);
+            Debug.Assert(headers.Count > 0);
+
+            LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
+            {
+                provider = ExternalAuthenticationProvider.UNDEFINED,
+                ticket = null,
+            };
+
+            // create vars
+            string endpointURL = PluginSettings.API_URL + endpoint;
+            UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 headers.ToArray());
+
+            // send request
+            APIClient.SendRequest<AccessTokenObject>(webRequest, (tokenWrapper) =>
+            {
+                LocalUser.OAuthToken = tokenWrapper.access_token;
+                LocalUser.WasTokenRejected = false;
+                LocalUser.Save(null);
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             },
