@@ -1445,11 +1445,10 @@ namespace ModIO
                     ++rootDirectoryLength;
                 }
 
-                string archiveDirPath = IOUtilities.CombinePath(Application.temporaryCachePath, "modio");
-                string archiveFilePath = IOUtilities.CombinePath(archiveDirPath,
+                string archiveFilePath = IOUtilities.CombinePath(DataStorage.TemporaryDataDirectory,
                                                                  DateTime.Now.ToFileTime() + "_" + modId.ToString() + ".zip");
 
-                DataStorage.CreateDirectory(archiveDirPath, (path, success) =>
+                DataStorage.CreateDirectory(DataStorage.TemporaryDataDirectory, (path, success) =>
                 {
                     if(success)
                     {
@@ -1507,8 +1506,7 @@ namespace ModIO
                                                     Action<Modfile> onSuccess,
                                                     Action<WebRequestError> onError)
         {
-            string binaryZipLocation = IOUtilities.CombinePath(Application.temporaryCachePath,
-                                                               "modio",
+            string binaryZipLocation = IOUtilities.CombinePath(DataStorage.TemporaryDataDirectory,
                                                                Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + "_" + DateTime.Now.ToFileTime() + ".zip");
             bool zipSucceeded = false;
 
@@ -1588,10 +1586,14 @@ namespace ModIO
                                                                                       Action onSuccess,
                                                                                       Action onError)
         {
-            UserDataStorage.SetActiveUser(platformUser.identifier, (uid, s) =>
+            Debug.Assert(platformUser != null);
+
+            platformUser.CreateUserDataStore((ioModule) =>
             {
-                if(s)
+                if(ioModule != null)
                 {
+                    UserDataStorage.SetIOModule(ioModule);
+
                     LocalUser.Load(() =>
                     {
                         if(onSuccess != null)
@@ -1602,6 +1604,8 @@ namespace ModIO
                 }
                 else
                 {
+                    Debug.LogWarning("[mod.io] Failed to create the User Data Store.");
+
                     if(onError != null)
                     {
                         onError.Invoke();

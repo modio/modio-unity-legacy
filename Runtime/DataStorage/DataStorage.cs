@@ -14,20 +14,33 @@ namespace ModIO
     /// <summary>An interface for storing/loading mod.io data on disk.</summary>
     public static class DataStorage
     {
-        // ---------[ Constants ]---------
-        /// <summary>Defines the I/O functions to use for this platform.</summary>
-        public static readonly IPlatformIO PLATFORM_IO;
-
         // ---------[ Initialization ]---------
-        /// <summary>Loads the platform I/O behaviour.</summary>
-        static DataStorage()
+        /// <summary>Defines the I/O functions to use for this platform.</summary>
+        private static IPlatformIO PLATFORM_IO = null;
+
+        /// <summary>Sets the IO Module for DataStorage.</summary>
+        public static void SetIOModule(IPlatformIO ioModule, bool useInEditor = false)
         {
-            // Selects the platform appropriate functions
+            Debug.Assert(ioModule != null);
+
             #if UNITY_EDITOR
-                DataStorage.PLATFORM_IO = new PlatformIO_Editor();
-            #else
-                DataStorage.PLATFORM_IO = new PlatformIO();
-            #endif
+
+                if(!useInEditor)
+                {
+                    Debug.Log("[mod.io] Ignoring DataStorage.SetModule call for "
+                              + ioModule.GetType().ToString()
+                              + " as useInEditor == false.");
+                }
+                else
+                {
+                    DataStorage.PLATFORM_IO = ioModule;
+                }
+
+            #else // !UNITY_EDITOR
+
+                DataStorage.PLATFORM_IO = ioModule;
+
+            #endif // UNITY_EDITOR
         }
 
         // ---------[ Data Management Interface ]---------

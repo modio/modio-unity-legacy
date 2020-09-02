@@ -11,6 +11,14 @@ namespace ModIO
     /// <summary>Wraps the System.IO functionality and adds AssetDatabase refreshes.</summary>
     public class PlatformIO_Editor : PlatformIOBase
     {
+        // ---------[ Initialization ]---------
+        /// <summary>Sets an instance of this class as the DataStorage IO Module.</summary>
+        [RuntimeInitializeOnLoadMethod]
+        static void InitializeAsDataStorageModule()
+        {
+            DataStorage.SetIOModule(new PlatformIO_Editor(), true);
+        }
+
         // ---------[ CONSTANTS ]---------
         /// <summary>Root data directory.</summary>
         private static readonly string ROOT_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
