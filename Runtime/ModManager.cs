@@ -1586,10 +1586,14 @@ namespace ModIO
                                                                                       Action onSuccess,
                                                                                       Action onError)
         {
-            UserDataStorage.SetActiveUser(platformUser.identifier, (uid, s) =>
+            Debug.Assert(platformUser != null);
+
+            platformUser.CreateUserDataStore((ioModule) =>
             {
-                if(s)
+                if(ioModule != null)
                 {
+                    UserDataStorage.SetIOModule(ioModule);
+
                     LocalUser.Load(() =>
                     {
                         if(onSuccess != null)
@@ -1600,6 +1604,8 @@ namespace ModIO
                 }
                 else
                 {
+                    Debug.LogWarning("[mod.io] Failed to create the User Data Store.");
+
                     if(onError != null)
                     {
                         onError.Invoke();
