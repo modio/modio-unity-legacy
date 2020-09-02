@@ -132,22 +132,27 @@ namespace ModIO
             return (@"https://img.youtube.com/vi/" + youTubeId + @"/hqdefault.jpg");
         }
 
-        /// <summary>Encodes a byte array representing a Steam Ticket to a base64 string.</summary>
-        public static string EncodeEncryptedAppTicket(byte[] ticketData, uint ticketSize)
+        /// <summary>Encodes a byte array to a base64 string.</summary>
+        public static string EncodeBufferAsString(byte[] buffer, Int64 bufferSize)
         {
-            Debug.Assert(ticketData != null);
-            Debug.Assert(ticketData.Length > 0 && ticketData.Length <= 1024, "Invalid ticketData length");
-            Debug.Assert(ticketSize > 0 && ticketSize <= ticketData.Length, "Invalid ticketSize");
+            Debug.Assert(buffer != null);
+            Debug.Assert(buffer.LongLength > 0, "Invalid buffer length");
+            Debug.Assert(bufferSize > 0 && bufferSize <= buffer.LongLength, "Invalid bufferSize");
 
-            byte[] trimmedTicket = new byte[ticketSize];
-            Array.Copy(ticketData, trimmedTicket, ticketSize);
+            byte[] trimmedBuffer = new byte[bufferSize];
+            Array.Copy(buffer, trimmedBuffer, bufferSize);
 
             string retVal = null;
             try
             {
-                retVal = Convert.ToBase64String(trimmedTicket);
+                retVal = Convert.ToBase64String(trimmedBuffer);
             }
-            catch {}
+            catch(System.Exception e)
+            {
+                Debug.LogWarning("[mod.io] Failed to convert buffer to base64 encoded string.\n"
+                                 + Utility.GenerateExceptionDebugString(e));
+                retVal = string.Empty;
+            }
 
             return retVal;
         }
@@ -182,12 +187,19 @@ namespace ModIO
             return retVal;
         }
 
-
+        // ---------[ Obsolete ]---------
         /// <summary>[Obsolete] Converts a byte array representing a Steam Ticket to a base64 string.</summary>
-        [Obsolete("Use EncodeEncryptedAppTicket() instead")]
+        [Obsolete("Use Utility.EncodeBufferAsString() instead")]
         public static string ConvertSteamEncryptedAppTicket(byte[] pTicket, uint pcbTicket)
         {
-            return Utility.EncodeEncryptedAppTicket(pTicket, pcbTicket);
+            return Utility.EncodeBufferAsString(pTicket, (Int64)pcbTicket);
+        }
+
+        /// <summary>Encodes a byte array representing a Steam Ticket to a base64 string.</summary>
+        [Obsolete("Use Utility.EncodeBufferAsString() instead")]
+        public static string EncodeEncryptedAppTicket(byte[] ticketData, uint ticketSize)
+        {
+            return Utility.EncodeBufferAsString(ticketData, (Int64)ticketSize);
         }
     }
 }

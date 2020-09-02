@@ -399,7 +399,7 @@ namespace ModIO
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
-            string encodedTicket = Utility.EncodeEncryptedAppTicket(pTicket, pcbTicket);
+            string encodedTicket = Utility.EncodeBufferAsString(pTicket, pcbTicket);
             UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket, onSuccess, onError);
         }
 
@@ -410,7 +410,7 @@ namespace ModIO
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
-            string encodedTicket = Utility.EncodeEncryptedAppTicket(authTicketData, (uint)authTicketData.Length);
+            string encodedTicket = Utility.EncodeBufferAsString(authTicketData, (uint)authTicketData.Length);
             UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket, onSuccess, onError);
         }
 
@@ -442,7 +442,7 @@ namespace ModIO
                                                                  Action<UserProfile> onSuccess,
                                                                  Action<WebRequestError> onError)
         {
-            string encodedTicket = Utility.EncodeEncryptedAppTicket(data, dataSize);
+            string encodedTicket = Utility.EncodeBufferAsString(data, dataSize);
             UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(encodedTicket, onSuccess, onError);
         }
 
