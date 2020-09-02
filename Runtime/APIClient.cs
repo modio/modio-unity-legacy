@@ -384,7 +384,7 @@ namespace ModIO
             else
             {
                 // create vars
-                string encodedTicket = Utility.EncodeEncryptedAppTicket(pTicket, pcbTicket);
+                string encodedTicket = Utility.EncodeBufferAsString(pTicket, pcbTicket);
 
                 if(string.IsNullOrEmpty(encodedTicket))
                 {
@@ -461,7 +461,7 @@ namespace ModIO
             else
             {
                 // create vars
-                string encodedTicket = Utility.EncodeEncryptedAppTicket(data, dataSize);
+                string encodedTicket = Utility.EncodeBufferAsString(data, dataSize);
 
                 if(string.IsNullOrEmpty(encodedTicket))
                 {

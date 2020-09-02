@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Debug = UnityEngine.Debug;
+using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
 
 namespace ModIO
 {
@@ -398,7 +399,7 @@ namespace ModIO
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
-            string encodedTicket = Utility.EncodeEncryptedAppTicket(pTicket, pcbTicket);
+            string encodedTicket = Utility.EncodeBufferAsString(pTicket, pcbTicket);
             UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket, onSuccess, onError);
         }
 
@@ -409,7 +410,7 @@ namespace ModIO
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
-            string encodedTicket = Utility.EncodeEncryptedAppTicket(authTicketData, (uint)authTicketData.Length);
+            string encodedTicket = Utility.EncodeBufferAsString(authTicketData, (uint)authTicketData.Length);
             UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket, onSuccess, onError);
         }
 
@@ -441,7 +442,7 @@ namespace ModIO
                                                                  Action<UserProfile> onSuccess,
                                                                  Action<WebRequestError> onError)
         {
-            string encodedTicket = Utility.EncodeEncryptedAppTicket(data, dataSize);
+            string encodedTicket = Utility.EncodeBufferAsString(data, dataSize);
             UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(encodedTicket, onSuccess, onError);
         }
 
@@ -535,6 +536,44 @@ namespace ModIO
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
                 LocalUser.Save();
+
+                UserAccountManagement.UpdateUserProfile(onSuccess, onError);
+            },
+            onError);
+        }
+
+        /// <summary>Wrapper object for [[ModIO.APIClient.GetOAuthToken]] requests.</summary>
+        [System.Serializable]
+        #pragma warning disable 0649
+        private struct AccessTokenObject { public string access_token; }
+        #pragma warning restore 0649
+
+        /// <summary>Attempts to authenticate using the given parameters</summary>
+        public static void AuthenticateUsingExternalEndpoint(string endpoint, Dictionary<string, string> headers,
+                                                             Action<UserProfile> onSuccess,
+                                                             Action<WebRequestError> onError)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(endpoint));
+            Debug.Assert(headers != null);
+            Debug.Assert(headers.Count > 0);
+
+            LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
+            {
+                provider = ExternalAuthenticationProvider.UNDEFINED,
+                ticket = null,
+            };
+
+            // create vars
+            string endpointURL = PluginSettings.API_URL + endpoint;
+            UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 headers.ToArray());
+
+            // send request
+            APIClient.SendRequest<AccessTokenObject>(webRequest, (tokenWrapper) =>
+            {
+                LocalUser.OAuthToken = tokenWrapper.access_token;
+                LocalUser.WasTokenRejected = false;
+                LocalUser.Save(null);
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             },
