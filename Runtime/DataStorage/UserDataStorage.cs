@@ -16,6 +16,12 @@ namespace ModIO
         /// <summary>Defines the I/O functions to use for this platform.</summary>
         private static IUserDataIO PLATFORM_IO = null;
 
+        /// <summary>Temp: Sets the ioModule in Editor.</summary>
+        static UserDataStorage()
+        {
+            UserDataStorage.SetIOModule(new UserDataIO_Editor());
+        }
+
         /// <summary>Sets the IO Module for UserDataStorage.</summary>
         public static void SetIOModule(IUserDataIO ioModule)
         {
