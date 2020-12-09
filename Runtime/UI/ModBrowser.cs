@@ -895,6 +895,11 @@ namespace ModIO.UI
                 isSortAscending = false,
             };
 
+            idFetchFilter.AddFieldFilter(API.GetUserEventsFilterFields.gameId, new EqualToFilter<int>()
+            {
+                filterValue = PluginSettings.GAME_ID,
+            });
+
             APIPaginationParameters pagination = new APIPaginationParameters()
             {
                 offset = 0,
@@ -903,7 +908,7 @@ namespace ModIO.UI
 
             while(!isRequestDone)
             {
-                APIClient.GetAllModEvents(idFetchFilter, pagination,
+                APIClient.GetUserEvents(idFetchFilter, pagination,
                 (r) =>
                 {
                     if(r.items.Length > 0)
