@@ -243,7 +243,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(webRequest.url));
 
             UnityWebRequestAsyncOperation requestOperation = null;
-            bool isGetRequest = webRequest.method != UnityWebRequest.kHttpVerbGET;
+            bool isGetRequest = webRequest.method == UnityWebRequest.kHttpVerbGET;
 
             // - Check if request is currently active -
             if(isGetRequest)
@@ -266,12 +266,11 @@ namespace ModIO
                         APIClient._activeRequests.Remove(webRequest.url);
                     };
                 }
-
-
-                #if DEBUG
-                    DebugUtilities.DebugWebRequest(requestOperation, LocalUser.instance);
-                #endif
             }
+
+            #if DEBUG
+                DebugUtilities.DebugWebRequest(requestOperation, LocalUser.instance);
+            #endif
 
             // build callback
             if(successCallback != null || errorCallback != null)
