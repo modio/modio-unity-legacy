@@ -73,6 +73,17 @@ namespace ModIO
                 this.fieldFilterMap[fieldName] = list;
             }
 
+            // remove duplicate from list
+            for(int i = 0; i < list.Count; ++i)
+            {
+                if(list[i] != null
+                   && list[i].filterMethod == filter.filterMethod)
+                {
+                    list.RemoveAt(i);
+                    break;
+                }
+            }
+
             list.Add(filter);
         }
 
