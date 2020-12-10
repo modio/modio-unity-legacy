@@ -81,6 +81,10 @@ namespace ModIO
         }
 
         // ---------[ REQUEST HANDLING ]---------
+        /// <summary>Active request mapping.</summary>
+        private static Dictionary<string, UnityWebRequestAsyncOperation> _activeRequests
+            = new Dictionary<string, UnityWebRequestAsyncOperation>();
+
         /// <summary>Generates the object for a basic mod.io server request.</summary>
         public static UnityWebRequest GenerateQuery(string endpointURL,
                                                     string filterString,
@@ -235,27 +239,67 @@ namespace ModIO
                                                                 Action successCallback,
                                                                 Action<WebRequestError> errorCallback)
         {
-            // - Start Request -
-            UnityWebRequestAsyncOperation requestOperation = webRequest.SendWebRequest();
+            Debug.Assert(webRequest != null);
+            Debug.Assert(!string.IsNullOrEmpty(webRequest.url));
 
-            #if DEBUG
-                DebugUtilities.DebugWebRequest(requestOperation, LocalUser.instance);
-            #endif
+            UnityWebRequestAsyncOperation requestOperation = null;
+            bool isGetRequest = webRequest.method != UnityWebRequest.kHttpVerbGET;
 
-            requestOperation.completed += (operation) =>
+            // - Check if request is currently active -
+            if(isGetRequest)
             {
-                if(webRequest.isNetworkError || webRequest.isHttpError)
+                APIClient._activeRequests.TryGetValue(webRequest.url, out requestOperation);
+            }
+
+            // - start new request -
+            if(requestOperation == null)
+            {
+                requestOperation = webRequest.SendWebRequest();
+
+                // prevent parallel
+                if(isGetRequest)
                 {
-                    if(errorCallback != null)
+                    APIClient._activeRequests.Add(webRequest.url, requestOperation);
+
+                    requestOperation.completed += (operation) =>
                     {
-                        errorCallback(WebRequestError.GenerateFromWebRequest(webRequest));
+                        APIClient._activeRequests.Remove(webRequest.url);
+                    };
+                }
+
+
+                #if DEBUG
+                    DebugUtilities.DebugWebRequest(requestOperation, LocalUser.instance);
+                #endif
+            }
+
+            // build callback
+            if(successCallback != null || errorCallback != null)
+            {
+                Action<UnityEngine.AsyncOperation> callback = (operation) =>
+                {
+                    if(webRequest.isNetworkError || webRequest.isHttpError)
+                    {
+                        if(errorCallback != null)
+                        {
+                            errorCallback(WebRequestError.GenerateFromWebRequest(webRequest));
+                        }
                     }
+                    else
+                    {
+                        if(successCallback != null) { successCallback(); }
+                    }
+                };
+
+                if(requestOperation.isDone)
+                {
+                    callback.Invoke(requestOperation);
                 }
                 else
                 {
-                    if(successCallback != null) { successCallback(); }
+                    requestOperation.completed += callback;
                 }
-            };
+            }
 
             return requestOperation;
         }
