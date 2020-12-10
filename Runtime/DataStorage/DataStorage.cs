@@ -18,11 +18,13 @@ namespace ModIO
         /// <summary>Defines the I/O functions to use for this platform.</summary>
         private static IPlatformIO PLATFORM_IO = null;
 
+#if UNITY_EDITOR
         /// <summary>Temp: Statically sets the PIOEditor in Editor.</summary>
         static DataStorage()
         {
             DataStorage.SetIOModule(new PlatformIO_Editor(), true);
         }
+#endif // UNITY_EDITOR
 
         /// <summary>Sets the IO Module for DataStorage.</summary>
         public static void SetIOModule(IPlatformIO ioModule, bool useInEditor = false)
