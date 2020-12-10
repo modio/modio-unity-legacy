@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 
+using Debug = UnityEngine.Debug;
+
 namespace ModIO
 {
     public class RequestFilter
@@ -44,6 +46,24 @@ namespace ModIO
 
         public void AddFieldFilter(string fieldName, IRequestFieldFilter filter)
         {
+            Debug.Assert(this.fieldFilterMap != null);
+
+            // early out
+            if(string.IsNullOrEmpty(fieldName)
+               || filter == null
+               || filter.filterValue == null)
+            {
+                Debug.LogWarning("[mod.io] Attempted to add an invalid field filter to the request filter."
+                                 + "\nfieldName=\"" + (fieldName == null ? "NULL" : fieldName) + "\""
+                                 + "\nfilter=" + (filter == null ? "NULL" : filter.GetType().ToString())
+                                 + (filter == null
+                                    ? string.Empty
+                                    : "\nfilterValue=" + (filter.filterValue == null ? "NULL" : filter.filterValue.ToString()))
+                                 );
+
+                return;
+            }
+
             List<IRequestFieldFilter> list = null;
             this.fieldFilterMap.TryGetValue(fieldName, out list);
 
