@@ -20,7 +20,7 @@ namespace ModIO
     {
         // ---------[ Nested Data-Types]---------
         /// <summary>Data required to collect and prepare callbacks.</summary>
-        private struct ResponseCallbackCollection
+        private struct RequestCallbackCollection
         {
             public List<Action<string>> successCallbacks;
             public List<Action<WebRequestError>> errorCallbacks;
@@ -95,8 +95,8 @@ namespace ModIO
             = new Dictionary<string, UnityWebRequestAsyncOperation>();
 
         /// <summary>Active request-callback mapping.</summary>
-        private static Dictionary<string, ResponseCallbackCollection> _requestResponseMap
-            = new Dictionary<string, ResponseCallbackCollection>();
+        private static Dictionary<UnityWebRequestAsyncOperation, RequestCallbackCollection> _requestResponseMap
+            = new Dictionary<UnityWebRequestAsyncOperation, RequestCallbackCollection>();
 
         /// <summary>Generates the object for a basic mod.io server request.</summary>
         public static UnityWebRequest GenerateQuery(string endpointURL,
@@ -359,28 +359,25 @@ namespace ModIO
                 return;
             }
 
-            UnityWebRequest webRequest = null;
-            if(operation is UnityWebRequestAsyncOperation)
-            {
-                webRequest = ((UnityWebRequestAsyncOperation)operation).webRequest;
-            }
-
             // check webRequest
-            if(webRequest == null)
+            UnityWebRequestAsyncOperation webRequestOperation = operation as UnityWebRequestAsyncOperation;
+            if(webRequestOperation == null
+               || webRequestOperation.webRequest == null)
             {
                 Debug.LogWarning("[mod.io] Unable to retrieve UnityWebRequest from operation.");
                 return;
             }
 
-            // check ResponseCallbackCollection
-            ResponseCallbackCollection callbackCollection;
-            if(!APIClient._requestResponseMap.TryGetValue(webRequest.url, out callbackCollection))
+            // check callbackCollection
+            RequestCallbackCollection callbackCollection;
+            if(!APIClient._requestResponseMap.TryGetValue(webRequestOperation, out callbackCollection))
             {
-                Debug.LogWarning("[mod.io] Unable to callbackCollection for the url: " + webRequest.url);
+                Debug.LogWarning("[mod.io] Unable to callbackCollection for the operation: " + webRequestOperation.webRequest.url);
                 return;
             }
 
             // - process -
+            UnityWebRequest webRequest = webRequestOperation.webRequest;
             if(webRequest.isNetworkError || webRequest.isHttpError)
             {
                 WebRequestError error = WebRequestError.GenerateFromWebRequest(webRequest);
@@ -418,6 +415,8 @@ namespace ModIO
                     }
                 }
             }
+
+            APIClient._requestResponseMap.Remove(webRequestOperation);
         }
 
 
