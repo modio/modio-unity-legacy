@@ -1720,7 +1720,7 @@ namespace ModIO
 
                 query(pagination,
                       (r) => FetchQueryResultsRecursively(query,
-                                                          queryResult,
+                                                          r,
                                                           pagination,
                                                           culmativeResults,
                                                           onSuccess,
