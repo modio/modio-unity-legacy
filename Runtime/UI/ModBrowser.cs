@@ -81,7 +81,7 @@ namespace ModIO.UI
         {
             UserAccountManagement.PushSubscriptionChanges(null, null);
             ModManager.onModBinaryInstalled -= this.OnModInstalled;
-            DownloadClient.modfileDownloadFailed += this.OnModfileDownloadFailed;
+            DownloadClient.modfileDownloadFailed -= this.OnModfileDownloadFailed;
         }
 
         private System.Collections.IEnumerator InitializeModBrowser()
@@ -1027,8 +1027,6 @@ namespace ModIO.UI
                                                                       (e) => isPushDone = true);
 
                         while(!isPushDone) { yield return null; }
-
-                        StartCoroutine(FetchUserRatings());
                     }
                 }
 
@@ -1267,6 +1265,7 @@ namespace ModIO.UI
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 this.StartCoroutine(SynchronizeSubscriptionsAndUpdateModProfiles());
+                this.StartCoroutine(this.FetchUserRatings());
             }
         }
 
