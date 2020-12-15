@@ -81,7 +81,7 @@ namespace ModIO.UI
         {
             UserAccountManagement.PushSubscriptionChanges(null, null);
             ModManager.onModBinaryInstalled -= this.OnModInstalled;
-            DownloadClient.modfileDownloadFailed += this.OnModfileDownloadFailed;
+            DownloadClient.modfileDownloadFailed -= this.OnModfileDownloadFailed;
         }
 
         private System.Collections.IEnumerator InitializeModBrowser()
