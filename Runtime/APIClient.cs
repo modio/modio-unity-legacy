@@ -257,53 +257,74 @@ namespace ModIO
 
             UnityWebRequestAsyncOperation requestOperation = null;
             RequestCallbackCollection callbackCollection;
-            bool isGetRequest = webRequest.method == UnityWebRequest.kHttpVerbGET;
 
             // - prevent parallel get requests -
-            if(isGetRequest)
+            if(webRequest.method == UnityWebRequest.kHttpVerbGET)
             {
-                APIClient._activeGetRequests.TryGetValue(webRequest.url, out requestOperation);
-            }
-
-            // - start new request -
-            if(requestOperation == null
-               || !APIClient._requestResponseMap.TryGetValue(requestOperation, out callbackCollection))
-            {
-                requestOperation = webRequest.SendWebRequest();
-
-                // prevent parallel get requests
-                if(isGetRequest)
+                // create new request
+                if(!APIClient._activeGetRequests.TryGetValue(webRequest.url, out requestOperation))
                 {
-                    APIClient._activeGetRequests.Add(webRequest.url, requestOperation);
-
+                    requestOperation = webRequest.SendWebRequest();
                     requestOperation.completed += (operation) =>
                     {
                         APIClient._activeGetRequests.Remove(webRequest.url);
                     };
+
+                    APIClient._activeGetRequests.Add(webRequest.url, requestOperation);
                 }
 
-                // map callbacks
-                callbackCollection = new RequestCallbackCollection()
+                // fetch callback collection
+                if(!APIClient._requestResponseMap.TryGetValue(requestOperation, out callbackCollection))
                 {
-                    successCallbacks = new List<Action<string>>(),
-                    errorCallbacks = new List<Action<WebRequestError>>(),
-                };
+                    callbackCollection = new RequestCallbackCollection()
+                    {
+                        successCallbacks = new List<Action<string>>(),
+                        errorCallbacks = new List<Action<WebRequestError>>(),
+                    };
 
-                APIClient._requestResponseMap.Add(requestOperation, callbackCollection);
-                requestOperation.completed += APIClient.ProcessResponse;
+                    APIClient._requestResponseMap.Add(requestOperation, callbackCollection);
+
+                    requestOperation.completed += APIClient.ProcessResponse;
+                }
+
+                // append callbacks
+                if(successCallback != null)
+                {
+                    callbackCollection.successCallbacks.Add(successCallback);
+                }
+                if(errorCallback != null)
+                {
+                    callbackCollection.errorCallbacks.Add(errorCallback);
+                }
             }
-
-            // - add callbacks -
-            Debug.Assert(callbackCollection.successCallbacks != null
-                         && callbackCollection.errorCallbacks != null);
-
-            if(successCallback != null)
+            else
             {
-                callbackCollection.successCallbacks.Add(successCallback);
-            }
-            if(errorCallback != null)
-            {
-                callbackCollection.errorCallbacks.Add(errorCallback);
+                // - start new request -
+                if(requestOperation == null
+                   || !APIClient._requestResponseMap.TryGetValue(requestOperation, out callbackCollection))
+                {
+                    requestOperation = webRequest.SendWebRequest();
+
+                    // map callbacks
+                    callbackCollection = new RequestCallbackCollection()
+                    {
+                        successCallbacks = new List<Action<string>>(),
+                        errorCallbacks = new List<Action<WebRequestError>>(),
+                    };
+
+                    APIClient._requestResponseMap.Add(requestOperation, callbackCollection);
+                    requestOperation.completed += APIClient.ProcessResponse;
+                }
+
+                // append callbacks
+                if(successCallback != null)
+                {
+                    callbackCollection.successCallbacks.Add(successCallback);
+                }
+                if(errorCallback != null)
+                {
+                    callbackCollection.errorCallbacks.Add(errorCallback);
+                }
             }
 
             #if DEBUG
