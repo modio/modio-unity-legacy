@@ -10,6 +10,7 @@ using Debug = UnityEngine.Debug;
 using WWWForm = UnityEngine.WWWForm;
 using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
 using UnityWebRequestAsyncOperation = UnityEngine.Networking.UnityWebRequestAsyncOperation;
+using DownloadHandlerFile = UnityEngine.Networking.DownloadHandlerFile;
 
 
 namespace ModIO
@@ -17,6 +18,15 @@ namespace ModIO
     /// <summary>An interface for sending requests to the mod.io servers.</summary>
     public static class APIClient
     {
+        // ---------[ Nested Data-Types]---------
+        /// <summary>Data required to collect and prepare callbacks.</summary>
+        private struct GetRequestHandle
+        {
+            public UnityWebRequestAsyncOperation operation;
+            public List<Action<string>> successCallbacks;
+            public List<Action<WebRequestError>> errorCallbacks;
+        }
+
         // ---------[ CONSTANTS ]---------
         /// <summary>Denotes the version of the mod.io web API that this class is compatible with.</summary>
         public const string API_VERSION = "v1";
@@ -82,8 +92,8 @@ namespace ModIO
 
         // ---------[ REQUEST HANDLING ]---------
         /// <summary>Active request mapping.</summary>
-        private static Dictionary<string, UnityWebRequestAsyncOperation> _activeRequests
-            = new Dictionary<string, UnityWebRequestAsyncOperation>();
+        private static Dictionary<string, GetRequestHandle> _activeGetRequests
+            = new Dictionary<string, GetRequestHandle>();
 
         /// <summary>Generates the object for a basic mod.io server request.</summary>
         public static UnityWebRequest GenerateQuery(string endpointURL,
@@ -236,69 +246,76 @@ namespace ModIO
 
         /// <summary>A wrapper for sending a UnityWebRequest and attaching callbacks.</summary>
         public static UnityWebRequestAsyncOperation SendRequest(UnityWebRequest webRequest,
-                                                                Action successCallback,
+                                                                Action<string> successCallback,
                                                                 Action<WebRequestError> errorCallback)
         {
             Debug.Assert(webRequest != null);
             Debug.Assert(!string.IsNullOrEmpty(webRequest.url));
 
             UnityWebRequestAsyncOperation requestOperation = null;
-            bool isGetRequest = webRequest.method == UnityWebRequest.kHttpVerbGET;
 
-            // - Check if request is currently active -
-            if(isGetRequest)
+            // - prevent parallel get requests -
+            if(webRequest.method == UnityWebRequest.kHttpVerbGET)
             {
-                APIClient._activeRequests.TryGetValue(webRequest.url, out requestOperation);
-            }
+                GetRequestHandle requestHandle;
 
-            // - start new request -
-            if(requestOperation == null)
+                // create new request
+                if(!APIClient._activeGetRequests.TryGetValue(webRequest.url, out requestHandle))
+                {
+                    requestHandle = new GetRequestHandle()
+                    {
+                        operation = null,
+                        successCallbacks = new List<Action<string>>(),
+                        errorCallbacks = new List<Action<WebRequestError>>(),
+                    };
+
+                    requestHandle.operation = webRequest.SendWebRequest();
+                    requestHandle.operation.completed += APIClient.HandleGetResponse;
+
+                    APIClient._activeGetRequests.Add(webRequest.url, requestHandle);
+                }
+
+                // append callbacks
+                if(successCallback != null)
+                {
+                    requestHandle.successCallbacks.Add(successCallback);
+                }
+                if(errorCallback != null)
+                {
+                    requestHandle.errorCallbacks.Add(errorCallback);
+                }
+
+                requestOperation = requestHandle.operation;
+            }
+            else // non-GET request
             {
                 requestOperation = webRequest.SendWebRequest();
-
-                // prevent parallel
-                if(isGetRequest)
+                requestOperation.completed += (o) =>
                 {
-                    APIClient._activeRequests.Add(webRequest.url, requestOperation);
+                    string responseBody = null;
+                    WebRequestError error = null;
 
-                    requestOperation.completed += (operation) =>
+                    APIClient.ProcessRequestResponse(webRequest,
+                                                     out responseBody,
+                                                     out error);
+
+                    if(error != null)
                     {
-                        APIClient._activeRequests.Remove(webRequest.url);
-                    };
-                }
+                        if(errorCallback != null)
+                        {
+                            errorCallback.Invoke(error);
+                        }
+                    }
+                    else if(successCallback != null)
+                    {
+                        successCallback.Invoke(responseBody);
+                    }
+                };
             }
 
             #if DEBUG
                 DebugUtilities.DebugWebRequest(requestOperation, LocalUser.instance);
             #endif
-
-            // build callback
-            if(successCallback != null || errorCallback != null)
-            {
-                Action<UnityEngine.AsyncOperation> callback = (operation) =>
-                {
-                    if(webRequest.isNetworkError || webRequest.isHttpError)
-                    {
-                        if(errorCallback != null)
-                        {
-                            errorCallback(WebRequestError.GenerateFromWebRequest(webRequest));
-                        }
-                    }
-                    else
-                    {
-                        if(successCallback != null) { successCallback(); }
-                    }
-                };
-
-                if(requestOperation.isDone)
-                {
-                    callback.Invoke(requestOperation);
-                }
-                else
-                {
-                    requestOperation.completed += callback;
-                }
-            }
 
             return requestOperation;
         }
@@ -308,7 +325,7 @@ namespace ModIO
                                                                    Action<T> successCallback,
                                                                    Action<WebRequestError> errorCallback)
         {
-            Action processResponse = () =>
+            Action<string> processResponse = (responseBody) =>
             {
                 // TODO(@jackson): Don't call success on exception
                 if(successCallback != null)
@@ -317,7 +334,7 @@ namespace ModIO
 
                     try
                     {
-                        response = JsonConvert.DeserializeObject<T>(webRequest.downloadHandler.text);
+                        response = JsonConvert.DeserializeObject<T>(responseBody);
                     }
                     catch(Exception e)
                     {
@@ -331,6 +348,104 @@ namespace ModIO
             };
 
             return APIClient.SendRequest(webRequest, processResponse, errorCallback);
+        }
+
+        /// <summary>A wrapper for sending a web request without handling the response.</summary>
+        public static UnityWebRequestAsyncOperation SendRequest(UnityWebRequest webRequest,
+                                                                Action successCallback,
+                                                                Action<WebRequestError> errorCallback)
+        {
+            return APIClient.SendRequest(webRequest,
+                                         (b) => { if(successCallback != null) { successCallback.Invoke(); } },
+                                         errorCallback);
+        }
+
+        /// <summary>A wrapper for processing the response for a given web request.</summary>
+        private static void HandleGetResponse(UnityEngine.AsyncOperation operation)
+        {
+            // early out
+            if(operation == null)
+            {
+                Debug.LogWarning("[mod.io] Attempted to process response a null operation.");
+                return;
+            }
+
+            // check webRequest
+            UnityWebRequestAsyncOperation webRequestOperation = operation as UnityWebRequestAsyncOperation;
+            if(webRequestOperation == null
+               || webRequestOperation.webRequest == null)
+            {
+                Debug.LogWarning("[mod.io] Unable to retrieve UnityWebRequest from operation.");
+                return;
+            }
+
+            // check requestHandle
+            string url = webRequestOperation.webRequest.url;
+            GetRequestHandle requestHandle;
+            if(!APIClient._activeGetRequests.TryGetValue(url, out requestHandle))
+            {
+                Debug.LogWarning("[mod.io] Unable to retrieve the GetRequestHandle for the url: "
+                                 + url);
+                return;
+            }
+
+            // - process callbacks -
+            string responseBody = null;
+            WebRequestError error = null;
+            APIClient.ProcessRequestResponse(webRequestOperation.webRequest, out responseBody, out error);
+
+            if(error != null)
+            {
+                foreach(var errorCallback in requestHandle.errorCallbacks)
+                {
+                    if(errorCallback != null)
+                    {
+                        errorCallback.Invoke(error);
+                    }
+                }
+            }
+            else
+            {
+                foreach(var successCallback in requestHandle.successCallbacks)
+                {
+                    if(successCallback != null)
+                    {
+                        successCallback.Invoke(responseBody);
+                    }
+                }
+            }
+
+            APIClient._activeGetRequests.Remove(url);
+        }
+
+        /// <summary>Processes the response for the given request.</summary>
+        private static void ProcessRequestResponse(UnityWebRequest webRequest,
+                                                   out string success, out WebRequestError error)
+        {
+            success = null;
+            error = null;
+
+            if(webRequest.isNetworkError || webRequest.isHttpError)
+            {
+                error = WebRequestError.GenerateFromWebRequest(webRequest);
+            }
+            else
+            {
+                success = string.Empty;
+
+                if(webRequest.downloadHandler != null
+                   && !(webRequest.downloadHandler is DownloadHandlerFile))
+                {
+                    try
+                    {
+                        success = webRequest.downloadHandler.text;
+                    }
+                    catch
+                    {
+                        success = string.Empty;
+                    }
+                }
+            }
         }
 
 
