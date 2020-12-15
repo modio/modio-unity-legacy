@@ -343,6 +343,16 @@ namespace ModIO
             return APIClient.SendRequest(webRequest, processResponse, errorCallback);
         }
 
+        /// <summary>A wrapper for sending a web request without handling the response.</summary>
+        public static UnityWebRequestAsyncOperation SendRequest(UnityWebRequest webRequest,
+                                                                Action successCallback,
+                                                                Action<WebRequestError> errorCallback)
+        {
+            return APIClient.SendRequest(webRequest,
+                                         (b) => { if(successCallback != null) { successCallback.Invoke(); } },
+                                         errorCallback);
+        }
+
         /// <summary>A wrapper for processing the response for a given web request.</summary>
         private static void ProcessResponse(UnityEngine.AsyncOperation operation)
         {
@@ -1438,18 +1448,6 @@ namespace ModIO
                                                                       pagination);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
-        }
-
-        // ---------[ Obsolete ]---------
-        /// <summary>[Obsolete] A wrapper for sending a UnityWebRequest and attaching callbacks.</summary>
-        [Obsolete("SendRequest now returns the response body on success.")]
-        public static UnityWebRequestAsyncOperation SendRequest(UnityWebRequest webRequest,
-                                                                Action successCallback,
-                                                                Action<WebRequestError> errorCallback)
-        {
-            return APIClient.SendRequest(webRequest,
-                                         (b) => { if(successCallback != null) { successCallback.Invoke(); } },
-                                         errorCallback);
         }
     }
 }
