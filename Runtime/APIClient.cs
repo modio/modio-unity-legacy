@@ -91,7 +91,7 @@ namespace ModIO
 
         // ---------[ REQUEST HANDLING ]---------
         /// <summary>Active request mapping.</summary>
-        private static Dictionary<string, UnityWebRequestAsyncOperation> _activeRequests
+        private static Dictionary<string, UnityWebRequestAsyncOperation> _activeGetRequests
             = new Dictionary<string, UnityWebRequestAsyncOperation>();
 
         /// <summary>Active request-callback mapping.</summary>
@@ -256,65 +256,59 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(webRequest.url));
 
             UnityWebRequestAsyncOperation requestOperation = null;
+            RequestCallbackCollection callbackCollection;
             bool isGetRequest = webRequest.method == UnityWebRequest.kHttpVerbGET;
 
-            // - Check if request is currently active -
+            // - prevent parallel get requests -
             if(isGetRequest)
             {
-                APIClient._activeRequests.TryGetValue(webRequest.url, out requestOperation);
+                APIClient._activeGetRequests.TryGetValue(webRequest.url, out requestOperation);
             }
 
             // - start new request -
-            if(requestOperation == null)
+            if(requestOperation == null
+               || !APIClient._requestResponseMap.TryGetValue(requestOperation, out callbackCollection))
             {
                 requestOperation = webRequest.SendWebRequest();
 
-                // prevent parallel
+                // prevent parallel get requests
                 if(isGetRequest)
                 {
-                    APIClient._activeRequests.Add(webRequest.url, requestOperation);
+                    APIClient._activeGetRequests.Add(webRequest.url, requestOperation);
 
                     requestOperation.completed += (operation) =>
                     {
-                        APIClient._activeRequests.Remove(webRequest.url);
+                        APIClient._activeGetRequests.Remove(webRequest.url);
                     };
                 }
+
+                // map callbacks
+                callbackCollection = new RequestCallbackCollection()
+                {
+                    successCallbacks = new List<Action<string>>(),
+                    errorCallbacks = new List<Action<WebRequestError>>(),
+                };
+
+                APIClient._requestResponseMap.Add(requestOperation, callbackCollection);
+                requestOperation.completed += APIClient.ProcessResponse;
+            }
+
+            // - add callbacks -
+            Debug.Assert(callbackCollection.successCallbacks != null
+                         && callbackCollection.errorCallbacks != null);
+
+            if(successCallback != null)
+            {
+                callbackCollection.successCallbacks.Add(successCallback);
+            }
+            if(errorCallback != null)
+            {
+                callbackCollection.errorCallbacks.Add(errorCallback);
             }
 
             #if DEBUG
                 DebugUtilities.DebugWebRequest(requestOperation, LocalUser.instance);
             #endif
-
-            // build callback
-            if(successCallback != null || errorCallback != null)
-            {
-                Action<UnityEngine.AsyncOperation> callback = (operation) =>
-                {
-                    if(webRequest.isNetworkError || webRequest.isHttpError)
-                    {
-                        if(errorCallback != null)
-                        {
-                            errorCallback(WebRequestError.GenerateFromWebRequest(webRequest));
-                        }
-                    }
-                    else
-                    {
-                        if(successCallback != null)
-                        {
-                            successCallback.Invoke(webRequest.downloadHandler.text);
-                        }
-                    }
-                };
-
-                if(requestOperation.isDone)
-                {
-                    callback.Invoke(requestOperation);
-                }
-                else
-                {
-                    requestOperation.completed += callback;
-                }
-            }
 
             return requestOperation;
         }
