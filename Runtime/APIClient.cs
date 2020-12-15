@@ -10,6 +10,7 @@ using Debug = UnityEngine.Debug;
 using WWWForm = UnityEngine.WWWForm;
 using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
 using UnityWebRequestAsyncOperation = UnityEngine.Networking.UnityWebRequestAsyncOperation;
+using DownloadHandlerFile = UnityEngine.Networking.DownloadHandlerFile;
 
 
 namespace ModIO
@@ -17,6 +18,14 @@ namespace ModIO
     /// <summary>An interface for sending requests to the mod.io servers.</summary>
     public static class APIClient
     {
+        // ---------[ Nested Data-Types]---------
+        /// <summary>Data required to collect and prepare callbacks.</summary>
+        private struct ResponseCallbackCollection
+        {
+            public List<Action<string>> successCallbacks;
+            public List<Action<WebRequestError>> errorCallbacks;
+        }
+
         // ---------[ CONSTANTS ]---------
         /// <summary>Denotes the version of the mod.io web API that this class is compatible with.</summary>
         public const string API_VERSION = "v1";
@@ -84,6 +93,10 @@ namespace ModIO
         /// <summary>Active request mapping.</summary>
         private static Dictionary<string, UnityWebRequestAsyncOperation> _activeRequests
             = new Dictionary<string, UnityWebRequestAsyncOperation>();
+
+        /// <summary>Active request-callback mapping.</summary>
+        private static Dictionary<string, ResponseCallbackCollection> _requestResponseMap
+            = new Dictionary<string, ResponseCallbackCollection>();
 
         /// <summary>Generates the object for a basic mod.io server request.</summary>
         public static UnityWebRequest GenerateQuery(string endpointURL,
@@ -334,6 +347,77 @@ namespace ModIO
             };
 
             return APIClient.SendRequest(webRequest, processResponse, errorCallback);
+        }
+
+        /// <summary>A wrapper for processing the response for a given web request.</summary>
+        private static void ProcessResponse(UnityEngine.AsyncOperation operation)
+        {
+            // early out
+            if(operation == null)
+            {
+                Debug.LogWarning("[mod.io] Attempted to process response a null operation.");
+                return;
+            }
+
+            UnityWebRequest webRequest = null;
+            if(operation is UnityWebRequestAsyncOperation)
+            {
+                webRequest = ((UnityWebRequestAsyncOperation)operation).webRequest;
+            }
+
+            // check webRequest
+            if(webRequest == null)
+            {
+                Debug.LogWarning("[mod.io] Unable to retrieve UnityWebRequest from operation.");
+                return;
+            }
+
+            // check ResponseCallbackCollection
+            ResponseCallbackCollection callbackCollection;
+            if(!APIClient._requestResponseMap.TryGetValue(webRequest.url, out callbackCollection))
+            {
+                Debug.LogWarning("[mod.io] Unable to callbackCollection for the url: " + webRequest.url);
+                return;
+            }
+
+            // - process -
+            if(webRequest.isNetworkError || webRequest.isHttpError)
+            {
+                WebRequestError error = WebRequestError.GenerateFromWebRequest(webRequest);
+
+                foreach(var errorCallback in callbackCollection.errorCallbacks)
+                {
+                    if(errorCallback != null)
+                    {
+                        errorCallback.Invoke(error);
+                    }
+                }
+            }
+            else
+            {
+                string responseBody = string.Empty;
+
+                if(webRequest.downloadHandler != null
+                   && !(webRequest.downloadHandler is DownloadHandlerFile))
+                {
+                    try
+                    {
+                        responseBody = webRequest.downloadHandler.text;
+                    }
+                    catch
+                    {
+                        responseBody = string.Empty;
+                    }
+                }
+
+                foreach(var successCallback in callbackCollection.successCallbacks)
+                {
+                    if(successCallback != null)
+                    {
+                        successCallback.Invoke(responseBody);
+                    }
+                }
+            }
         }
 
 
