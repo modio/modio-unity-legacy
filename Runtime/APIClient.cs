@@ -413,6 +413,7 @@ namespace ModIO
                                  + url);
                 return;
             }
+            APIClient._activeGetRequests.Remove(url);
 
             // - process callbacks -
             string responseBody = null;
@@ -439,8 +440,6 @@ namespace ModIO
                     }
                 }
             }
-
-            APIClient._activeGetRequests.Remove(url);
         }
 
         /// <summary>Processes the response for the given request.</summary>
