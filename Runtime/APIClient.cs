@@ -256,11 +256,12 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(webRequest.url));
 
             UnityWebRequestAsyncOperation requestOperation = null;
-            RequestCallbackCollection callbackCollection;
 
             // - prevent parallel get requests -
             if(webRequest.method == UnityWebRequest.kHttpVerbGET)
             {
+                RequestCallbackCollection callbackCollection;
+
                 // create new request
                 if(!APIClient._activeGetRequests.TryGetValue(webRequest.url, out requestOperation))
                 {
@@ -284,7 +285,7 @@ namespace ModIO
 
                     APIClient._requestResponseMap.Add(requestOperation, callbackCollection);
 
-                    requestOperation.completed += APIClient.ProcessResponse;
+                    requestOperation.completed += APIClient.HandleGetResponse;
                 }
 
                 // append callbacks
@@ -297,34 +298,30 @@ namespace ModIO
                     callbackCollection.errorCallbacks.Add(errorCallback);
                 }
             }
-            else
+            else // non-GET request
             {
-                // - start new request -
-                if(requestOperation == null
-                   || !APIClient._requestResponseMap.TryGetValue(requestOperation, out callbackCollection))
+                requestOperation = webRequest.SendWebRequest();
+                requestOperation.completed += (o) =>
                 {
-                    requestOperation = webRequest.SendWebRequest();
+                    string responseBody = null;
+                    WebRequestError error = null;
 
-                    // map callbacks
-                    callbackCollection = new RequestCallbackCollection()
+                    APIClient.ProcessRequestResponse(webRequest,
+                                                     out responseBody,
+                                                     out error);
+
+                    if(error != null)
                     {
-                        successCallbacks = new List<Action<string>>(),
-                        errorCallbacks = new List<Action<WebRequestError>>(),
-                    };
-
-                    APIClient._requestResponseMap.Add(requestOperation, callbackCollection);
-                    requestOperation.completed += APIClient.ProcessResponse;
-                }
-
-                // append callbacks
-                if(successCallback != null)
-                {
-                    callbackCollection.successCallbacks.Add(successCallback);
-                }
-                if(errorCallback != null)
-                {
-                    callbackCollection.errorCallbacks.Add(errorCallback);
-                }
+                        if(errorCallback != null)
+                        {
+                            errorCallback.Invoke(error);
+                        }
+                    }
+                    else if(successCallback != null)
+                    {
+                        successCallback.Invoke(responseBody);
+                    }
+                };
             }
 
             #if DEBUG
@@ -375,7 +372,7 @@ namespace ModIO
         }
 
         /// <summary>A wrapper for processing the response for a given web request.</summary>
-        private static void ProcessResponse(UnityEngine.AsyncOperation operation)
+        private static void HandleGetResponse(UnityEngine.AsyncOperation operation)
         {
             // early out
             if(operation == null)
@@ -397,7 +394,8 @@ namespace ModIO
             RequestCallbackCollection callbackCollection;
             if(!APIClient._requestResponseMap.TryGetValue(webRequestOperation, out callbackCollection))
             {
-                Debug.LogWarning("[mod.io] Unable to callbackCollection for the operation: " + webRequestOperation.webRequest.url);
+                Debug.LogWarning("[mod.io] Unable to callbackCollection for the operation: "
+                                 + webRequestOperation.webRequest.url);
                 return;
             }
 
