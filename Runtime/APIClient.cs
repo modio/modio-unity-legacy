@@ -380,12 +380,13 @@ namespace ModIO
                 return;
             }
 
-            // - process -
-            UnityWebRequest webRequest = webRequestOperation.webRequest;
-            if(webRequest.isNetworkError || webRequest.isHttpError)
-            {
-                WebRequestError error = WebRequestError.GenerateFromWebRequest(webRequest);
+            // - process callbacks -
+            string responseBody = null;
+            WebRequestError error = null;
+            APIClient.ProcessRequestResponse(webRequestOperation.webRequest, out responseBody, out error);
 
+            if(error != null)
+            {
                 foreach(var errorCallback in callbackCollection.errorCallbacks)
                 {
                     if(errorCallback != null)
@@ -396,21 +397,6 @@ namespace ModIO
             }
             else
             {
-                string responseBody = string.Empty;
-
-                if(webRequest.downloadHandler != null
-                   && !(webRequest.downloadHandler is DownloadHandlerFile))
-                {
-                    try
-                    {
-                        responseBody = webRequest.downloadHandler.text;
-                    }
-                    catch
-                    {
-                        responseBody = string.Empty;
-                    }
-                }
-
                 foreach(var successCallback in callbackCollection.successCallbacks)
                 {
                     if(successCallback != null)
@@ -421,6 +407,36 @@ namespace ModIO
             }
 
             APIClient._requestResponseMap.Remove(webRequestOperation);
+        }
+
+        /// <summary>Processes the response for the given request.</summary>
+        private static void ProcessRequestResponse(UnityWebRequest webRequest,
+                                                   out string success, out WebRequestError error)
+        {
+            success = null;
+            error = null;
+
+            if(webRequest.isNetworkError || webRequest.isHttpError)
+            {
+                error = WebRequestError.GenerateFromWebRequest(webRequest);
+            }
+            else
+            {
+                success = string.Empty;
+
+                if(webRequest.downloadHandler != null
+                   && !(webRequest.downloadHandler is DownloadHandlerFile))
+                {
+                    try
+                    {
+                        success = webRequest.downloadHandler.text;
+                    }
+                    catch
+                    {
+                        success = string.Empty;
+                    }
+                }
+            }
         }
 
 
