@@ -20,8 +20,9 @@ namespace ModIO
     {
         // ---------[ Nested Data-Types]---------
         /// <summary>Data required to collect and prepare callbacks.</summary>
-        private struct RequestCallbackCollection
+        private struct GetRequestHandle
         {
+            public UnityWebRequestAsyncOperation operation;
             public List<Action<string>> successCallbacks;
             public List<Action<WebRequestError>> errorCallbacks;
         }
@@ -91,12 +92,8 @@ namespace ModIO
 
         // ---------[ REQUEST HANDLING ]---------
         /// <summary>Active request mapping.</summary>
-        private static Dictionary<string, UnityWebRequestAsyncOperation> _activeGetRequests
-            = new Dictionary<string, UnityWebRequestAsyncOperation>();
-
-        /// <summary>Active request-callback mapping.</summary>
-        private static Dictionary<UnityWebRequestAsyncOperation, RequestCallbackCollection> _requestResponseMap
-            = new Dictionary<UnityWebRequestAsyncOperation, RequestCallbackCollection>();
+        private static Dictionary<string, GetRequestHandle> _activeGetRequests
+            = new Dictionary<string, GetRequestHandle>();
 
         /// <summary>Generates the object for a basic mod.io server request.</summary>
         public static UnityWebRequest GenerateQuery(string endpointURL,
@@ -260,43 +257,35 @@ namespace ModIO
             // - prevent parallel get requests -
             if(webRequest.method == UnityWebRequest.kHttpVerbGET)
             {
-                RequestCallbackCollection callbackCollection;
+                GetRequestHandle requestHandle;
 
                 // create new request
-                if(!APIClient._activeGetRequests.TryGetValue(webRequest.url, out requestOperation))
+                if(!APIClient._activeGetRequests.TryGetValue(webRequest.url, out requestHandle))
                 {
-                    requestOperation = webRequest.SendWebRequest();
-                    requestOperation.completed += (operation) =>
+                    requestHandle = new GetRequestHandle()
                     {
-                        APIClient._activeGetRequests.Remove(webRequest.url);
-                    };
-
-                    APIClient._activeGetRequests.Add(webRequest.url, requestOperation);
-                }
-
-                // fetch callback collection
-                if(!APIClient._requestResponseMap.TryGetValue(requestOperation, out callbackCollection))
-                {
-                    callbackCollection = new RequestCallbackCollection()
-                    {
+                        operation = null,
                         successCallbacks = new List<Action<string>>(),
                         errorCallbacks = new List<Action<WebRequestError>>(),
                     };
 
-                    APIClient._requestResponseMap.Add(requestOperation, callbackCollection);
+                    requestHandle.operation = webRequest.SendWebRequest();
+                    requestHandle.operation.completed += APIClient.HandleGetResponse;
 
-                    requestOperation.completed += APIClient.HandleGetResponse;
+                    APIClient._activeGetRequests.Add(webRequest.url, requestHandle);
                 }
 
                 // append callbacks
                 if(successCallback != null)
                 {
-                    callbackCollection.successCallbacks.Add(successCallback);
+                    requestHandle.successCallbacks.Add(successCallback);
                 }
                 if(errorCallback != null)
                 {
-                    callbackCollection.errorCallbacks.Add(errorCallback);
+                    requestHandle.errorCallbacks.Add(errorCallback);
                 }
+
+                requestOperation = requestHandle.operation;
             }
             else // non-GET request
             {
@@ -390,12 +379,13 @@ namespace ModIO
                 return;
             }
 
-            // check callbackCollection
-            RequestCallbackCollection callbackCollection;
-            if(!APIClient._requestResponseMap.TryGetValue(webRequestOperation, out callbackCollection))
+            // check requestHandle
+            string url = webRequestOperation.webRequest.url;
+            GetRequestHandle requestHandle;
+            if(!APIClient._activeGetRequests.TryGetValue(url, out requestHandle))
             {
-                Debug.LogWarning("[mod.io] Unable to callbackCollection for the operation: "
-                                 + webRequestOperation.webRequest.url);
+                Debug.LogWarning("[mod.io] Unable to retrieve the GetRequestHandle for the url: "
+                                 + url);
                 return;
             }
 
@@ -406,7 +396,7 @@ namespace ModIO
 
             if(error != null)
             {
-                foreach(var errorCallback in callbackCollection.errorCallbacks)
+                foreach(var errorCallback in requestHandle.errorCallbacks)
                 {
                     if(errorCallback != null)
                     {
@@ -416,7 +406,7 @@ namespace ModIO
             }
             else
             {
-                foreach(var successCallback in callbackCollection.successCallbacks)
+                foreach(var successCallback in requestHandle.successCallbacks)
                 {
                     if(successCallback != null)
                     {
@@ -425,7 +415,7 @@ namespace ModIO
                 }
             }
 
-            APIClient._requestResponseMap.Remove(webRequestOperation);
+            APIClient._activeGetRequests.Remove(url);
         }
 
         /// <summary>Processes the response for the given request.</summary>
