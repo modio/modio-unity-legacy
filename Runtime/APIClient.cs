@@ -236,7 +236,7 @@ namespace ModIO
 
         /// <summary>A wrapper for sending a UnityWebRequest and attaching callbacks.</summary>
         public static UnityWebRequestAsyncOperation SendRequest(UnityWebRequest webRequest,
-                                                                Action successCallback,
+                                                                Action<string> successCallback,
                                                                 Action<WebRequestError> errorCallback)
         {
             Debug.Assert(webRequest != null);
@@ -286,7 +286,10 @@ namespace ModIO
                     }
                     else
                     {
-                        if(successCallback != null) { successCallback(); }
+                        if(successCallback != null)
+                        {
+                            successCallback.Invoke(webRequest.downloadHandler.text);
+                        }
                     }
                 };
 
@@ -1358,6 +1361,18 @@ namespace ModIO
                                                                       pagination);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
+        }
+
+        // ---------[ Obsolete ]---------
+        /// <summary>[Obsolete] A wrapper for sending a UnityWebRequest and attaching callbacks.</summary>
+        [Obsolete("SendRequest now returns the response body on success.")]
+        public static UnityWebRequestAsyncOperation SendRequest(UnityWebRequest webRequest,
+                                                                Action successCallback,
+                                                                Action<WebRequestError> errorCallback)
+        {
+            return APIClient.SendRequest(webRequest,
+                                         (b) => { if(successCallback != null) { successCallback.Invoke(); } },
+                                         errorCallback);
         }
     }
 }
