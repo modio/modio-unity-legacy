@@ -1687,12 +1687,14 @@ namespace ModIO
             };
 
             var results = new List<T>();
+            int requestCount = 0;
 
             query(pagination,
                   (r) => FetchQueryResultsRecursively(query,
                                                       r,
                                                       pagination,
                                                       results,
+                                                      requestCount,
                                                       onSuccess,
                                                       onError),
                   onError);
@@ -1703,14 +1705,17 @@ namespace ModIO
                                                             RequestPage<T> queryResult,
                                                             APIPaginationParameters pagination,
                                                             List<T> culmativeResults,
+                                                            int requestCount,
                                                             Action<List<T>> onSuccess,
                                                             Action<WebRequestError> onError)
         {
             Debug.Assert(pagination.limit > 0);
 
             culmativeResults.AddRange(queryResult.items);
+            ++requestCount;
 
-            if(queryResult.items.Length < queryResult.size)
+            if(queryResult.items.Length < queryResult.size
+               || requestCount > 10)
             {
                 onSuccess(culmativeResults);
             }
@@ -1723,6 +1728,7 @@ namespace ModIO
                                                           r,
                                                           pagination,
                                                           culmativeResults,
+                                                          requestCount,
                                                           onSuccess,
                                                           onError),
                       onError);
