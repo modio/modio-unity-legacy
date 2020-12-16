@@ -22,16 +22,10 @@ namespace ModIO
 
             /// <summary>FilePath to which the request is saving data.</summary>
             public string downloadLocation;
-
-            /// <summary>Request index</summary>
-            public uint index;
         }
 
         /// <summary>Mapping of tracked WebRequests with their sent data.</summary>
         public static Dictionary<UnityWebRequest, RequestDebugData> webRequestDebugData = new Dictionary<UnityWebRequest, RequestDebugData>();
-
-        /// <summary>Next request index.</summary>
-        private static uint _nextRequestIndex = 0;
 
         /// <summary>Tracks and logs a request upon it completing.</summary>
         public static void DebugWebRequest(UnityWebRequestAsyncOperation operation,
@@ -66,8 +60,6 @@ namespace ModIO
                 {
                     var logString = new System.Text.StringBuilder();
                     logString.AppendLine("[mod.io] Duplicate Web Request Sent");
-                    logString.Append("Index: ");
-                    logString.AppendLine(debugData.index.ToString("x8"));
                     logString.Append("URL: ");
                     logString.Append(webRequest.url);
                     logString.Append(" (");
@@ -107,15 +99,12 @@ namespace ModIO
                         userIdString = userIdString,
                         timeSent = timeSent,
                         downloadLocation = downloadLocation,
-                        index = DebugUtilities._nextRequestIndex++,
                     };
 
                     if(PluginSettings.REQUEST_LOGGING.logOnSend)
                     {
                         var logString = new System.Text.StringBuilder();
                         logString.AppendLine("[mod.io] Web Request Sent");
-                        logString.Append("Index: ");
-                        logString.AppendLine(debugData.index.ToString("x8"));
                         logString.Append("URL: ");
                         logString.Append(webRequest.url);
                         logString.Append(" (");
@@ -211,9 +200,6 @@ namespace ModIO
                     {
                         logString.AppendLine("[mod.io] Web Request Failed");
                     }
-
-                    logString.Append("Index: ");
-                    logString.AppendLine(debugData.index.ToString("x8"));
 
                     logString.Append("URL: ");
                     logString.Append(webRequest.url);
