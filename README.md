@@ -27,7 +27,7 @@ The best way is to install this library as a [Git package](https://docs.unity3d.
 First, make sure that you to have Git installed and available in your system's PATH.
 After that you need to add the following line to your project's `manifest.json`:
 ```
-"com.modio.unityplugin": "https://github.com/modio/modio-unity-upm.git",
+"com.modio.unityplugin": "https://github.com/modio/modio-unity.git",
 ```
 
 It should look like this, notice the comma at the end of the line:
