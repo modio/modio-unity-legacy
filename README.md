@@ -25,6 +25,8 @@ Import a package from the [Asset Store](https://assetstore.unity.com/packages/te
 or the [Releases page](https://github.com/modio/modio-unity/releases).
 If you have any previous versions of the plugin installed, it is highly recommended to delete them before importing a newer version.
 
+Alternatively, you can download an archive of the code using GitHub's download feature and place it in the Assets/Plugins directory within your Unity project.
+
 ## Getting started
 
 1. Implement support for user-generated content in your project. Maps, skins, or game modes are often a good place to start.
