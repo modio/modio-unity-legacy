@@ -20,33 +20,8 @@ Welcome to [mod.io](https://mod.io) Unity Plugin. It allows game developers to e
 ## Installation
 Requires **Unity 2017.3** or later. Tested on Windows, and MacOS.
 
-There are several ways to install the mod.io Unity Plugin:
-
-### Package Manager
-The best way is to install this library as a [Git package](https://docs.unity3d.com/Manual/upm-git.html) using the Package Manager.
-First, make sure that you to have Git installed and available in your system's PATH.
-After that you need to add the following line to your project's `manifest.json`:
-```
-"com.modio.unityplugin": "https://github.com/modio/modio-unity-upm.git",
-```
-
-It should look like this, notice the comma at the end of the line:
-```
-{
-  "dependencies": {
-    "com.modio.unityplugin": "https://github.com/modio/modio-unity-upm.git",
-    "com.unity.package-manager-ui": "1.0.0",
-    "com.unity.modules.ai": "1.0.0",
-    "com.unity.modules.animation": "1.0.0",
-    ...
-  }
-}
-```
-
-If you don't want to use Git, you can download this library as an archive and install it as a [local package](https://docs.unity3d.com/Manual/upm-ui-local.html).
-
 ### Asset Store or .unitypackage
-The other way is to import a package from the [Asset Store](https://assetstore.unity.com/packages/templates/systems/mod-browser-manager-138866)
+Import a package from the [Asset Store](https://assetstore.unity.com/packages/templates/systems/mod-browser-manager-138866)
 or the [Releases page](https://github.com/modio/modio-unity/releases).
 If you have any previous versions of the plugin installed, it is highly recommended to delete them before importing a newer version.
 
