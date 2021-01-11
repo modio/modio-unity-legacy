@@ -419,6 +419,8 @@ namespace ModIO
             }
             else
             {
+                RequestCache.storedResponses[url] = responseBody;
+
                 foreach(var successCallback in requestHandle.successCallbacks)
                 {
                     if(successCallback != null)
