@@ -261,7 +261,7 @@ namespace ModIO
 
                 // check cache
                 string cachedResponse = null;
-                if(RequestCache.storedResponses.TryGetValue(webRequest.url, out cachedResponse))
+                if(RequestCache.TryGetResponse(webRequest.url, out cachedResponse))
                 {
                     if(successCallback != null)
                     {
