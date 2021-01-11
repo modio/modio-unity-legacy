@@ -19,5 +19,11 @@ namespace ModIO
 
             return success;
         }
+
+        /// <summary>Stores a response in the cache.</summary>
+        public static void StoreResponse(string url, string responseBody)
+        {
+            RequestCache.storedResponses[url] = responseBody;
+        }
     }
 }

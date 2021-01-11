@@ -419,7 +419,7 @@ namespace ModIO
             }
             else
             {
-                RequestCache.storedResponses[url] = responseBody;
+                RequestCache.StoreResponse(url, responseBody);
 
                 foreach(var successCallback in requestHandle.successCallbacks)
                 {
