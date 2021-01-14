@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 
+using Debug = UnityEngine.Debug;
+
 namespace ModIO
 {
     /// <summary>Holds a collection of responses for URLs.</summary>
@@ -13,6 +15,10 @@ namespace ModIO
             public string responseBody;
         }
 
+        // ---------[ Constants ]---------
+        /// <summary>Number of seconds for which a cached response is considered valid.</summary>
+        public const int ENTRY_LIFETIME = 15;
+
         // ---------[ Fields ]---------
         /// <summary>Map of url to saved responses.</summary>
         public static Dictionary<string, Entry> storedResponses
@@ -25,6 +31,7 @@ namespace ModIO
 
             Entry entry;
             success = RequestCache.storedResponses.TryGetValue(url, out entry);
+            success &= (ServerTimeStamp.Now - entry.timeStamp) <= RequestCache.ENTRY_LIFETIME;
 
             if(success)
             {
@@ -41,6 +48,12 @@ namespace ModIO
         /// <summary>Stores a response in the cache.</summary>
         public static void StoreResponse(string url, string responseBody)
         {
+            if(string.IsNullOrEmpty(url))
+            {
+                Debug.LogWarning("[mod.io] Attempted to cache response for null or empty URL.");
+                return;
+            }
+
             Entry entry = new Entry()
             {
                 timeStamp = ServerTimeStamp.Now,
