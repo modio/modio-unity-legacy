@@ -284,6 +284,18 @@ namespace ModIO
             {
                 GetRequestHandle requestHandle;
 
+                // check cache
+                string cachedResponse = null;
+                if(RequestCache.TryGetResponse(webRequest.url, out cachedResponse))
+                {
+                    if(successCallback != null)
+                    {
+                        successCallback.Invoke(cachedResponse);
+                    }
+
+                    return null;
+                }
+
                 // create new request
                 if(!APIClient._activeGetRequests.TryGetValue(webRequest.url, out requestHandle))
                 {
@@ -432,6 +444,8 @@ namespace ModIO
             }
             else
             {
+                RequestCache.StoreResponse(url, responseBody);
+
                 foreach(var successCallback in requestHandle.successCallbacks)
                 {
                     if(successCallback != null)
