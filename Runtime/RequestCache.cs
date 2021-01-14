@@ -62,5 +62,11 @@ namespace ModIO
 
             RequestCache.storedResponses[url] = entry;
         }
+
+        /// <summary>Clears the data from the cache.</summary>
+        public static void Clear()
+        {
+            RequestCache.storedResponses.Clear();
+        }
     }
 }
