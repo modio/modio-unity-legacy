@@ -9,7 +9,7 @@ namespace ModIO
     {
         // ---------[ Nested Data-Types ]---------
         /// <summary>Entry for a stored response in the request cache.</summary>
-        public struct Entry
+        private struct Entry
         {
             public int timeStamp;
             public string responseBody;
@@ -17,15 +17,15 @@ namespace ModIO
 
         // ---------[ Constants ]---------
         /// <summary>Number of seconds for which a cached response is considered valid.</summary>
-        public const int ENTRY_LIFETIME = 15;
+        private const int ENTRY_LIFETIME = 15;
 
         // ---------[ Fields ]---------
         /// <summary>Map of url to saved responses.</summary>
-        public static Dictionary<string, Entry> storedResponses
+        private static Dictionary<string, Entry> storedResponses
             = new Dictionary<string, Entry>();
 
         /// <summary>OAuthToken present during the last StoreResponse call.</summary>
-        public static string lastOAuthToken = null;
+        private static string lastOAuthToken = null;
 
         /// <summary>Fetches a response from the cache.</summary>
         public static bool TryGetResponse(string url, out string response)
