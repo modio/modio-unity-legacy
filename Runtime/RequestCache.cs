@@ -24,22 +24,26 @@ namespace ModIO
         public static Dictionary<string, Entry> storedResponses
             = new Dictionary<string, Entry>();
 
+        /// <summary>OAuthToken present during the last StoreResponse call.</summary>
+        public static string lastOAuthToken = null;
+
         /// <summary>Fetches a response from the cache.</summary>
         public static bool TryGetResponse(string url, out string response)
         {
+            response = null;
+
             bool success = false;
-
             Entry entry;
-            success = RequestCache.storedResponses.TryGetValue(url, out entry);
-            success &= (ServerTimeStamp.Now - entry.timeStamp) <= RequestCache.ENTRY_LIFETIME;
 
-            if(success)
+            if(LocalUser.OAuthToken == RequestCache.lastOAuthToken)
             {
-                response = entry.responseBody;
-            }
-            else
-            {
-                response = null;
+                success = RequestCache.storedResponses.TryGetValue(url, out entry);
+                success &= (ServerTimeStamp.Now - entry.timeStamp) <= RequestCache.ENTRY_LIFETIME;
+
+                if(success)
+                {
+                    response = entry.responseBody;
+                }
             }
 
             return success;
@@ -48,6 +52,12 @@ namespace ModIO
         /// <summary>Stores a response in the cache.</summary>
         public static void StoreResponse(string url, string responseBody)
         {
+            if(LocalUser.OAuthToken != RequestCache.lastOAuthToken)
+            {
+                RequestCache.Clear();
+                RequestCache.lastOAuthToken = LocalUser.OAuthToken;
+            }
+
             if(string.IsNullOrEmpty(url))
             {
                 Debug.LogWarning("[mod.io] Attempted to cache response for null or empty URL.");
