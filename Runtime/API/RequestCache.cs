@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 using Debug = UnityEngine.Debug;
 
-namespace ModIO
+namespace ModIO.API
 {
     /// <summary>Holds a collection of responses for URLs.</summary>
     public static class RequestCache
