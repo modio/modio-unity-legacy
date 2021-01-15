@@ -35,7 +35,7 @@ namespace ModIO
         public static readonly string PERSISTENTDATA_FILEPATH;
 
         /// <summary>Folder name for installed UGC.</summary>
-        public const string INSTALLATION_FOLDER = "mods";
+        public const string INSTALLATION_FOLDER = "data";
 
         // ---------[ FIELDS ]---------
         /// <summary>Data that needs to be stored across sessions.</summary>
@@ -166,7 +166,7 @@ namespace ModIO
                 else
                 {
                     DataStorage.DeleteDirectory(installDirectory, (dd_path, dd_success) =>
-                    DataStorage.CreateDirectory(installDirectory, (cd_path, cd_success) =>
+                    DataStorage.CreateDirectory(Path.GetDirectoryName(installDirectory), (cd_path, cd_success) =>
                     DataStorage.MoveDirectory(tempLocation, installDirectory, (md_src, md_dst, md_success) =>
                     {
                         if(dd_success && cd_success && md_success)
