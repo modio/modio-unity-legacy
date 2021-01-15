@@ -166,7 +166,7 @@ namespace ModIO
                 else
                 {
                     DataStorage.DeleteDirectory(installDirectory, (dd_path, dd_success) =>
-                    DataStorage.CreateDirectory(installDirectory, (cd_path, cd_success) =>
+                    DataStorage.CreateDirectory(Path.GetDirectoryName(installDirectory), (cd_path, cd_success) =>
                     DataStorage.MoveDirectory(tempLocation, installDirectory, (md_src, md_dst, md_success) =>
                     {
                         if(dd_success && cd_success && md_success)
