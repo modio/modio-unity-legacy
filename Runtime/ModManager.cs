@@ -35,7 +35,7 @@ namespace ModIO
         public static readonly string PERSISTENTDATA_FILEPATH;
 
         /// <summary>Folder name for installed UGC.</summary>
-        public const string INSTALLATION_FOLDER = "mods";
+        public const string INSTALLATION_FOLDER = "data";
 
         // ---------[ FIELDS ]---------
         /// <summary>Data that needs to be stored across sessions.</summary>
