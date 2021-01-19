@@ -1,3 +1,5 @@
+#if UNITY_STANDALONE
+
 using UnityEngine;
 using UnityEditor;
 
@@ -7,7 +9,7 @@ using System.Collections.Generic;
 namespace ModIO
 {
     /// <summary>Wraps the System.IO functionality and adds AssetDatabase refreshes.</summary>
-    public class UserDataIO : UserDataIOBase, IUserDataIO<string>, IUserDataIO<int>
+    public class UserDataIO_Standalone : UserDataIOBase, IUserDataIO<string>, IUserDataIO<int>
     {
         // ---------[ CONSTANTS ]---------
         /// <summary>User Data directory path.</summary>
@@ -36,12 +38,12 @@ namespace ModIO
         /// <summary>Determines the user directory for a given user id.</summary>
         protected virtual string GenerateActiveUserDirectory(string platformUserId)
         {
-            string dir = UserDataIO.USER_DATA_DIRECTORY;
+            string dir = UserDataIO_Standalone.USER_DATA_DIRECTORY;
 
             if(!string.IsNullOrEmpty(platformUserId))
             {
                 string folderName = IOUtilities.MakeValidFileName(platformUserId);
-                dir = IOUtilities.CombinePath(UserDataIO.USER_DATA_DIRECTORY, folderName);
+                dir = IOUtilities.CombinePath(UserDataIO_Standalone.USER_DATA_DIRECTORY, folderName);
             }
 
             return dir;
@@ -72,3 +74,5 @@ namespace ModIO
         }
     }
 }
+
+#endif // UNITY_STANDALONE
