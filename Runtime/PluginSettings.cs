@@ -321,31 +321,19 @@ namespace ModIO
         [System.Obsolete("Use DataStorage.PersistentDataDirectory instead.")]
         public static string CACHE_DIRECTORY
         {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.cacheDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.cacheDirectory; }
-            #endif // UNITY_EDITOR
+            get { return DataStorage.PersistentDataDirectory; }
         }
 
         [System.Obsolete("No longer supported. Try ModManager.GetModInstallDirectory() instead.")]
         public static string INSTALLATION_DIRECTORY
         {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.installationDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.installationDirectory; }
-            #endif // UNITY_EDITOR
+            get { return Path.GetDirectoryName(ModManager.GetModInstallDirectory(0,0)); }
         }
 
-        [System.Obsolete("No longer supported. Try UserDataStorage.ActiveDirectory instead.")]
+        [System.Obsolete("No longer supported. Try UserDataStorage.ActiveUserDirectory instead.")]
         public static string USER_DIRECTORY
         {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.userDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.userDirectory; }
-            #endif // UNITY_EDITOR
+            get { return UserDataStorage.ActiveUserDirectory; }
         }
 
         #if UNITY_EDITOR
