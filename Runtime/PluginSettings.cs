@@ -43,7 +43,7 @@ namespace ModIO
             /// <summary>Request logging options.</summary>
             public RequestLoggingOptions requestLogging;
 
-            [Header("Runtime Directories")]
+            [Header("Standalone Directories")]
             [Tooltip("Directory to use for mod installations")]
             [VariableDirectory]
             public string installationDirectory;
@@ -324,10 +324,10 @@ namespace ModIO
             get { return DataStorage.PersistentDataDirectory; }
         }
 
-        [System.Obsolete("No longer supported. Try ModManager.GetModInstallDirectory() instead.")]
+        [System.Obsolete("No longer supported. Use ModManager.INSTALLATION_DIRECTORY instead.")]
         public static string INSTALLATION_DIRECTORY
         {
-            get { return Path.GetDirectoryName(ModManager.GetModInstallDirectory(0,0)); }
+            get { return Path.GetDirectoryName(ModManager.INSTALLATION_DIRECTORY); }
         }
 
         [System.Obsolete("No longer supported. Try UserDataStorage.ActiveUserDirectory instead.")]
