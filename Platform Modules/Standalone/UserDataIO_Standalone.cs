@@ -13,8 +13,7 @@ namespace ModIO
     {
         // ---------[ CONSTANTS ]---------
         /// <summary>User Data directory path.</summary>
-        private static readonly string USER_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath,
-                                                                                     "modio_" + PluginSettings.GAME_ID.ToString("x8"));
+        private static readonly string USER_DATA_DIRECTORY = PluginSettings.data.userDirectory;
 
         // ---------[ IUserDataIO Interface ]---------
         // --- Accessors ---
