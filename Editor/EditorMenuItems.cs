@@ -20,6 +20,12 @@ namespace ModIO.EditorCode
             new MenuItem("Tools/mod.io/Editor Data/", false, 1);
         }
 
+        [MenuItem("Tools/mod.io/Editor Data/Locate...", false)]
+        public static void LocateEditorDirectory()
+        {
+            DataStorage.CreateDirectory(DataStorage.PersistentDataDirectory,
+                                        (p,s) => Application.OpenURL(DataStorage.PersistentDataDirectory));
+        }
 
         [MenuItem("Tools/mod.io/Editor Data/Clear all data", false)]
         public static void ClearEditorData()
