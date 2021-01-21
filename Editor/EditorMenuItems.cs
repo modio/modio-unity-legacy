@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+
 using System.Collections.Generic;
 using File = System.IO.File;
 using Directory = System.IO.Directory;
@@ -16,19 +17,21 @@ namespace ModIO.EditorCode
         static EditorMenuItems()
         {
             new MenuItem("Tools/mod.io/Edit Settings", false, 0);
-            new MenuItem("Tools/mod.io/Debugging/", false, 1);
-            new MenuItem("Tools/mod.io/Tools/", false, 1);
+            new MenuItem("Tools/mod.io/Editor Data/", false, 1);
         }
 
-        [MenuItem("Tools/mod.io/Debugging/Clear All Cached Data", false)]
-        public static void ClearCache()
+
+        [MenuItem("Tools/mod.io/Editor Data/Clear all data", false)]
+        public static void ClearEditorData()
         {
             Directory.Delete(DataStorage.PersistentDataDirectory);
-            Debug.Log("[mod.io] Cache Cleared.");
+            Directory.Delete(DataStorage.TemporaryDataDirectory);
+
+            Debug.Log("[mod.io] Editor data store cleared.");
         }
 
-        [MenuItem("Tools/mod.io/Debugging/Clear All User Data", false)]
-        public static void ClearAllUserData()
+        [MenuItem("Tools/mod.io/Editor Data/Clear user data", false)]
+        public static void ClearUserData()
         {
             UserDataStorage.ClearActiveUserData((success) =>
             {
@@ -46,30 +49,14 @@ namespace ModIO.EditorCode
             });
         }
 
-        [MenuItem("Tools/mod.io/Debugging/Clear Game Data", false)]
-        public static void ClearCachedGameProfile()
-        {
-            File.Delete(CacheClient.gameProfileFilePath);
-            Debug.Log("[mod.io] Cached Game Data Deleted.");
-        }
-
-        [MenuItem("Tools/mod.io/Debugging/Clear Mod Data", false)]
+        [MenuItem("Tools/mod.io/Editor Data/Clear installation data", false)]
         public static void ClearCachedModData()
         {
-            string modDir = IOUtilities.CombinePath(DataStorage.PersistentDataDirectory, "mods");
-
-            Directory.Delete(modDir);
-            Debug.Log("[mod.io] Cached Mod Data Deleted.");
-        }
-
-        [MenuItem("Tools/mod.io/Debugging/Delete Installed Mods", false)]
-        public static void RemoveAllInstalledMods()
-        {
             Directory.Delete(ModManager.INSTALLATION_DIRECTORY);
-            Debug.Log("[mod.io] Mod Installation Data removed.");
+            Debug.Log("[mod.io] Installation data .");
         }
 
-        [MenuItem("Tools/mod.io/Update ALL Color Scheme Applicators", false)]
+        [MenuItem("Tools/mod.io/Update Color Scheme Applicators", false, 2)]
         public static void ForceColorSchemeUpdate()
         {
             Resources.LoadAll<GraphicColorApplicator>(string.Empty);
