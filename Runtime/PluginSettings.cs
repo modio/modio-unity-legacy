@@ -8,6 +8,9 @@ namespace ModIO
     public class PluginSettings : ScriptableObject
     {
         // ---------[ NESTED CLASSES ]---------
+        /// <summary>Attribute for denoting a field as containing directory variables.</summary>
+        public class VariableDirectoryAttribute : PropertyAttribute {}
+
         /// <summary>Request logging options.</summary>
         [System.Serializable]
         public struct RequestLoggingOptions
@@ -40,19 +43,20 @@ namespace ModIO
             /// <summary>Request logging options.</summary>
             public RequestLoggingOptions requestLogging;
 
-            // ---------[ Obsolete ]---------
-            [System.Obsolete("No longer supported.")]
-            [HideInInspector]
+            [Header("Standalone Directories")]
+            [Tooltip("Directory to use for mod installations")]
+            [VariableDirectory]
             public string installationDirectory;
 
-            [System.Obsolete("No longer supported.")]
-            [HideInInspector]
+            [Tooltip("Directory to use for cached server data")]
+            [VariableDirectory]
             public string cacheDirectory;
 
-            [System.Obsolete("No longer supported.")]
-            [HideInInspector]
+            [Tooltip("Directory to use for user data")]
+            [VariableDirectory]
             public string userDirectory;
 
+            // ---------[ Obsolete ]---------
             [System.Obsolete("No longer supported.")]
             [HideInInspector]
             public string installationDirectoryEditor;
@@ -181,9 +185,66 @@ namespace ModIO
             else
             {
                 settings = wrapper.m_data;
+
+                // - Path variable replacement -
+                // cachedir
+                if(settings.cacheDirectory != null)
+                {
+                    settings.cacheDirectory = ReplaceDirectoryVariables(settings.cacheDirectory,
+                                                                        settings.gameId);
+                }
+
+                // installdir
+                if(settings.installationDirectory != null)
+                {
+                    settings.installationDirectory = ReplaceDirectoryVariables(settings.installationDirectory,
+                                                                               settings.gameId);
+                }
+
+                // userdir
+                if(settings.userDirectory != null)
+                {
+                    settings.userDirectory = ReplaceDirectoryVariables(settings.userDirectory,
+                                                                       settings.gameId);
+                }
             }
 
             return settings;
+        }
+
+        /// <summary>Replaces variables in the directory values.</summary>
+        public static string ReplaceDirectoryVariables(string directory, int gameId)
+        {
+            // remove any trailing DSCs from Application paths
+            string app_persistentDataPath = Application.persistentDataPath;
+            if(IOUtilities.PathEndsWithDirectorySeparator(app_persistentDataPath))
+            {
+                app_persistentDataPath = app_persistentDataPath.Remove(app_persistentDataPath.Length-1);
+            }
+            string app_dataPath = Application.dataPath;
+            if(IOUtilities.PathEndsWithDirectorySeparator(app_dataPath))
+            {
+                app_dataPath = app_dataPath.Remove(app_dataPath.Length-1);
+            }
+            string app_temporaryCachePath = Application.temporaryCachePath;
+            if(IOUtilities.PathEndsWithDirectorySeparator(app_temporaryCachePath))
+            {
+                app_temporaryCachePath = app_temporaryCachePath.Remove(app_temporaryCachePath.Length-1);
+            }
+
+            // straight replaces
+            directory = (directory
+                         .Replace("$PERSISTENT_DATA_PATH$", app_persistentDataPath)
+                         .Replace("$DATA_PATH$", app_dataPath)
+                         .Replace("$TEMPORARY_CACHE_PATH$", app_temporaryCachePath)
+                         .Replace("$BUILD_GUID$", Application.buildGUID)
+                         .Replace("$COMPANY_NAME$", Application.companyName)
+                         .Replace("$PRODUCT_NAME$", Application.productName)
+                         .Replace("$APPLICATION_IDENTIFIER", Application.identifier)
+                         .Replace("$GAME_ID$", gameId.ToString())
+                         );
+
+            return directory;
         }
 
         // ---------[ EDITOR CODE ]---------
@@ -218,6 +279,10 @@ namespace ModIO
                     logAllResponses = false,
                     logOnSend = false,
                 },
+
+                installationDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","mods"),
+                cacheDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","cache"),
+                userDirectory = IOUtilities.CombinePath("$PERSISTENT_DATA_PATH$","mod.io-$GAME_ID$"),
             };
 
             return data;
@@ -256,31 +321,19 @@ namespace ModIO
         [System.Obsolete("Use DataStorage.PersistentDataDirectory instead.")]
         public static string CACHE_DIRECTORY
         {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.cacheDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.cacheDirectory; }
-            #endif // UNITY_EDITOR
+            get { return DataStorage.PersistentDataDirectory; }
         }
 
-        [System.Obsolete("No longer supported. Try ModManager.GetModInstallDirectory() instead.")]
+        [System.Obsolete("No longer supported. Use ModManager.INSTALLATION_DIRECTORY instead.")]
         public static string INSTALLATION_DIRECTORY
         {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.installationDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.installationDirectory; }
-            #endif // UNITY_EDITOR
+            get { return Path.GetDirectoryName(ModManager.INSTALLATION_DIRECTORY); }
         }
 
-        [System.Obsolete("No longer supported. Try UserDataStorage.ActiveDirectory instead.")]
+        [System.Obsolete("No longer supported. Try UserDataStorage.ActiveUserDirectory instead.")]
         public static string USER_DIRECTORY
         {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.userDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.userDirectory; }
-            #endif // UNITY_EDITOR
+            get { return UserDataStorage.ActiveUserDirectory; }
         }
 
         #if UNITY_EDITOR

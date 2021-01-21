@@ -34,8 +34,17 @@ namespace ModIO
         /// <summary>File name used to store the persistent data.</summary>
         public static readonly string PERSISTENTDATA_FILEPATH;
 
-        /// <summary>Folder name for installed UGC.</summary>
-        public const string INSTALLATION_FOLDER = "data";
+        #if UNITY_STANDALONE && !UNITY_EDITOR
+
+            /// <summary>Directory path for installed UGC.</summary>
+            public static readonly string INSTALLATION_DIRECTORY = PluginSettings.data.installationDirectory;
+
+        #else // UNITY_STANDALONE && !UNITY_EDITOR
+
+            /// <summary>Directory path for installed UGC.</summary>
+            public static readonly string INSTALLATION_DIRECTORY = IOUtilities.CombinePath(DataStorage.PersistentDataDirectory, "data");
+
+        #endif // UNITY_STANDALONE && !UNITY_EDITOR
 
         // ---------[ FIELDS ]---------
         /// <summary>Data that needs to be stored across sessions.</summary>
@@ -70,8 +79,7 @@ namespace ModIO
         /// <summary>Generates the path for a given modfile install directory.</summary>
         public static string GetModInstallDirectory(int modId, int modfileId)
         {
-            return IOUtilities.CombinePath(DataStorage.PersistentDataDirectory,
-                                           ModManager.INSTALLATION_FOLDER,
+            return IOUtilities.CombinePath(ModManager.INSTALLATION_DIRECTORY,
                                            modId.ToString() + "_" + modfileId.ToString());
         }
 
@@ -357,10 +365,7 @@ namespace ModIO
         {
             Debug.Assert(onComplete != null);
 
-            string installationDirectory = IOUtilities.CombinePath(DataStorage.PersistentDataDirectory,
-                                                                   ModManager.INSTALLATION_FOLDER);
-
-            DataStorage.GetDirectories(installationDirectory, (path, exists, modDirectories) =>
+            DataStorage.GetDirectories(ModManager.INSTALLATION_DIRECTORY, (path, exists, modDirectories) =>
             {
                 var installedModMap = new List<KeyValuePair<ModfileIdPair, string>>();
 

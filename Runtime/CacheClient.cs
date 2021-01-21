@@ -14,9 +14,20 @@ namespace ModIO
     public static class CacheClient
     {
         // ---------[ GAME PROFILE ]---------
+        #if UNITY_STANDALONE && !UNITY_EDITOR
+
+            /// <summary>Directory that the CacheClient uses to store data.</summary>
+            public static readonly string cacheDirectory = PluginSettings.data.cacheDirectory;
+
+        #else // UNITY_STANDALONE && !UNITY_EDITOR
+
+            /// <summary>Directory that the CacheClient uses to store data.</summary>
+            public static readonly string cacheDirectory = IOUtilities.CombinePath(DataStorage.PersistentDataDirectory, "cache");
+
+        #endif // UNITY_STANDALONE && !UNITY_EDITOR
+
         /// <summary>File path for the game profile data.</summary>
-        public static string gameProfileFilePath
-        { get { return IOUtilities.CombinePath(DataStorage.PersistentDataDirectory, "game_profile.data"); } }
+        public static readonly string gameProfileFilePath = IOUtilities.CombinePath(CacheClient.cacheDirectory, "game_profile.data");
 
         /// <summary>Stores the game's profile in the cache.</summary>
         public static void SaveGameProfile(GameProfile profile, Action<bool> onComplete)
@@ -47,7 +58,7 @@ namespace ModIO
         /// <summary>Generates the path for a mod cache directory.</summary>
         public static string GenerateModDirectoryPath(int modId)
         {
-            return IOUtilities.CombinePath(DataStorage.PersistentDataDirectory,
+            return IOUtilities.CombinePath(CacheClient.cacheDirectory,
                                            "mods",
                                            modId.ToString());
         }
@@ -145,7 +156,7 @@ namespace ModIO
         {
             const string FILENAME = "profile.data";
 
-            Debug.Assert(IOUtilities.CombinePath(DataStorage.PersistentDataDirectory, "mods", "0")
+            Debug.Assert(IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods", "0")
                          == CacheClient.GenerateModDirectoryPath(0),
                          "[mod.io] This function relies on mod directory path being a generated in"
                          + " a specific way. Changing CacheClient.GenerateModDirectoryPath()"
@@ -161,7 +172,7 @@ namespace ModIO
 
             List<string> profilePaths = new List<string>();
             List<ModProfile> modProfiles = new List<ModProfile>();
-            string profileDirectory = IOUtilities.CombinePath(DataStorage.PersistentDataDirectory, "mods");
+            string profileDirectory = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
 
             DataStorage.GetDirectories(profileDirectory, (gd_path, gd_success, modDirectories) =>
             {
@@ -308,7 +319,7 @@ namespace ModIO
         {
             const string FILENAME = "stats.data";
 
-            Debug.Assert(IOUtilities.CombinePath(DataStorage.PersistentDataDirectory, "mods", "0")
+            Debug.Assert(IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods", "0")
                          == CacheClient.GenerateModDirectoryPath(0),
                          "[mod.io] This function relies on mod directory path being a generated in"
                          + " a specific way. Changing CacheClient.GenerateModDirectoryPath()"
@@ -334,7 +345,7 @@ namespace ModIO
             }
 
             // get statistics
-            string statisticsDirectory = IOUtilities.CombinePath(DataStorage.PersistentDataDirectory, "mods");
+            string statisticsDirectory = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
 
             DataStorage.GetDirectories(statisticsDirectory, (gd_path, gd_success, modDirectories) =>
             {
@@ -853,7 +864,7 @@ namespace ModIO
         /// <summary>Generates the file path for a user's profile.</summary>
         public static string GenerateUserAvatarDirectoryPath(int userId)
         {
-            return IOUtilities.CombinePath(DataStorage.PersistentDataDirectory,
+            return IOUtilities.CombinePath(CacheClient.cacheDirectory,
                                            "users",
                                            userId + "_avatar");
         }
@@ -923,13 +934,6 @@ namespace ModIO
         }
 
         // ---------[ OBSOLETE ]---------
-        /// <summary>[Obsolete] Directory that the CacheClient uses to store data.</summary>
-        [Obsolete("Use DataStorage.PersistentDataDirectory instead")]
-        public static string cacheDirectory
-        {
-            get { return DataStorage.PersistentDataDirectory; }
-        }
-
         /// <summary>[Obsolete] Retrieves the file paths for the mod logos in the cache.</summary>
         [Obsolete("Use CacheClient.GetModLogoVersionFileNames() instead")]
         public static Dictionary<LogoSize, string> LoadModLogoFilePaths(int modId)
@@ -941,7 +945,7 @@ namespace ModIO
         [Obsolete("User Profiles are no longer accessible via the mod.io API.")]
         public static string GenerateUserProfileFilePath(int userId)
         {
-            return IOUtilities.CombinePath(DataStorage.PersistentDataDirectory,
+            return IOUtilities.CombinePath(CacheClient.cacheDirectory,
                                            "users",
                                            userId.ToString(),
                                            "profile.data");
