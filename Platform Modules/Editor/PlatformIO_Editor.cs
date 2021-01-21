@@ -20,18 +20,16 @@ namespace ModIO
         }
 
         // ---------[ CONSTANTS ]---------
-        /// <summary>Root data directory.</summary>
-        private static readonly string ROOT_DATA_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
-                                                                                     "Resources",
-                                                                                     "mod.io",
-                                                                                     "Editor",
-                                                                                     PluginSettings.GAME_ID.ToString("x4"));
-
         /// <summary>Temporary Data directory path.</summary>
-        private static readonly string TEMPORARY_DATA_DIRECTORY = IOUtilities.CombinePath(ROOT_DATA_DIRECTORY, "Temp");
+        public static readonly string TEMPORARY_DATA_DIRECTORY = IOUtilities.CombinePath(System.IO.Directory.GetCurrentDirectory(),
+                                                                                         "Temp",
+                                                                                         "mod.io",
+                                                                                         PluginSettings.GAME_ID.ToString("x8"));
 
         /// <summary>Persistent Data directory path.</summary>
-        private static readonly string PERSISTENT_DATA_DIRECTORY = IOUtilities.CombinePath(ROOT_DATA_DIRECTORY, "Cache");
+        public static readonly string PERSISTENT_DATA_DIRECTORY = IOUtilities.CombinePath(System.IO.Directory.GetCurrentDirectory(),
+                                                                                          "mod.io",
+                                                                                          PluginSettings.GAME_ID.ToString("x8"));
 
         // ---------[ IPlatformIO Interface ]---------
         // --- Accessors ---
