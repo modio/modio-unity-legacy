@@ -31,6 +31,16 @@ namespace ModIO.UI
             }
         }
 
+        // ---------[ Nested Data-Types ]---------
+        /// <summary>Information pertaining to the browser state.</summary>
+        [Serializable]
+        private struct BrowserState
+        {
+            public int modEventId;
+            public int userEventId;
+            public Dictionary<int, ModRatingValue> userRatings;
+        }
+
         // ---------[ CONST & STATIC ]---------
         /// <summary>Number of seconds between mod event polls.</summary>
         private const float MOD_EVENT_POLLING_PERIOD = 120f;
@@ -40,9 +50,14 @@ namespace ModIO.UI
 
         // --- RUNTIME DATA ---
         private GameProfile m_gameProfile = new GameProfile();
-        private Dictionary<int, ModRatingValue> m_userRatings = new Dictionary<int, ModRatingValue>();
-        private int m_lastModEventId = -1;
-        private int m_lastUserEventId = -1;
+
+        private BrowserState m_state = new BrowserState()
+        {
+            userId = UserProfile.NULL_ID,
+            modEventId = -1,
+            userEventId = -1,
+            userRatings = new Dictionary<int, ModRatingValue>(),
+        };
 
         // --- ACCESSORS ---
         public GameProfile gameProfile
@@ -565,10 +580,10 @@ namespace ModIO.UI
                 }
             }
 
-            m_userRatings = new Dictionary<int, ModRatingValue>();
+            this.m_state.userRatings = new Dictionary<int, ModRatingValue>();
             foreach(ModRating rating in retrievedRatings)
             {
-                m_userRatings.Add(rating.modId, rating.ratingValue);
+                this.m_state.userRatings.Add(rating.modId, rating.ratingValue);
             }
         }
 
@@ -775,7 +790,7 @@ namespace ModIO.UI
                 {
                     if(r.items.Length > 0)
                     {
-                        this.m_lastModEventId = r.items[0].id;
+                        this.m_state.modEventId = r.items[0].id;
                     }
 
                     isRequestDone = true;
@@ -831,7 +846,7 @@ namespace ModIO.UI
                 {
                     List<ModEvent> modEventResponse = null;
 
-                    ModManager.FetchModEventsAfterId(this.m_lastModEventId,
+                    ModManager.FetchModEventsAfterId(this.m_state.modEventId,
                                                      LocalUser.SubscribedModIds,
                                                      (me) =>
                                                      {
@@ -872,7 +887,7 @@ namespace ModIO.UI
                     {
                         if(modEventResponse.Count > 0)
                         {
-                            this.m_lastModEventId = modEventResponse[modEventResponse.Count-1].id;
+                            this.m_state.modEventId = modEventResponse[modEventResponse.Count-1].id;
                             yield return StartCoroutine(ProcessModUpdates(modEventResponse));
                         }
                     }
@@ -913,7 +928,7 @@ namespace ModIO.UI
                 {
                     if(r.items.Length > 0)
                     {
-                        this.m_lastUserEventId = r.items[0].id;
+                        this.m_state.userEventId = r.items[0].id;
                     }
 
                     isRequestDone = true;
@@ -966,7 +981,7 @@ namespace ModIO.UI
                     // fetch user events
                     List<UserEvent> userEventReponse = null;
 
-                    ModManager.FetchUserEventsAfterId(this.m_lastUserEventId,
+                    ModManager.FetchUserEventsAfterId(this.m_state.userEventId,
                     (ue) =>
                     {
                         userEventReponse = ue;
@@ -1017,7 +1032,7 @@ namespace ModIO.UI
                     {
                         if(userEventReponse.Count > 0)
                         {
-                            this.m_lastUserEventId = userEventReponse[userEventReponse.Count-1].id;
+                            this.m_state.userEventId = userEventReponse[userEventReponse.Count-1].id;
                             ProcessUserUpdates(userEventReponse);
                         }
 
@@ -1510,7 +1525,7 @@ namespace ModIO.UI
                 {
                     if(this != null)
                     {
-                        this.m_userRatings[modId] = ratingValue;
+                        this.m_state.userRatings[modId] = ratingValue;
                     }
                 },
                 (e) =>
@@ -1521,7 +1536,7 @@ namespace ModIO.UI
                     // request returning an error.
                     if(e.webRequest.responseCode == 400)
                     {
-                        this.m_userRatings[modId] = ratingValue;
+                        this.m_state.userRatings[modId] = ratingValue;
                     }
                     else
                     {
@@ -1547,7 +1562,7 @@ namespace ModIO.UI
         public ModRatingValue GetModRating(int modId)
         {
             ModRatingValue ratingValue;
-            if(!this.m_userRatings.TryGetValue(modId, out ratingValue))
+            if(!this.m_state.userRatings.TryGetValue(modId, out ratingValue))
             {
                 ratingValue = ModRatingValue.None;
             }
