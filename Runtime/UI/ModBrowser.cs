@@ -49,8 +49,6 @@ namespace ModIO.UI
         private const float USER_EVENT_POLLING_PERIOD = 15f;
 
         // --- RUNTIME DATA ---
-        private GameProfile m_gameProfile = new GameProfile();
-
         private BrowserState m_state = new BrowserState()
         {
             userId = UserProfile.NULL_ID,
@@ -58,6 +56,9 @@ namespace ModIO.UI
             userEventId = -1,
             userRatings = new Dictionary<int, ModRatingValue>(),
         };
+
+        private GameProfile m_gameProfile = new GameProfile();
+        private bool m_isSyncInProgress = false;
 
         // --- ACCESSORS ---
         public GameProfile gameProfile
@@ -364,6 +365,10 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator SynchronizeSubscriptionsAndUpdateModProfiles()
         {
+            if(this.m_isSyncInProgress) { yield break; }
+
+            this.m_isSyncInProgress = true;
+
             // ensure changes only effect the profile this call started with
             int userId = UserProfile.NULL_ID;
             if(LocalUser.Profile != null)
@@ -388,7 +393,12 @@ namespace ModIO.UI
                 while(!isPushDone) { yield return null; }
             }
 
-            if(hasUserChanged()) { yield break; }
+            if(hasUserChanged())
+            {
+                this.m_isSyncInProgress = false;
+
+                yield break;
+            }
 
             // - configure request detail -
             Action<APIPaginationParameters> requestDelegate = null;
@@ -414,6 +424,8 @@ namespace ModIO.UI
                 // early out
                 if(modIdArray.Length == 0)
                 {
+                    this.m_isSyncInProgress = false;
+
                     yield break;
                 }
 
@@ -460,6 +472,7 @@ namespace ModIO.UI
                         LocalUser.WasTokenRejected = true;
                         LocalUser.Save();
 
+                        this.m_isSyncInProgress = false;
                         yield break;
                     }
                     else if(request_error.isRequestUnresolvable
@@ -468,6 +481,7 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    "Failed to retrieve subscription data from mod.io servers.\n"
                                                    + request_error.displayMessage);
+                        this.m_isSyncInProgress = false;
                         yield break;
                     }
                     else
@@ -508,7 +522,11 @@ namespace ModIO.UI
                 }
             }
 
-            if(hasUserChanged() || !allPagesReceived) { yield break; }
+            if(hasUserChanged() || !allPagesReceived)
+            {
+                this.m_isSyncInProgress = false;
+                yield break;
+            }
 
             // handle removed ids
             List<int> queuedSubscribes = LocalUser.QueuedSubscribes;
@@ -539,6 +557,8 @@ namespace ModIO.UI
 
             this.FetchAndSetEventIds(() => isIdFetchDone = true);
             while(!isIdFetchDone) { yield return null; }
+
+            this.m_isSyncInProgress = false;
         }
 
         private void FetchAndSetEventIds(Action onComplete = null)
