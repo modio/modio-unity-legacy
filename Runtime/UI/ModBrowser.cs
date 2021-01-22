@@ -533,6 +533,92 @@ namespace ModIO.UI
 
             // handle changes
             OnSubscriptionsChanged(subsAdded, subsRemoved);
+
+            // set event ids
+            bool isIdFetchDone = false;
+
+            this.FetchAndSetEventIds(() => isIdFetchDone = true);
+            while(!isIdFetchDone) { yield return null; }
+        }
+
+        private void FetchAndSetEventIds(Action onComplete = null)
+        {
+            bool userEventId_isDone = false;
+            bool modEventId_isDone = false;
+
+            Action handleResponse = () =>
+            {
+                if(userEventId_isDone
+                   && modEventId_isDone
+                   && onComplete != null)
+                {
+                    onComplete.Invoke();
+                }
+            };
+
+            // Create filters
+            RequestFilter idFetchFilter = new RequestFilter()
+            {
+                sortFieldName = API.GetUserEventsFilterFields.id,
+                isSortAscending = false,
+            };
+
+            idFetchFilter.AddFieldFilter("game_id", new EqualToFilter<int>()
+            {
+                filterValue = PluginSettings.GAME_ID,
+            });
+
+            APIPaginationParameters pagination = new APIPaginationParameters()
+            {
+                offset = 0,
+                limit = 1,
+            };
+
+            // fetch user event id
+            if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
+            {
+                APIClient.GetUserEvents(idFetchFilter, pagination,
+                (r) =>
+                {
+                    if(r.items.Length > 0)
+                    {
+                        this.m_state.userEventId = r.items[0].id;
+                    }
+                    userEventId_isDone = true;
+
+                    handleResponse.Invoke();
+                },
+                (e) =>
+                {
+                    userEventId_isDone = true;
+
+                    handleResponse.Invoke();
+                });
+            }
+            else
+            {
+                userEventId_isDone = true;
+            }
+
+
+            // fetch mod event id
+            APIClient.GetAllModEvents(idFetchFilter, pagination,
+            (r) =>
+            {
+                if(r.items.Length > 0)
+                {
+                    this.m_state.modEventId = r.items[0].id;
+                }
+                modEventId_isDone = true;
+
+                handleResponse.Invoke();
+            },
+            (e) =>
+            {
+                modEventId_isDone = true;
+
+                handleResponse.Invoke();
+            });
         }
 
         private System.Collections.IEnumerator FetchUserRatings()
