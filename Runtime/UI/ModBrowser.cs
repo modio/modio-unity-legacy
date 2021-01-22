@@ -127,6 +127,15 @@ namespace ModIO.UI
                 receiver.OnGameProfileUpdated(m_gameProfile);
             }
 
+            this.StartCoroutine(FetchGameProfile());
+
+            yield return this.StartCoroutine(this.InitializeForUser());
+        }
+
+        private System.Collections.IEnumerator InitializeForUser()
+        {
+            bool isDone = false;
+
             // load user
             LocalUser.Load(() => isDone = true);
             while(!isDone) { yield return null; }
@@ -135,33 +144,28 @@ namespace ModIO.UI
             {
                 this.StartCoroutine(FetchUserProfile());
             }
-            else // if invalid token, check if externally authenticated
+            else if(!string.IsNullOrEmpty(LocalUser.ExternalAuthentication.ticket))
             {
-                bool isAttemptingReauth = false;
+                bool isAttemptingReauth = true;
 
-                if(!string.IsNullOrEmpty(LocalUser.ExternalAuthentication.ticket))
+                UserAccountManagement.ReauthenticateWithStoredExternalAuthData(
+                (u) =>
                 {
-                    isAttemptingReauth = true;
-
-                    UserAccountManagement.ReauthenticateWithStoredExternalAuthData(
-                    (u) =>
+                    IEnumerable<IAuthenticatedUserUpdateReceiver> userUpdateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
+                    foreach(var receiver in userUpdateReceivers)
                     {
-                        IEnumerable<IAuthenticatedUserUpdateReceiver> userUpdateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
-                        foreach(var receiver in userUpdateReceivers)
-                        {
-                            receiver.OnUserProfileUpdated(u);
-                        }
+                        receiver.OnUserProfileUpdated(u);
+                    }
 
-                        isAttemptingReauth = false;
-                    },
-                    (e) =>
-                    {
-                        Debug.Log("[mod.io] Failed to reauthenticate using stored external authentication data.\n"
-                                  + e.errorMessage);
+                    isAttemptingReauth = false;
+                },
+                (e) =>
+                {
+                    Debug.Log("[mod.io] Failed to reauthenticate using stored external authentication data.\n"
+                              + e.errorMessage);
 
-                        isAttemptingReauth = false;
-                    });
-                }
+                    isAttemptingReauth = false;
+                });
 
                 while(isAttemptingReauth) { yield return null; }
             }
@@ -169,13 +173,12 @@ namespace ModIO.UI
             // check if still active
             if(this == null || !this.isActiveAndEnabled) { yield break; }
 
-            this.StartCoroutine(FetchGameProfile());
-
             yield return this.StartCoroutine(SynchronizeSubscriptionsAndUpdateModProfiles());
 
             this.StartCoroutine(VerifySubscriptionInstallations());
             this.StartCoroutine(PollForSubscribedModEventsCoroutine());
             this.StartCoroutine(PollForUserEventsCoroutine());
+
         }
 
         private System.Collections.IEnumerator FetchGameProfile()
