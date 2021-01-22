@@ -103,30 +103,51 @@ namespace ModIO.UI
         {
             bool isDone = false;
 
-            // - GameData -
+            // - Load Stored Data -
             CacheClient.LoadGameProfile((p) =>
             {
-                this.m_gameProfile = p;
+                if(p == null)
+                {
+                    this.m_gameProfile = new GameProfile();
+                    this.m_gameProfile.id = PluginSettings.GAME_ID;
+                }
+                else
+                {
+                    this.m_gameProfile = p;
+                }
+
                 isDone = true;
             });
 
             while(!isDone) { yield return null; }
+            isDone = false;
 
-            if(m_gameProfile == null)
+            // load user
+            LocalUser.Load(() =>
             {
-                m_gameProfile = new GameProfile();
-                m_gameProfile.id = PluginSettings.GAME_ID;
-            }
+                isDone = true;
+            });
+
+            while(!isDone) { yield return null; }
+            isDone = false;
 
             // check if still active
             if(this == null || !this.isActiveAndEnabled) { yield break; }
 
-            IEnumerable<IGameProfileUpdateReceiver> gameUpdatReceivers = GetComponentsInChildren<IGameProfileUpdateReceiver>(true);
-            foreach(var receiver in gameUpdatReceivers)
+            // - Initial notifications -
+            IEnumerable<IGameProfileUpdateReceiver> gameUpdateReceivers = GetComponentsInChildren<IGameProfileUpdateReceiver>(true);
+            foreach(var receiver in gameUpdateReceivers)
             {
                 receiver.OnGameProfileUpdated(m_gameProfile);
             }
 
+            IEnumerable<IAuthenticatedUserUpdateReceiver> userUpdateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
+            foreach(var receiver in userUpdateReceivers)
+            {
+                receiver.OnUserProfileUpdated(LocalUser.Profile);
+            }
+
+            // - Fetch remote data -
             this.StartCoroutine(FetchGameProfile());
 
             yield return this.StartCoroutine(this.InitializeForUser());
@@ -134,15 +155,9 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator InitializeForUser()
         {
-            bool isDone = false;
-
-            // load user
-            LocalUser.Load(() => isDone = true);
-            while(!isDone) { yield return null; }
-
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
-                this.StartCoroutine(FetchUserProfile());
+                yield return this.StartCoroutine(FetchUserProfile());
             }
             else if(!string.IsNullOrEmpty(LocalUser.ExternalAuthentication.ticket))
             {
@@ -178,7 +193,6 @@ namespace ModIO.UI
             this.StartCoroutine(VerifySubscriptionInstallations());
             this.StartCoroutine(PollForSubscribedModEventsCoroutine());
             this.StartCoroutine(PollForUserEventsCoroutine());
-
         }
 
         private System.Collections.IEnumerator FetchGameProfile()
