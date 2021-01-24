@@ -189,10 +189,6 @@ namespace ModIO.UI
             if(this == null || !this.isActiveAndEnabled) { yield break; }
 
             yield return this.StartCoroutine(this.PerformInitialSubscriptionSync());
-
-            this.StartCoroutine(VerifySubscriptionInstallations());
-            this.StartCoroutine(PollForSubscribedModEventsCoroutine());
-            this.StartCoroutine(PollForUserEventsCoroutine());
         }
 
         private System.Collections.IEnumerator FetchGameProfile()
@@ -895,13 +891,12 @@ namespace ModIO.UI
                || invalidUserEvent)
             {
                 yield return this.StartCoroutine(this.PerformInitialSubscriptionSync());
+                this.VerifySubscriptionInstallations();
             }
             else
             {
-                // TODO(@jackson): Fetch updates
+                yield return this.StartCoroutine(this.PullRemoteEventsAndUpdate());
             }
-
-            this.VerifySubscriptionInstallations();
 
             if(onComplete != null)
             {
@@ -909,165 +904,118 @@ namespace ModIO.UI
             }
         }
 
-        private System.Collections.IEnumerator PollForSubscribedModEventsCoroutine()
+        private System.Collections.IEnumerator PullRemoteEventsAndUpdate()
         {
             bool isRequestDone = false;
             WebRequestError requestError = null;
-            bool cancelUpdates = false;
 
-            // initial delay
-            yield return new WaitForSecondsRealtime(MOD_EVENT_POLLING_PERIOD);
+            // --- User Events ---
+            isRequestDone = false;
+            requestError = null;
 
-            // start loop
-            while(this != null
-                  && this.isActiveAndEnabled
-                  && !cancelUpdates)
+            if(LocalUser.AuthenticationState != AuthenticationState.NoToken)
             {
-                isRequestDone = false;
-                requestError = null;
+                // fetch user events
+                List<UserEvent> userEventReponse = null;
 
-                // --- MOD EVENTS ---
-                var subbedMods = LocalUser.SubscribedModIds;
-                if(subbedMods != null
-                   && subbedMods.Count > 0)
+                ModManager.FetchUserEventsAfterId(this.m_state.userEventId,
+                (ue) =>
                 {
-                    List<ModEvent> modEventResponse = null;
+                    userEventReponse = ue;
+                    isRequestDone = true;
+                },
+                (e) =>
+                {
+                    requestError = e;
+                    isRequestDone = true;
+                });
 
-                    ModManager.FetchModEventsAfterId(this.m_state.modEventId,
-                                                     LocalUser.SubscribedModIds,
-                                                     (me) =>
-                                                     {
-                                                        modEventResponse = me;
-                                                        isRequestDone = true;
-                                                     },
-                                                     (e) =>
-                                                     {
-                                                        requestError = e;
-                                                        isRequestDone = true;
-                                                     });
+                while(!isRequestDone) { yield return null; }
 
-                    while(!isRequestDone) { yield return null; }
-
-                    if(requestError != null)
+                if(requestError != null)
+                {
+                    if(requestError.isAuthenticationInvalid)
                     {
-                        int reattemptDelay = CalculateReattemptDelay(requestError);
-                        if(requestError.isAuthenticationInvalid)
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                       requestError.displayMessage);
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                   requestError.displayMessage);
 
-                            LocalUser.WasTokenRejected = true;
-                            LocalUser.Save();
-                        }
-                        else if(requestError.isRequestUnresolvable
-                                || reattemptDelay < 0)
-                        {
-                            cancelUpdates = true;
-                        }
-                        else
-                        {
-                            yield return new WaitForSecondsRealtime(reattemptDelay);
-                            continue;
-                        }
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
                     }
-                    else
-                    {
-                        if(modEventResponse.Count > 0)
-                        {
-                            this.m_state.modEventId = modEventResponse[modEventResponse.Count-1].id;
-                            yield return StartCoroutine(ProcessModUpdates(modEventResponse));
-                        }
-                    }
+
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                               "Failed to synchronize subscriptions with mod.io servers.\n"
+                                               + requestError.displayMessage);
+
+                    yield break;
                 }
 
-                yield return new WaitForSecondsRealtime(MOD_EVENT_POLLING_PERIOD);
-            }
-        }
-
-        private System.Collections.IEnumerator PollForUserEventsCoroutine()
-        {
-            bool isRequestDone = false;
-            WebRequestError requestError = null;
-            bool cancelUpdates = false;
-
-            while(this != null
-                  && this.isActiveAndEnabled
-                  && !cancelUpdates)
-            {
-
-                isRequestDone = false;
-                requestError = null;
-
+                // This may have changed during the request execution
                 if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
                 {
-                    // fetch user events
-                    List<UserEvent> userEventReponse = null;
-
-                    ModManager.FetchUserEventsAfterId(this.m_state.userEventId,
-                    (ue) =>
+                    if(userEventReponse.Count > 0)
                     {
-                        userEventReponse = ue;
-                        isRequestDone = true;
-                    },
-                    (e) =>
-                    {
-                        requestError = e;
-                        isRequestDone = true;
-                    });
-
-                    while(!isRequestDone) { yield return null; }
-
-                    if(requestError != null)
-                    {
-                        int reattemptDelay = CalculateReattemptDelay(requestError);
-                        if(requestError.isAuthenticationInvalid)
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                       requestError.displayMessage);
-
-                            LocalUser.WasTokenRejected = true;
-                            LocalUser.Save();
-                        }
-                        else if(requestError.isRequestUnresolvable
-                                || reattemptDelay < 0)
-                        {
-                            Debug.LogWarning("[mod.io] Polling for user updates failed.\n---[ Response Info ]---\n"
-                                             + DebugUtilities.GetResponseInfo(requestError.webRequest));
-
-                            cancelUpdates = true;
-                        }
-                        else
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       "Failed to synchronize subscriptions with mod.io servers.\n"
-                                                       + requestError.displayMessage
-                                                       + "\nRetrying in "
-                                                       + reattemptDelay.ToString()
-                                                       + " seconds");
-
-                            yield return new WaitForSecondsRealtime(reattemptDelay);
-                            continue;
-                        }
+                        this.m_state.userEventId = userEventReponse[userEventReponse.Count-1].id;
+                        this.ProcessUserUpdates(userEventReponse);
                     }
-                    // This may have changed during the request execution
-                    else if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
+
+                    bool isPushDone = false;
+
+                    UserAccountManagement.PushSubscriptionChanges(() => isPushDone = true,
+                                                                  (e) => isPushDone = true);
+
+                    while(!isPushDone) { yield return null; }
+                }
+            }
+
+            // --- Mod Events ---
+            isRequestDone = false;
+            requestError = null;
+
+            var subbedMods = LocalUser.SubscribedModIds;
+            if(subbedMods != null
+               && subbedMods.Count > 0)
+            {
+                List<ModEvent> modEventResponse = null;
+
+                ModManager.FetchModEventsAfterId(this.m_state.modEventId,
+                                                 LocalUser.SubscribedModIds,
+                                                 (me) =>
+                                                 {
+                                                    modEventResponse = me;
+                                                    isRequestDone = true;
+                                                 },
+                                                 (e) =>
+                                                 {
+                                                    requestError = e;
+                                                    isRequestDone = true;
+                                                 });
+
+                while(!isRequestDone) { yield return null; }
+
+                if(requestError != null)
+                {
+                    if(requestError.isAuthenticationInvalid)
                     {
-                        if(userEventReponse.Count > 0)
-                        {
-                            this.m_state.userEventId = userEventReponse[userEventReponse.Count-1].id;
-                            ProcessUserUpdates(userEventReponse);
-                        }
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                   requestError.displayMessage);
 
-                        bool isPushDone = false;
-
-                        UserAccountManagement.PushSubscriptionChanges(() => isPushDone = true,
-                                                                      (e) => isPushDone = true);
-
-                        while(!isPushDone) { yield return null; }
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
                     }
+
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                               "Failed to synchronize subscriptions with mod.io servers.\n"
+                                               + requestError.displayMessage);
+
+                    yield break;
                 }
 
-                yield return new WaitForSecondsRealtime(USER_EVENT_POLLING_PERIOD);
+                if(modEventResponse.Count > 0)
+                {
+                    this.m_state.modEventId = modEventResponse[modEventResponse.Count-1].id;
+                    this.StartCoroutine(this.ProcessModUpdates(modEventResponse));
+                }
             }
         }
 
@@ -1116,7 +1064,7 @@ namespace ModIO.UI
 
             if(newSubs.Count > 0 || newUnsubs.Count > 0)
             {
-                OnSubscriptionsChanged(newSubs, newUnsubs);
+                this.OnSubscriptionsChanged(newSubs, newUnsubs);
 
                 if(newSubs.Count > 0)
                 {
