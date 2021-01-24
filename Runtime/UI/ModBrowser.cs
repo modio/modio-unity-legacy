@@ -886,6 +886,29 @@ namespace ModIO.UI
         }
 
         // ---------[ UPDATES ]---------
+        public System.Collections.IEnumerator UpdateSubscriptions(Action onComplete = null)
+        {
+            bool invalidUserEvent = (LocalUser.AuthenticationState != AuthenticationState.NoToken
+                                     && this.m_state.userEventId <= 0);
+
+            if(this.m_state.modEventId <= 0
+               || invalidUserEvent)
+            {
+                yield return this.StartCoroutine(this.PerformInitialSubscriptionSync());
+            }
+            else
+            {
+                // TODO(@jackson): Fetch updates
+            }
+
+            this.VerifySubscriptionInstallations();
+
+            if(onComplete != null)
+            {
+                onComplete.Invoke();
+            }
+        }
+
         private System.Collections.IEnumerator PollForSubscribedModEventsCoroutine()
         {
             bool isRequestDone = false;
