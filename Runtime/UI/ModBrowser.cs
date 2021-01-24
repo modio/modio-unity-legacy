@@ -51,7 +51,6 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private BrowserState m_state = new BrowserState()
         {
-            userId = UserProfile.NULL_ID,
             modEventId = -1,
             userEventId = -1,
             userRatings = new Dictionary<int, ModRatingValue>(),
@@ -189,7 +188,7 @@ namespace ModIO.UI
             // check if still active
             if(this == null || !this.isActiveAndEnabled) { yield break; }
 
-            yield return this.StartCoroutine(SynchronizeSubscriptionsAndUpdateModProfiles());
+            yield return this.StartCoroutine(this.PerformInitialSubscriptionSync());
 
             this.StartCoroutine(VerifySubscriptionInstallations());
             this.StartCoroutine(PollForSubscribedModEventsCoroutine());
@@ -363,7 +362,7 @@ namespace ModIO.UI
             StartCoroutine(FetchUserRatings());
         }
 
-        private System.Collections.IEnumerator SynchronizeSubscriptionsAndUpdateModProfiles()
+        private System.Collections.IEnumerator PerformInitialSubscriptionSync()
         {
             if(this.m_isSyncInProgress) { yield break; }
 
@@ -893,64 +892,6 @@ namespace ModIO.UI
             WebRequestError requestError = null;
             bool cancelUpdates = false;
 
-            // fetch initial id
-            RequestFilter idFetchFilter = new RequestFilter()
-            {
-                sortFieldName = API.GetAllModEventsFilterFields.id,
-                isSortAscending = false,
-            };
-
-            APIPaginationParameters pagination = new APIPaginationParameters()
-            {
-                offset = 0,
-                limit = 1,
-            };
-
-            while(!isRequestDone)
-            {
-                APIClient.GetAllModEvents(idFetchFilter, pagination,
-                (r) =>
-                {
-                    if(r.items.Length > 0)
-                    {
-                        this.m_state.modEventId = r.items[0].id;
-                    }
-
-                    isRequestDone = true;
-                },
-                (e) =>
-                {
-                    requestError = e;
-                    isRequestDone = true;
-                });
-
-                while(!isRequestDone) { yield return null; }
-
-                if(requestError != null)
-                {
-                    int reattemptDelay = CalculateReattemptDelay(requestError);
-                    if(requestError.isAuthenticationInvalid)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                   requestError.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
-                    }
-                    else if(requestError.isRequestUnresolvable
-                            || reattemptDelay < 0)
-                    {
-                        cancelUpdates = true;
-                    }
-                    else
-                    {
-                        isRequestDone = false;
-
-                        yield return new WaitForSecondsRealtime(reattemptDelay);
-                    }
-                }
-            }
-
             // initial delay
             yield return new WaitForSecondsRealtime(MOD_EVENT_POLLING_PERIOD);
 
@@ -1025,71 +966,6 @@ namespace ModIO.UI
             bool isRequestDone = false;
             WebRequestError requestError = null;
             bool cancelUpdates = false;
-
-            // fetch initial id
-            RequestFilter idFetchFilter = new RequestFilter()
-            {
-                sortFieldName = API.GetUserEventsFilterFields.id,
-                isSortAscending = false,
-            };
-
-            idFetchFilter.AddFieldFilter(API.GetUserEventsFilterFields.gameId, new EqualToFilter<int>()
-            {
-                filterValue = PluginSettings.GAME_ID,
-            });
-
-            APIPaginationParameters pagination = new APIPaginationParameters()
-            {
-                offset = 0,
-                limit = 1,
-            };
-
-            while(!isRequestDone)
-            {
-                APIClient.GetUserEvents(idFetchFilter, pagination,
-                (r) =>
-                {
-                    if(r.items.Length > 0)
-                    {
-                        this.m_state.userEventId = r.items[0].id;
-                    }
-
-                    isRequestDone = true;
-                },
-                (e) =>
-                {
-                    requestError = e;
-                    isRequestDone = true;
-                });
-
-                while(!isRequestDone) { yield return null; }
-
-                if(requestError != null)
-                {
-                    int reattemptDelay = CalculateReattemptDelay(requestError);
-                    if(requestError.isAuthenticationInvalid)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                   requestError.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
-                    }
-                    else if(requestError.isRequestUnresolvable
-                            || reattemptDelay < 0)
-                    {
-                        cancelUpdates = true;
-                    }
-                    else
-                    {
-                        isRequestDone = false;
-
-                        yield return new WaitForSecondsRealtime(reattemptDelay);
-                    }
-                }
-            }
-
-            yield return new WaitForSecondsRealtime(USER_EVENT_POLLING_PERIOD);
 
             while(this != null
                   && this.isActiveAndEnabled
@@ -1402,7 +1278,7 @@ namespace ModIO.UI
         {
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
-                this.StartCoroutine(SynchronizeSubscriptionsAndUpdateModProfiles());
+                this.StartCoroutine(this.PerformInitialSubscriptionSync());
                 this.StartCoroutine(this.FetchUserRatings());
             }
         }
