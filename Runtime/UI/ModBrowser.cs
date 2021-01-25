@@ -36,7 +36,8 @@ namespace ModIO.UI
         [Serializable]
         private struct BrowserState
         {
-            public int lastSync;
+            public int lastSync_timestamp;
+            public int lastSync_userId;
             public int modEventId;
             public int userEventId;
             public Dictionary<int, ModRatingValue> userRatings;
@@ -46,7 +47,8 @@ namespace ModIO.UI
         /// <summary>State that persists across initializations.</summary>
         private static BrowserState _state = new BrowserState()
         {
-            lastSync = 0,
+            lastSync_timestamp = 0,
+            lastSync_userId = UserProfile.NULL_ID,
             modEventId = -1,
             userEventId = -1,
             userRatings = new Dictionary<int, ModRatingValue>(),
@@ -146,7 +148,8 @@ namespace ModIO.UI
             }
 
             // - Fetch remote data -
-            if(ServerTimeStamp.Now - ModBrowser._state.lastSync > REFETCH_PROTECTION_TIMEOUT)
+            if(ServerTimeStamp.Now - ModBrowser._state.lastSync_timestamp > REFETCH_PROTECTION_TIMEOUT
+               || LocalUser.UserId != ModBrowser._state.lastSync_userId)
             {
                 this.StartCoroutine(FetchGameProfile());
                 yield return this.StartCoroutine(this.InitializeForUser());
@@ -191,10 +194,12 @@ namespace ModIO.UI
             if(!this.m_isSyncInProgress)
             {
                 this.m_isSyncInProgress = true;
+                ModBrowser._state.lastSync_userId = LocalUser.UserId;
+
                 yield return this.StartCoroutine(this.PerformInitialSubscriptionSync());
 
                 this.m_isSyncInProgress = false;
-                ModBrowser._state.lastSync = ServerTimeStamp.Now;
+                ModBrowser._state.lastSync_timestamp = ServerTimeStamp.Now;
             }
         }
 
@@ -368,16 +373,11 @@ namespace ModIO.UI
         private System.Collections.IEnumerator PerformInitialSubscriptionSync()
         {
             // ensure changes only effect the profile this call started with
-            int userId = UserProfile.NULL_ID;
-            if(LocalUser.Profile != null)
-            {
-                userId = LocalUser.Profile.id;
-            }
+            int userId = LocalUser.UserId;
 
             Func<bool> hasUserChanged = () =>
             {
-                return ((LocalUser.Profile == null && userId != UserProfile.NULL_ID)
-                        || (LocalUser.Profile != null && userId != LocalUser.Profile.id));
+                return userId == LocalUser.UserId;
             };
 
             // - push any changes -
@@ -883,6 +883,7 @@ namespace ModIO.UI
             if(!this.m_isSyncInProgress)
             {
                 this.m_isSyncInProgress = true;
+                ModBrowser._state.lastSync_userId = LocalUser.UserId;
 
                 int timestamp = ServerTimeStamp.Now;
                 bool invalidUserEvent = (LocalUser.AuthenticationState != AuthenticationState.NoToken
@@ -906,7 +907,7 @@ namespace ModIO.UI
                 }
 
                 this.m_isSyncInProgress = false;
-                ModBrowser._state.lastSync = ServerTimeStamp.Now;
+                ModBrowser._state.lastSync_timestamp = ServerTimeStamp.Now;
             }
             else
             {
