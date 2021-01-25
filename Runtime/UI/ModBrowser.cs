@@ -43,12 +43,6 @@ namespace ModIO.UI
         }
 
         // ---------[ CONST & STATIC ]---------
-        /// <summary>Number of seconds between mod event polls.</summary>
-        private const float MOD_EVENT_POLLING_PERIOD = 120f;
-
-        /// <summary>Number of seconds between user event polls.</summary>
-        private const float USER_EVENT_POLLING_PERIOD = 15f;
-
         /// <summary>State that persists across initializations.</summary>
         private static BrowserState _state = new BrowserState()
         {
