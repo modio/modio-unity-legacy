@@ -534,7 +534,7 @@ namespace ModIO
             // early out for 0 mods
             if(modIds.Count == 0)
             {
-                if(onCompleted == null) { onCompleted(); }
+                if(onCompleted != null) { onCompleted(); }
                 yield break;
             }
 
