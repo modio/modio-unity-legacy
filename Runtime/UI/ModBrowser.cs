@@ -188,7 +188,14 @@ namespace ModIO.UI
             // check if still active
             if(this == null || !this.isActiveAndEnabled) { yield break; }
 
-            yield return this.StartCoroutine(this.PerformInitialSubscriptionSync());
+            if(!this.m_isSyncInProgress)
+            {
+                this.m_isSyncInProgress = true;
+                yield return this.StartCoroutine(this.PerformInitialSubscriptionSync());
+
+                this.m_isSyncInProgress = false;
+                ModBrowser._state.lastSync = ServerTimeStamp.Now;
+            }
         }
 
         private System.Collections.IEnumerator FetchGameProfile()
@@ -360,10 +367,6 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator PerformInitialSubscriptionSync()
         {
-            if(this.m_isSyncInProgress) { yield break; }
-
-            this.m_isSyncInProgress = true;
-
             // ensure changes only effect the profile this call started with
             int userId = UserProfile.NULL_ID;
             if(LocalUser.Profile != null)
@@ -390,8 +393,6 @@ namespace ModIO.UI
 
             if(hasUserChanged())
             {
-                this.m_isSyncInProgress = false;
-
                 yield break;
             }
 
@@ -419,8 +420,6 @@ namespace ModIO.UI
                 // early out
                 if(modIdArray.Length == 0)
                 {
-                    this.m_isSyncInProgress = false;
-
                     yield break;
                 }
 
@@ -467,7 +466,6 @@ namespace ModIO.UI
                         LocalUser.WasTokenRejected = true;
                         LocalUser.Save();
 
-                        this.m_isSyncInProgress = false;
                         yield break;
                     }
                     else if(request_error.isRequestUnresolvable
@@ -476,7 +474,6 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    "Failed to retrieve subscription data from mod.io servers.\n"
                                                    + request_error.displayMessage);
-                        this.m_isSyncInProgress = false;
                         yield break;
                     }
                     else
@@ -519,7 +516,6 @@ namespace ModIO.UI
 
             if(hasUserChanged() || !allPagesReceived)
             {
-                this.m_isSyncInProgress = false;
                 yield break;
             }
 
@@ -552,9 +548,6 @@ namespace ModIO.UI
 
             this.FetchAndSetEventIds(() => isIdFetchDone = true);
             while(!isIdFetchDone) { yield return null; }
-
-            this.m_isSyncInProgress = false;
-            ModBrowser._state.lastSync = ServerTimeStamp.Now;
         }
 
         private void FetchAndSetEventIds(Action onComplete = null)
