@@ -415,7 +415,5 @@ namespace ModIO
             PluginSettings.Data data = PluginSettings.GenerateDefaultData();
             return PluginSettings.SetRuntimeData(data);
         }
-
-
     }
 }
