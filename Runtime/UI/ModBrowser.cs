@@ -98,6 +98,7 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator InitializeModBrowser()
         {
+            const int REFETCH_PROTECTION_TIMEOUT = 120;
             bool isDone = false;
 
             // - Load Stored Data -
@@ -145,9 +146,11 @@ namespace ModIO.UI
             }
 
             // - Fetch remote data -
-            this.StartCoroutine(FetchGameProfile());
-
-            yield return this.StartCoroutine(this.InitializeForUser());
+            if(ServerTimeStamp.Now - ModBrowser._state.lastSync > REFETCH_PROTECTION_TIMEOUT)
+            {
+                this.StartCoroutine(FetchGameProfile());
+                yield return this.StartCoroutine(this.InitializeForUser());
+            }
         }
 
         private System.Collections.IEnumerator InitializeForUser()
@@ -551,6 +554,7 @@ namespace ModIO.UI
             while(!isIdFetchDone) { yield return null; }
 
             this.m_isSyncInProgress = false;
+            ModBrowser._state.lastSync = ServerTimeStamp.Now;
         }
 
         private void FetchAndSetEventIds(Action onComplete = null)
@@ -909,6 +913,7 @@ namespace ModIO.UI
                 }
 
                 this.m_isSyncInProgress = false;
+                ModBrowser._state.lastSync = ServerTimeStamp.Now;
             }
             else
             {
