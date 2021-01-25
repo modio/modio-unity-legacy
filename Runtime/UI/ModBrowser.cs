@@ -31,18 +31,32 @@ namespace ModIO.UI
             }
         }
 
-        // ---------[ CONST & STATIC ]---------
-        /// <summary>Number of seconds between mod event polls.</summary>
-        private const float MOD_EVENT_POLLING_PERIOD = 120f;
+        // ---------[ Nested Data-Types ]---------
+        /// <summary>Information pertaining to the browser state.</summary>
+        [Serializable]
+        private struct BrowserState
+        {
+            public int lastSync_timestamp;
+            public int lastSync_userId;
+            public int modEventId;
+            public int userEventId;
+            public Dictionary<int, ModRatingValue> userRatings;
+        }
 
-        /// <summary>Number of seconds between user event polls.</summary>
-        private const float USER_EVENT_POLLING_PERIOD = 15f;
+        // ---------[ CONST & STATIC ]---------
+        /// <summary>State that persists across initializations.</summary>
+        private static BrowserState _state = new BrowserState()
+        {
+            lastSync_timestamp = 0,
+            lastSync_userId = UserProfile.NULL_ID,
+            modEventId = -1,
+            userEventId = -1,
+            userRatings = new Dictionary<int, ModRatingValue>(),
+        };
 
         // --- RUNTIME DATA ---
         private GameProfile m_gameProfile = new GameProfile();
-        private Dictionary<int, ModRatingValue> m_userRatings = new Dictionary<int, ModRatingValue>();
-        private int m_lastModEventId = -1;
-        private int m_lastUserEventId = -1;
+        private bool m_isSyncInProgress = false;
 
         // --- ACCESSORS ---
         public GameProfile gameProfile
@@ -86,67 +100,90 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator InitializeModBrowser()
         {
+            const int REFETCH_PROTECTION_TIMEOUT = 120;
             bool isDone = false;
 
-            // - GameData -
+            // - Load Stored Data -
             CacheClient.LoadGameProfile((p) =>
             {
-                this.m_gameProfile = p;
+                if(p == null)
+                {
+                    this.m_gameProfile = new GameProfile();
+                    this.m_gameProfile.id = PluginSettings.GAME_ID;
+                }
+                else
+                {
+                    this.m_gameProfile = p;
+                }
+
                 isDone = true;
             });
 
             while(!isDone) { yield return null; }
+            isDone = false;
 
-            if(m_gameProfile == null)
+            // load user
+            LocalUser.Load(() =>
             {
-                m_gameProfile = new GameProfile();
-                m_gameProfile.id = PluginSettings.GAME_ID;
-            }
+                isDone = true;
+            });
+
+            while(!isDone) { yield return null; }
+            isDone = false;
 
             // check if still active
             if(this == null || !this.isActiveAndEnabled) { yield break; }
 
-            IEnumerable<IGameProfileUpdateReceiver> gameUpdatReceivers = GetComponentsInChildren<IGameProfileUpdateReceiver>(true);
-            foreach(var receiver in gameUpdatReceivers)
+            // - Initial notifications -
+            IEnumerable<IGameProfileUpdateReceiver> gameUpdateReceivers = GetComponentsInChildren<IGameProfileUpdateReceiver>(true);
+            foreach(var receiver in gameUpdateReceivers)
             {
                 receiver.OnGameProfileUpdated(m_gameProfile);
             }
 
-            // load user
-            LocalUser.Load(() => isDone = true);
-            while(!isDone) { yield return null; }
+            IEnumerable<IAuthenticatedUserUpdateReceiver> userUpdateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
+            foreach(var receiver in userUpdateReceivers)
+            {
+                receiver.OnUserProfileUpdated(LocalUser.Profile);
+            }
 
+            // - Fetch remote data -
+            if(ServerTimeStamp.Now - ModBrowser._state.lastSync_timestamp > REFETCH_PROTECTION_TIMEOUT
+               || LocalUser.UserId != ModBrowser._state.lastSync_userId)
+            {
+                this.StartCoroutine(FetchGameProfile());
+                yield return this.StartCoroutine(this.InitializeForUser());
+            }
+        }
+
+        private System.Collections.IEnumerator InitializeForUser()
+        {
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
-                this.StartCoroutine(FetchUserProfile());
+                yield return this.StartCoroutine(FetchUserProfile());
             }
-            else // if invalid token, check if externally authenticated
+            else if(!string.IsNullOrEmpty(LocalUser.ExternalAuthentication.ticket))
             {
-                bool isAttemptingReauth = false;
+                bool isAttemptingReauth = true;
 
-                if(!string.IsNullOrEmpty(LocalUser.ExternalAuthentication.ticket))
+                UserAccountManagement.ReauthenticateWithStoredExternalAuthData(
+                (u) =>
                 {
-                    isAttemptingReauth = true;
-
-                    UserAccountManagement.ReauthenticateWithStoredExternalAuthData(
-                    (u) =>
+                    IEnumerable<IAuthenticatedUserUpdateReceiver> userUpdateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
+                    foreach(var receiver in userUpdateReceivers)
                     {
-                        IEnumerable<IAuthenticatedUserUpdateReceiver> userUpdateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
-                        foreach(var receiver in userUpdateReceivers)
-                        {
-                            receiver.OnUserProfileUpdated(u);
-                        }
+                        receiver.OnUserProfileUpdated(u);
+                    }
 
-                        isAttemptingReauth = false;
-                    },
-                    (e) =>
-                    {
-                        Debug.Log("[mod.io] Failed to reauthenticate using stored external authentication data.\n"
-                                  + e.errorMessage);
+                    isAttemptingReauth = false;
+                },
+                (e) =>
+                {
+                    Debug.Log("[mod.io] Failed to reauthenticate using stored external authentication data.\n"
+                              + e.errorMessage);
 
-                        isAttemptingReauth = false;
-                    });
-                }
+                    isAttemptingReauth = false;
+                });
 
                 while(isAttemptingReauth) { yield return null; }
             }
@@ -154,13 +191,7 @@ namespace ModIO.UI
             // check if still active
             if(this == null || !this.isActiveAndEnabled) { yield break; }
 
-            this.StartCoroutine(FetchGameProfile());
-
-            yield return this.StartCoroutine(SynchronizeSubscriptionsAndUpdateModProfiles());
-
-            this.StartCoroutine(VerifySubscriptionInstallations());
-            this.StartCoroutine(PollForSubscribedModEventsCoroutine());
-            this.StartCoroutine(PollForUserEventsCoroutine());
+            yield return this.StartCoroutine(this.UpdateSubscriptions());
         }
 
         private System.Collections.IEnumerator FetchGameProfile()
@@ -330,19 +361,14 @@ namespace ModIO.UI
             StartCoroutine(FetchUserRatings());
         }
 
-        private System.Collections.IEnumerator SynchronizeSubscriptionsAndUpdateModProfiles()
+        private System.Collections.IEnumerator PerformInitialSubscriptionSync()
         {
             // ensure changes only effect the profile this call started with
-            int userId = UserProfile.NULL_ID;
-            if(LocalUser.Profile != null)
-            {
-                userId = LocalUser.Profile.id;
-            }
+            int userId = LocalUser.UserId;
 
             Func<bool> hasUserChanged = () =>
             {
-                return ((LocalUser.Profile == null && userId != UserProfile.NULL_ID)
-                        || (LocalUser.Profile != null && userId != LocalUser.Profile.id));
+                return userId != LocalUser.UserId;
             };
 
             // - push any changes -
@@ -356,7 +382,10 @@ namespace ModIO.UI
                 while(!isPushDone) { yield return null; }
             }
 
-            if(hasUserChanged()) { yield break; }
+            if(hasUserChanged())
+            {
+                yield break;
+            }
 
             // - configure request detail -
             Action<APIPaginationParameters> requestDelegate = null;
@@ -476,7 +505,10 @@ namespace ModIO.UI
                 }
             }
 
-            if(hasUserChanged() || !allPagesReceived) { yield break; }
+            if(hasUserChanged() || !allPagesReceived)
+            {
+                yield break;
+            }
 
             // handle removed ids
             List<int> queuedSubscribes = LocalUser.QueuedSubscribes;
@@ -501,6 +533,92 @@ namespace ModIO.UI
 
             // handle changes
             OnSubscriptionsChanged(subsAdded, subsRemoved);
+
+            // set event ids
+            bool isIdFetchDone = false;
+
+            this.FetchAndSetEventIds(() => isIdFetchDone = true);
+            while(!isIdFetchDone) { yield return null; }
+        }
+
+        private void FetchAndSetEventIds(Action onComplete = null)
+        {
+            bool userEventId_isDone = false;
+            bool modEventId_isDone = false;
+
+            Action handleResponse = () =>
+            {
+                if(userEventId_isDone
+                   && modEventId_isDone
+                   && onComplete != null)
+                {
+                    onComplete.Invoke();
+                }
+            };
+
+            // Create filters
+            RequestFilter idFetchFilter = new RequestFilter()
+            {
+                sortFieldName = API.GetUserEventsFilterFields.id,
+                isSortAscending = false,
+            };
+
+            idFetchFilter.AddFieldFilter("game_id", new EqualToFilter<int>()
+            {
+                filterValue = PluginSettings.GAME_ID,
+            });
+
+            APIPaginationParameters pagination = new APIPaginationParameters()
+            {
+                offset = 0,
+                limit = 1,
+            };
+
+            // fetch user event id
+            if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
+            {
+                APIClient.GetUserEvents(idFetchFilter, pagination,
+                (r) =>
+                {
+                    if(r.items.Length > 0)
+                    {
+                        ModBrowser._state.userEventId = r.items[0].id;
+                    }
+                    userEventId_isDone = true;
+
+                    handleResponse.Invoke();
+                },
+                (e) =>
+                {
+                    userEventId_isDone = true;
+
+                    handleResponse.Invoke();
+                });
+            }
+            else
+            {
+                userEventId_isDone = true;
+            }
+
+
+            // fetch mod event id
+            APIClient.GetAllModEvents(idFetchFilter, pagination,
+            (r) =>
+            {
+                if(r.items.Length > 0)
+                {
+                    ModBrowser._state.modEventId = r.items[0].id;
+                }
+                modEventId_isDone = true;
+
+                handleResponse.Invoke();
+            },
+            (e) =>
+            {
+                modEventId_isDone = true;
+
+                handleResponse.Invoke();
+            });
         }
 
         private System.Collections.IEnumerator FetchUserRatings()
@@ -565,10 +683,10 @@ namespace ModIO.UI
                 }
             }
 
-            m_userRatings = new Dictionary<int, ModRatingValue>();
+            ModBrowser._state.userRatings = new Dictionary<int, ModRatingValue>();
             foreach(ModRating rating in retrievedRatings)
             {
-                m_userRatings.Add(rating.modId, rating.ratingValue);
+                ModBrowser._state.userRatings.Add(rating.modId, rating.ratingValue);
             }
         }
 
@@ -749,173 +867,76 @@ namespace ModIO.UI
         }
 
         // ---------[ UPDATES ]---------
-        private System.Collections.IEnumerator PollForSubscribedModEventsCoroutine()
+        public System.Collections.IEnumerator UpdateSubscriptions(Action onComplete = null)
         {
-            bool isRequestDone = false;
-            WebRequestError requestError = null;
-            bool cancelUpdates = false;
+            const int MIN_COMPLETE_TIME = 2;
+            const int REFETCH_PROTECTION_TIMEOUT = 30;
 
-            // fetch initial id
-            RequestFilter idFetchFilter = new RequestFilter()
+            bool isFetchRequired = ((ServerTimeStamp.Now - ModBrowser._state.lastSync_timestamp > REFETCH_PROTECTION_TIMEOUT)
+                                    || (LocalUser.UserId != ModBrowser._state.lastSync_userId));
+
+            if(!this.m_isSyncInProgress
+               && isFetchRequired)
             {
-                sortFieldName = API.GetAllModEventsFilterFields.id,
-                isSortAscending = false,
-            };
+                this.m_isSyncInProgress = true;
+                ModBrowser._state.lastSync_userId = LocalUser.UserId;
 
-            APIPaginationParameters pagination = new APIPaginationParameters()
-            {
-                offset = 0,
-                limit = 1,
-            };
+                int timestamp = ServerTimeStamp.Now;
+                bool invalidUserEvent = (LocalUser.AuthenticationState != AuthenticationState.NoToken
+                                         && ModBrowser._state.userEventId <= 0);
 
-            while(!isRequestDone)
-            {
-                APIClient.GetAllModEvents(idFetchFilter, pagination,
-                (r) =>
+                // perform initial sync
+                if(ModBrowser._state.modEventId <= 0
+                   || invalidUserEvent
+                   || LocalUser.UserId != ModBrowser._state.lastSync_userId)
                 {
-                    if(r.items.Length > 0)
-                    {
-                        this.m_lastModEventId = r.items[0].id;
-                    }
-
-                    isRequestDone = true;
-                },
-                (e) =>
-                {
-                    requestError = e;
-                    isRequestDone = true;
-                });
-
-                while(!isRequestDone) { yield return null; }
-
-                if(requestError != null)
-                {
-                    int reattemptDelay = CalculateReattemptDelay(requestError);
-                    if(requestError.isAuthenticationInvalid)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                   requestError.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
-                    }
-                    else if(requestError.isRequestUnresolvable
-                            || reattemptDelay < 0)
-                    {
-                        cancelUpdates = true;
-                    }
-                    else
-                    {
-                        isRequestDone = false;
-
-                        yield return new WaitForSecondsRealtime(reattemptDelay);
-                    }
+                    yield return this.StartCoroutine(this.PerformInitialSubscriptionSync());
+                    this.VerifySubscriptionInstallations();
                 }
+                // update
+                else
+                {
+                    yield return this.StartCoroutine(this.PullRemoteEventsAndUpdate());
+                }
+
+                int remainingTime = MIN_COMPLETE_TIME - (ServerTimeStamp.Now - timestamp);
+                if(remainingTime > 0)
+                {
+                    yield return new WaitForSeconds(remainingTime);
+                }
+
+                this.m_isSyncInProgress = false;
+                ModBrowser._state.lastSync_timestamp = ServerTimeStamp.Now;
+            }
+            else
+            {
+                yield return new WaitForSeconds(MIN_COMPLETE_TIME);
             }
 
-            // initial delay
-            yield return new WaitForSecondsRealtime(MOD_EVENT_POLLING_PERIOD);
-
-            // start loop
-            while(this != null
-                  && this.isActiveAndEnabled
-                  && !cancelUpdates)
+            if(onComplete != null)
             {
-                isRequestDone = false;
-                requestError = null;
-
-                // --- MOD EVENTS ---
-                var subbedMods = LocalUser.SubscribedModIds;
-                if(subbedMods != null
-                   && subbedMods.Count > 0)
-                {
-                    List<ModEvent> modEventResponse = null;
-
-                    ModManager.FetchModEventsAfterId(this.m_lastModEventId,
-                                                     LocalUser.SubscribedModIds,
-                                                     (me) =>
-                                                     {
-                                                        modEventResponse = me;
-                                                        isRequestDone = true;
-                                                     },
-                                                     (e) =>
-                                                     {
-                                                        requestError = e;
-                                                        isRequestDone = true;
-                                                     });
-
-                    while(!isRequestDone) { yield return null; }
-
-                    if(requestError != null)
-                    {
-                        int reattemptDelay = CalculateReattemptDelay(requestError);
-                        if(requestError.isAuthenticationInvalid)
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                       requestError.displayMessage);
-
-                            LocalUser.WasTokenRejected = true;
-                            LocalUser.Save();
-                        }
-                        else if(requestError.isRequestUnresolvable
-                                || reattemptDelay < 0)
-                        {
-                            cancelUpdates = true;
-                        }
-                        else
-                        {
-                            yield return new WaitForSecondsRealtime(reattemptDelay);
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        if(modEventResponse.Count > 0)
-                        {
-                            this.m_lastModEventId = modEventResponse[modEventResponse.Count-1].id;
-                            yield return StartCoroutine(ProcessModUpdates(modEventResponse));
-                        }
-                    }
-                }
-
-                yield return new WaitForSecondsRealtime(MOD_EVENT_POLLING_PERIOD);
+                onComplete.Invoke();
             }
         }
 
-        private System.Collections.IEnumerator PollForUserEventsCoroutine()
+        private System.Collections.IEnumerator PullRemoteEventsAndUpdate()
         {
             bool isRequestDone = false;
             WebRequestError requestError = null;
-            bool cancelUpdates = false;
 
-            // fetch initial id
-            RequestFilter idFetchFilter = new RequestFilter()
-            {
-                sortFieldName = API.GetUserEventsFilterFields.id,
-                isSortAscending = false,
-            };
+            // --- User Events ---
+            isRequestDone = false;
+            requestError = null;
 
-            idFetchFilter.AddFieldFilter(API.GetUserEventsFilterFields.gameId, new EqualToFilter<int>()
+            if(LocalUser.AuthenticationState != AuthenticationState.NoToken)
             {
-                filterValue = PluginSettings.GAME_ID,
-            });
+                // fetch user events
+                List<UserEvent> userEventReponse = null;
 
-            APIPaginationParameters pagination = new APIPaginationParameters()
-            {
-                offset = 0,
-                limit = 1,
-            };
-
-            while(!isRequestDone)
-            {
-                APIClient.GetUserEvents(idFetchFilter, pagination,
-                (r) =>
+                ModManager.FetchUserEventsAfterId(ModBrowser._state.userEventId,
+                (ue) =>
                 {
-                    if(r.items.Length > 0)
-                    {
-                        this.m_lastUserEventId = r.items[0].id;
-                    }
-
+                    userEventReponse = ue;
                     isRequestDone = true;
                 },
                 (e) =>
@@ -928,7 +949,6 @@ namespace ModIO.UI
 
                 if(requestError != null)
                 {
-                    int reattemptDelay = CalculateReattemptDelay(requestError);
                     if(requestError.isAuthenticationInvalid)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
@@ -937,100 +957,80 @@ namespace ModIO.UI
                         LocalUser.WasTokenRejected = true;
                         LocalUser.Save();
                     }
-                    else if(requestError.isRequestUnresolvable
-                            || reattemptDelay < 0)
-                    {
-                        cancelUpdates = true;
-                    }
-                    else
-                    {
-                        isRequestDone = false;
 
-                        yield return new WaitForSecondsRealtime(reattemptDelay);
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                               "Failed to synchronize subscriptions with mod.io servers.\n"
+                                               + requestError.displayMessage);
+
+                    yield break;
+                }
+
+                // This may have changed during the request execution
+                if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
+                {
+                    if(userEventReponse.Count > 0)
+                    {
+                        ModBrowser._state.userEventId = userEventReponse[userEventReponse.Count-1].id;
+                        this.ProcessUserUpdates(userEventReponse);
                     }
+
+                    bool isPushDone = false;
+
+                    UserAccountManagement.PushSubscriptionChanges(() => isPushDone = true,
+                                                                  (e) => isPushDone = true);
+
+                    while(!isPushDone) { yield return null; }
                 }
             }
 
-            yield return new WaitForSecondsRealtime(USER_EVENT_POLLING_PERIOD);
+            // --- Mod Events ---
+            isRequestDone = false;
+            requestError = null;
 
-            while(this != null
-                  && this.isActiveAndEnabled
-                  && !cancelUpdates)
+            var subbedMods = LocalUser.SubscribedModIds;
+            if(subbedMods != null
+               && subbedMods.Count > 0)
             {
+                List<ModEvent> modEventResponse = null;
 
-                isRequestDone = false;
-                requestError = null;
+                ModManager.FetchModEventsAfterId(ModBrowser._state.modEventId,
+                                                 LocalUser.SubscribedModIds,
+                                                 (me) =>
+                                                 {
+                                                    modEventResponse = me;
+                                                    isRequestDone = true;
+                                                 },
+                                                 (e) =>
+                                                 {
+                                                    requestError = e;
+                                                    isRequestDone = true;
+                                                 });
 
-                if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
+                while(!isRequestDone) { yield return null; }
+
+                if(requestError != null)
                 {
-                    // fetch user events
-                    List<UserEvent> userEventReponse = null;
-
-                    ModManager.FetchUserEventsAfterId(this.m_lastUserEventId,
-                    (ue) =>
+                    if(requestError.isAuthenticationInvalid)
                     {
-                        userEventReponse = ue;
-                        isRequestDone = true;
-                    },
-                    (e) =>
-                    {
-                        requestError = e;
-                        isRequestDone = true;
-                    });
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                   requestError.displayMessage);
 
-                    while(!isRequestDone) { yield return null; }
-
-                    if(requestError != null)
-                    {
-                        int reattemptDelay = CalculateReattemptDelay(requestError);
-                        if(requestError.isAuthenticationInvalid)
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                       requestError.displayMessage);
-
-                            LocalUser.WasTokenRejected = true;
-                            LocalUser.Save();
-                        }
-                        else if(requestError.isRequestUnresolvable
-                                || reattemptDelay < 0)
-                        {
-                            Debug.LogWarning("[mod.io] Polling for user updates failed.\n---[ Response Info ]---\n"
-                                             + DebugUtilities.GetResponseInfo(requestError.webRequest));
-
-                            cancelUpdates = true;
-                        }
-                        else
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       "Failed to synchronize subscriptions with mod.io servers.\n"
-                                                       + requestError.displayMessage
-                                                       + "\nRetrying in "
-                                                       + reattemptDelay.ToString()
-                                                       + " seconds");
-
-                            yield return new WaitForSecondsRealtime(reattemptDelay);
-                            continue;
-                        }
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
                     }
-                    // This may have changed during the request execution
-                    else if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
-                    {
-                        if(userEventReponse.Count > 0)
-                        {
-                            this.m_lastUserEventId = userEventReponse[userEventReponse.Count-1].id;
-                            ProcessUserUpdates(userEventReponse);
-                        }
 
-                        bool isPushDone = false;
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                               "Failed to synchronize subscriptions with mod.io servers.\n"
+                                               + requestError.displayMessage);
 
-                        UserAccountManagement.PushSubscriptionChanges(() => isPushDone = true,
-                                                                      (e) => isPushDone = true);
-
-                        while(!isPushDone) { yield return null; }
-                    }
+                    yield break;
                 }
 
-                yield return new WaitForSecondsRealtime(USER_EVENT_POLLING_PERIOD);
+                if(modEventResponse.Count > 0)
+                {
+                    ModBrowser._state.modEventId = modEventResponse[modEventResponse.Count-1].id;
+                    this.StartCoroutine(this.ProcessModUpdates(modEventResponse));
+                }
             }
         }
 
@@ -1079,7 +1079,7 @@ namespace ModIO.UI
 
             if(newSubs.Count > 0 || newUnsubs.Count > 0)
             {
-                OnSubscriptionsChanged(newSubs, newUnsubs);
+                this.OnSubscriptionsChanged(newSubs, newUnsubs);
 
                 if(newSubs.Count > 0)
                 {
@@ -1264,8 +1264,7 @@ namespace ModIO.UI
         {
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
-                this.StartCoroutine(SynchronizeSubscriptionsAndUpdateModProfiles());
-                this.StartCoroutine(this.FetchUserRatings());
+                this.StartCoroutine(this.InitializeForUser());
             }
         }
 
@@ -1510,7 +1509,7 @@ namespace ModIO.UI
                 {
                     if(this != null)
                     {
-                        this.m_userRatings[modId] = ratingValue;
+                        ModBrowser._state.userRatings[modId] = ratingValue;
                     }
                 },
                 (e) =>
@@ -1521,7 +1520,7 @@ namespace ModIO.UI
                     // request returning an error.
                     if(e.webRequest.responseCode == 400)
                     {
-                        this.m_userRatings[modId] = ratingValue;
+                        ModBrowser._state.userRatings[modId] = ratingValue;
                     }
                     else
                     {
@@ -1547,7 +1546,7 @@ namespace ModIO.UI
         public ModRatingValue GetModRating(int modId)
         {
             ModRatingValue ratingValue;
-            if(!this.m_userRatings.TryGetValue(modId, out ratingValue))
+            if(!ModBrowser._state.userRatings.TryGetValue(modId, out ratingValue))
             {
                 ratingValue = ModRatingValue.None;
             }
