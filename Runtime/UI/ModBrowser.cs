@@ -191,16 +191,7 @@ namespace ModIO.UI
             // check if still active
             if(this == null || !this.isActiveAndEnabled) { yield break; }
 
-            if(!this.m_isSyncInProgress)
-            {
-                this.m_isSyncInProgress = true;
-                ModBrowser._state.lastSync_userId = LocalUser.UserId;
-
-                yield return this.StartCoroutine(this.PerformInitialSubscriptionSync());
-
-                this.m_isSyncInProgress = false;
-                ModBrowser._state.lastSync_timestamp = ServerTimeStamp.Now;
-            }
+            yield return this.StartCoroutine(this.UpdateSubscriptions());
         }
 
         private System.Collections.IEnumerator FetchGameProfile()
