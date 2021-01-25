@@ -884,18 +884,38 @@ namespace ModIO.UI
         // ---------[ UPDATES ]---------
         public System.Collections.IEnumerator UpdateSubscriptions(Action onComplete = null)
         {
-            bool invalidUserEvent = (LocalUser.AuthenticationState != AuthenticationState.NoToken
-                                     && this.m_state.userEventId <= 0);
+            const int MIN_COMPLETE_TIME = 2;
 
-            if(this.m_state.modEventId <= 0
-               || invalidUserEvent)
+            if(!this.m_isSyncInProgress)
             {
-                yield return this.StartCoroutine(this.PerformInitialSubscriptionSync());
-                this.VerifySubscriptionInstallations();
+                this.m_isSyncInProgress = true;
+
+                int timestamp = ServerTimeStamp.Now;
+                bool invalidUserEvent = (LocalUser.AuthenticationState != AuthenticationState.NoToken
+                                         && this.m_state.userEventId <= 0);
+
+                if(this.m_state.modEventId <= 0
+                   || invalidUserEvent)
+                {
+                    yield return this.StartCoroutine(this.PerformInitialSubscriptionSync());
+                    this.VerifySubscriptionInstallations();
+                }
+                else
+                {
+                    yield return this.StartCoroutine(this.PullRemoteEventsAndUpdate());
+                }
+
+                int remainingTime = MIN_COMPLETE_TIME - (ServerTimeStamp.Now - timestamp);
+                if(remainingTime > 0)
+                {
+                    yield return new WaitForSeconds(remainingTime);
+                }
+
+                this.m_isSyncInProgress = false;
             }
             else
             {
-                yield return this.StartCoroutine(this.PullRemoteEventsAndUpdate());
+                yield return new WaitForSeconds(MIN_COMPLETE_TIME);
             }
 
             if(onComplete != null)
