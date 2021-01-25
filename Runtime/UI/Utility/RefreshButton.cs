@@ -32,8 +32,9 @@ namespace ModIO.UI
         public void StartUpdate()
         {
             this.m_isUpdating = true;
+            this.UpdateDisplay();
 
-            this.StartCoroutine(ModBrowser.instance.UpdateSubscriptions());
+            this.StartCoroutine(ModBrowser.instance.UpdateSubscriptions(this.OnUpdateComplete));
         }
 
         private void OnUpdateComplete()
