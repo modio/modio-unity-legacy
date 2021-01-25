@@ -879,8 +879,13 @@ namespace ModIO.UI
         public System.Collections.IEnumerator UpdateSubscriptions(Action onComplete = null)
         {
             const int MIN_COMPLETE_TIME = 2;
+            const int REFETCH_PROTECTION_TIMEOUT = 30;
 
-            if(!this.m_isSyncInProgress)
+            bool isFetchRequired = ((ServerTimeStamp.Now - ModBrowser._state.lastSync_timestamp > REFETCH_PROTECTION_TIMEOUT)
+                                    || (LocalUser.UserId != ModBrowser._state.lastSync_userId));
+
+            if(!this.m_isSyncInProgress
+               && isFetchRequired)
             {
                 this.m_isSyncInProgress = true;
                 ModBrowser._state.lastSync_userId = LocalUser.UserId;
@@ -889,12 +894,15 @@ namespace ModIO.UI
                 bool invalidUserEvent = (LocalUser.AuthenticationState != AuthenticationState.NoToken
                                          && ModBrowser._state.userEventId <= 0);
 
+                // perform initial sync
                 if(ModBrowser._state.modEventId <= 0
-                   || invalidUserEvent)
+                   || invalidUserEvent
+                   || LocalUser.UserId != ModBrowser._state.lastSync_userId)
                 {
                     yield return this.StartCoroutine(this.PerformInitialSubscriptionSync());
                     this.VerifySubscriptionInstallations();
                 }
+                // update
                 else
                 {
                     yield return this.StartCoroutine(this.PullRemoteEventsAndUpdate());
