@@ -1264,8 +1264,7 @@ namespace ModIO.UI
         {
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
-                this.StartCoroutine(this.PerformInitialSubscriptionSync());
-                this.StartCoroutine(this.FetchUserRatings());
+                this.StartCoroutine(this.InitializeForUser());
             }
         }
 
