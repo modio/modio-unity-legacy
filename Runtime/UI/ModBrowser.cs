@@ -377,7 +377,7 @@ namespace ModIO.UI
 
             Func<bool> hasUserChanged = () =>
             {
-                return userId == LocalUser.UserId;
+                return userId != LocalUser.UserId;
             };
 
             // - push any changes -
