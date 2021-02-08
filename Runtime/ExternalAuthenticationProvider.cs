@@ -9,6 +9,8 @@ namespace ModIO
         ItchIO,
         OculusRift,
         XboxLive,
+        Switch,
+        Discord,
         UNDEFINED,
     }
 }
