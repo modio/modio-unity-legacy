@@ -463,6 +463,19 @@ namespace ModIO
 
 
         // ---------[ AUTHENTICATION ]---------
+        /// <summary>Retrieves the terms of use to present to the user.</summary>
+        public static void GetTermsOfUse(Action<TermsOfUseInfo> successCallback,
+                                         Action<WebRequestError> errorCallback)
+        {
+            string endpointURL = PluginSettings.API_URL + @"/authenticate/terms";
+
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
+                                                                 string.Empty,
+                                                                 null);
+
+            APIClient.SendRequest(webRequest, successCallback, errorCallback);
+        }
+
         /// <summary>Wrapper object for [[ModIO.APIClient.GetOAuthToken]] requests.</summary>
         [System.Serializable]
         #pragma warning disable 0649
