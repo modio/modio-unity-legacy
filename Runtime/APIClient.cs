@@ -768,6 +768,7 @@ namespace ModIO
 
         /// <summary>Request an OAuthToken using an itch.io JWT token.</summary>
         public static void RequestItchIOAuthentication(string jwtToken,
+                                                       bool hasUserAcceptedTerms,
                                                        Action<string> successCallback,
                                                        Action<WebRequestError> errorCallback)
         {
@@ -789,6 +790,7 @@ namespace ModIO
             string endpointURL = PluginSettings.API_URL + @"/external/itchioauth";
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 hasUserAcceptedTerms,
                                                                                  "itchio_token",
                                                                                  jwtToken);
 
@@ -1624,6 +1626,16 @@ namespace ModIO
         {
             APIClient.RequestGOGAuthentication(base64EncodedTicket, false,
                                                successCallback, errorCallback);
+        }
+
+        /// <summary>[Obsolete]Request an OAuthToken using an itch.io JWT token.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void RequestItchIOAuthentication(string jwtToken,
+                                                       Action<string> successCallback,
+                                                       Action<WebRequestError> errorCallback)
+        {
+            APIClient.RequestItchIOAuthentication(jwtToken, false,
+                                                  successCallback, errorCallback);
         }
     }
 }

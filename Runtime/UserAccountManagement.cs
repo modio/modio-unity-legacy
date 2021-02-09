@@ -482,6 +482,7 @@ namespace ModIO
 
         /// <summary>Attempts to authenticate a user using an itch.io JWT Token.</summary>
         public static void AuthenticateWithItchIOToken(string jwtToken,
+                                                       bool hasUserAcceptedTerms,
                                                        Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
         {
@@ -491,7 +492,8 @@ namespace ModIO
                 provider = ExternalAuthenticationProvider.ItchIO,
             };
 
-            APIClient.RequestItchIOAuthentication(jwtToken, (t) =>
+            APIClient.RequestItchIOAuthentication(jwtToken, hasUserAcceptedTerms,
+            (t) =>
             {
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
@@ -639,6 +641,7 @@ namespace ModIO
                 case ExternalAuthenticationProvider.ItchIO:
                 {
                     APIClient.RequestItchIOAuthentication(authData.ticket,
+                                                          false,
                                                           onSuccessWrapper,
                                                           onError);
                 }
@@ -770,6 +773,16 @@ namespace ModIO
         {
             UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(encodedTicket, false,
                                                                         onSuccess, onError);
+        }
+
+        /// <summary>[Obsolete] Attempts to authenticate a user using an itch.io JWT Token.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void AuthenticateWithItchIOToken(string jwtToken,
+                                                       Action<UserProfile> onSuccess,
+                                                       Action<WebRequestError> onError)
+        {
+            UserAccountManagement.AuthenticateWithItchIOToken(jwtToken, false,
+                                                              onSuccess, onError);
         }
     }
 }
