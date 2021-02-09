@@ -508,6 +508,7 @@ namespace ModIO
         public static void AuthenticateWithOculusRiftUserData(string oculusUserNonce,
                                                               int oculusUserId,
                                                               string oculusUserAccessToken,
+                                                              bool hasUserAcceptedTerms,
                                                               Action<UserProfile> onSuccess,
                                                               Action<WebRequestError> onError)
         {
@@ -522,7 +523,7 @@ namespace ModIO
                 },
             };
 
-            APIClient.RequestOculusRiftAuthentication(oculusUserNonce, oculusUserId, oculusUserAccessToken,
+            APIClient.RequestOculusRiftAuthentication(oculusUserNonce, oculusUserId, oculusUserAccessToken, hasUserAcceptedTerms,
             (t) =>
             {
                 LocalUser.OAuthToken = t;
@@ -690,6 +691,7 @@ namespace ModIO
                     else
                     {
                         APIClient.RequestOculusRiftAuthentication(nonce, userId, token,
+                                                                  false,
                                                                   onSuccessWrapper,
                                                                   onError);
                     }
@@ -783,6 +785,20 @@ namespace ModIO
         {
             UserAccountManagement.AuthenticateWithItchIOToken(jwtToken, false,
                                                               onSuccess, onError);
+        }
+
+        /// <summary>[Obsolete] Attempts to authenticate a user using Oculus Rift user data.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void AuthenticateWithOculusRiftUserData(string oculusUserNonce,
+                                                              int oculusUserId,
+                                                              string oculusUserAccessToken,
+                                                              Action<UserProfile> onSuccess,
+                                                              Action<WebRequestError> onError)
+        {
+            UserAccountManagement.AuthenticateWithOculusRiftUserData(oculusUserNonce, oculusUserId,
+                                                                     oculusUserAccessToken,
+                                                                     false,
+                                                                     onSuccess, onError);
         }
     }
 }

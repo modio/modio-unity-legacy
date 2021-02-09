@@ -808,6 +808,7 @@ namespace ModIO
         public static void RequestOculusRiftAuthentication(string oculusUserNonce,
                                                            int oculusUserId,
                                                            string oculusUserAccessToken,
+                                                           bool hasUserAcceptedTerms,
                                                            Action<string> successCallback,
                                                            Action<WebRequestError> errorCallback)
         {
@@ -848,7 +849,9 @@ namespace ModIO
                 new KeyValuePair<string, string>("access_token",oculusUserAccessToken),
             };
 
-            UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL, authData);
+            UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 hasUserAcceptedTerms,
+                                                                                 authData);
 
             // send request
             Action<AccessTokenObject> onSuccessWrapper = (result) =>
@@ -1637,6 +1640,19 @@ namespace ModIO
         {
             APIClient.RequestItchIOAuthentication(jwtToken, false,
                                                   successCallback, errorCallback);
+        }
+
+        /// <summary>[Obsolete] Request an OAuthToken using an Oculus Rift data.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void RequestOculusRiftAuthentication(string oculusUserNonce,
+                                                           int oculusUserId,
+                                                           string oculusUserAccessToken,
+                                                           Action<string> successCallback,
+                                                           Action<WebRequestError> errorCallback)
+        {
+            APIClient.RequestOculusRiftAuthentication(oculusUserNonce, oculusUserId, oculusUserAccessToken,
+                                                      false,
+                                                      successCallback, errorCallback);
         }
     }
 }
