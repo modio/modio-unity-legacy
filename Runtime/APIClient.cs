@@ -593,6 +593,7 @@ namespace ModIO
             string endpointURL = PluginSettings.API_URL + @"/oauth/emailexchange";
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 false,
                                                                                  "security_code",
                                                                                  securityCode);
             Action<AccessTokenObject> onSuccessWrapper = (result) =>
@@ -605,6 +606,7 @@ namespace ModIO
 
         /// <summary>Request an OAuthToken using a Steam User authentication ticket.</summary>
         public static void RequestSteamAuthentication(byte[] pTicket, uint pcbTicket,
+                                                      bool hasUserAcceptedTerms,
                                                       Action<string> successCallback,
                                                       Action<WebRequestError> errorCallback)
         {
@@ -639,6 +641,7 @@ namespace ModIO
                 else
                 {
                     APIClient.RequestSteamAuthentication(encodedTicket,
+                                                         hasUserAcceptedTerms,
                                                          successCallback,
                                                          errorCallback);
                 }
@@ -647,6 +650,7 @@ namespace ModIO
 
         /// <summary>Request an OAuthToken using an encoded Steam User authentication ticket.</summary>
         public static void RequestSteamAuthentication(string base64EncodedTicket,
+                                                      bool hasUserAcceptedTerms,
                                                       Action<string> successCallback,
                                                       Action<WebRequestError> errorCallback)
         {
@@ -668,6 +672,7 @@ namespace ModIO
             string endpointURL = PluginSettings.API_URL + @"/external/steamauth";
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 hasUserAcceptedTerms,
                                                                                  "appdata",
                                                                                  base64EncodedTicket);
 
@@ -1574,6 +1579,27 @@ namespace ModIO
                                                                     params KeyValuePair<string, string>[] authData)
         {
             return APIClient.GenerateAuthenticationRequest(endpointURL, false, authData);
+        }
+
+
+        /// <summary>[Obsolete] Request an OAuthToken using a Steam User authentication ticket.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void RequestSteamAuthentication(byte[] pTicket, uint pcbTicket,
+                                                      Action<string> successCallback,
+                                                      Action<WebRequestError> errorCallback)
+        {
+            APIClient.RequestSteamAuthentication(pTicket, pcbTicket, false,
+                                                 successCallback, errorCallback);
+        }
+
+        /// <summary>[Obsolete] Request an OAuthToken using an encoded Steam User authentication ticket.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void RequestSteamAuthentication(string base64EncodedTicket,
+                                                      Action<string> successCallback,
+                                                      Action<WebRequestError> errorCallback)
+        {
+            APIClient.RequestSteamAuthentication(base64EncodedTicket, false,
+                                                 successCallback, errorCallback);
         }
     }
 }

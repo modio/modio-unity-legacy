@@ -396,27 +396,34 @@ namespace ModIO
         /// <remarks>This version is designed to match the Steamworks.NET implementation by
         /// @rlabrecque at https://github.com/rlabrecque/Steamworks.NET</remarks>
         public static void AuthenticateWithSteamEncryptedAppTicket(byte[] pTicket, uint pcbTicket,
+                                                                   bool hasUserAcceptedTerms,
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
             string encodedTicket = Utility.EncodeBufferAsString(pTicket, pcbTicket);
-            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket, onSuccess, onError);
+            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket,
+                                                                          hasUserAcceptedTerms,
+                                                                          onSuccess, onError);
         }
 
         /// <summary>Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
         /// <remarks>This version is designed to match the FacePunch.SteamWorks implementation by
         /// @garrynewman at https://github.com/Facepunch/Facepunch.Steamworks</remarks>
         public static void AuthenticateWithSteamEncryptedAppTicket(byte[] authTicketData,
+                                                                   bool hasUserAcceptedTerms,
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
             string encodedTicket = Utility.EncodeBufferAsString(authTicketData, (uint)authTicketData.Length);
-            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket, onSuccess, onError);
+            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket,
+                                                                          hasUserAcceptedTerms,
+                                                                          onSuccess, onError);
         }
 
 
         /// <summary>Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
         public static void AuthenticateWithSteamEncryptedAppTicket(string encodedTicket,
+                                                                   bool hasUserAcceptedTerms,
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
@@ -426,7 +433,7 @@ namespace ModIO
                 provider = ExternalAuthenticationProvider.Steam,
             };
 
-            APIClient.RequestSteamAuthentication(encodedTicket, (t) =>
+            APIClient.RequestSteamAuthentication(encodedTicket, hasUserAcceptedTerms, (t) =>
             {
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
@@ -609,6 +616,7 @@ namespace ModIO
                 case ExternalAuthenticationProvider.Steam:
                 {
                     APIClient.RequestSteamAuthentication(authData.ticket,
+                                                         false,
                                                          onSuccessWrapper,
                                                          onError);
                 }
@@ -705,6 +713,37 @@ namespace ModIO
             UserAccountManagement.AuthenticateUsingExternalEndpoint(endpoint, false,
                                                                     headers,
                                                                     onSuccess, onError);
+        }
+
+        /// <summary>[Obsolete] Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void AuthenticateWithSteamEncryptedAppTicket(byte[] pTicket, uint pcbTicket,
+                                                                   Action<UserProfile> onSuccess,
+                                                                   Action<WebRequestError> onError)
+        {
+            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(pTicket, pcbTicket,
+                                                                          false,
+                                                                          onSuccess, onError);
+        }
+        /// <summary>[Obsolete] Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void AuthenticateWithSteamEncryptedAppTicket(byte[] authTicketData,
+                                                                   Action<UserProfile> onSuccess,
+                                                                   Action<WebRequestError> onError)
+        {
+            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(authTicketData,
+                                                                          false,
+                                                                          onSuccess, onError);
+        }
+        /// <summary>[Obsolete] Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void AuthenticateWithSteamEncryptedAppTicket(string encodedTicket,
+                                                                   Action<UserProfile> onSuccess,
+                                                                   Action<WebRequestError> onError)
+        {
+            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket,
+                                                                          false,
+                                                                          onSuccess, onError);
         }
     }
 }
