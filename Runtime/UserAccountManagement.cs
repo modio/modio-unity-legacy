@@ -446,15 +446,19 @@ namespace ModIO
 
         /// <summary>Attempts to authenticate a user using a GOG Encrypted App Ticket.</summary>
         public static void AuthenticateWithGOGEncryptedAppTicket(byte[] data, uint dataSize,
+                                                                 bool hasUserAcceptedTerms,
                                                                  Action<UserProfile> onSuccess,
                                                                  Action<WebRequestError> onError)
         {
             string encodedTicket = Utility.EncodeBufferAsString(data, dataSize);
-            UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(encodedTicket, onSuccess, onError);
+            UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(encodedTicket,
+                                                                        hasUserAcceptedTerms,
+                                                                        onSuccess, onError);
         }
 
         /// <summary>Attempts to authenticate a user using a GOG Encrypted App Ticket.</summary>
         public static void AuthenticateWithGOGEncryptedAppTicket(string encodedTicket,
+                                                                 bool hasUserAcceptedTerms,
                                                                  Action<UserProfile> onSuccess,
                                                                  Action<WebRequestError> onError)
         {
@@ -464,7 +468,8 @@ namespace ModIO
                 provider = ExternalAuthenticationProvider.Steam,
             };
 
-            APIClient.RequestGOGAuthentication(encodedTicket, (t) =>
+            APIClient.RequestGOGAuthentication(encodedTicket, hasUserAcceptedTerms,
+            (t) =>
             {
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
@@ -625,6 +630,7 @@ namespace ModIO
                 case ExternalAuthenticationProvider.GOG:
                 {
                     APIClient.RequestGOGAuthentication(authData.ticket,
+                                                       false,
                                                        onSuccessWrapper,
                                                        onError);
                 }
@@ -744,6 +750,26 @@ namespace ModIO
             UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket,
                                                                           false,
                                                                           onSuccess, onError);
+        }
+
+        /// <summary>[Obsolete] Attempts to authenticate a user using a GOG Encrypted App Ticket.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void AuthenticateWithGOGEncryptedAppTicket(byte[] data, uint dataSize,
+                                                                 Action<UserProfile> onSuccess,
+                                                                 Action<WebRequestError> onError)
+        {
+            UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(data, dataSize, false,
+                                                                        onSuccess, onError);
+        }
+
+        /// <summary>[Obsolete] Attempts to authenticate a user using a GOG Encrypted App Ticket.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void AuthenticateWithGOGEncryptedAppTicket(string encodedTicket,
+                                                                 Action<UserProfile> onSuccess,
+                                                                 Action<WebRequestError> onError)
+        {
+            UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(encodedTicket, false,
+                                                                        onSuccess, onError);
         }
     }
 }

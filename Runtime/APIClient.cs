@@ -687,6 +687,7 @@ namespace ModIO
 
         /// <summary>Request an OAuthToken using a GOG user authentication ticket.</summary>
         public static void RequestGOGAuthentication(byte[] data, uint dataSize,
+                                                    bool hasUserAcceptedTerms,
                                                     Action<string> successCallback,
                                                     Action<WebRequestError> errorCallback)
         {
@@ -721,6 +722,7 @@ namespace ModIO
                 else
                 {
                     APIClient.RequestGOGAuthentication(encodedTicket,
+                                                       hasUserAcceptedTerms,
                                                        successCallback,
                                                        errorCallback);
                 }
@@ -729,6 +731,7 @@ namespace ModIO
 
         /// <summary>Request an OAuthToken using a GOG Galaxy App ticket.</summary>
         public static void RequestGOGAuthentication(string base64EncodedTicket,
+                                                    bool hasUserAcceptedTerms,
                                                     Action<string> successCallback,
                                                     Action<WebRequestError> errorCallback)
         {
@@ -750,6 +753,7 @@ namespace ModIO
             string endpointURL = PluginSettings.API_URL + @"/external/galaxyauth";
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 hasUserAcceptedTerms,
                                                                                  "appdata",
                                                                                  base64EncodedTicket);
 
@@ -1600,6 +1604,26 @@ namespace ModIO
         {
             APIClient.RequestSteamAuthentication(base64EncodedTicket, false,
                                                  successCallback, errorCallback);
+        }
+
+        /// <summary>[Obsolete] Request an OAuthToken using a GOG user authentication ticket.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void RequestGOGAuthentication(byte[] data, uint dataSize,
+                                                    Action<string> successCallback,
+                                                    Action<WebRequestError> errorCallback)
+        {
+            APIClient.RequestGOGAuthentication(data, dataSize, false,
+                                               successCallback, errorCallback);
+        }
+
+        /// <summary>[Obsolete] Request an OAuthToken using a GOG Galaxy App ticket.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void RequestGOGAuthentication(string base64EncodedTicket,
+                                                    Action<string> successCallback,
+                                                    Action<WebRequestError> errorCallback)
+        {
+            APIClient.RequestGOGAuthentication(base64EncodedTicket, false,
+                                               successCallback, errorCallback);
         }
     }
 }
