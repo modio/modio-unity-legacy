@@ -864,6 +864,7 @@ namespace ModIO
 
         /// <summary>Requests an OAuthToken using an Xbox signed token.</summary>
         public static void RequestXboxLiveAuthentication(string xboxLiveUserToken,
+                                                         bool hasUserAcceptedTerms,
                                                          Action<string> successCallback,
                                                          Action<WebRequestError> errorCallback)
         {
@@ -883,6 +884,7 @@ namespace ModIO
             string endpointURL = PluginSettings.API_URL + @"/external/xboxauth";
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 hasUserAcceptedTerms,
                                                                                  "xbox_token",
                                                                                  xboxLiveUserToken);
 
@@ -1653,6 +1655,16 @@ namespace ModIO
             APIClient.RequestOculusRiftAuthentication(oculusUserNonce, oculusUserId, oculusUserAccessToken,
                                                       false,
                                                       successCallback, errorCallback);
+        }
+
+        /// <summary>[Obsolete] Requests an OAuthToken using an Xbox signed token.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void RequestXboxLiveAuthentication(string xboxLiveUserToken,
+                                                         Action<string> successCallback,
+                                                         Action<WebRequestError> errorCallback)
+        {
+            APIClient.RequestXboxLiveAuthentication(xboxLiveUserToken, false,
+                                                    successCallback, errorCallback);
         }
     }
 }

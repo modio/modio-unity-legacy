@@ -537,6 +537,7 @@ namespace ModIO
 
         /// <summary>Attempts to authenticate a user using Xbox Live credentials.</summary>
         public static void AuthenticateWithXboxLiveToken(string xboxLiveUserToken,
+                                                         bool hasUserAcceptedTerms,
                                                          Action<UserProfile> onSuccess,
                                                          Action<WebRequestError> onError)
         {
@@ -546,7 +547,8 @@ namespace ModIO
                 provider = ExternalAuthenticationProvider.XboxLive,
             };
 
-            APIClient.RequestXboxLiveAuthentication(xboxLiveUserToken, (t) =>
+            APIClient.RequestXboxLiveAuthentication(xboxLiveUserToken, hasUserAcceptedTerms,
+            (t) =>
             {
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
@@ -701,6 +703,7 @@ namespace ModIO
                 case ExternalAuthenticationProvider.XboxLive:
                 {
                     APIClient.RequestXboxLiveAuthentication(authData.ticket,
+                                                            false,
                                                             onSuccessWrapper,
                                                             onError);
                 }
@@ -799,6 +802,16 @@ namespace ModIO
                                                                      oculusUserAccessToken,
                                                                      false,
                                                                      onSuccess, onError);
+        }
+
+        /// <summary>[Obsolete] Attempts to authenticate a user using Xbox Live credentials.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void AuthenticateWithXboxLiveToken(string xboxLiveUserToken,
+                                                         Action<UserProfile> onSuccess,
+                                                         Action<WebRequestError> onError)
+        {
+            UserAccountManagement.AuthenticateWithXboxLiveToken(xboxLiveUserToken, false,
+                                                                onSuccess, onError);
         }
     }
 }
