@@ -549,7 +549,9 @@ namespace ModIO
         #pragma warning restore 0649
 
         /// <summary>Attempts to authenticate using the given parameters</summary>
-        public static void AuthenticateUsingExternalEndpoint(string endpoint, Dictionary<string, string> headers,
+        public static void AuthenticateUsingExternalEndpoint(string endpoint,
+                                                             bool hasUserAcceptedTerms,
+                                                             Dictionary<string, string> headers,
                                                              Action<UserProfile> onSuccess,
                                                              Action<WebRequestError> onError)
         {
@@ -566,6 +568,7 @@ namespace ModIO
             // create vars
             string endpointURL = PluginSettings.API_URL + endpoint;
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 hasUserAcceptedTerms,
                                                                                  headers.ToArray());
 
             // send request
@@ -689,6 +692,19 @@ namespace ModIO
                     throw new System.NotImplementedException();
                 }
             }
+        }
+
+        // ---------[ Obsolete ]---------
+        /// <summary>[Obsolete] Attempts to authenticate using the given parameters</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void AuthenticateUsingExternalEndpoint(string endpoint,
+                                                             Dictionary<string, string> headers,
+                                                             Action<UserProfile> onSuccess,
+                                                             Action<WebRequestError> onError)
+        {
+            UserAccountManagement.AuthenticateUsingExternalEndpoint(endpoint, false,
+                                                                    headers,
+                                                                    onSuccess, onError);
         }
     }
 }

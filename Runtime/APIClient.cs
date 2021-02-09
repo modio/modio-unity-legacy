@@ -40,6 +40,9 @@ namespace ModIO
         /// <summary>Version information to provide in the request header.</summary>
         public static readonly string USER_AGENT_HEADER = "modioUnityPlugin-" + ModIOVersion.Current.ToString("X.Y.Z");
 
+        /// <summary>Header key for the external auth user consent value.</summary>
+        public static readonly string EXTERNAL_AUTH_CONSENT_KEY = "terms_agreed";
+
         /// <summary>Collection of the HTTP request header keys used by mod.io.</summary>
         public static readonly string[] MODIO_REQUEST_HEADER_KEYS = new string[]
         {
@@ -48,6 +51,7 @@ namespace ModIO
             "content-type",
             "x-unity-version",
             "user-agent",
+            EXTERNAL_AUTH_CONSENT_KEY,
         };
 
         // ---------[ SETTINGS ]---------
@@ -531,17 +535,19 @@ namespace ModIO
 
         /// <summary>Generates the web request for a mod.io Authentication request.</summary>
         public static UnityWebRequest GenerateAuthenticationRequest(string endpointURL,
+                                                                    bool hasUserAcceptedTerms,
                                                                     string authenticationKey,
                                                                     string authenticationValue)
         {
             KeyValuePair<string, string> authData
                 = new KeyValuePair<string, string>(authenticationKey, authenticationValue);
 
-            return APIClient.GenerateAuthenticationRequest(endpointURL, authData);
+            return APIClient.GenerateAuthenticationRequest(endpointURL, hasUserAcceptedTerms, authData);
         }
 
         /// <summary>Generates the web request for a mod.io Authentication request.</summary>
         public static UnityWebRequest GenerateAuthenticationRequest(string endpointURL,
+                                                                    bool hasUserAcceptedTerms,
                                                                     params KeyValuePair<string, string>[] authData)
         {
             APIClient.AssertAuthorizationDetails(false);
@@ -554,6 +560,9 @@ namespace ModIO
             {
                 form.AddField(kvp.Key, kvp.Value);
             }
+
+            // add consent flag
+            form.AddField(APIClient.EXTERNAL_AUTH_CONSENT_KEY, hasUserAcceptedTerms.ToString());
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
@@ -1546,6 +1555,25 @@ namespace ModIO
                                                                       pagination);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
+        }
+
+        // ---------[ Obsolete ]---------
+        /// <summary>[Obsolete] Generates the web request for a mod.io Authentication request.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static UnityWebRequest GenerateAuthenticationRequest(string endpointURL,
+                                                                    string authenticationKey,
+                                                                    string authenticationValue)
+        {
+            return APIClient.GenerateAuthenticationRequest(endpointURL, false,
+                                                           authenticationKey, authenticationValue);
+        }
+
+        /// <summary>[Obsolete] Generates the web request for a mod.io Authentication request.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static UnityWebRequest GenerateAuthenticationRequest(string endpointURL,
+                                                                    params KeyValuePair<string, string>[] authData)
+        {
+            return APIClient.GenerateAuthenticationRequest(endpointURL, false, authData);
         }
     }
 }
