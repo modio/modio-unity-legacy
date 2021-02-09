@@ -601,7 +601,8 @@ namespace ModIO
         }
 
         /// <summary>Attempts to reauthenticate using the stored external auth ticket.</summary>
-        public static void ReauthenticateWithStoredExternalAuthData(Action<UserProfile> onSuccess,
+        public static void ReauthenticateWithStoredExternalAuthData(bool hasUserAcceptedTerms,
+                                                                    Action<UserProfile> onSuccess,
                                                                     Action<WebRequestError> onError)
         {
             ExternalAuthenticationData authData = LocalUser.ExternalAuthentication;
@@ -626,7 +627,7 @@ namespace ModIO
                 case ExternalAuthenticationProvider.Steam:
                 {
                     APIClient.RequestSteamAuthentication(authData.ticket,
-                                                         false,
+                                                         hasUserAcceptedTerms,
                                                          onSuccessWrapper,
                                                          onError);
                 }
@@ -635,7 +636,7 @@ namespace ModIO
                 case ExternalAuthenticationProvider.GOG:
                 {
                     APIClient.RequestGOGAuthentication(authData.ticket,
-                                                       false,
+                                                       hasUserAcceptedTerms,
                                                        onSuccessWrapper,
                                                        onError);
                 }
@@ -644,7 +645,7 @@ namespace ModIO
                 case ExternalAuthenticationProvider.ItchIO:
                 {
                     APIClient.RequestItchIOAuthentication(authData.ticket,
-                                                          false,
+                                                          hasUserAcceptedTerms,
                                                           onSuccessWrapper,
                                                           onError);
                 }
@@ -693,7 +694,7 @@ namespace ModIO
                     else
                     {
                         APIClient.RequestOculusRiftAuthentication(nonce, userId, token,
-                                                                  false,
+                                                                  hasUserAcceptedTerms,
                                                                   onSuccessWrapper,
                                                                   onError);
                     }
@@ -703,7 +704,7 @@ namespace ModIO
                 case ExternalAuthenticationProvider.XboxLive:
                 {
                     APIClient.RequestXboxLiveAuthentication(authData.ticket,
-                                                            false,
+                                                            hasUserAcceptedTerms,
                                                             onSuccessWrapper,
                                                             onError);
                 }
@@ -812,6 +813,15 @@ namespace ModIO
         {
             UserAccountManagement.AuthenticateWithXboxLiveToken(xboxLiveUserToken, false,
                                                                 onSuccess, onError);
+        }
+
+        /// <summary>[Obsolete] Attempts to reauthenticate using the stored external auth ticket.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void ReauthenticateWithStoredExternalAuthData(Action<UserProfile> onSuccess,
+                                                                    Action<WebRequestError> onError)
+        {
+            UserAccountManagement.ReauthenticateWithStoredExternalAuthData(false,
+                                                                           onSuccess, onError);
         }
     }
 }
