@@ -579,6 +579,7 @@ namespace ModIO
             string endpointURL = PluginSettings.API_URL + @"/oauth/emailrequest";
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 false,
                                                                                  "email",
                                                                                  emailAddress);
 
