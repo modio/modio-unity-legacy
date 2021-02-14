@@ -30,6 +30,25 @@ namespace ModIO
         /// <summary>Version information to provide in the request header.</summary>
         public static readonly string USER_AGENT_HEADER = "modioUnityPlugin-" + ModIOVersion.Current.ToString("X.Y.Z");
 
+        /// <summary>Platform header value.</summary>
+        #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+            public const string PLATFORM_HEADER = "windows_draft";
+        #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+            public const string PLATFORM_HEADER = "osx_draft";
+        #elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
+            public const string PLATFORM_HEADER = "linux_draft";
+        #elif UNITY_WII
+            public const string PLATFORM_HEADER = "wii_draft";
+        #elif UNITY_IOS
+            public const string PLATFORM_HEADER = "ios_draft";
+        #elif UNITY_ANDROID
+            public const string PLATFORM_HEADER = "android_draft";
+        #elif UNITY_PS4
+            public const string PLATFORM_HEADER = "ps4_draft";
+        #elif UNITY_XBOXONE
+            public const string PLATFORM_HEADER = "xboxone_draft";
+        #endif
+
         /// <summary>Collection of the HTTP request header keys used by mod.io.</summary>
         public static readonly string[] MODIO_REQUEST_HEADER_KEYS = new string[]
         {
@@ -38,6 +57,7 @@ namespace ModIO
             "content-type",
             "x-unity-version",
             "user-agent",
+            "x-modio-platform",
         };
 
         // ---------[ SETTINGS ]---------
@@ -116,6 +136,7 @@ namespace ModIO
 
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
+            webRequest.SetRequestHeader("x-modio-platform", APIClient.PLATFORM_HEADER);
 
             return webRequest;
         }
@@ -146,6 +167,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
+            webRequest.SetRequestHeader("x-modio-platform", APIClient.PLATFORM_HEADER);
 
             return webRequest;
         }
@@ -170,6 +192,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
+            webRequest.SetRequestHeader("x-modio-platform", APIClient.PLATFORM_HEADER);
 
             return webRequest;
         }
@@ -202,6 +225,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
+            webRequest.SetRequestHeader("x-modio-platform", APIClient.PLATFORM_HEADER);
 
             return webRequest;
         }
@@ -226,6 +250,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
+            webRequest.SetRequestHeader("x-modio-platform", APIClient.PLATFORM_HEADER);
 
             return webRequest;
         }
@@ -327,6 +352,7 @@ namespace ModIO
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
+            webRequest.SetRequestHeader("x-modio-platform", APIClient.PLATFORM_HEADER);
 
             return webRequest;
         }
