@@ -10,6 +10,19 @@ namespace ModIO
     public class SystemIOWrapper : IPlatformIO, IUserDataIO
     {
         // ---------[ IPlatformIO Interface ]---------
+        // --- Directories ---
+        /// <summary>Directory to use for mod installations</summary>
+        string IPlatformIO.InstallationDirectory
+        {
+            get { return PluginSettings.INSTALLATION_DIRECTORY; }
+        }
+
+        /// <summary>Directory to use for cached server data</summary>
+        string IPlatformIO.CacheDirectory
+        {
+            get { return PluginSettings.CACHE_DIRECTORY; }
+        }
+
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
         void IPlatformIO.ReadFile(string path,

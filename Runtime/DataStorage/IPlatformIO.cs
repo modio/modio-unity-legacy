@@ -8,6 +8,13 @@ namespace ModIO
     /// <summary>Defines the functions necessary for a complete platform IO.</summary>
     public interface IPlatformIO
     {
+        // --- Directories ---
+        /// <summary>Directory to use for mod installations</summary>
+        string InstallationDirectory { get; }
+
+        /// <summary>Directory to use for cached server data</summary>
+        string CacheDirectory { get; }
+
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
         void ReadFile(string path, ReadFileCallback callback);
