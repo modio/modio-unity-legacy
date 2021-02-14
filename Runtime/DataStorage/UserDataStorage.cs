@@ -33,19 +33,42 @@ namespace ModIO
                 UserDataStorage.PLATFORM_IO = new SteamworksNETUserDataIO();
             #else
                 UserDataStorage.PLATFORM_IO = new SystemIOWrapper();
+                LocalUser.Load();
             #endif
         }
 
         /// <summary>Initializes the data storage functionality for a given user.</summary>
         public static void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
         {
-            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId, callback);
+            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId,
+            (id, success) =>
+            {
+                LocalUser.Load(
+                () =>
+                {
+                    if(callback != null)
+                    {
+                        callback.Invoke(id, success);
+                    }
+                });
+            });
         }
 
         /// <summary>Initializes the data storage functionality for a given user.</summary>
         public static void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback)
         {
-            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId, callback);
+            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId,
+            (id, success) =>
+            {
+                LocalUser.Load(
+                () =>
+                {
+                    if(callback != null)
+                    {
+                        callback.Invoke(id, success);
+                    }
+                });
+            });
         }
 
         // ---------[ I/O Interface ]---------
