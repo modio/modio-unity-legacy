@@ -269,7 +269,24 @@ namespace ModIO
 
             requestOperation.completed += (operation) =>
             {
-                if(webRequest.isNetworkError || webRequest.isHttpError)
+                // check if user has changed
+                bool hasUserChanged = false;
+                string authValue = webRequest.GetRequestHeader("authorization");
+                if(!string.IsNullOrEmpty(authValue)
+                   && authValue.StartsWith("Bearer "))
+                {
+                    hasUserChanged = (LocalUser.OAuthToken != authValue.Substring(7));
+                }
+
+                // check for errors
+                if(hasUserChanged)
+                {
+                    if(errorCallback != null)
+                    {
+                        errorCallback.Invoke(WebRequestError.GenerateLocal("User token changed while waiting for the request to complete."));
+                    }
+                }
+                else if(webRequest.isNetworkError || webRequest.isHttpError)
                 {
                     if(errorCallback != null)
                     {
