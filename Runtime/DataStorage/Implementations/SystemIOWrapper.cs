@@ -9,19 +9,30 @@ namespace ModIO
     /// <summary>Wraps the System.IO functionality in an IPlatformIO class.</summary>
     public class SystemIOWrapper : IPlatformIO, IUserDataIO
     {
+        // ---------[ Initialization ]---------
+        public SystemIOWrapper() : this(PluginSettings.data.installationDirectory,
+                                        PluginSettings.data.cacheDirectory,
+                                        PluginSettings.data.userDirectory)
+        {}
+
+        protected SystemIOWrapper(string installDir,
+                                  string cacheDir,
+                                  string rootUserDir)
+        {
+            this.InstallationDirectory = installDir;
+            this.CacheDirectory = cacheDir;
+            this.UserDirectory = rootUserDir;
+
+            this.rootUserDir = rootUserDir;
+        }
+
         // ---------[ IPlatformIO Interface ]---------
         // --- Directories ---
         /// <summary>Directory to use for mod installations</summary>
-        string IPlatformIO.InstallationDirectory
-        {
-            get { return PluginSettings.data.installationDirectory; }
-        }
+        public string InstallationDirectory { get; private set; }
 
         /// <summary>Directory to use for cached server data</summary>
-        string IPlatformIO.CacheDirectory
-        {
-            get { return PluginSettings.data.cacheDirectory; }
-        }
+        public string CacheDirectory { get; private set; }
 
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
@@ -175,22 +186,19 @@ namespace ModIO
         }
 
         // ---------[ IUserDataIO Interface ]---------
-        /// <summary>The directory for the active user's data.</summary>
-        public string userDir = PluginSettings.data.userDirectory;
+        /// <summary>The root directory for active user directories.</summary>
+        protected string rootUserDir = null;
 
         /// <summary>Directory to use for user data.</summary>
-        string IUserDataIO.UserDirectory
-        {
-            get { return this.userDir; }
-        }
+        public string UserDirectory { get; private set; }
 
         // --- Initialization ---
         /// <summary>Initializes the storage system for the given user.</summary>
         public virtual void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
         {
-            this.userDir = this.GenerateActiveUserDirectory(platformUserId);
+            this.UserDirectory = this.GenerateActiveUserDirectory(platformUserId);
 
-            bool success = this.CreateDirectory(this.userDir);
+            bool success = this.CreateDirectory(this.UserDirectory);
             if(callback != null)
             {
                 callback.Invoke(platformUserId, success);
@@ -200,9 +208,9 @@ namespace ModIO
         /// <summary>Initializes the storage system for the given user.</summary>
         public virtual void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback)
         {
-            this.userDir = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
+            this.UserDirectory = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
 
-            bool success = this.CreateDirectory(this.userDir);
+            bool success = this.CreateDirectory(this.UserDirectory);
             if(callback != null)
             {
                 callback.Invoke(platformUserId, success);
@@ -212,12 +220,12 @@ namespace ModIO
         /// <summary>Determines the user directory for a given user id..</summary>
         protected virtual string GenerateActiveUserDirectory(string platformUserId)
         {
-            string userDir = PluginSettings.data.userDirectory;
+            string userDir = this.rootUserDir;
 
             if(!string.IsNullOrEmpty(platformUserId))
             {
                 string folderName = IOUtilities.MakeValidFileName(platformUserId);
-                userDir = IOUtilities.CombinePath(PluginSettings.data.userDirectory, folderName);
+                userDir = IOUtilities.CombinePath(this.rootUserDir, folderName);
             }
 
             return userDir;
@@ -226,7 +234,7 @@ namespace ModIO
         /// <summary>Deletes all of the active user's data.</summary>
         void IUserDataIO.ClearActiveUserData(UserDataIOCallbacks.ClearActiveUserDataCallback callback)
         {
-            bool success = this.DeleteDirectory(this.userDir);
+            bool success = this.DeleteDirectory(this.UserDirectory);
 
             if(callback != null) { callback.Invoke(success); }
         }
@@ -238,7 +246,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
             Debug.Assert(callback != null);
 
-            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            string path = IOUtilities.CombinePath(this.UserDirectory, relativePath);
             byte[] data;
             bool success = this.ReadFile(path, out data);
 
@@ -254,7 +262,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
             Debug.Assert(data != null);
 
-            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            string path = IOUtilities.CombinePath(this.UserDirectory, relativePath);
             bool success = this.WriteFile(path, data);
 
             if(callback != null) { callback.Invoke(relativePath, success); }
@@ -266,7 +274,7 @@ namespace ModIO
         {
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
 
-            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            string path = IOUtilities.CombinePath(this.UserDirectory, relativePath);
             bool success = this.DeleteFile(path);
 
             if(callback != null) { callback.Invoke(relativePath, success); }

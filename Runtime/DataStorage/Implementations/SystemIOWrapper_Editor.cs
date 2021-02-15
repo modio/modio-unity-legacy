@@ -119,7 +119,7 @@ namespace ModIO
         {
             base.SetActiveUser(platformUserId, callback);
 
-            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir)
+            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.UserDirectory)
                && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
@@ -131,7 +131,7 @@ namespace ModIO
         {
             base.SetActiveUser(platformUserId, callback);
 
-            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir)
+            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.UserDirectory)
                && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
