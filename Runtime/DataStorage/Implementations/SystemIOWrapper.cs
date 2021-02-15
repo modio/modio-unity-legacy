@@ -193,6 +193,19 @@ namespace ModIO
         public string UserDirectory { get; private set; }
 
         // --- Initialization ---
+        /// <summary>Initializes the storage system for the defaul user.</summary>
+        public virtual void InitializeForDefaultUser(Action<bool> callback)
+        {
+            this.SetActiveUser(null,
+            (userId, success) =>
+            {
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
+            });
+        }
+
         /// <summary>Initializes the storage system for the given user.</summary>
         public virtual void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
         {

@@ -28,8 +28,12 @@ namespace ModIO
                 UserDataStorage.PLATFORM_IO = new SteamworksNETUserDataIO();
             #else
                 UserDataStorage.PLATFORM_IO = new SystemIOWrapper();
-                LocalUser.Load();
             #endif
+
+            UserDataStorage.PLATFORM_IO.InitializeForDefaultUser((success) =>
+            {
+                if(success) { LocalUser.Load(); }
+            });
         }
 
         /// <summary>Initializes the data storage functionality for a given user.</summary>
@@ -168,6 +172,19 @@ namespace ModIO
                 this.UserDirectory = FacepunchUserDataIO.ROOT_DIR;
             }
 
+            /// <summary>Initializes the storage system for the defaul user.</summary>
+            public void InitializeForDefaultUser(Action<bool> callback)
+            {
+                this.SetActiveUser(null,
+                (userId, success) =>
+                {
+                    if(callback != null)
+                    {
+                        callback.Invoke(success);
+                    }
+                });
+            }
+
             /// <summary>Initializes the storage system for the given user.</summary>
             public void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
             {
@@ -290,6 +307,19 @@ namespace ModIO
             public SteamworksNETUserDataIO()
             {
                 this.UserDirectory = SteamworksNETUserDataIO.ROOT_DIR;
+            }
+
+            /// <summary>Initializes the storage system for the defaul user.</summary>
+            public void InitializeForDefaultUser(Action<bool> callback)
+            {
+                this.SetActiveUser(null,
+                (userId, success) =>
+                {
+                    if(callback != null)
+                    {
+                        callback.Invoke(success);
+                    }
+                });
             }
 
             /// <summary>Initializes the storage system for the given user.</summary>
