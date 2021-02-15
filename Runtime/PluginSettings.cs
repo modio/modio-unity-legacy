@@ -302,6 +302,7 @@ namespace ModIO
                          .Replace("$PRODUCT_NAME$", Application.productName)
                          .Replace("$APPLICATION_IDENTIFIER", Application.identifier)
                          .Replace("$GAME_ID$", gameId.ToString())
+                         .Replace("$CURRENT_DIRECTORY$", System.IO.Directory.GetCurrentDirectory())
                          );
 
             return directory;
@@ -344,9 +345,9 @@ namespace ModIO
                 cacheDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","cache"),
                 userDirectory = IOUtilities.CombinePath("$PERSISTENT_DATA_PATH$","mod.io-$GAME_ID$"),
 
-                installationDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","mods"),
-                cacheDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","cache"),
-                userDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","user"),
+                installationDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","mods"),
+                cacheDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","cache"),
+                userDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","user"),
             };
 
             return data;
