@@ -5,8 +5,6 @@ using Path = System.IO.Path;
 
 using UnityEngine;
 
-using Newtonsoft.Json;
-
 using ModIO.API;
 
 namespace ModIO

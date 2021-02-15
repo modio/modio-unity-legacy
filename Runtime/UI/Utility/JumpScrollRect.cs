@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
-using Single = System.Single;
 using IEnumerator = System.Collections.IEnumerator;
 
 namespace ModIO.UI

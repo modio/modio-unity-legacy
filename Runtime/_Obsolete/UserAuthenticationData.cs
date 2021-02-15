@@ -1,9 +1,4 @@
-using System.Collections.Generic;
-
 using Newtonsoft.Json;
-
-using Application = UnityEngine.Application;
-using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {

@@ -2,11 +2,6 @@
 // #define MODIO_FACEPUNCH_SUPPORT
 // #define MODIO_STEAMWORKSNET_SUPPORT
 
-using System;
-using System.Text;
-
-using Newtonsoft.Json;
-
 using Debug = UnityEngine.Debug;
 
 using ModIO.UserDataIOCallbacks;
@@ -33,8 +28,12 @@ namespace ModIO
                 UserDataStorage.PLATFORM_IO = new SteamworksNETUserDataIO();
             #else
                 UserDataStorage.PLATFORM_IO = new SystemIOWrapper();
-                LocalUser.Load();
             #endif
+
+            UserDataStorage.PLATFORM_IO.InitializeForDefaultUser((success) =>
+            {
+                if(success) { LocalUser.Load(); }
+            });
         }
 
         /// <summary>Initializes the data storage functionality for a given user.</summary>
@@ -43,14 +42,28 @@ namespace ModIO
             UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId,
             (id, success) =>
             {
-                LocalUser.Load(
-                () =>
+                if(success)
                 {
+                    LocalUser.Load(
+                    () =>
+                    {
+                        if(callback != null)
+                        {
+                            callback.Invoke(id, success);
+                        }
+                    });
+                }
+                else
+                {
+                    LocalUser.instance = new LocalUser();
+
+                    Debug.Log("[mod.io] Failed to set active user. LocalUser cleared.");
+
                     if(callback != null)
                     {
                         callback.Invoke(id, success);
                     }
-                });
+                }
             });
         }
 
@@ -60,14 +73,28 @@ namespace ModIO
             UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId,
             (id, success) =>
             {
-                LocalUser.Load(
-                () =>
+                if(success)
                 {
+                    LocalUser.Load(
+                    () =>
+                    {
+                        if(callback != null)
+                        {
+                            callback.Invoke(id, success);
+                        }
+                    });
+                }
+                else
+                {
+                    LocalUser.instance = new LocalUser();
+
+                    Debug.Log("[mod.io] Failed to set active user. LocalUser cleared.");
+
                     if(callback != null)
                     {
                         callback.Invoke(id, success);
                     }
-                });
+                }
             });
         }
 
@@ -171,6 +198,19 @@ namespace ModIO
             public FacepunchUserDataIO()
             {
                 this.UserDirectory = FacepunchUserDataIO.ROOT_DIR;
+            }
+
+            /// <summary>Initializes the storage system for the defaul user.</summary>
+            public void InitializeForDefaultUser(Action<bool> callback)
+            {
+                this.SetActiveUser(null,
+                (userId, success) =>
+                {
+                    if(callback != null)
+                    {
+                        callback.Invoke(success);
+                    }
+                });
             }
 
             /// <summary>Initializes the storage system for the given user.</summary>
@@ -295,6 +335,19 @@ namespace ModIO
             public SteamworksNETUserDataIO()
             {
                 this.UserDirectory = SteamworksNETUserDataIO.ROOT_DIR;
+            }
+
+            /// <summary>Initializes the storage system for the defaul user.</summary>
+            public void InitializeForDefaultUser(Action<bool> callback)
+            {
+                this.SetActiveUser(null,
+                (userId, success) =>
+                {
+                    if(callback != null)
+                    {
+                        callback.Invoke(success);
+                    }
+                });
             }
 
             /// <summary>Initializes the storage system for the given user.</summary>

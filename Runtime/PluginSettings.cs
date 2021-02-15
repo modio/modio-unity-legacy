@@ -226,47 +226,55 @@ namespace ModIO
                 settings = wrapper.m_data;
 
                 // - Path variable replacement -
-                // cachedir
-                if(settings.cacheDirectory != null)
-                {
-                    settings.cacheDirectory = ReplaceDirectoryVariables(settings.cacheDirectory,
-                                                                        settings.gameId);
-                }
+                #if UNITY_STANDALONE
 
-                // installdir
-                if(settings.installationDirectory != null)
-                {
-                    settings.installationDirectory = ReplaceDirectoryVariables(settings.installationDirectory,
-                                                                               settings.gameId);
-                }
+                    // cachedir
+                    if(settings.cacheDirectory != null)
+                    {
+                        settings.cacheDirectory = ReplaceDirectoryVariables(settings.cacheDirectory,
+                                                                            settings.gameId);
+                    }
 
-                // userdir
-                if(settings.userDirectory != null)
-                {
-                    settings.userDirectory = ReplaceDirectoryVariables(settings.userDirectory,
-                                                                       settings.gameId);
-                }
+                    // installdir
+                    if(settings.installationDirectory != null)
+                    {
+                        settings.installationDirectory = ReplaceDirectoryVariables(settings.installationDirectory,
+                                                                                   settings.gameId);
+                    }
 
-                // cachedir
-                if(settings.cacheDirectoryEditor != null)
-                {
-                    settings.cacheDirectoryEditor = ReplaceDirectoryVariables(settings.cacheDirectoryEditor,
-                                                                              settings.gameId);
-                }
+                    // userdir
+                    if(settings.userDirectory != null)
+                    {
+                        settings.userDirectory = ReplaceDirectoryVariables(settings.userDirectory,
+                                                                           settings.gameId);
+                    }
 
-                // installdir
-                if(settings.installationDirectoryEditor != null)
-                {
-                    settings.installationDirectoryEditor = ReplaceDirectoryVariables(settings.installationDirectoryEditor,
-                                                                                     settings.gameId);
-                }
+                #endif // UNITY_STANDALONE
 
-                // userdir
-                if(settings.userDirectoryEditor != null)
-                {
-                    settings.userDirectoryEditor = ReplaceDirectoryVariables(settings.userDirectoryEditor,
-                                                                             settings.gameId);
-                }
+                #if UNITY_EDITOR
+
+                    // cachedir
+                    if(settings.cacheDirectoryEditor != null)
+                    {
+                        settings.cacheDirectoryEditor = ReplaceDirectoryVariables(settings.cacheDirectoryEditor,
+                                                                                  settings.gameId);
+                    }
+
+                    // installdir
+                    if(settings.installationDirectoryEditor != null)
+                    {
+                        settings.installationDirectoryEditor = ReplaceDirectoryVariables(settings.installationDirectoryEditor,
+                                                                                         settings.gameId);
+                    }
+
+                    // userdir
+                    if(settings.userDirectoryEditor != null)
+                    {
+                        settings.userDirectoryEditor = ReplaceDirectoryVariables(settings.userDirectoryEditor,
+                                                                                 settings.gameId);
+                    }
+
+                #endif // UNITY_EDITOR
             }
 
             return settings;
@@ -380,7 +388,23 @@ namespace ModIO
 
             return settings;
         }
-        #endif
+
+        /// <summary>[Obsolete] Sets the values of the Plugin Settings.</summary>
+        [System.Obsolete("Use PluginSettings.SetRuntimeData() instead.")]
+        public static PluginSettings SetGlobalValues(PluginSettings.Data data)
+        {
+            return PluginSettings.SetRuntimeData(data);
+        }
+
+        /// <summary>[Obsolete] Creates the asset instance that the plugin will use.</summary>
+        [System.Obsolete("Use PluginSettings.GenerateDefaultData() and PluginSettings.SetRuntimeData() instead.")]
+        private static PluginSettings InitializeAsset()
+        {
+            PluginSettings.Data data = PluginSettings.GenerateDefaultData();
+            return PluginSettings.SetRuntimeData(data);
+        }
+
+        #endif // UNITY_EDITOR
 
         // ---------[ Obsolete ]---------
         [System.Obsolete("Use DataStorage.INSTALLATION_DIRECTORY instead.")]
@@ -399,21 +423,6 @@ namespace ModIO
         public static string USER_DIRECTORY
         {
             get { return UserDataStorage.USER_DIRECTORY; }
-        }
-
-        /// <summary>[Obsolete] Sets the values of the Plugin Settings.</summary>
-        [System.Obsolete("Use PluginSettings.SetRuntimeData() instead.")]
-        public static PluginSettings SetGlobalValues(PluginSettings.Data data)
-        {
-            return PluginSettings.SetRuntimeData(data);
-        }
-
-        /// <summary>[Obsolete] Creates the asset instance that the plugin will use.</summary>
-        [System.Obsolete("Use PluginSettings.GenerateDefaultData() and PluginSettings.SetRuntimeData() instead.")]
-        private static PluginSettings InitializeAsset()
-        {
-            PluginSettings.Data data = PluginSettings.GenerateDefaultData();
-            return PluginSettings.SetRuntimeData(data);
         }
     }
 }

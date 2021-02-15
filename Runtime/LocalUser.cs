@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 
-using Debug = UnityEngine.Debug;
-
 namespace ModIO
 {
     /// <summary>Structure for storing data about a user specific to this device.</summary>

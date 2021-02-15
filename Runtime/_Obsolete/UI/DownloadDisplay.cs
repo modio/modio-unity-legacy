@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
 
 namespace ModIO.UI
 {
