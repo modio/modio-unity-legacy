@@ -101,6 +101,10 @@ namespace ModIO
         }
 
         // ---------[ REQUEST HANDLING ]---------
+        /// <summary>Active request mapping.</summary>
+        private static Dictionary<string, UnityWebRequestAsyncOperation> _activeRequests
+            = new Dictionary<string, UnityWebRequestAsyncOperation>();
+
         /// <summary>Generates the object for a basic mod.io server request.</summary>
         public static UnityWebRequest GenerateQuery(string endpointURL,
                                                     string filterString,
@@ -260,44 +264,83 @@ namespace ModIO
                                                                 Action successCallback,
                                                                 Action<WebRequestError> errorCallback)
         {
-            // - Start Request -
-            UnityWebRequestAsyncOperation requestOperation = webRequest.SendWebRequest();
+            Debug.Assert(webRequest != null);
+            Debug.Assert(!string.IsNullOrEmpty(webRequest.url));
+
+            UnityWebRequestAsyncOperation requestOperation = null;
+            bool isGetRequest = webRequest.method == UnityWebRequest.kHttpVerbGET;
+
+            // - Check if request is currently active -
+            if(isGetRequest)
+            {
+                APIClient._activeRequests.TryGetValue(webRequest.url, out requestOperation);
+            }
+
+            // - start new request -
+            if(requestOperation == null)
+            {
+                requestOperation = webRequest.SendWebRequest();
+
+                // prevent parallel
+                if(isGetRequest)
+                {
+                    APIClient._activeRequests.Add(webRequest.url, requestOperation);
+
+                    requestOperation.completed += (operation) =>
+                    {
+                        APIClient._activeRequests.Remove(webRequest.url);
+                    };
+                }
+            }
 
             #if DEBUG
                 DebugUtilities.DebugWebRequest(requestOperation, LocalUser.instance);
             #endif
 
-            requestOperation.completed += (operation) =>
+            // build callback
+            if(successCallback != null || errorCallback != null)
             {
-                // check if user has changed
-                bool hasUserChanged = false;
-                string authValue = webRequest.GetRequestHeader("authorization");
-                if(!string.IsNullOrEmpty(authValue)
-                   && authValue.StartsWith("Bearer "))
+                Action<UnityEngine.AsyncOperation> callback = (operation) =>
                 {
-                    hasUserChanged = (LocalUser.OAuthToken != authValue.Substring(7));
-                }
+                    // check if user has changed
+                    bool hasUserChanged = false;
+                    string authValue = webRequest.GetRequestHeader("authorization");
+                    if(!string.IsNullOrEmpty(authValue)
+                       && authValue.StartsWith("Bearer "))
+                    {
+                        hasUserChanged = (LocalUser.OAuthToken != authValue.Substring(7));
+                    }
 
-                // check for errors
-                if(hasUserChanged)
-                {
-                    if(errorCallback != null)
+                    // check for errors
+                    if(hasUserChanged)
                     {
-                        errorCallback.Invoke(WebRequestError.GenerateLocal("User token changed while waiting for the request to complete."));
+                        if(errorCallback != null)
+                        {
+                            errorCallback.Invoke(WebRequestError.GenerateLocal("User token changed while waiting for the request to complete."));
+                        }
                     }
-                }
-                else if(webRequest.isNetworkError || webRequest.isHttpError)
-                {
-                    if(errorCallback != null)
+                    else if(webRequest.isNetworkError || webRequest.isHttpError)
                     {
-                        errorCallback(WebRequestError.GenerateFromWebRequest(webRequest));
+                        if(errorCallback != null)
+                        {
+                            errorCallback(WebRequestError.GenerateFromWebRequest(webRequest));
+                        }
                     }
+                    else
+                    {
+                        if(successCallback != null) { successCallback(); }
+                    }
+                };
+
+                if(requestOperation.isDone)
+                {
+                    callback.Invoke(requestOperation);
                 }
                 else
                 {
-                    if(successCallback != null) { successCallback(); }
+                    requestOperation.completed += callback;
                 }
-            };
+            }
 
             return requestOperation;
         }
