@@ -3,9 +3,6 @@
 using UnityEngine;
 using UnityEditor;
 
-using System;
-using System.Collections.Generic;
-
 namespace ModIO
 {
     /// <summary>Wraps the System.IO functionality and adds AssetDatabase refreshes.</summary>

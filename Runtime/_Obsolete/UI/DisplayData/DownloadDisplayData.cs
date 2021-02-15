@@ -1,5 +1,4 @@
 using System;
-using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
 
 namespace ModIO.UI
 {

@@ -1,12 +1,4 @@
-using System;
-using System.Text;
-using System.Collections.Generic;
-
 using UnityEngine;
-
-using Newtonsoft.Json;
-
-using ModIO.API;
 using ModIO.PlatformIOCallbacks;
 
 namespace ModIO

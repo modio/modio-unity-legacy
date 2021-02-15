@@ -2,11 +2,6 @@
 // #define MODIO_FACEPUNCH_SUPPORT
 // #define MODIO_STEAMWORKSNET_SUPPORT
 
-using System;
-using System.Text;
-
-using Newtonsoft.Json;
-
 using Debug = UnityEngine.Debug;
 
 using ModIO.UserDataIOCallbacks;
