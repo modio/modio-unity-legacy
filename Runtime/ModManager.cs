@@ -42,7 +42,7 @@ namespace ModIO
         /// <summary>Initializes the ModManager settings.</summary>
         static ModManager()
         {
-            ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, PERSISTENTDATA_FILENAME);
+            ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(DataStorage.CACHE_DIRECTORY, PERSISTENTDATA_FILENAME);
 
             DataStorage.ReadJSONFile<PersistentData>(ModManager.PERSISTENTDATA_FILEPATH, (p, success, data) =>
             {
@@ -66,7 +66,7 @@ namespace ModIO
         /// <summary>Generates the path for a given modfile install directory.</summary>
         public static string GetModInstallDirectory(int modId, int modfileId)
         {
-            return IOUtilities.CombinePath(PluginSettings.INSTALLATION_DIRECTORY,
+            return IOUtilities.CombinePath(DataStorage.INSTALLATION_DIRECTORY,
                                            modId.ToString() + "_" + modfileId.ToString());
         }
 
@@ -161,7 +161,7 @@ namespace ModIO
                 else
                 {
                     DataStorage.DeleteDirectory(installDirectory, (dd_path, dd_success) =>
-                    DataStorage.CreateDirectory(PluginSettings.INSTALLATION_DIRECTORY, (cd_path, cd_success) =>
+                    DataStorage.CreateDirectory(DataStorage.INSTALLATION_DIRECTORY, (cd_path, cd_success) =>
                     DataStorage.MoveDirectory(tempLocation, installDirectory, (md_src, md_dst, md_success) =>
                     {
                         if(dd_success && cd_success && md_success)
@@ -352,7 +352,7 @@ namespace ModIO
         {
             Debug.Assert(onComplete != null);
 
-            DataStorage.GetDirectories(PluginSettings.INSTALLATION_DIRECTORY, (path, exists, modDirectories) =>
+            DataStorage.GetDirectories(DataStorage.INSTALLATION_DIRECTORY, (path, exists, modDirectories) =>
             {
                 var installedModMap = new List<KeyValuePair<ModfileIdPair, string>>();
 
@@ -1679,10 +1679,10 @@ namespace ModIO
         // ---------[ OBSOLETE ]---------
         #pragma warning disable 0067
         /// <summary>[Obsolete] Install directory used by the ModManager.</summary>
-        [Obsolete("Use PluginSettings.INSTALLATION_DIRECTORY instead")]
+        [Obsolete("Use DataStorage.INSTALLATION_DIRECTORY instead")]
         public static string installationDirectory
         {
-            get { return PluginSettings.INSTALLATION_DIRECTORY; }
+            get { return DataStorage.INSTALLATION_DIRECTORY; }
         }
 
         /// <summary>[Obsolete] An event that notifies listeners that a mod has been uninstalled.</summary>

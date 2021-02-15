@@ -43,7 +43,7 @@ namespace ModIO
             /// <summary>Request logging options.</summary>
             public RequestLoggingOptions requestLogging;
 
-            [Header("Runtime Directories")]
+            [Header("Standalone Directories")]
             [Tooltip("Directory to use for mod installations")]
             [VariableDirectory]
             public string installationDirectory;
@@ -209,30 +209,6 @@ namespace ModIO
         {
             get { return PluginSettings.data.requestLogging; }
         }
-        public static string INSTALLATION_DIRECTORY
-        {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.installationDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.installationDirectory; }
-            #endif // UNITY_EDITOR
-        }
-        public static string CACHE_DIRECTORY
-        {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.cacheDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.cacheDirectory; }
-            #endif // UNITY_EDITOR
-        }
-        public static string USER_DIRECTORY
-        {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.userDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.userDirectory; }
-            #endif // UNITY_EDITOR
-        }
 
         // ---------[ FUNCTIONALITY ]---------
         /// <summary>Loads the data from a PluginSettings asset.</summary>
@@ -326,6 +302,7 @@ namespace ModIO
                          .Replace("$PRODUCT_NAME$", Application.productName)
                          .Replace("$APPLICATION_IDENTIFIER", Application.identifier)
                          .Replace("$GAME_ID$", gameId.ToString())
+                         .Replace("$CURRENT_DIRECTORY$", System.IO.Directory.GetCurrentDirectory())
                          );
 
             return directory;
@@ -368,9 +345,9 @@ namespace ModIO
                 cacheDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","cache"),
                 userDirectory = IOUtilities.CombinePath("$PERSISTENT_DATA_PATH$","mod.io-$GAME_ID$"),
 
-                installationDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","mods"),
-                cacheDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","cache"),
-                userDirectoryEditor = IOUtilities.CombinePath("$DATA_PATH$","Resources","mod.io","Editor","user"),
+                installationDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","mods"),
+                cacheDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","cache"),
+                userDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","user"),
             };
 
             return data;
@@ -403,8 +380,27 @@ namespace ModIO
 
             return settings;
         }
+        #endif
 
         // ---------[ Obsolete ]---------
+        [System.Obsolete("Use DataStorage.INSTALLATION_DIRECTORY instead.")]
+        public static string INSTALLATION_DIRECTORY
+        {
+            get { return DataStorage.INSTALLATION_DIRECTORY; }
+        }
+
+        [System.Obsolete("Use DataStorage.CACHE_DIRECTORY instead.")]
+        public static string CACHE_DIRECTORY
+        {
+            get { return DataStorage.CACHE_DIRECTORY; }
+        }
+
+        [System.Obsolete("Use UserDataStorage.USER_DIRECTORY instead.")]
+        public static string USER_DIRECTORY
+        {
+            get { return UserDataStorage.USER_DIRECTORY; }
+        }
+
         /// <summary>[Obsolete] Sets the values of the Plugin Settings.</summary>
         [System.Obsolete("Use PluginSettings.SetRuntimeData() instead.")]
         public static PluginSettings SetGlobalValues(PluginSettings.Data data)
@@ -419,6 +415,7 @@ namespace ModIO
             PluginSettings.Data data = PluginSettings.GenerateDefaultData();
             return PluginSettings.SetRuntimeData(data);
         }
-        #endif
+
+
     }
 }

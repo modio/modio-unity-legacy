@@ -11,6 +11,15 @@ namespace ModIO
     /// <summary>Wraps the System.IO functionality and adds AssetDatabase refreshes.</summary>
     public class SystemIOWrapper_Editor : SystemIOWrapper
     {
+        // --- Initialization ---
+        public SystemIOWrapper_Editor()
+        : base(PluginSettings.data.installationDirectoryEditor,
+               PluginSettings.data.cacheDirectoryEditor,
+               PluginSettings.data.userDirectoryEditor)
+        {
+
+        }
+
         /// <summary>Determines whether an AssetDatabase refresh is applicable.</summary>
         public static bool IsPathWithinEditorAssetDatabase(string path)
         {
@@ -119,7 +128,7 @@ namespace ModIO
         {
             base.SetActiveUser(platformUserId, callback);
 
-            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir)
+            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.UserDirectory)
                && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
@@ -131,7 +140,7 @@ namespace ModIO
         {
             base.SetActiveUser(platformUserId, callback);
 
-            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir)
+            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.UserDirectory)
                && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
