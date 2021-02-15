@@ -386,31 +386,19 @@ namespace ModIO
         [System.Obsolete("Use DataStorage.INSTALLATION_DIRECTORY instead.")]
         public static string INSTALLATION_DIRECTORY
         {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.installationDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.installationDirectory; }
-            #endif // UNITY_EDITOR
+            get { return DataStorage.INSTALLATION_DIRECTORY; }
         }
 
         [System.Obsolete("Use DataStorage.CACHE_DIRECTORY instead.")]
         public static string CACHE_DIRECTORY
         {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.cacheDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.cacheDirectory; }
-            #endif // UNITY_EDITOR
+            get { return DataStorage.CACHE_DIRECTORY; }
         }
 
         [System.Obsolete("Use UserDataStorage.USER_DIRECTORY instead.")]
         public static string USER_DIRECTORY
         {
-            #if UNITY_EDITOR
-                get { return PluginSettings.data.userDirectoryEditor; }
-            #else
-                get { return PluginSettings.data.userDirectory; }
-            #endif // UNITY_EDITOR
+            get { return UserDataStorage.USER_DIRECTORY; }
         }
 
         /// <summary>[Obsolete] Sets the values of the Plugin Settings.</summary>

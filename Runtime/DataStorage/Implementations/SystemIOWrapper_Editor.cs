@@ -19,6 +19,7 @@ namespace ModIO
         {
 
         }
+
         /// <summary>Determines whether an AssetDatabase refresh is applicable.</summary>
         public static bool IsPathWithinEditorAssetDatabase(string path)
         {
