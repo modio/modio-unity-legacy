@@ -226,47 +226,55 @@ namespace ModIO
                 settings = wrapper.m_data;
 
                 // - Path variable replacement -
-                // cachedir
-                if(settings.cacheDirectory != null)
-                {
-                    settings.cacheDirectory = ReplaceDirectoryVariables(settings.cacheDirectory,
-                                                                        settings.gameId);
-                }
+                #if UNITY_STANDALONE
 
-                // installdir
-                if(settings.installationDirectory != null)
-                {
-                    settings.installationDirectory = ReplaceDirectoryVariables(settings.installationDirectory,
-                                                                               settings.gameId);
-                }
+                    // cachedir
+                    if(settings.cacheDirectory != null)
+                    {
+                        settings.cacheDirectory = ReplaceDirectoryVariables(settings.cacheDirectory,
+                                                                            settings.gameId);
+                    }
 
-                // userdir
-                if(settings.userDirectory != null)
-                {
-                    settings.userDirectory = ReplaceDirectoryVariables(settings.userDirectory,
-                                                                       settings.gameId);
-                }
+                    // installdir
+                    if(settings.installationDirectory != null)
+                    {
+                        settings.installationDirectory = ReplaceDirectoryVariables(settings.installationDirectory,
+                                                                                   settings.gameId);
+                    }
 
-                // cachedir
-                if(settings.cacheDirectoryEditor != null)
-                {
-                    settings.cacheDirectoryEditor = ReplaceDirectoryVariables(settings.cacheDirectoryEditor,
-                                                                              settings.gameId);
-                }
+                    // userdir
+                    if(settings.userDirectory != null)
+                    {
+                        settings.userDirectory = ReplaceDirectoryVariables(settings.userDirectory,
+                                                                           settings.gameId);
+                    }
 
-                // installdir
-                if(settings.installationDirectoryEditor != null)
-                {
-                    settings.installationDirectoryEditor = ReplaceDirectoryVariables(settings.installationDirectoryEditor,
-                                                                                     settings.gameId);
-                }
+                #endif // UNITY_STANDALONE
 
-                // userdir
-                if(settings.userDirectoryEditor != null)
-                {
-                    settings.userDirectoryEditor = ReplaceDirectoryVariables(settings.userDirectoryEditor,
-                                                                             settings.gameId);
-                }
+                #if UNITY_EDITOR
+
+                    // cachedir
+                    if(settings.cacheDirectoryEditor != null)
+                    {
+                        settings.cacheDirectoryEditor = ReplaceDirectoryVariables(settings.cacheDirectoryEditor,
+                                                                                  settings.gameId);
+                    }
+
+                    // installdir
+                    if(settings.installationDirectoryEditor != null)
+                    {
+                        settings.installationDirectoryEditor = ReplaceDirectoryVariables(settings.installationDirectoryEditor,
+                                                                                         settings.gameId);
+                    }
+
+                    // userdir
+                    if(settings.userDirectoryEditor != null)
+                    {
+                        settings.userDirectoryEditor = ReplaceDirectoryVariables(settings.userDirectoryEditor,
+                                                                                 settings.gameId);
+                    }
+
+                #endif // UNITY_EDITOR
             }
 
             return settings;
