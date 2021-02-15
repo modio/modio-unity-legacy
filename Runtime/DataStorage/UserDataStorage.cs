@@ -71,6 +71,13 @@ namespace ModIO
             });
         }
 
+        // ---------[ Directories ]---------
+        /// <summary>The directory for the active user's data.</summary>
+        public static string USER_DIRECTORY
+        {
+            get { return UserDataStorage.PLATFORM_IO.UserDirectory; }
+        }
+
         // ---------[ I/O Interface ]---------
         /// <summary>Function for reading a user-specific file.</summary>
         public static void ReadFile(string relativePath, ReadFileCallback callback)

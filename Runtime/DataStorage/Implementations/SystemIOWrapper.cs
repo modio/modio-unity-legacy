@@ -178,6 +178,12 @@ namespace ModIO
         /// <summary>The directory for the active user's data.</summary>
         public string userDir = PluginSettings.USER_DIRECTORY;
 
+        /// <summary>Directory to use for user data.</summary>
+        string IUserDataIO.UserDirectory
+        {
+            get { return this.userDir; }
+        }
+
         // --- Initialization ---
         /// <summary>Initializes the storage system for the given user.</summary>
         public virtual void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
