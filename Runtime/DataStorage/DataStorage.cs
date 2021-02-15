@@ -20,6 +20,36 @@ namespace ModIO
             #else
                 DataStorage.PLATFORM_IO = new SystemIOWrapper();
             #endif
+
+            #if DEBUG
+
+                // NOTE(@jackson): Due to hardcoded directory names the following configuration of
+                // directories causes errors during the mod installation process.
+
+                const string modCacheDir = "mods";
+
+                string cacheDirNoSep = DataStorage.PLATFORM_IO.CacheDirectory;
+                if(IOUtilities.PathEndsWithDirectorySeparator(cacheDirNoSep))
+                {
+                    cacheDirNoSep = cacheDirNoSep.Substring(0, cacheDirNoSep.Length-1);
+                }
+
+                string installDirNoSep = DataStorage.PLATFORM_IO.InstallationDirectory;
+                if(IOUtilities.PathEndsWithDirectorySeparator(installDirNoSep))
+                {
+                    installDirNoSep = installDirNoSep.Substring(0, installDirNoSep.Length-1);
+                }
+
+                if(System.IO.Path.GetDirectoryName(installDirNoSep) == cacheDirNoSep
+                   && installDirNoSep.Substring(cacheDirNoSep.Length+1) == modCacheDir)
+                {
+                    Debug.LogError("[mod.io] The installation directory cannot be a directory named"
+                                   + " 'mods' and a child of the cache directory as this will cause"
+                                   + " issues during the installation process."
+                                   + "\nPlease change the values in your PluginSettings.");
+                }
+
+            #endif
         }
 
         // ---------[ Data Management Interface ]---------
