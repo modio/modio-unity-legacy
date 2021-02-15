@@ -5,8 +5,6 @@ using Path = System.IO.Path;
 
 using UnityEngine;
 
-using Newtonsoft.Json;
-
 using ModIO.API;
 
 namespace ModIO
@@ -42,33 +40,31 @@ namespace ModIO
         /// <summary>Initializes the ModManager settings.</summary>
         static ModManager()
         {
-            ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(PluginSettings.CACHE_DIRECTORY, PERSISTENTDATA_FILENAME);
+            ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(DataStorage.CACHE_DIRECTORY, PERSISTENTDATA_FILENAME);
 
-            bool success = false;
-            PersistentData data;
-
-            success = LocalDataStorage.ReadJSONFile(PERSISTENTDATA_FILEPATH, out data);
-
-            if(!success)
+            DataStorage.ReadJSONFile<PersistentData>(ModManager.PERSISTENTDATA_FILEPATH, (p, success, data) =>
             {
-                data = new PersistentData();
-            }
-            else if(data.lastRunVersion < ModIOVersion.Current)
-            {
-                DataUpdater.UpdateFromVersion(data.lastRunVersion);
-            }
+                if(!success)
+                {
+                    data = new PersistentData();
+                }
+                else if(data.lastRunVersion < ModIOVersion.Current)
+                {
+                    DataUpdater.UpdateFromVersion(data.lastRunVersion);
+                }
 
-            data.lastRunVersion = ModIOVersion.Current;
-            ModManager.m_data = data;
+                data.lastRunVersion = ModIOVersion.Current;
+                ModManager.m_data = data;
 
-            LocalDataStorage.WriteJSONFile(PERSISTENTDATA_FILEPATH, ModManager.m_data);
+                DataStorage.WriteJSONFile(PERSISTENTDATA_FILEPATH, ModManager.m_data, null);
+            });
         }
 
         // ---------[ MOD MANAGEMENT ]---------
         /// <summary>Generates the path for a given modfile install directory.</summary>
         public static string GetModInstallDirectory(int modId, int modfileId)
         {
-            return IOUtilities.CombinePath(PluginSettings.INSTALLATION_DIRECTORY,
+            return IOUtilities.CombinePath(DataStorage.INSTALLATION_DIRECTORY,
                                            modId.ToString() + "_" + modfileId.ToString());
         }
 
@@ -78,85 +74,115 @@ namespace ModIO
             // Needs to have a valid mod id otherwise we mess with player-added mods!
             Debug.Assert(modId != ModProfile.NULL_ID);
 
-            // Check onComplete is not null
-            if(onComplete == null)
-            {
-                onComplete = (b) => {};
-            }
-
-            string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
-            if(!LocalDataStorage.GetFileExists(zipFilePath))
-            {
-                Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
-                                 + "\nMod Binary ZipFile [" + zipFilePath + "] does not exist.");
-
-                onComplete.Invoke(false);
-                return;
-            }
-
-            // extract
+            // Define vars
+            string installDirectory = ModManager.GetModInstallDirectory(modId, modfileId);
             string tempLocation = IOUtilities.CombinePath(CacheClient.GenerateModBinariesDirectoryPath(modId),
                                                           modfileId.ToString());
-            try
+            string archivePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
+
+            // Define the callbacks
+            PlatformIOCallbacks.GetFileExistsCallback onArchiveExists = null;
+            Action<bool> onOldVersionsUninstalled = null;
+            PlatformIOCallbacks.DeleteFileCallback onArchiveDeleted = null;
+
+            onArchiveExists = (path, success) =>
             {
-                LocalDataStorage.DeleteDirectory(tempLocation);
-                LocalDataStorage.CreateDirectory(tempLocation);
-
-                using (var zip = Ionic.Zip.ZipFile.Read(zipFilePath))
-                {
-                    zip.ExtractAll(tempLocation);
-                }
-            }
-            catch(Exception e)
-            {
-                Debug.LogWarning("[mod.io] Unable to extract binary to a temporary folder."
-                                 + "\nLocation: " + tempLocation + "\n\n"
-                                 + Utility.GenerateExceptionDebugString(e));
-
-                LocalDataStorage.DeleteDirectory(tempLocation);
-
-                onComplete.Invoke(false);
-                return;
-            }
-
-            // Remove old versions
-            ModManager.UninstallMod(modId, (uninstallSucceeded) =>
-            {
-                if(!uninstallSucceeded)
+                if(!success)
                 {
                     Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
-                                     + "\nFailed to uninstall other versions of this mod.");
+                                     + "\nMod Binary ZipFile [" + archivePath + "] does not exist.");
 
-                    LocalDataStorage.DeleteDirectory(tempLocation);
-
-                    onComplete.Invoke(false);
-                    return;
+                    if(onComplete != null)
+                    {
+                        onComplete.Invoke(false);
+                    }
                 }
-
-                // Move to permanent folder
-                string installDirectory = ModManager.GetModInstallDirectory(modId,
-                                                                            modfileId);
-                try
+                else
                 {
-                    LocalDataStorage.DeleteDirectory(installDirectory);
-                    LocalDataStorage.CreateDirectory(PluginSettings.INSTALLATION_DIRECTORY);
-                    LocalDataStorage.MoveDirectory(tempLocation, installDirectory);
+
+                    DataStorage.DeleteDirectory(tempLocation, (dd_path, dd_success) =>
+                    DataStorage.CreateDirectory(tempLocation, (cd_path, cd_success) =>
+                    {
+                        if(dd_success && cd_success)
+                        {
+                            // extract
+                            try
+                            {
+                                using (var zip = Ionic.Zip.ZipFile.Read(archivePath))
+                                {
+                                    zip.ExtractAll(tempLocation);
+                                }
+
+                                // Remove old versions
+                                ModManager.UninstallMod(modId, onOldVersionsUninstalled);
+                            }
+                            catch(Exception e)
+                            {
+                                Debug.LogWarning("[mod.io] Unable to extract binary to a temporary folder."
+                                                 + "\nLocation: " + tempLocation + "\n\n"
+                                                 + Utility.GenerateExceptionDebugString(e));
+
+                                DataStorage.DeleteDirectory(tempLocation, null);
+
+                                if(onComplete != null)
+                                {
+                                    onComplete.Invoke(false);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if(onComplete != null)
+                            {
+                                onComplete.Invoke(false);
+                            }
+                        }
+                    }));
                 }
-                catch(Exception e)
+            };
+
+            onOldVersionsUninstalled = (success) =>
+            {
+                if(!success)
                 {
-                    Debug.LogWarning("[mod.io] Unable to move binary to the mod installation folder."
-                                     + "\nSrc: " + tempLocation
-                                     + "\nDest: " + installDirectory + "\n\n"
-                                     + Utility.GenerateExceptionDebugString(e));
+                    Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
+                                     + "\nFailed to uninstall existing versions of this mod.");
 
-                    LocalDataStorage.DeleteDirectory(tempLocation);
+                    DataStorage.DeleteDirectory(tempLocation, null);
+                    DataStorage.DeleteFile(archivePath, null);
 
-                    onComplete.Invoke(false);
-                    return;
+                    if(onComplete != null)
+                    {
+                        onComplete.Invoke(false);
+                    }
                 }
+                else
+                {
+                    DataStorage.DeleteDirectory(installDirectory, (dd_path, dd_success) =>
+                    DataStorage.CreateDirectory(DataStorage.INSTALLATION_DIRECTORY, (cd_path, cd_success) =>
+                    DataStorage.MoveDirectory(tempLocation, installDirectory, (md_src, md_dst, md_success) =>
+                    {
+                        if(dd_success && cd_success && md_success)
+                        {
+                            DataStorage.DeleteFile(archivePath, onArchiveDeleted);
+                        }
+                        else
+                        {
+                            Debug.LogWarning("[mod.io] Unable to relocate the mod data from a temp folder to the installations folder."
+                                             + "\nSrc: " + tempLocation
+                                             + "\nDest: " + installDirectory);
 
-                LocalDataStorage.DeleteFile(zipFilePath);
+                            if(onComplete != null)
+                            {
+                                onComplete.Invoke(false);
+                            }
+                        }
+                    })));
+                }
+            };
 
+            onArchiveDeleted = (path, success) =>
+            {
                 if(ModManager.onModBinaryInstalled != null)
                 {
                     ModfileIdPair idPair = new ModfileIdPair()
@@ -167,8 +193,14 @@ namespace ModIO
                     ModManager.onModBinaryInstalled(idPair);
                 }
 
-                onComplete.Invoke(true);
-            });
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(true);
+                }
+            };
+
+            // Run Install Process
+            DataStorage.GetFileExists(archivePath, onArchiveExists);
         }
 
         /// <summary>Removes all versions of a mod from the installs folder.</summary>
@@ -177,64 +209,91 @@ namespace ModIO
             // Don't accidentally uninstall player-added mods!
             Debug.Assert(modId != ModProfile.NULL_ID);
 
-            var installedMods = new List<KeyValuePair<ModfileIdPair, string>>(ModManager.IterateInstalledMods(new int[] { modId }));
-            List<ModfileIdPair> successfulUninstalls = new List<ModfileIdPair>();
-
-            foreach(var installInfo in installedMods)
+            ModManager.QueryInstalledMods(new int[] { modId }, (installedMods) =>
             {
-                if(LocalDataStorage.DeleteDirectory(installInfo.Value))
+                List<ModfileIdPair> successfulUninstalls = new List<ModfileIdPair>();
+                int index = 0;
+                Action uninstallAction = null;
+
+                uninstallAction = () =>
                 {
-                    successfulUninstalls.Add(installInfo.Key);
-                }
-            }
+                    if(index < installedMods.Count)
+                    {
+                        var installInfo = installedMods.ElementAt(index++);
+                        DataStorage.DeleteDirectory(installInfo.Value, (p, success) =>
+                        {
+                            if(success) { successfulUninstalls.Add(installInfo.Key); }
 
-            // notify uninstall listeners
-            if(ModManager.onModBinariesUninstalled != null)
-            {
-                ModManager.onModBinariesUninstalled(successfulUninstalls.ToArray());
-            }
+                            uninstallAction();
+                        });
+                    }
+                    else
+                    {
+                        // notify uninstall listeners
+                        if(ModManager.onModBinariesUninstalled != null)
+                        {
+                            ModManager.onModBinariesUninstalled(successfulUninstalls.ToArray());
+                        }
 
-            // invoke callback
-            if(onComplete != null)
-            {
-                onComplete.Invoke(successfulUninstalls.Count == installedMods.Count);
-            }
+                        // invoke callback
+                        if(onComplete != null)
+                        {
+                            onComplete.Invoke(successfulUninstalls.Count == installedMods.Count);
+                        }
+                    }
+                };
+
+                uninstallAction.Invoke();
+            });
         }
 
         /// <summary>Removes a specific version of a mod from the installs folder.</summary>
-        public static bool TryUninstallModVersion(int modId, int modfileId)
+        public static void TryUninstallModVersion(int modId, int modfileId, Action<bool> onComplete)
         {
             // Don't accidentally uninstall player-added mods!
             Debug.Assert(modId != ModProfile.NULL_ID);
 
-            var installedMods = ModManager.IterateInstalledMods(new int[] { modId });
-
-            bool succeeded = true;
-            foreach(var installInfo in installedMods)
+            ModManager.QueryInstalledMods(new int[] { modId }, (installedMods) =>
             {
-                if(installInfo.Key.modfileId == modfileId)
+                foreach(var installInfo in installedMods)
                 {
-                    succeeded = LocalDataStorage.DeleteDirectory(installInfo.Value) && succeeded;
+                    if(installInfo.Key.modfileId == modfileId)
+                    {
+                        DataStorage.DeleteDirectory(installInfo.Value, (path, success) =>
+                        {
+                            if(success && ModManager.onModBinariesUninstalled != null)
+                            {
+                                ModfileIdPair idPair = new ModfileIdPair()
+                                {
+                                    modId = modId,
+                                    modfileId = modfileId,
+                                };
+
+                                ModManager.onModBinariesUninstalled(new ModfileIdPair[] { idPair });
+                            }
+
+                            if(onComplete != null)
+                            {
+                                onComplete.Invoke(success);
+                            }
+                        });
+
+                        return;
+                    }
                 }
-            }
 
-            if(succeeded && ModManager.onModBinariesUninstalled != null)
-            {
-                ModfileIdPair idPair = new ModfileIdPair()
+                if(onComplete != null)
                 {
-                    modId = modId,
-                    modfileId = modfileId,
-                };
-
-                ModManager.onModBinariesUninstalled(new ModfileIdPair[] { idPair });
-            }
-
-            return succeeded;
+                    onComplete.Invoke(true);
+                }
+            });
         }
 
         /// <summary>Returns all of the mod directories of installed mods.</summary>
-        public static List<string> GetInstalledModDirectories(bool excludeDisabledMods)
+        public static void QueryInstalledModDirectories(bool excludeDisabledMods, Action<List<string>> onComplete)
         {
+            Debug.Assert(onComplete != null);
+
             List<int> modIdFilter = null;
             if(excludeDisabledMods)
             {
@@ -243,80 +302,100 @@ namespace ModIO
                 modIdFilter.Add(ModProfile.NULL_ID);
             }
 
-            List<string> directories = new List<string>();
-            var installedModInfo = ModManager.IterateInstalledMods(modIdFilter);
-            foreach(var kvp in installedModInfo)
+            ModManager.QueryInstalledMods(modIdFilter, (installedMods) =>
             {
-                directories.Add(kvp.Value);
-            }
+                List<string> directories = new List<string>();
 
-            return directories;
+                foreach(var kvp in installedMods)
+                {
+                    directories.Add(kvp.Value);
+                }
+
+                onComplete.Invoke(directories);
+            });
         }
 
         /// <summary>Returns all of the mod version info of installed mods.</summary>
-        public static List<ModfileIdPair> GetInstalledModVersions(bool excludeDisabledMods)
+        public static void QueryInstalledModVersions(bool excludeDisabledMods, Action<List<ModfileIdPair>> onComplete)
         {
+            Debug.Assert(onComplete != null);
+
             List<int> modIdFilter = null;
             if(excludeDisabledMods)
             {
                 modIdFilter = new List<int>(LocalUser.EnabledModIds);
             }
 
-            List<ModfileIdPair> versions = new List<ModfileIdPair>();
-            var installedModInfo = ModManager.IterateInstalledMods(modIdFilter);
-            foreach(var kvp in installedModInfo)
+            ModManager.QueryInstalledMods(modIdFilter, (installedMods) =>
             {
-                if(kvp.Key.modId != ModProfile.NULL_ID)
-                {
-                    versions.Add(kvp.Key);
-                }
-            }
+                List<ModfileIdPair> versions = new List<ModfileIdPair>();
 
-            return versions;
+                foreach(var kvp in installedMods)
+                {
+                    if(kvp.Key.modId != ModProfile.NULL_ID)
+                    {
+                        versions.Add(kvp.Key);
+                    }
+                }
+
+                onComplete.Invoke(versions);
+            });
         }
 
         /// <summary>Returns the data of all the mods installed.</summary>
-        public static IEnumerable<KeyValuePair<ModfileIdPair, string>> IterateInstalledMods(IList<int> modIdFilter)
+        /// <remarks>This does not ensure a unique collection of ModfileIdPair objects, as there
+        /// may be multiple directories in this folder are not named in the modId_modfileId
+        /// format.</remarks>
+        public static void QueryInstalledMods(IList<int> modIdFilter, Action<IList<KeyValuePair<ModfileIdPair, string>>> onComplete)
         {
-            IList<string> modDirectories = LocalDataStorage.GetDirectories(PluginSettings.INSTALLATION_DIRECTORY);
-            if(modDirectories == null)
+            Debug.Assert(onComplete != null);
+
+            DataStorage.GetDirectories(DataStorage.INSTALLATION_DIRECTORY, (path, exists, modDirectories) =>
             {
-                yield break;
-            }
+                var installedModMap = new List<KeyValuePair<ModfileIdPair, string>>();
 
-            foreach(string modDirectory in modDirectories)
-            {
-                string folderName = IOUtilities.GetPathItemName(modDirectory);
-                string[] folderNameParts = folderName.Split('_');
-
-                int modId;
-                int modfileId;
-                if(!(folderNameParts.Length > 0
-                     && Int32.TryParse(folderNameParts[0], out modId)))
+                if(exists && modDirectories != null)
                 {
-                    modId = ModProfile.NULL_ID;
-                }
-
-                if(modIdFilter == null
-                   || modIdFilter.Contains(modId))
-                {
-                    if(!(modId != ModProfile.NULL_ID
-                         && folderNameParts.Length > 1
-                         && Int32.TryParse(folderNameParts[1], out modfileId)))
+                    foreach(string modDirectory in modDirectories)
                     {
-                        modfileId = Modfile.NULL_ID;
+                        string folderName = IOUtilities.GetPathItemName(modDirectory);
+                        string[] folderNameParts = folderName.Split('_');
+
+                        int modId;
+                        int modfileId;
+                        if(!(folderNameParts.Length > 0
+                             && Int32.TryParse(folderNameParts[0], out modId)))
+                        {
+                            modId = ModProfile.NULL_ID;
+                        }
+
+                        if(modIdFilter == null
+                           || modIdFilter.Contains(modId))
+                        {
+                            if(!(modId != ModProfile.NULL_ID
+                                 && folderNameParts.Length > 1
+                                 && Int32.TryParse(folderNameParts[1], out modfileId)))
+                            {
+                                modfileId = Modfile.NULL_ID;
+                            }
+
+                            ModfileIdPair idPair = new ModfileIdPair()
+                            {
+                                modId = modId,
+                                modfileId = modfileId,
+                            };
+
+                            var kvp = new KeyValuePair<ModfileIdPair, string>(idPair, modDirectory);
+                            installedModMap.Add(kvp);
+                        }
                     }
-
-                    ModfileIdPair idPair = new ModfileIdPair()
-                    {
-                        modId = modId,
-                        modfileId = modfileId,
-                    };
-
-                    var info = new KeyValuePair<ModfileIdPair, string>(idPair, modDirectory);
-                    yield return info;
                 }
-            }
+
+                if(onComplete != null)
+                {
+                    onComplete.Invoke(installedModMap);
+                }
+            });
         }
 
         /// <summary>Downloads and installs a single mod</summary>
@@ -332,6 +411,7 @@ namespace ModIO
 
             // --- local callbacks ---
             Action<ModProfile> onGetModProfile = null;
+            PlatformIOCallbacks.GetFileSizeAndHashCallback onGetModProfile_OnGetFileInfo = null;
             Action<ModfileIdPair, FileDownloadInfo> onDownloadSucceeded = null;
             Action<ModfileIdPair, WebRequestError> onDownloadFailed = null;
             Action<bool> onInstalled = null;
@@ -343,43 +423,43 @@ namespace ModIO
 
                 installDir = ModManager.GetModInstallDirectory(p.id, modfile.id);
 
-                if(LocalDataStorage.GetDirectoryExists(installDir))
+                DataStorage.GetDirectoryExists(installDir, (gde_path, gde_exists) =>
                 {
-                    if(onSuccess != null)
+                    if(gde_exists)
                     {
-                        onSuccess();
-                    }
-                }
-                else
-                {
-                    bool fileExists;
-                    Int64 binarySize;
-                    string binaryHash;
-
-                    zipFilePath = CacheClient.GenerateModBinaryZipFilePath(p.id, modfile.id);
-                    fileExists = LocalDataStorage.GetFileSizeAndHash(zipFilePath,
-                                                                     out binarySize,
-                                                                     out binaryHash);
-
-                    bool isBinaryZipValid = (fileExists
-                                             && modfile.fileSize == binarySize
-                                             && (modfile.fileHash == null
-                                                 || modfile.fileHash.md5 == binaryHash));
-
-                    if(isBinaryZipValid)
-                    {
-                        ModManager.TryInstallMod(profile.id, modfile.id, onInstalled);
+                        if(onSuccess != null)
+                        {
+                            onSuccess.Invoke();
+                        }
                     }
                     else
                     {
-                        DownloadClient.StartModBinaryDownload(modfile,
-                                                              CacheClient.GenerateModBinaryZipFilePath(p.id, p.currentBuild.id));
-
-                        DownloadClient.modfileDownloadSucceeded += onDownloadSucceeded;
-                        DownloadClient.modfileDownloadFailed += onDownloadFailed;
+                        zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id, modfile.id);
+                        DataStorage.GetFileSizeAndHash(zipFilePath, onGetModProfile_OnGetFileInfo);
                     }
+                });
+            };
+
+            onGetModProfile_OnGetFileInfo = (path, success, fileSize, fileHash) =>
+            {
+                bool isBinaryZipValid = (success
+                                         && modfile.fileSize == fileSize
+                                         && (modfile.fileHash == null || modfile.fileHash.md5 == fileHash));
+
+                if(isBinaryZipValid)
+                {
+                    ModManager.TryInstallMod(profile.id, modfile.id, onInstalled);
+                }
+                else
+                {
+                    DownloadClient.StartModBinaryDownload(modfile,
+                                                          CacheClient.GenerateModBinaryZipFilePath(profile.id, profile.currentBuild.id));
+
+                    DownloadClient.modfileDownloadSucceeded += onDownloadSucceeded;
+                    DownloadClient.modfileDownloadFailed += onDownloadFailed;
                 }
             };
+
 
             onDownloadSucceeded = (mip, downloadInfo) =>
             {
@@ -439,7 +519,7 @@ namespace ModIO
             // early out for 0 mods
             if(modIds.Count == 0)
             {
-                if(onCompleted == null) { onCompleted(); }
+                if(onCompleted != null) { onCompleted(); }
                 yield break;
             }
 
@@ -548,7 +628,6 @@ namespace ModIO
             Debug.Assert(modfiles != null);
 
             List<Modfile> unmatchedModfiles = new List<Modfile>(modfiles);
-            List<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
 
             // early out for 0 modfiles
             if(unmatchedModfiles.Count == 0)
@@ -558,6 +637,17 @@ namespace ModIO
             }
 
             // check for installs
+            bool gotModVersions = false;
+            List<ModfileIdPair> installedModVersions = null;
+            ModManager.QueryInstalledModVersions(false,
+            (r) =>
+            {
+                installedModVersions = r;
+                gotModVersions = true;
+            });
+
+            while(!gotModVersions) { yield return null;}
+
             for(int i = 0;
                 i < unmatchedModfiles.Count;
                 ++i)
@@ -589,14 +679,21 @@ namespace ModIO
                     {
                         string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(m.modId, m.id);
 
-                        bool fileExists;
-                        Int64 fileSize;
-                        string fileHash;
+                        bool fileExists = false;
+                        Int64 fileSize = -1;
+                        string fileHash = null;
 
-                        fileExists = LocalDataStorage.GetFileSizeAndHash(zipFilePath,
-                                                                         out fileSize,
-                                                                         out fileHash);
+                        bool isIOOpDone = false;
+                        DataStorage.GetFileSizeAndHash(zipFilePath, (p, success, byteCount, md5Hash) =>
+                        {
+                            fileExists = success;
+                            fileSize = byteCount;
+                            fileHash = md5Hash;
 
+                            isIOOpDone = true;
+                        });
+
+                        while(!isIOOpDone) { yield return null; }
 
                         bool isDownloadedAndValid = (fileExists
                                                      && m.fileSize == fileSize
@@ -762,23 +859,27 @@ namespace ModIO
         public static void GetGameProfile(Action<GameProfile> onSuccess,
                                           Action<WebRequestError> onError)
         {
-            GameProfile cachedProfile = CacheClient.LoadGameProfile();
-
-            if(cachedProfile != null)
+            CacheClient.LoadGameProfile((cachedProfile) =>
             {
-                onSuccess(cachedProfile);
-            }
-            else
-            {
-                Action<GameProfile> onGetProfile = (profile) =>
+                if(cachedProfile != null)
                 {
-                    CacheClient.SaveGameProfile(profile);
-                    if(onSuccess != null) { onSuccess(profile); }
-                };
+                    if(onSuccess != null)
+                    {
+                        onSuccess(cachedProfile);
+                    }
+                }
+                else
+                {
+                    Action<GameProfile> onGetProfile = (profile) =>
+                    {
+                        CacheClient.SaveGameProfile(profile, null);
+                        if(onSuccess != null) { onSuccess(profile); }
+                    };
 
-                APIClient.GetGame(onGetProfile,
-                                  onError);
-            }
+                    APIClient.GetGame(onGetProfile,
+                                      onError);
+                }
+            });
         }
 
 
@@ -788,25 +889,24 @@ namespace ModIO
                                          Action<ModProfile> onSuccess,
                                          Action<WebRequestError> onError)
         {
-            var cachedProfile = CacheClient.LoadModProfile(modId);
-
-            if(cachedProfile != null)
+            CacheClient.LoadModProfile(modId, (cachedProfile) =>
             {
-                if(onSuccess != null) { onSuccess(cachedProfile); }
-            }
-            else
-            {
-                // - Fetch from Server -
-                Action<ModProfile> onGetMod = (profile) =>
+                if(cachedProfile != null)
                 {
-                    CacheClient.SaveModProfile(profile);
-                    if(onSuccess != null) { onSuccess(profile); }
-                };
+                    if(onSuccess != null) { onSuccess(cachedProfile); }
+                }
+                else
+                {
+                    // - Fetch from Server -
+                    Action<ModProfile> onGetMod = (profile) =>
+                    {
+                        CacheClient.SaveModProfile(profile, null);
+                        if(onSuccess != null) { onSuccess(profile); }
+                    };
 
-                APIClient.GetMod(modId,
-                                 onGetMod,
-                                 onError);
-            }
+                    APIClient.GetMod(modId, onGetMod, onError);
+                }
+            });
         }
 
         /// <summary>Fetches and caches Mod Profiles (if not already cached).</summary>
@@ -817,43 +917,46 @@ namespace ModIO
             List<int> missingModIds = new List<int>(modIds);
             List<ModProfile> modProfiles = new List<ModProfile>(missingModIds.Count);
 
-            foreach(ModProfile profile in CacheClient.IterateAllModProfiles())
+            CacheClient.RequestAllModProfiles((cachedProfiles) =>
             {
-                if(missingModIds.Contains(profile.id))
+                foreach(ModProfile profile in cachedProfiles)
                 {
-                    missingModIds.Remove(profile.id);
-                    modProfiles.Add(profile);
+                    if(missingModIds.Contains(profile.id))
+                    {
+                        missingModIds.Remove(profile.id);
+                        modProfiles.Add(profile);
+                    }
                 }
-            }
 
-            if(missingModIds.Count == 0)
-            {
-                if(onSuccess != null) { onSuccess(modProfiles); }
-            }
-            else
-            {
-                // - Filter -
-                RequestFilter modFilter = new RequestFilter();
-                modFilter.sortFieldName = GetAllModsFilterFields.id;
-                modFilter.AddFieldFilter(GetAllModsFilterFields.id, new InArrayFilter<int>()
+                if(missingModIds.Count == 0)
                 {
-                    filterArray = missingModIds.ToArray()
-                });
-
-                Action<List<ModProfile>> onGetMods = (profiles) =>
-                {
-                    modProfiles.AddRange(profiles);
-
-                    CacheClient.SaveModProfiles(profiles);
-
                     if(onSuccess != null) { onSuccess(modProfiles); }
-                };
+                }
+                else
+                {
+                    // - Filter -
+                    RequestFilter modFilter = new RequestFilter();
+                    modFilter.sortFieldName = GetAllModsFilterFields.id;
+                    modFilter.AddFieldFilter(GetAllModsFilterFields.id, new InArrayFilter<int>()
+                    {
+                        filterArray = missingModIds.ToArray()
+                    });
 
-                // - Get All Events -
-                ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetAllMods(modFilter, p, s, e),
-                                                               onGetMods,
-                                                               onError);
-            }
+                    Action<List<ModProfile>> onGetMods = (profiles) =>
+                    {
+                        modProfiles.AddRange(profiles);
+
+                        CacheClient.SaveModProfiles(profiles, null);
+
+                        if(onSuccess != null) { onSuccess(modProfiles); }
+                    };
+
+                    // - Get All Events -
+                    ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetAllMods(modFilter, p, s, e),
+                                                                   onGetMods,
+                                                                   onError);
+                }
+            });
         }
 
         // ---------[ MOD IMAGES ]---------
@@ -873,26 +976,29 @@ namespace ModIO
                                       Action<Texture2D> onSuccess,
                                       Action<WebRequestError> onError)
         {
+            Debug.Assert(modId != ModProfile.NULL_ID);
             Debug.Assert(logoLocator != null);
+            Debug.Assert(onSuccess != null);
 
-            var logoTexture = CacheClient.LoadModLogo(modId, logoLocator.fileName, size);
-            if(logoTexture != null)
+            CacheClient.LoadModLogo(modId, logoLocator.fileName, size, (logoTexture) =>
             {
-                onSuccess(logoTexture);
-            }
-            else
-            {
-                var textureDownload = DownloadClient.DownloadImage(logoLocator.GetSizeURL(size));
-
-                textureDownload.succeeded += (d) =>
+                if(logoTexture != null)
                 {
-                    CacheClient.SaveModLogo(modId, logoLocator.GetFileName(),
-                                            size, d.imageTexture);
-                };
+                    if(onSuccess != null) { onSuccess(logoTexture); }
+                }
+                else
+                {
+                    var textureDownload = DownloadClient.DownloadImage(logoLocator.GetSizeURL(size));
 
-                textureDownload.succeeded += (d) => onSuccess(d.imageTexture);
-                textureDownload.failed += (d) => onError(d.error);
-            }
+                    textureDownload.succeeded += (d) =>
+                    {
+                        CacheClient.SaveModLogo(modId, logoLocator.GetFileName(), size, d.imageTexture, null);
+                    };
+
+                    textureDownload.succeeded += (d) => onSuccess(d.imageTexture);
+                    textureDownload.failed += (d) => onError(d.error);
+                }
+            });
         }
 
         /// <summary>Fetches and caches a Mod Gallery Image (if not already cached).</summary>
@@ -917,31 +1023,31 @@ namespace ModIO
             Debug.Assert(imageLocator != null, "[mod.io] imageLocator parameter cannot be null.");
             Debug.Assert(!String.IsNullOrEmpty(imageLocator.fileName), "[mod.io] imageFileName parameter needs to be not null or empty (used as identifier for gallery images)");
 
-            var cachedImageTexture = CacheClient.LoadModGalleryImage(modId,
-                                                                     imageLocator.fileName,
-                                                                     size);
-
-            if(cachedImageTexture != null)
+            CacheClient.LoadModGalleryImage(modId, imageLocator.fileName, size, (cachedImageTexture) =>
             {
-                if(onSuccess != null) { onSuccess(cachedImageTexture); }
-            }
-            else
-            {
-                // - Fetch from Server -
-                var download = DownloadClient.DownloadModGalleryImage(imageLocator,
-                                                                      size);
-
-                download.succeeded += (d) =>
+                if(cachedImageTexture != null)
                 {
-                    CacheClient.SaveModGalleryImage(modId,
-                                                    imageLocator.fileName,
-                                                    size,
-                                                    d.imageTexture);
-                };
+                    if(onSuccess != null) { onSuccess.Invoke(cachedImageTexture); }
+                }
+                else
+                {
+                    // - Fetch from Server -
+                    var download = DownloadClient.DownloadModGalleryImage(imageLocator,
+                                                                          size);
 
-                download.succeeded += (d) => onSuccess(d.imageTexture);
-                download.failed += (d) => onError(d.error);
-            }
+                    download.succeeded += (d) =>
+                    {
+                        CacheClient.SaveModGalleryImage(modId,
+                                                        imageLocator.fileName,
+                                                        size,
+                                                        d.imageTexture,
+                                                        null);
+                    };
+
+                    download.succeeded += (d) => onSuccess(d.imageTexture);
+                    download.failed += (d) => onError(d.error);
+                }
+            });
         }
 
         /// <summary>Fetches and caches a Mod YouTube Thumbnail (if not already cached).</summary>
@@ -953,25 +1059,26 @@ namespace ModIO
             Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
                          "[mod.io] youTubeVideoId parameter must not be null or empty.");
 
-            var cachedYouTubeThumbnail = CacheClient.LoadModYouTubeThumbnail(modId,
-                                                                             youTubeVideoId);
-
-            if(cachedYouTubeThumbnail != null)
+            CacheClient.LoadModYouTubeThumbnail(modId, youTubeVideoId, (cachedYouTubeThumbnail) =>
             {
-                if(onSuccess != null) { onSuccess(cachedYouTubeThumbnail); }
-            }
-            else
-            {
-                var download = DownloadClient.DownloadYouTubeThumbnail(youTubeVideoId);
-
-                download.succeeded += (d) =>
+                if(cachedYouTubeThumbnail != null)
                 {
-                    CacheClient.SaveModYouTubeThumbnail(modId, youTubeVideoId, d.imageTexture);
-                };
+                    if(onSuccess != null) { onSuccess.Invoke(cachedYouTubeThumbnail); }
+                }
+                else
+                {
+                    var download = DownloadClient.DownloadYouTubeThumbnail(youTubeVideoId);
 
-                download.succeeded += (d) => onSuccess(d.imageTexture);
-                download.failed += (d) => onError(d.error);
-            }
+                    download.succeeded += (d) =>
+                    {
+                        CacheClient.SaveModYouTubeThumbnail(modId, youTubeVideoId, d.imageTexture,
+                                                            null);
+                    };
+
+                    download.succeeded += (d) => onSuccess(d.imageTexture);
+                    download.failed += (d) => onError(d.error);
+                }
+            });
         }
 
 
@@ -981,25 +1088,26 @@ namespace ModIO
                                       Action<Modfile> onSuccess,
                                       Action<WebRequestError> onError)
         {
-            var cachedModfile = CacheClient.LoadModfile(modId, modfileId);
-
-            if(cachedModfile != null)
+            CacheClient.LoadModfile(modId, modfileId, (cachedModfile) =>
             {
-                if(onSuccess != null) { onSuccess(cachedModfile); }
-            }
-            else
-            {
-                // - Fetch from Server -
-                Action<Modfile> onGetModfile = (modfile) =>
+                if(cachedModfile != null)
                 {
-                    CacheClient.SaveModfile(modfile);
-                    if(onSuccess != null) { onSuccess(modfile); }
-                };
+                    if(onSuccess != null) { onSuccess(cachedModfile); }
+                }
+                else
+                {
+                    // - Fetch from Server -
+                    Action<Modfile> onGetModfile = (modfile) =>
+                    {
+                        CacheClient.SaveModfile(modfile, null);
+                        if(onSuccess != null) { onSuccess(modfile); }
+                    };
 
-                APIClient.GetModfile(modId, modfileId,
-                                     onGetModfile,
-                                     onError);
-            }
+                    APIClient.GetModfile(modId, modfileId,
+                                         onGetModfile,
+                                         onError);
+                }
+            });
         }
 
 
@@ -1009,26 +1117,27 @@ namespace ModIO
                                             Action<ModStatistics> onSuccess,
                                             Action<WebRequestError> onError)
         {
-            var cachedStats = CacheClient.LoadModStatistics(modId);
-
-            if(cachedStats != null
-               && cachedStats.dateExpires > ServerTimeStamp.Now)
+            CacheClient.LoadModStatistics(modId, (cachedStats) =>
             {
-                if(onSuccess != null) { onSuccess(cachedStats); }
-            }
-            else
-            {
-                // - Fetch from Server -
-                Action<ModStatistics> onGetStats = (stats) =>
+                if(cachedStats != null
+                   && cachedStats.dateExpires > ServerTimeStamp.Now)
                 {
-                    CacheClient.SaveModStatistics(stats);
-                    if(onSuccess != null) { onSuccess(stats); }
-                };
+                    if(onSuccess != null) { onSuccess(cachedStats); }
+                }
+                else
+                {
+                    // - Fetch from Server -
+                    Action<ModStatistics> onGetStats = (stats) =>
+                    {
+                        CacheClient.SaveModStatistics(stats, null);
+                        if(onSuccess != null) { onSuccess(stats); }
+                    };
 
-                APIClient.GetModStats(modId,
-                                      onGetStats,
-                                      onError);
-            }
+                    APIClient.GetModStats(modId,
+                                          onGetStats,
+                                          onError);
+                }
+            });
         }
 
 
@@ -1054,30 +1163,34 @@ namespace ModIO
         {
             Debug.Assert(avatarLocator != null);
 
-            var cachedAvatarTexture = CacheClient.LoadUserAvatar(userId, size);
-            if(cachedAvatarTexture != null)
+            CacheClient.LoadUserAvatar(userId, size, (cachedAvatarTexture) =>
             {
-                onSuccess(cachedAvatarTexture);
-            }
-            else
-            {
-                // - Fetch from Server -
-                var download = DownloadClient.DownloadImage(avatarLocator.GetSizeURL(size));
-
-                download.succeeded += (d) =>
+                if(cachedAvatarTexture != null)
                 {
-                    CacheClient.SaveUserAvatar(userId, size, d.imageTexture);
-                };
-
-                download.succeeded += (d) => onSuccess(d.imageTexture);
-
-                if(onError != null)
-                {
-                    download.failed += (d) => onError(d.error);
+                    if(onSuccess != null)
+                    {
+                        onSuccess.Invoke(cachedAvatarTexture);
+                    }
                 }
-            }
-        }
+                else
+                {
+                    // - Fetch from Server -
+                    var download = DownloadClient.DownloadImage(avatarLocator.GetSizeURL(size));
 
+                    download.succeeded += (d) =>
+                    {
+                        CacheClient.SaveUserAvatar(userId, size, d.imageTexture, null);
+                    };
+
+                    download.succeeded += (d) => onSuccess(d.imageTexture);
+
+                    if(onError != null)
+                    {
+                        download.failed += (d) => onError(d.error);
+                    }
+                }
+            });
+        }
 
         // ---------[ EVENTS ]---------
         /// <summary>Fetches all mod events for the game.</summary>
@@ -1220,79 +1333,11 @@ namespace ModIO
                                         Action<ModProfile> onSuccess,
                                         Action<WebRequestError> onError)
         {
-            // - Client-Side error-checking -
-            WebRequestError error = null;
-            if(String.IsNullOrEmpty(newModProfile.name.value))
-            {
-                error = WebRequestError.GenerateLocal("Mod Profile needs to be named before it can be uploaded");
-            }
-            else if(String.IsNullOrEmpty(newModProfile.summary.value))
-            {
-                error = WebRequestError.GenerateLocal("Mod Profile needs to be given a summary before it can be uploaded");
-            }
-            else if(!LocalDataStorage.GetFileExists(newModProfile.logoLocator.value.url))
-            {
-                error = WebRequestError.GenerateLocal("Mod Profile needs to be assigned a logo before it can be uploaded");
-            }
+            ModManager_SubmitModOperation op = new ModManager_SubmitModOperation();
+            op.onSuccess = onSuccess;
+            op.onError = onError;
 
-            if(error != null)
-            {
-                onError(error);
-                return;
-            }
-
-            // - Initial Mod Submission -
-            byte[] data;
-            LocalDataStorage.ReadFile(newModProfile.logoLocator.value.url, out data);
-
-            var parameters = new AddModParameters();
-            parameters.name = newModProfile.name.value;
-            parameters.summary = newModProfile.summary.value;
-            parameters.logo = BinaryUpload.Create(Path.GetFileName(newModProfile.logoLocator.value.url), data);
-
-            if(newModProfile.visibility.isDirty)
-            {
-                parameters.visibility = newModProfile.visibility.value;
-            }
-            if(newModProfile.nameId.isDirty)
-            {
-                parameters.nameId = newModProfile.nameId.value;
-            }
-            if(newModProfile.descriptionAsHTML.isDirty)
-            {
-                parameters.descriptionAsHTML = newModProfile.descriptionAsHTML.value;
-            }
-            if(newModProfile.homepageURL.isDirty)
-            {
-                parameters.nameId = newModProfile.homepageURL.value;
-            }
-            if(newModProfile.metadataBlob.isDirty)
-            {
-                parameters.metadataBlob = newModProfile.metadataBlob.value;
-            }
-            if(newModProfile.nameId.isDirty)
-            {
-                parameters.nameId = newModProfile.nameId.value;
-            }
-            if(newModProfile.tags.isDirty)
-            {
-                parameters.tags = newModProfile.tags.value;
-            }
-
-            // NOTE(@jackson): As add Mod takes more parameters than edit,
-            //  we can ignore some of the elements in the EditModParameters
-            //  when passing to SubmitModChanges_Internal
-            var remainingModEdits = new EditableModProfile();
-            remainingModEdits.youTubeURLs = newModProfile.youTubeURLs;
-            remainingModEdits.sketchfabURLs = newModProfile.sketchfabURLs;
-            remainingModEdits.galleryImageLocators = newModProfile.galleryImageLocators;
-
-            APIClient.AddMod(parameters,
-                             result => SubmitModChanges_Internal(result,
-                                                                 remainingModEdits,
-                                                                 onSuccess,
-                                                                 onError),
-                             onError);
+            op.SubmitNewMod(newModProfile);
         }
 
         /// <summary>Submits changes to a mod to the server.</summary>
@@ -1301,328 +1346,11 @@ namespace ModIO
                                             Action<ModProfile> onSuccess,
                                             Action<WebRequestError> onError)
         {
-            Debug.Assert(modId != ModProfile.NULL_ID);
+            ModManager_SubmitModOperation op = new ModManager_SubmitModOperation();
+            op.onSuccess = onSuccess;
+            op.onError = onError;
 
-            Action<ModProfile> submitChanges = (profile) =>
-            {
-                if(modEdits.status.isDirty
-                   || modEdits.visibility.isDirty
-                   || modEdits.name.isDirty
-                   || modEdits.nameId.isDirty
-                   || modEdits.summary.isDirty
-                   || modEdits.descriptionAsHTML.isDirty
-                   || modEdits.homepageURL.isDirty
-                   || modEdits.metadataBlob.isDirty)
-                {
-                    var parameters = new EditModParameters();
-                    if(modEdits.status.isDirty)
-                    {
-                        parameters.status = modEdits.status.value;
-                    }
-                    if(modEdits.visibility.isDirty)
-                    {
-                        parameters.visibility = modEdits.visibility.value;
-                    }
-                    if(modEdits.name.isDirty)
-                    {
-                        parameters.name = modEdits.name.value;
-                    }
-                    if(modEdits.nameId.isDirty)
-                    {
-                        parameters.nameId = modEdits.nameId.value;
-                    }
-                    if(modEdits.summary.isDirty)
-                    {
-                        parameters.summary = modEdits.summary.value;
-                    }
-                    if(modEdits.descriptionAsHTML.isDirty)
-                    {
-                        parameters.descriptionAsHTML = modEdits.descriptionAsHTML.value;
-                    }
-                    if(modEdits.homepageURL.isDirty)
-                    {
-                        parameters.homepageURL = modEdits.homepageURL.value;
-                    }
-                    if(modEdits.metadataBlob.isDirty)
-                    {
-                        parameters.metadataBlob = modEdits.metadataBlob.value;
-                    }
-
-                    APIClient.EditMod(modId, parameters,
-                    (p) => SubmitModChanges_Internal(profile, modEdits,
-                                                     onSuccess,
-                                                     onError),
-                    onError);
-                }
-                // - Get updated ModProfile -
-                else
-                {
-                    SubmitModChanges_Internal(profile,
-                                              modEdits,
-                                              onSuccess,
-                                              onError);
-                }
-            };
-
-            ModManager.GetModProfile(modId, submitChanges, onError);
-        }
-
-        /// <summary>Calculates changes made to a mod profile and submits them to the servers.</summary>
-        private static void SubmitModChanges_Internal(ModProfile profile,
-                                                      EditableModProfile modEdits,
-                                                      Action<ModProfile> onSuccess,
-                                                      Action<WebRequestError> onError)
-        {
-            if(profile == null)
-            {
-                if(onError != null)
-                {
-                    onError(WebRequestError.GenerateLocal("ugh"));
-                }
-            }
-
-            List<Action> submissionActions = new List<Action>();
-            int nextActionIndex = 0;
-            Action<APIMessage> doNextSubmissionAction = (m) =>
-            {
-                if(nextActionIndex < submissionActions.Count)
-                {
-                    submissionActions[nextActionIndex++]();
-                }
-            };
-
-            // - Media -
-            if(modEdits.logoLocator.isDirty
-               || modEdits.youTubeURLs.isDirty
-               || modEdits.sketchfabURLs.isDirty
-               || modEdits.galleryImageLocators.isDirty)
-            {
-                var addMediaParameters = new AddModMediaParameters();
-                var deleteMediaParameters = new DeleteModMediaParameters();
-
-                if(modEdits.logoLocator.isDirty
-                   && LocalDataStorage.GetFileExists(modEdits.logoLocator.value.url))
-                {
-                    byte[] data;
-                    LocalDataStorage.ReadFile(modEdits.logoLocator.value.url, out data);
-
-                    addMediaParameters.logo = BinaryUpload.Create(Path.GetFileName(modEdits.logoLocator.value.url), data);
-                }
-
-                if(modEdits.youTubeURLs.isDirty)
-                {
-                    var addedYouTubeLinks = new List<string>(modEdits.youTubeURLs.value);
-                    foreach(string youtubeLink in profile.media.youTubeURLs)
-                    {
-                        addedYouTubeLinks.Remove(youtubeLink);
-                    }
-                    addMediaParameters.youtube = addedYouTubeLinks.ToArray();
-
-                    var removedTags = new List<string>(profile.media.youTubeURLs);
-                    foreach(string youtubeLink in modEdits.youTubeURLs.value)
-                    {
-                        removedTags.Remove(youtubeLink);
-                    }
-                    deleteMediaParameters.youtube = addedYouTubeLinks.ToArray();
-                }
-
-                if(modEdits.sketchfabURLs.isDirty)
-                {
-                    var addedSketchfabLinks = new List<string>(modEdits.sketchfabURLs.value);
-                    foreach(string sketchfabLink in profile.media.sketchfabURLs)
-                    {
-                        addedSketchfabLinks.Remove(sketchfabLink);
-                    }
-                    addMediaParameters.sketchfab = addedSketchfabLinks.ToArray();
-
-                    var removedTags = new List<string>(profile.media.sketchfabURLs);
-                    foreach(string sketchfabLink in modEdits.sketchfabURLs.value)
-                    {
-                        removedTags.Remove(sketchfabLink);
-                    }
-                    deleteMediaParameters.sketchfab = addedSketchfabLinks.ToArray();
-                }
-
-                if(modEdits.galleryImageLocators.isDirty)
-                {
-                    var addedImageFilePaths = new List<string>();
-                    foreach(var locator in modEdits.galleryImageLocators.value)
-                    {
-                        if(LocalDataStorage.GetFileExists(locator.url))
-                        {
-                            addedImageFilePaths.Add(locator.url);
-                        }
-                    }
-                    // - Create Images.Zip -
-                    if(addedImageFilePaths.Count > 0)
-                    {
-                        string galleryZipLocation = IOUtilities.CombinePath(Application.temporaryCachePath,
-                                                                            "modio",
-                                                                            "imageGallery_" + DateTime.Now.ToFileTime() + ".zip");
-
-                        try
-                        {
-                            LocalDataStorage.CreateDirectory(Path.GetDirectoryName(galleryZipLocation));
-
-                            using(var zip = new Ionic.Zip.ZipFile())
-                            {
-                                foreach(string imageFilePath in addedImageFilePaths)
-                                {
-                                    zip.AddFile(imageFilePath);
-                                }
-                                zip.Save(galleryZipLocation);
-                            }
-
-                            byte[] data;
-                            LocalDataStorage.ReadFile(galleryZipLocation, out data);
-
-                            var imageGalleryUpload = BinaryUpload.Create("images.zip", data);
-
-                            addMediaParameters.galleryImages = imageGalleryUpload;
-                        }
-                        catch(Exception e)
-                        {
-                            Debug.LogError("[mod.io] Unable to zip image gallery prior to uploading.\n\n"
-                                           + Utility.GenerateExceptionDebugString(e));
-                        }
-                    }
-
-                    var removedImageFileNames = new List<string>();
-                    foreach(var locator in profile.media.galleryImageLocators)
-                    {
-                        removedImageFileNames.Add(locator.fileName);
-                    }
-                    foreach(var locator in modEdits.galleryImageLocators.value)
-                    {
-                        removedImageFileNames.Remove(locator.fileName);
-                    }
-
-                    if(removedImageFileNames.Count > 0)
-                    {
-                        deleteMediaParameters.images = removedImageFileNames.ToArray();
-                    }
-                }
-
-                if(addMediaParameters.stringValues.Count > 0
-                   || addMediaParameters.binaryData.Count > 0)
-                {
-                    submissionActions.Add(() =>
-                    {
-                        APIClient.AddModMedia(profile.id,
-                                              addMediaParameters,
-                                              doNextSubmissionAction, onError);
-                    });
-                }
-                if(deleteMediaParameters.stringValues.Count > 0)
-                {
-                    submissionActions.Add(() =>
-                    {
-                        APIClient.DeleteModMedia(profile.id,
-                                                 deleteMediaParameters,
-                                                 () => doNextSubmissionAction(null),
-                                                 onError);
-                    });
-                }
-            }
-
-            // - Tags -
-            if(modEdits.tags.isDirty)
-            {
-                var removedTags = new List<string>(profile.tagNames);
-                foreach(string tag in modEdits.tags.value)
-                {
-                    removedTags.Remove(tag);
-                }
-                var addedTags = new List<string>(modEdits.tags.value);
-                foreach(string tag in profile.tagNames)
-                {
-                    addedTags.Remove(tag);
-                }
-
-                if(removedTags.Count > 0)
-                {
-                    submissionActions.Add(() =>
-                    {
-                        var parameters = new DeleteModTagsParameters();
-                        parameters.tagNames = removedTags.ToArray();
-                        APIClient.DeleteModTags(profile.id, parameters,
-                                                () => doNextSubmissionAction(null), onError);
-                    });
-                }
-                if(addedTags.Count > 0)
-                {
-                    submissionActions.Add(() =>
-                    {
-                        var parameters = new AddModTagsParameters();
-                        parameters.tagNames = addedTags.ToArray();
-                        APIClient.AddModTags(profile.id, parameters,
-                                             doNextSubmissionAction, onError);
-                    });
-                }
-            }
-
-            // - Metadata KVP -
-            if(modEdits.metadataKVPs.isDirty)
-            {
-                var removedKVPs = MetadataKVP.ArrayToDictionary(profile.metadataKVPs);
-                var addedKVPs = MetadataKVP.ArrayToDictionary(modEdits.metadataKVPs.value);
-
-                foreach(MetadataKVP kvp in modEdits.metadataKVPs.value)
-                {
-                    string profileValue;
-
-                    // if edited kvp is exact match it's not removed
-                    if(removedKVPs.TryGetValue(kvp.key, out profileValue)
-                        && profileValue == kvp.value)
-                    {
-                        removedKVPs.Remove(kvp.key);
-                    }
-                }
-
-                foreach(MetadataKVP kvp in profile.metadataKVPs)
-                {
-                    string editValue;
-
-                    // if profile kvp is exact match it's not new
-                    if(addedKVPs.TryGetValue(kvp.key, out editValue)
-                        && editValue == kvp.value)
-                    {
-                        addedKVPs.Remove(kvp.key);
-                    }
-                }
-
-                if(removedKVPs.Count > 0)
-                {
-                    submissionActions.Add(() =>
-                    {
-                        var parameters = new DeleteModKVPMetadataParameters();
-                        parameters.metadataKeys = removedKVPs.Keys.ToArray();
-                        APIClient.DeleteModKVPMetadata(profile.id, parameters,
-                                                       () => doNextSubmissionAction(null),
-                                                       onError);
-                    });
-                }
-
-                if(addedKVPs.Count > 0)
-                {
-                    string[] addedKVPStrings = AddModKVPMetadataParameters.ConvertMetadataKVPsToAPIStrings(MetadataKVP.DictionaryToArray(addedKVPs));
-
-                    submissionActions.Add(() =>
-                    {
-                        var parameters = new AddModKVPMetadataParameters();
-                        parameters.metadata = addedKVPStrings;
-                        APIClient.AddModKVPMetadata(profile.id, parameters,
-                                                    doNextSubmissionAction,
-                                                    onError);
-                    });
-                }
-            }
-
-            // - Get Updated Profile -
-            submissionActions.Add(() => APIClient.GetMod(profile.id, onSuccess, onError));
-
-            // - Start submission chain -
-            doNextSubmissionAction(new APIMessage());
+            op.SubmitModChanges(modId, modEdits);
         }
 
         /// <summary>Zips and uploads a mod data directory as a new build to the servers.</summary>
@@ -1633,64 +1361,131 @@ namespace ModIO
                                                     Action<Modfile> onSuccess,
                                                     Action<WebRequestError> onError)
         {
-            if(!LocalDataStorage.GetDirectoryExists(binaryDirectory))
+            DataStorage.GetDirectoryExists(binaryDirectory, (dir_path, dir_exists) =>
             {
-                if(onError != null)
+                if(dir_exists)
                 {
-                    onError(WebRequestError.GenerateLocal("Mod Binary directory [" + binaryDirectory + "] doesn't exist"));
-                }
-                return;
-            }
-
-            char lastCharacter = binaryDirectory[binaryDirectory.Length - 1];
-            if(lastCharacter == Path.DirectorySeparatorChar
-               || lastCharacter == Path.AltDirectorySeparatorChar)
-            {
-                binaryDirectory = binaryDirectory.Remove(binaryDirectory.Length - 1);
-            }
-
-            // - Zip Directory -
-            string folderName = IOUtilities.GetPathItemName(binaryDirectory);
-            string binaryZipLocation = IOUtilities.CombinePath(Application.temporaryCachePath,
-                                                               "modio",
-                                                               folderName + "_" + DateTime.Now.ToFileTime() + ".zip");
-            bool zipSucceeded = false;
-            int binaryDirectoryPathLength = binaryDirectory.Length + 1;
-
-            try
-            {
-                LocalDataStorage.CreateDirectory(Path.GetDirectoryName(binaryZipLocation));
-
-                using(var zip = new Ionic.Zip.ZipFile())
-                {
-                    foreach(string filePath in LocalDataStorage.GetFiles(binaryDirectory, null, true))
+                    if(IOUtilities.PathEndsWithDirectorySeparator(binaryDirectory))
                     {
-                        string relativeFilePath = filePath.Substring(binaryDirectoryPathLength);
-                        string relativeDirectory = Path.GetDirectoryName(relativeFilePath);
+                        binaryDirectory = binaryDirectory.Remove(binaryDirectory.Length - 1);
+                    }
 
-                        zip.AddFile(filePath, relativeDirectory);
-                        zip.Save(binaryZipLocation);
+                    // - Zip Directory -
+                    DataStorage.GetFiles(binaryDirectory, null, true, (path, success, fileList) =>
+                    {
+                        ModManager.UploadModBinaryFileList(modId, modfileValues, binaryDirectory,
+                                                           fileList, setActiveBuild,
+                                                           onSuccess, onError);
+                    });
+                }
+                else
+                {
+                    if(onError != null)
+                    {
+                        onError(WebRequestError.GenerateLocal("Mod Binary directory [" + binaryDirectory + "] doesn't exist"));
                     }
                 }
+            });
+        }
 
-                zipSucceeded = true;
-            }
-            catch(Exception e)
+        /// <summary>Zips and uploads a collection of files as a new build to the servers.</summary>
+        public static void UploadModBinaryFileList(int modId,
+                                                   EditableModfile modfileValues,
+                                                   string rootDirectory,
+                                                   IList<string> fileList,
+                                                   bool setActiveBuild,
+                                                   Action<Modfile> onSuccess,
+                                                   Action<WebRequestError> onError)
+        {
+            Debug.Assert(modId != ModProfile.NULL_ID);
+            Debug.Assert(modfileValues != null);
+
+            if(string.IsNullOrEmpty(rootDirectory))
             {
-                Debug.LogError("[mod.io] Unable to zip mod binary prior to uploading.\n\n"
-                               + Utility.GenerateExceptionDebugString(e));
-
                 if(onError != null)
                 {
-                    WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
-
-                    onError(error);
+                    var error = WebRequestError.GenerateLocal("Unable to upload mod binary file list as the"
+                                                              + " root directory was NULL or empty.");
+                    onError.Invoke(error);
                 }
             }
-
-            if(zipSucceeded)
+            else if(fileList == null || fileList.Count == 0)
             {
-                UploadModBinary_Zipped(modId, modfileValues, binaryZipLocation, setActiveBuild, onSuccess, onError);
+                if(onError != null)
+                {
+                    var error = WebRequestError.GenerateLocal("Unable to upload mod binary file list as the"
+                                                              + " file list was NULL or empty.");
+                    onError.Invoke(error);
+                }
+            }
+            else if(modfileValues == null)
+            {
+                if(onError != null)
+                {
+                    var error = WebRequestError.GenerateLocal("Unable to upload mod binary file list as the"
+                                                              + " modfile data was NULL.");
+                    onError.Invoke(error);
+                }
+            }
+            else
+            {
+                int rootDirectoryLength = rootDirectory.Length;
+                if(!IOUtilities.PathEndsWithDirectorySeparator(rootDirectory))
+                {
+                    ++rootDirectoryLength;
+                }
+
+                string archiveDirPath = IOUtilities.CombinePath(Application.temporaryCachePath, "modio");
+                string archiveFilePath = IOUtilities.CombinePath(archiveDirPath,
+                                                                 DateTime.Now.ToFileTime() + "_" + modId.ToString() + ".zip");
+
+                DataStorage.CreateDirectory(archiveDirPath, (path, success) =>
+                {
+                    if(success)
+                    {
+                        try
+                        {
+                            using(var zip = new Ionic.Zip.ZipFile())
+                            {
+                                foreach(string filePath in fileList)
+                                {
+                                    string relativeFilePath = filePath.Substring(rootDirectoryLength);
+                                    string relativeDirectory = Path.GetDirectoryName(relativeFilePath);
+
+                                    zip.AddFile(filePath, relativeDirectory);
+                                    zip.Save(archiveFilePath);
+                                }
+                            }
+
+                            UploadModBinary_Zipped(modId, modfileValues, archiveFilePath, setActiveBuild, onSuccess, onError);
+                        }
+                        catch(Exception e)
+                        {
+                            Debug.LogError("[mod.io] Unable to zip mod binary prior to uploading.\n\n"
+                                           + Utility.GenerateExceptionDebugString(e));
+
+                            if(onError != null)
+                            {
+                                WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
+
+                                onError(error);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        string errorString = ("Unable to create directory for mod binary archive prior to upload."
+                                              + "\nDirectory: " + path);
+
+                        Debug.LogError("[mod.io] " + errorString);
+
+                        if(onError != null)
+                        {
+                            WebRequestError error = WebRequestError.GenerateLocal(errorString);
+                            onError(error);
+                        }
+                    }
+                });
             }
         }
 
@@ -1707,35 +1502,36 @@ namespace ModIO
                                                                Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + "_" + DateTime.Now.ToFileTime() + ".zip");
             bool zipSucceeded = false;
 
-            try
+            DataStorage.CreateDirectory(Path.GetDirectoryName(binaryZipLocation), (path, success) =>
             {
-                LocalDataStorage.CreateDirectory(Path.GetDirectoryName(binaryZipLocation));
-
-                using(var zip = new Ionic.Zip.ZipFile())
+                try
                 {
-                    zip.AddFile(unzippedBinaryLocation, "");
-                    zip.Save(binaryZipLocation);
+                    using(var zip = new Ionic.Zip.ZipFile())
+                    {
+                        zip.AddFile(unzippedBinaryLocation, "");
+                        zip.Save(binaryZipLocation);
+                    }
+
+                    zipSucceeded = true;
+                }
+                catch(Exception e)
+                {
+                    Debug.LogError("[mod.io] Unable to zip mod binary prior to uploading.\n\n"
+                                   + Utility.GenerateExceptionDebugString(e));
+
+                    if(onError != null)
+                    {
+                        WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
+
+                        onError(error);
+                    }
                 }
 
-                zipSucceeded = true;
-            }
-            catch(Exception e)
-            {
-                Debug.LogError("[mod.io] Unable to zip mod binary prior to uploading.\n\n"
-                               + Utility.GenerateExceptionDebugString(e));
-
-                if(onError != null)
+                if(zipSucceeded)
                 {
-                    WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
-
-                    onError(error);
+                    UploadModBinary_Zipped(modId, modfileValues, binaryZipLocation, setActiveBuild, onSuccess, onError);
                 }
-            }
-
-            if(zipSucceeded)
-            {
-                UploadModBinary_Zipped(modId, modfileValues, binaryZipLocation, setActiveBuild, onSuccess, onError);
-            }
+            });
         }
 
         /// <summary>Uploads a zipped mod binary as a new build to the servers.</summary>
@@ -1746,36 +1542,34 @@ namespace ModIO
                                                   Action<Modfile> onSuccess,
                                                   Action<WebRequestError> onError)
         {
-            string buildFilename = Path.GetFileName(binaryZipLocation);
-
-            byte[] buildZipData;
-            LocalDataStorage.ReadFile(binaryZipLocation, out buildZipData);
-
-            var parameters = new AddModfileParameters();
-            parameters.zippedBinaryData = BinaryUpload.Create(buildFilename, buildZipData);
-            if(modfileValues.version.isDirty)
+            DataStorage.ReadFile(binaryZipLocation, (rf_path, rf_success, rf_data) =>
             {
-                parameters.version = modfileValues.version.value;
-            }
-            if(modfileValues.changelog.isDirty)
-            {
-                parameters.changelog = modfileValues.changelog.value;
-            }
-            if(modfileValues.metadataBlob.isDirty)
-            {
-                parameters.metadataBlob = modfileValues.metadataBlob.value;
-            }
+                string buildFilename = Path.GetFileName(binaryZipLocation);
+                var parameters = new AddModfileParameters();
+                parameters.zippedBinaryData = BinaryUpload.Create(buildFilename, rf_data);
+                if(modfileValues.version.isDirty)
+                {
+                    parameters.version = modfileValues.version.value;
+                }
+                if(modfileValues.changelog.isDirty)
+                {
+                    parameters.changelog = modfileValues.changelog.value;
+                }
+                if(modfileValues.metadataBlob.isDirty)
+                {
+                    parameters.metadataBlob = modfileValues.metadataBlob.value;
+                }
 
-            parameters.isActiveBuild = setActiveBuild;
+                parameters.isActiveBuild = setActiveBuild;
 
-            // - Generate Hash -
-            string hash;
-            Int64 fileSize;
+                // - Generate Hash -
+                DataStorage.GetFileSizeAndHash(binaryZipLocation, (fi_path, fi_success, fi_fileSize, fi_hash) =>
+                {
+                    parameters.fileHash = fi_hash;
+                    APIClient.AddModfile(modId, parameters, onSuccess, onError);
+                });
 
-            LocalDataStorage.GetFileSizeAndHash(binaryZipLocation, out fileSize, out hash);
-            parameters.fileHash = hash;
-
-            APIClient.AddModfile(modId, parameters, onSuccess, onError);
+            });
         }
         // ---------[ USER DATA ]---------
         /// <summary>Fetches and caches the User Profile for the values in UserAuthenticationData.</summary>
@@ -1838,12 +1632,14 @@ namespace ModIO
             };
 
             var results = new List<T>();
+            int requestCount = 0;
 
             query(pagination,
                   (r) => FetchQueryResultsRecursively(query,
                                                       r,
                                                       pagination,
                                                       results,
+                                                      requestCount,
                                                       onSuccess,
                                                       onError),
                   onError);
@@ -1854,14 +1650,17 @@ namespace ModIO
                                                             RequestPage<T> queryResult,
                                                             APIPaginationParameters pagination,
                                                             List<T> culmativeResults,
+                                                            int requestCount,
                                                             Action<List<T>> onSuccess,
                                                             Action<WebRequestError> onError)
         {
             Debug.Assert(pagination.limit > 0);
 
             culmativeResults.AddRange(queryResult.items);
+            ++requestCount;
 
-            if(queryResult.items.Length < queryResult.size)
+            if(queryResult.items.Length < queryResult.size
+               || requestCount > 10)
             {
                 onSuccess(culmativeResults);
             }
@@ -1871,9 +1670,10 @@ namespace ModIO
 
                 query(pagination,
                       (r) => FetchQueryResultsRecursively(query,
-                                                          queryResult,
+                                                          r,
                                                           pagination,
                                                           culmativeResults,
+                                                          requestCount,
                                                           onSuccess,
                                                           onError),
                       onError);
@@ -1883,10 +1683,10 @@ namespace ModIO
         // ---------[ OBSOLETE ]---------
         #pragma warning disable 0067
         /// <summary>[Obsolete] Install directory used by the ModManager.</summary>
-        [Obsolete("Use PluginSettings.INSTALLATION_DIRECTORY instead")]
+        [Obsolete("Use DataStorage.INSTALLATION_DIRECTORY instead")]
         public static string installationDirectory
         {
-            get { return PluginSettings.INSTALLATION_DIRECTORY; }
+            get { return DataStorage.INSTALLATION_DIRECTORY; }
         }
 
         /// <summary>[Obsolete] An event that notifies listeners that a mod has been uninstalled.</summary>
@@ -1999,6 +1799,46 @@ namespace ModIO
             bool result = false;
 
             ModManager.TryInstallMod(modId, modfileId, (b) => result = b);
+            return result;
+        }
+
+        /// <summary>[Obsolete] Removes a specific version of a mod from the installs folder.</summary>
+        [Obsolete("Use TryUninstallModVersion(int, int, Action<bool>) instead.")]
+        public static bool TryUninstallModVersion(int modId, int modfileId)
+        {
+            bool result = false;
+
+            ModManager.TryUninstallModVersion(modId, modfileId, (b) => result = b);
+            return result;
+        }
+
+        /// <summary>[Obsolete] Returns all of the mod directories of installed mods.</summary>
+        [Obsolete("Use QueryInstalledModDirectories(bool, Action<List<string>>) instead.")]
+        public static List<string> GetInstalledModDirectories(bool excludeDisabledMods)
+        {
+            List<string> result = null;
+
+            ModManager.QueryInstalledModDirectories(excludeDisabledMods, (r) => result = r);
+            return result;
+        }
+
+        /// <summary>[Obsolete] Returns all of the mod version info of installed mods.</summary>
+        [Obsolete("Use QueryInstalledModVersions(bool, Action<List<ModfileIdPair>>) instead.")]
+        public static List<ModfileIdPair> GetInstalledModVersions(bool excludeDisabledMods)
+        {
+            List<ModfileIdPair> result = null;
+
+            ModManager.QueryInstalledModVersions(excludeDisabledMods, (r) => result = r);
+            return result;
+        }
+
+        /// <summary>[Obsolete] Returns the data of all the mods installed.</summary>
+        [Obsolete("Use QueryInstalledMods(bool, Action<IList<ModfileIdPair, string>>) instead.")]
+        public static IEnumerable<KeyValuePair<ModfileIdPair, string>> IterateInstalledMods(IList<int> modIdFilter)
+        {
+            IEnumerable<KeyValuePair<ModfileIdPair, string>> result = null;
+
+            ModManager.QueryInstalledMods(modIdFilter, (r) => result = r);
             return result;
         }
 

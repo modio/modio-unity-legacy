@@ -4,6 +4,8 @@
 
 using System;
 using System.Collections.Generic;
+using File = System.IO.File;
+using Directory = System.IO.Directory;
 
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -197,9 +199,9 @@ namespace ModIO.EditorCode
 
                     // - Build Profile -
                     #if UPLOAD_MOD_BINARY_AS_DIRECTORY
-                    using(new EditorGUI.DisabledScope(!LocalDataStorage.GetDirectoryExists(buildFilePath)))
+                    using(new EditorGUI.DisabledScope(!Directory.Exists(buildFilePath)))
                     #else
-                    using(new EditorGUI.DisabledScope(!LocalDataStorage.GetFileExists(buildFilePath)))
+                    using(new EditorGUI.DisabledScope(!File.Exists(buildFilePath)))
                     #endif
                     {
                         // - Version -
@@ -304,9 +306,9 @@ namespace ModIO.EditorCode
 
             // Upload Build
             #if UPLOAD_MOD_BINARY_AS_DIRECTORY
-            if(LocalDataStorage.GetDirectoryExists(buildFilePath))
+            if(Directory.Exists(buildFilePath))
             #else
-            if(LocalDataStorage.GetFileExists(buildFilePath))
+            if(File.Exists(buildFilePath))
             #endif
             {
                 Action<WebRequestError> onSubmissionFailed = (e) =>

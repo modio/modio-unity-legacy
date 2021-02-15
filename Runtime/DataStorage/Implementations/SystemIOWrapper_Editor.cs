@@ -3,21 +3,26 @@
 using UnityEngine;
 using UnityEditor;
 
-using System;
-using System.Collections.Generic;
-
 namespace ModIO
 {
     /// <summary>Wraps the System.IO functionality and adds AssetDatabase refreshes.</summary>
     public class SystemIOWrapper_Editor : SystemIOWrapper
     {
+        // --- Initialization ---
+        public SystemIOWrapper_Editor()
+        : base(PluginSettings.data.installationDirectoryEditor,
+               PluginSettings.data.cacheDirectoryEditor,
+               PluginSettings.data.userDirectoryEditor)
+        {
+
+        }
+
         /// <summary>Determines whether an AssetDatabase refresh is applicable.</summary>
         public static bool IsPathWithinEditorAssetDatabase(string path)
         {
             return path.StartsWith(Application.dataPath);
         }
 
-        // ---------[ IPlatformIO Interface ]---------
         // --- File I/O ---
         /// <summary>Writes a file.</summary>
         public override bool WriteFile(string path, byte[] data)
@@ -115,13 +120,12 @@ namespace ModIO
             return success;
         }
 
-        // ---------[ IPlatformUserDataIO Interface ]---------
         /// <summary>Initializes the storage system for the given user.</summary>
         public override void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
         {
             base.SetActiveUser(platformUserId, callback);
 
-            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir)
+            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.UserDirectory)
                && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
@@ -133,19 +137,7 @@ namespace ModIO
         {
             base.SetActiveUser(platformUserId, callback);
 
-            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir)
-               && !Application.isPlaying)
-            {
-                AssetDatabase.Refresh();
-            }
-        }
-
-        /// <summary>Deletes all of the active user's data.</summary>
-        public override void ClearActiveUserData(UserDataIOCallbacks.ClearActiveUserDataCallback callback)
-        {
-            base.ClearActiveUserData(callback);
-
-            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir)
+            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.UserDirectory)
                && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();

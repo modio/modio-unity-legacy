@@ -32,12 +32,12 @@ Alternatively, you can download an archive of the code using GitHub's download f
 1. Implement support for user-generated content in your project. Maps, skins, or game modes are often a good place to start.
 1. Set up your [game profile on mod.io](https://mod.io/games/add) (or our [private test environment](https://test.mod.io/games/add)) to get your game ID and API key.
 1. Add the plugin to your game using the installation instructions above.
-1. Drop the _ModBrowser prefab into your menu scene, or adapt the Example Scene for your purposes.
+1. Drop the ModBrowser prefab into your menu scene, or adapt the Example Scene for your purposes.
 1. Input your ID and API key by selecting "Plugin Settings" on the ModBrowser component inspector, or under the Tools/mod.io/Edit Settings menu item
-1. In your code, make a call to `ModManager.GetInstalledModDirectories()` to get a list of mod data your player has installed (read our wiki for [detailed instructions](https://github.com/modio/modio-unity/wiki))
+1. In your code, make a call to `ModManager.QueryInstalledModDirectories()` to get a list of mod data your player has installed (read our wiki for [detailed instructions](https://github.com/modio/modio-unity/wiki))
 1. Setup complete! Join us [on Discord](https://discord.mod.io) if you have questions or need help.
 
-All mods [submitted to mod.io](https://mod.io/mods/add) will be automatically fetched and managed by the plugin, and are instantly downloadable and testable.
+All mods [submitted to mod.io](https://mod.io/mods/add) will be automatically fetched and managed by the plugin, and are instantly downloadable and testable.
 
 ## Usage
 ### Browse Mods

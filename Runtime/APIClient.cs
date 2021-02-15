@@ -1,7 +1,6 @@
 ﻿using ModIO.API;
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 using Newtonsoft.Json;
@@ -10,6 +9,7 @@ using Debug = UnityEngine.Debug;
 using WWWForm = UnityEngine.WWWForm;
 using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
 using UnityWebRequestAsyncOperation = UnityEngine.Networking.UnityWebRequestAsyncOperation;
+using DownloadHandlerFile = UnityEngine.Networking.DownloadHandlerFile;
 
 
 namespace ModIO
@@ -17,6 +17,15 @@ namespace ModIO
     /// <summary>An interface for sending requests to the mod.io servers.</summary>
     public static class APIClient
     {
+        // ---------[ Nested Data-Types]---------
+        /// <summary>Data required to collect and prepare callbacks.</summary>
+        private struct GetRequestHandle
+        {
+            public UnityWebRequestAsyncOperation operation;
+            public List<Action<string>> successCallbacks;
+            public List<Action<WebRequestError>> errorCallbacks;
+        }
+
         // ---------[ CONSTANTS ]---------
         /// <summary>Denotes the version of the mod.io web API that this class is compatible with.</summary>
         public const string API_VERSION = "v1";
@@ -30,6 +39,38 @@ namespace ModIO
         /// <summary>Version information to provide in the request header.</summary>
         public static readonly string USER_AGENT_HEADER = "modioUnityPlugin-" + ModIOVersion.Current.ToString("X.Y.Z");
 
+        /// <summary>Header key for the external auth user consent value.</summary>
+        public static readonly string EXTERNAL_AUTH_CONSENT_KEY = "terms_agreed";
+
+        /// <summary>Header key for the platform header.</summary>
+        public const string PLATFORM_HEADER_KEY = "x-modio-platform";
+
+        #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+            /// <summary>Platform header value. (Windows)</summary>
+            public const string PLATFORM_HEADER_VALUE = "windows_draft";
+        #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+            /// <summary>Platform header value. (Mac OS)</summary>
+            public const string PLATFORM_HEADER_VALUE = "osx_draft";
+        #elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
+            /// <summary>Platform header value. (Linux)</summary>
+            public const string PLATFORM_HEADER_VALUE = "linux_draft";
+        #elif UNITY_WII
+            /// <summary>Platform header value. (Wii)</summary>
+            public const string PLATFORM_HEADER_VALUE = "wii_draft";
+        #elif UNITY_IOS
+            /// <summary>Platform header value. (iOS)</summary>
+            public const string PLATFORM_HEADER_VALUE = "ios_draft";
+        #elif UNITY_ANDROID
+            /// <summary>Platform header value. (Android)</summary>
+            public const string PLATFORM_HEADER_VALUE = "android_draft";
+        #elif UNITY_PS4
+            /// <summary>Platform header value. (PS4)</summary>
+            public const string PLATFORM_HEADER_VALUE = "ps4_draft";
+        #elif UNITY_XBOXONE
+            /// <summary>Platform header value. (Xbox One)</summary>
+            public const string PLATFORM_HEADER_VALUE = "xboxone_draft";
+        #endif
+
         /// <summary>Collection of the HTTP request header keys used by mod.io.</summary>
         public static readonly string[] MODIO_REQUEST_HEADER_KEYS = new string[]
         {
@@ -38,6 +79,8 @@ namespace ModIO
             "content-type",
             "x-unity-version",
             "user-agent",
+            APIClient.PLATFORM_HEADER_KEY,
+            APIClient.EXTERNAL_AUTH_CONSENT_KEY,
         };
 
         // ---------[ SETTINGS ]---------
@@ -81,6 +124,10 @@ namespace ModIO
         }
 
         // ---------[ REQUEST HANDLING ]---------
+        /// <summary>Active request mapping.</summary>
+        private static Dictionary<string, GetRequestHandle> _activeGetRequests
+            = new Dictionary<string, GetRequestHandle>();
+
         /// <summary>Generates the object for a basic mod.io server request.</summary>
         public static UnityWebRequest GenerateQuery(string endpointURL,
                                                     string filterString,
@@ -116,6 +163,7 @@ namespace ModIO
 
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
+            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
 
             return webRequest;
         }
@@ -146,6 +194,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
+            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
 
             return webRequest;
         }
@@ -170,6 +219,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
+            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
 
             return webRequest;
         }
@@ -202,6 +252,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
+            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
 
             return webRequest;
         }
@@ -226,36 +277,95 @@ namespace ModIO
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
+            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
 
             return webRequest;
         }
 
         /// <summary>A wrapper for sending a UnityWebRequest and attaching callbacks.</summary>
         public static UnityWebRequestAsyncOperation SendRequest(UnityWebRequest webRequest,
-                                                                Action successCallback,
+                                                                Action<string> successCallback,
                                                                 Action<WebRequestError> errorCallback)
         {
-            // - Start Request -
-            UnityWebRequestAsyncOperation requestOperation = webRequest.SendWebRequest();
+            Debug.Assert(webRequest != null);
+            Debug.Assert(!string.IsNullOrEmpty(webRequest.url));
+
+            UnityWebRequestAsyncOperation requestOperation = null;
+
+            // - prevent parallel get requests -
+            if(webRequest.method == UnityWebRequest.kHttpVerbGET)
+            {
+                GetRequestHandle requestHandle;
+
+                // check cache
+                string cachedResponse = null;
+                if(RequestCache.TryGetResponse(webRequest.url, out cachedResponse))
+                {
+                    if(successCallback != null)
+                    {
+                        successCallback.Invoke(cachedResponse);
+                    }
+
+                    return null;
+                }
+
+                // create new request
+                if(!APIClient._activeGetRequests.TryGetValue(webRequest.url, out requestHandle))
+                {
+                    requestHandle = new GetRequestHandle()
+                    {
+                        operation = null,
+                        successCallbacks = new List<Action<string>>(),
+                        errorCallbacks = new List<Action<WebRequestError>>(),
+                    };
+
+                    requestHandle.operation = webRequest.SendWebRequest();
+                    requestHandle.operation.completed += APIClient.HandleGetResponse;
+
+                    APIClient._activeGetRequests.Add(webRequest.url, requestHandle);
+                }
+
+                // append callbacks
+                if(successCallback != null)
+                {
+                    requestHandle.successCallbacks.Add(successCallback);
+                }
+                if(errorCallback != null)
+                {
+                    requestHandle.errorCallbacks.Add(errorCallback);
+                }
+
+                requestOperation = requestHandle.operation;
+            }
+            else // non-GET request
+            {
+                requestOperation = webRequest.SendWebRequest();
+                requestOperation.completed += (o) =>
+                {
+                    string responseBody = null;
+                    WebRequestError error = null;
+
+                    APIClient.ProcessRequestResponse(webRequest,
+                                                     out responseBody,
+                                                     out error);
+
+                    if(error != null)
+                    {
+                        if(errorCallback != null)
+                        {
+                            errorCallback.Invoke(error);
+                        }
+                    }
+                    else if(successCallback != null)
+                    {
+                        successCallback.Invoke(responseBody);
+                    }
+                };
+            }
 
             #if DEBUG
                 DebugUtilities.DebugWebRequest(requestOperation, LocalUser.instance);
             #endif
-
-            requestOperation.completed += (operation) =>
-            {
-                if(webRequest.isNetworkError || webRequest.isHttpError)
-                {
-                    if(errorCallback != null)
-                    {
-                        errorCallback(WebRequestError.GenerateFromWebRequest(webRequest));
-                    }
-                }
-                else
-                {
-                    if(successCallback != null) { successCallback(); }
-                }
-            };
 
             return requestOperation;
         }
@@ -265,7 +375,7 @@ namespace ModIO
                                                                    Action<T> successCallback,
                                                                    Action<WebRequestError> errorCallback)
         {
-            Action processResponse = () =>
+            Action<string> processResponse = (responseBody) =>
             {
                 // TODO(@jackson): Don't call success on exception
                 if(successCallback != null)
@@ -274,7 +384,7 @@ namespace ModIO
 
                     try
                     {
-                        response = JsonConvert.DeserializeObject<T>(webRequest.downloadHandler.text);
+                        response = JsonConvert.DeserializeObject<T>(responseBody);
                     }
                     catch(Exception e)
                     {
@@ -290,8 +400,176 @@ namespace ModIO
             return APIClient.SendRequest(webRequest, processResponse, errorCallback);
         }
 
+        /// <summary>A wrapper for sending a web request without handling the response.</summary>
+        public static UnityWebRequestAsyncOperation SendRequest(UnityWebRequest webRequest,
+                                                                Action successCallback,
+                                                                Action<WebRequestError> errorCallback)
+        {
+            return APIClient.SendRequest(webRequest,
+                                         (b) => { if(successCallback != null) { successCallback.Invoke(); } },
+                                         errorCallback);
+        }
+
+        /// <summary>A wrapper for processing the response for a given web request.</summary>
+        private static void HandleGetResponse(UnityEngine.AsyncOperation operation)
+        {
+            // early out
+            if(operation == null)
+            {
+                Debug.LogWarning("[mod.io] Attempted to process response a null operation.");
+                return;
+            }
+
+            // check webRequest
+            UnityWebRequestAsyncOperation webRequestOperation = operation as UnityWebRequestAsyncOperation;
+            if(webRequestOperation == null
+               || webRequestOperation.webRequest == null)
+            {
+                Debug.LogWarning("[mod.io] Unable to retrieve UnityWebRequest from operation.");
+                return;
+            }
+
+            // check requestHandle
+            string url = webRequestOperation.webRequest.url;
+            GetRequestHandle requestHandle;
+            if(!APIClient._activeGetRequests.TryGetValue(url, out requestHandle))
+            {
+                Debug.LogWarning("[mod.io] Unable to retrieve the GetRequestHandle for the url: "
+                                 + url);
+                return;
+            }
+            APIClient._activeGetRequests.Remove(url);
+
+            // - process callbacks -
+            string responseBody = null;
+            WebRequestError error = null;
+            APIClient.ProcessRequestResponse(webRequestOperation.webRequest, out responseBody, out error);
+
+            if(error != null)
+            {
+                foreach(var errorCallback in requestHandle.errorCallbacks)
+                {
+                    if(errorCallback != null)
+                    {
+                        errorCallback.Invoke(error);
+                    }
+                }
+            }
+            else
+            {
+                RequestCache.StoreResponse(url, responseBody);
+
+                foreach(var successCallback in requestHandle.successCallbacks)
+                {
+                    if(successCallback != null)
+                    {
+                        successCallback.Invoke(responseBody);
+                    }
+                }
+            }
+        }
+
+        /// <summary>Processes the response for the given request.</summary>
+        private static void ProcessRequestResponse(UnityWebRequest webRequest,
+                                                   out string success, out WebRequestError error)
+        {
+            success = null;
+            error = null;
+
+            string authValue = webRequest.GetRequestHeader("authorization");
+
+            // check if user has changed
+            if(!string.IsNullOrEmpty(authValue)
+               && authValue.StartsWith("Bearer ")
+               && LocalUser.OAuthToken != authValue.Substring(7))
+            {
+                error = WebRequestError.GenerateLocal("User token changed while waiting for the request to complete.");
+            }
+            else if(webRequest.isNetworkError || webRequest.isHttpError)
+            {
+                error = WebRequestError.GenerateFromWebRequest(webRequest);
+            }
+            else
+            {
+                success = string.Empty;
+
+                if(webRequest.downloadHandler != null
+                   && !(webRequest.downloadHandler is DownloadHandlerFile))
+                {
+                    try
+                    {
+                        success = webRequest.downloadHandler.text;
+                    }
+                    catch
+                    {
+                        success = string.Empty;
+                    }
+                }
+            }
+        }
+
 
         // ---------[ AUTHENTICATION ]---------
+        /// <summary>Retrieves the terms of use to present to the user.</summary>
+        public static void GetTermsOfUse(ExternalAuthenticationProvider authProvider,
+                                         Action<TermsOfUseInfo> successCallback,
+                                         Action<WebRequestError> errorCallback)
+        {
+
+            string endpointURL = PluginSettings.API_URL + @"/authenticate/terms";
+            string authenticatorString = null;
+
+            switch(authProvider)
+            {
+                case ExternalAuthenticationProvider.Steam:
+                {
+                    authenticatorString = "service=steam";
+                }
+                break;
+                case ExternalAuthenticationProvider.GOG:
+                {
+                    authenticatorString = "service=gog";
+                }
+                break;
+                case ExternalAuthenticationProvider.ItchIO:
+                {
+                    authenticatorString = "service=itchio";
+                }
+                break;
+                case ExternalAuthenticationProvider.OculusRift:
+                {
+                    authenticatorString = "service=oculus";
+                }
+                break;
+                case ExternalAuthenticationProvider.XboxLive:
+                {
+                    authenticatorString = "service=xbox";
+                }
+                break;
+                case ExternalAuthenticationProvider.Switch:
+                {
+                    authenticatorString = "service=switch";
+                }
+                break;
+                case ExternalAuthenticationProvider.Discord:
+                {
+                    authenticatorString = "service=discord";
+                }
+                break;
+                default:
+                {
+                    authenticatorString = string.Empty;
+                }
+                break;
+            }
+
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
+                                                                 authenticatorString,
+                                                                 null);
+
+            APIClient.SendRequest(webRequest, successCallback, errorCallback);
+        }
+
         /// <summary>Wrapper object for [[ModIO.APIClient.GetOAuthToken]] requests.</summary>
         [System.Serializable]
         #pragma warning disable 0649
@@ -300,17 +578,19 @@ namespace ModIO
 
         /// <summary>Generates the web request for a mod.io Authentication request.</summary>
         public static UnityWebRequest GenerateAuthenticationRequest(string endpointURL,
+                                                                    bool hasUserAcceptedTerms,
                                                                     string authenticationKey,
                                                                     string authenticationValue)
         {
             KeyValuePair<string, string> authData
                 = new KeyValuePair<string, string>(authenticationKey, authenticationValue);
 
-            return APIClient.GenerateAuthenticationRequest(endpointURL, authData);
+            return APIClient.GenerateAuthenticationRequest(endpointURL, hasUserAcceptedTerms, authData);
         }
 
         /// <summary>Generates the web request for a mod.io Authentication request.</summary>
         public static UnityWebRequest GenerateAuthenticationRequest(string endpointURL,
+                                                                    bool hasUserAcceptedTerms,
                                                                     params KeyValuePair<string, string>[] authData)
         {
             APIClient.AssertAuthorizationDetails(false);
@@ -324,9 +604,13 @@ namespace ModIO
                 form.AddField(kvp.Key, kvp.Value);
             }
 
+            // add consent flag
+            form.AddField(APIClient.EXTERNAL_AUTH_CONSENT_KEY, hasUserAcceptedTerms.ToString());
+
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
+            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
 
             return webRequest;
         }
@@ -339,6 +623,7 @@ namespace ModIO
             string endpointURL = PluginSettings.API_URL + @"/oauth/emailrequest";
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 false,
                                                                                  "email",
                                                                                  emailAddress);
 
@@ -353,6 +638,7 @@ namespace ModIO
             string endpointURL = PluginSettings.API_URL + @"/oauth/emailexchange";
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 false,
                                                                                  "security_code",
                                                                                  securityCode);
             Action<AccessTokenObject> onSuccessWrapper = (result) =>
@@ -365,6 +651,7 @@ namespace ModIO
 
         /// <summary>Request an OAuthToken using a Steam User authentication ticket.</summary>
         public static void RequestSteamAuthentication(byte[] pTicket, uint pcbTicket,
+                                                      bool hasUserAcceptedTerms,
                                                       Action<string> successCallback,
                                                       Action<WebRequestError> errorCallback)
         {
@@ -399,6 +686,7 @@ namespace ModIO
                 else
                 {
                     APIClient.RequestSteamAuthentication(encodedTicket,
+                                                         hasUserAcceptedTerms,
                                                          successCallback,
                                                          errorCallback);
                 }
@@ -407,6 +695,7 @@ namespace ModIO
 
         /// <summary>Request an OAuthToken using an encoded Steam User authentication ticket.</summary>
         public static void RequestSteamAuthentication(string base64EncodedTicket,
+                                                      bool hasUserAcceptedTerms,
                                                       Action<string> successCallback,
                                                       Action<WebRequestError> errorCallback)
         {
@@ -428,6 +717,7 @@ namespace ModIO
             string endpointURL = PluginSettings.API_URL + @"/external/steamauth";
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 hasUserAcceptedTerms,
                                                                                  "appdata",
                                                                                  base64EncodedTicket);
 
@@ -442,6 +732,7 @@ namespace ModIO
 
         /// <summary>Request an OAuthToken using a GOG user authentication ticket.</summary>
         public static void RequestGOGAuthentication(byte[] data, uint dataSize,
+                                                    bool hasUserAcceptedTerms,
                                                     Action<string> successCallback,
                                                     Action<WebRequestError> errorCallback)
         {
@@ -476,6 +767,7 @@ namespace ModIO
                 else
                 {
                     APIClient.RequestGOGAuthentication(encodedTicket,
+                                                       hasUserAcceptedTerms,
                                                        successCallback,
                                                        errorCallback);
                 }
@@ -484,6 +776,7 @@ namespace ModIO
 
         /// <summary>Request an OAuthToken using a GOG Galaxy App ticket.</summary>
         public static void RequestGOGAuthentication(string base64EncodedTicket,
+                                                    bool hasUserAcceptedTerms,
                                                     Action<string> successCallback,
                                                     Action<WebRequestError> errorCallback)
         {
@@ -505,6 +798,7 @@ namespace ModIO
             string endpointURL = PluginSettings.API_URL + @"/external/galaxyauth";
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 hasUserAcceptedTerms,
                                                                                  "appdata",
                                                                                  base64EncodedTicket);
 
@@ -519,6 +813,7 @@ namespace ModIO
 
         /// <summary>Request an OAuthToken using an itch.io JWT token.</summary>
         public static void RequestItchIOAuthentication(string jwtToken,
+                                                       bool hasUserAcceptedTerms,
                                                        Action<string> successCallback,
                                                        Action<WebRequestError> errorCallback)
         {
@@ -540,6 +835,7 @@ namespace ModIO
             string endpointURL = PluginSettings.API_URL + @"/external/itchioauth";
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 hasUserAcceptedTerms,
                                                                                  "itchio_token",
                                                                                  jwtToken);
 
@@ -556,6 +852,7 @@ namespace ModIO
         public static void RequestOculusRiftAuthentication(string oculusUserNonce,
                                                            int oculusUserId,
                                                            string oculusUserAccessToken,
+                                                           bool hasUserAcceptedTerms,
                                                            Action<string> successCallback,
                                                            Action<WebRequestError> errorCallback)
         {
@@ -596,7 +893,9 @@ namespace ModIO
                 new KeyValuePair<string, string>("access_token",oculusUserAccessToken),
             };
 
-            UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL, authData);
+            UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 hasUserAcceptedTerms,
+                                                                                 authData);
 
             // send request
             Action<AccessTokenObject> onSuccessWrapper = (result) =>
@@ -609,6 +908,7 @@ namespace ModIO
 
         /// <summary>Requests an OAuthToken using an Xbox signed token.</summary>
         public static void RequestXboxLiveAuthentication(string xboxLiveUserToken,
+                                                         bool hasUserAcceptedTerms,
                                                          Action<string> successCallback,
                                                          Action<WebRequestError> errorCallback)
         {
@@ -628,6 +928,7 @@ namespace ModIO
             string endpointURL = PluginSettings.API_URL + @"/external/xboxauth";
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 hasUserAcceptedTerms,
                                                                                  "xbox_token",
                                                                                  xboxLiveUserToken);
 
@@ -1317,184 +1618,97 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        // ---------[ OBSOLETE FUNCTIONALITY ]---------
-        /// <summary>The base URL for the web API that the APIClient should use.</summary>
-        [Obsolete("Use PluginSettings.API_URL instead")]
-        public static string apiURL
+        // ---------[ Obsolete ]---------
+        /// <summary>[Obsolete] Generates the web request for a mod.io Authentication request.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static UnityWebRequest GenerateAuthenticationRequest(string endpointURL,
+                                                                    string authenticationKey,
+                                                                    string authenticationValue)
         {
-            get { return PluginSettings.API_URL; }
+            return APIClient.GenerateAuthenticationRequest(endpointURL, false,
+                                                           authenticationKey, authenticationValue);
         }
 
-        /// <summary>Game ID that the APIClient should use when contacting the API.</summary>
-        [Obsolete("Use PluginSettings.GAME_ID instead")]
-        public static int gameId
+        /// <summary>[Obsolete] Generates the web request for a mod.io Authentication request.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static UnityWebRequest GenerateAuthenticationRequest(string endpointURL,
+                                                                    params KeyValuePair<string, string>[] authData)
         {
-            get { return PluginSettings.GAME_ID; }
+            return APIClient.GenerateAuthenticationRequest(endpointURL, false, authData);
         }
 
-        /// <summary>Game API Key that the APIClient should use when contacting the API.</summary>
-        [Obsolete("Use PluginSettings.GAME_API_KEY instead")]
-        public static string gameAPIKey
+
+        /// <summary>[Obsolete] Request an OAuthToken using a Steam User authentication ticket.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void RequestSteamAuthentication(byte[] pTicket, uint pcbTicket,
+                                                      Action<string> successCallback,
+                                                      Action<WebRequestError> errorCallback)
         {
-            get { return PluginSettings.GAME_API_KEY; }
+            APIClient.RequestSteamAuthentication(pTicket, pcbTicket, false,
+                                                 successCallback, errorCallback);
         }
 
-        /// <summary>Enable logging of all web requests.</summary>
-        [Obsolete("Use PluginSettings.REQUEST_LOGGING instead.")]
-        public static bool logAllRequests
+        /// <summary>[Obsolete] Request an OAuthToken using an encoded Steam User authentication ticket.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void RequestSteamAuthentication(string base64EncodedTicket,
+                                                      Action<string> successCallback,
+                                                      Action<WebRequestError> errorCallback)
         {
-            get { return PluginSettings.REQUEST_LOGGING.logAllResponses; }
+            APIClient.RequestSteamAuthentication(base64EncodedTicket, false,
+                                                 successCallback, errorCallback);
         }
 
-        /// <summary>[Obsolete] Fetches the tag categories specified by the game profile.</summary>
-        [Obsolete("Use APIClient.GetGameTagOptions() instead.")]
-        public static void GetAllGameTagOptions(Action<RequestPage<ModTagCategory>> successCallback, Action<WebRequestError> errorCallback)
+        /// <summary>[Obsolete] Request an OAuthToken using a GOG user authentication ticket.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void RequestGOGAuthentication(byte[] data, uint dataSize,
+                                                    Action<string> successCallback,
+                                                    Action<WebRequestError> errorCallback)
         {
-            APIClient.GetGameTagOptions(successCallback, errorCallback);
+            APIClient.RequestGOGAuthentication(data, dataSize, false,
+                                               successCallback, errorCallback);
         }
 
-        /// <summary>[Obsolete] Deletes a mod profile from the mod.io servers.</summary>
-        [Obsolete("This function no longer returns an APIMessage on success")]
-        public static void DeleteMod(int modId,
-                                     Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+        /// <summary>[Obsolete] Request an OAuthToken using a GOG Galaxy App ticket.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void RequestGOGAuthentication(string base64EncodedTicket,
+                                                    Action<string> successCallback,
+                                                    Action<WebRequestError> errorCallback)
         {
-            Action onSuccess = null;
-            if(successCallback != null)
-            {
-                onSuccess = () =>
-                {
-                    APIMessage message = new APIMessage();
-                    successCallback(message);
-                };
-            }
-
-            APIClient.DeleteMod(modId, onSuccess, errorCallback);
+            APIClient.RequestGOGAuthentication(base64EncodedTicket, false,
+                                               successCallback, errorCallback);
         }
 
-        /// <summary>[Obsolete] Removes mod tag options from the mod.io servers.</summary>
-        [Obsolete("This function no longer returns an APIMessage on success")]
-        public static void DeleteGameTagOption(DeleteGameTagOptionParameters parameters,
-                                               Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+        /// <summary>[Obsolete]Request an OAuthToken using an itch.io JWT token.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void RequestItchIOAuthentication(string jwtToken,
+                                                       Action<string> successCallback,
+                                                       Action<WebRequestError> errorCallback)
         {
-            Action onSuccess = null;
-            if(successCallback != null)
-            {
-                onSuccess = () =>
-                {
-                    APIMessage message = new APIMessage();
-                    successCallback(message);
-                };
-            }
-
-            APIClient.DeleteGameTagOption(parameters, onSuccess, errorCallback);
+            APIClient.RequestItchIOAuthentication(jwtToken, false,
+                                                  successCallback, errorCallback);
         }
 
-        /// <summary>[Obsolete] Removes tags from the given mod.</param>
-        [Obsolete("This function no longer returns an APIMessage on success")]
-        public static void DeleteModTags(int modId,
-                                         DeleteModTagsParameters parameters,
-                                         Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+        /// <summary>[Obsolete] Request an OAuthToken using an Oculus Rift data.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void RequestOculusRiftAuthentication(string oculusUserNonce,
+                                                           int oculusUserId,
+                                                           string oculusUserAccessToken,
+                                                           Action<string> successCallback,
+                                                           Action<WebRequestError> errorCallback)
         {
-            Action onSuccess = null;
-            if(successCallback != null)
-            {
-                onSuccess = () =>
-                {
-                    APIMessage message = new APIMessage();
-                    successCallback(message);
-                };
-            }
-
-            APIClient.DeleteModTags(modId, parameters, onSuccess, errorCallback);
+            APIClient.RequestOculusRiftAuthentication(oculusUserNonce, oculusUserId, oculusUserAccessToken,
+                                                      false,
+                                                      successCallback, errorCallback);
         }
 
-        /// <summary>[Obsolete] Deletes KVP metadata from a mod.</summary>
-        [Obsolete("This function no longer returns an APIMessage on success")]
-        public static void DeleteModKVPMetadata(int modId, DeleteModKVPMetadataParameters parameters,
-                                                Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+        /// <summary>[Obsolete] Requests an OAuthToken using an Xbox signed token.</summary>
+        [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
+        public static void RequestXboxLiveAuthentication(string xboxLiveUserToken,
+                                                         Action<string> successCallback,
+                                                         Action<WebRequestError> errorCallback)
         {
-            Action onSuccess = null;
-            if(successCallback != null)
-            {
-                onSuccess = () =>
-                {
-                    APIMessage message = new APIMessage();
-                    successCallback(message);
-                };
-            }
-
-            APIClient.DeleteModKVPMetadata(modId, parameters, onSuccess, errorCallback);
-        }
-
-        /// <summary>[Obsolete] Removes dependencides from a mod.</summary>
-        [Obsolete("This function no longer returns an APIMessage on success")]
-        public static void DeleteModDependencies(int modId, DeleteModDependenciesParameters parameters,
-                                                 Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
-        {
-            Action onSuccess = null;
-            if(successCallback != null)
-            {
-                onSuccess = () =>
-                {
-                    APIMessage message = new APIMessage();
-                    successCallback(message);
-                };
-            }
-
-            APIClient.DeleteModDependencies(modId, parameters, onSuccess, errorCallback);
-        }
-
-        /// <summary>[Obsolete] Submits a delete request for a mod team member.</summary>
-        [Obsolete("This function no longer returns an APIMessage on success")]
-        public static void DeleteModTeamMember(int modId, int teamMemberId,
-                                               Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
-        {
-            Action onSuccess = null;
-            if(successCallback != null)
-            {
-                onSuccess = () =>
-                {
-                    APIMessage message = new APIMessage();
-                    successCallback(message);
-                };
-            }
-
-            APIClient.DeleteModTeamMember(modId, teamMemberId, onSuccess, errorCallback);
-        }
-
-        /// <summary>[Obsolete] Submits a delete request for a mod comment.</summary>
-        [Obsolete("This function no longer returns an APIMessage on success")]
-        public static void DeleteModComment(int modId, int commentId,
-                                            Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
-        {
-            Action onSuccess = null;
-            if(successCallback != null)
-            {
-                onSuccess = () =>
-                {
-                    APIMessage message = new APIMessage();
-                    successCallback(message);
-                };
-            }
-
-            APIClient.DeleteModComment(modId, commentId, onSuccess, errorCallback);
-        }
-
-        /// <summary>Fetches all the user profiles on mod.io.</summary>
-        [Obsolete("This endpoint has been removed from the mod.io API.", true)]
-        public static void GetAllUsers(RequestFilter filter, APIPaginationParameters pagination,
-                                       Action<RequestPage<UserProfile>> successCallback, Action<WebRequestError> errorCallback) {}
-
-        /// <summary>Fetches a user profile from the mod.io servers.</summary>
-        [Obsolete("This endpoint has been removed from the mod.io API.", true)]
-        public static void GetUser(int userId,
-                                   Action<UserProfile> successCallback, Action<WebRequestError> errorCallback) {}
-
-        /// <summary>[Obsolete] Generates a debug-friendly string of a web request.</summary>
-        [Obsolete("Use DebugUtilities.GetRequestInfo() instead.")]
-        public static string GenerateRequestDebugString(UnityWebRequest webRequest)
-        {
-            return DebugUtilities.GetRequestInfo(webRequest, DebugUtilities.GenerateUserIdString(LocalUser.instance.profile));
+            APIClient.RequestXboxLiveAuthentication(xboxLiveUserToken, false,
+                                                    successCallback, errorCallback);
         }
     }
 }

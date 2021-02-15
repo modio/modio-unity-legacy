@@ -1,7 +1,6 @@
 using System.Reflection;
 
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace ModIO.UI
 {

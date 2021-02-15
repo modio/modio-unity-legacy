@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using File = System.IO.File;
 using FileInfo = System.IO.FileInfo;
 using Path = System.IO.Path;
 
@@ -61,8 +62,9 @@ namespace ModIO.EditorCode
                 logoLocation = logoProperty.FindPropertyRelative("value.url").stringValue;
 
                 byte[] data = null;
+                data = File.ReadAllBytes(logoLocation);
 
-                if(LocalDataStorage.ReadFile(logoLocation, out data))
+                if(data != null)
                 {
                     lastLogoWriteTime = (new FileInfo(logoLocation)).LastWriteTime;
                     logoTexture = IOUtilities.ParseImageData(data);
@@ -89,7 +91,7 @@ namespace ModIO.EditorCode
         // ------[ UPDATE ]------
         public void OnUpdate()
         {
-            if(LocalDataStorage.GetFileExists(logoLocation))
+            if(File.Exists(logoLocation))
             {
                 try
                 {
@@ -97,8 +99,9 @@ namespace ModIO.EditorCode
                     if(lastLogoWriteTime < imageInfo.LastWriteTime)
                     {
                         byte[] data = null;
+                        data = File.ReadAllBytes(logoLocation);
 
-                        if(LocalDataStorage.ReadFile(logoLocation, out data))
+                        if(data != null)
                         {
                             logoTexture = IOUtilities.ParseImageData(data);
                             lastLogoWriteTime = imageInfo.LastWriteTime;
@@ -326,8 +329,9 @@ namespace ModIO.EditorCode
                                                                          IMAGE_FILE_FILTER);
 
                     byte[] data = null;
+                    data = File.ReadAllBytes(path);
 
-                    if(LocalDataStorage.ReadFile(path, out data))
+                    if(data != null)
                     {
                         logoProperty.FindPropertyRelative("value.url").stringValue = path;
                         logoProperty.FindPropertyRelative("value.fileName").stringValue = Path.GetFileName(path);

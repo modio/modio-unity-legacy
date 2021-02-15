@@ -10,6 +10,9 @@ namespace ModIO
 {
     public class WebRequestError
     {
+        // ---------[ CONSTANTS ]---------
+        public const int MODIOERROR_USERNOTAGREED = 11051;
+
         // ---------[ NESTED CLASSES ]---------
         [System.Serializable]
         private class APIWrapper
@@ -49,6 +52,9 @@ namespace ModIO
         // - Interpreted Values -
         /// <summary>Indicates whether the provided authentication data was rejected.</summary>
         public bool isAuthenticationInvalid;
+
+        /// <summary>Indicates that the user attempts to authenticate has not yet accepted the mod.io terms.</summary>
+        public bool isUserTermsAgreementRequired;
 
         /// <summary>Indicates whether the mod.io servers a unreachable (for whatever reason).</summary>
         public bool isServerUnreachable;
@@ -90,6 +96,7 @@ namespace ModIO
                 displayMessage = errorMessage,
 
                 isAuthenticationInvalid = false,
+                isUserTermsAgreementRequired = false,
                 isServerUnreachable = false,
                 isRequestUnresolvable = false,
                 limitedUntilTimeStamp = -1,
@@ -170,6 +177,7 @@ namespace ModIO
         private void ApplyInterpretedValues()
         {
             this.isAuthenticationInvalid = false;
+            this.isUserTermsAgreementRequired = false;
             this.isServerUnreachable = false;
             this.isRequestUnresolvable = false;
             this.limitedUntilTimeStamp = -1;
@@ -217,7 +225,13 @@ namespace ModIO
                 // Forbidden
                 case 403:
                 {
-                    if(string.IsNullOrEmpty(this.errorMessage))
+                    if(this.errorReference == WebRequestError.MODIOERROR_USERNOTAGREED)
+                    {
+                        this.isUserTermsAgreementRequired = true;
+
+                        this.displayMessage = ("You have not yet agreed to the mod.io terms of service.");
+                    }
+                    else if(string.IsNullOrEmpty(this.errorMessage))
                     {
                         this.displayMessage = ("Your account does not have the required permissions.");
                     }

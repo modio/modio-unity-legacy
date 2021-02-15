@@ -55,10 +55,11 @@ namespace ModIO
                     timeSent = ServerTimeStamp.Now;
                 }
 
-                if(PluginSettings.REQUEST_LOGGING.logOnSend)
+                RequestDebugData debugData;
+                if(DebugUtilities.webRequestDebugData.TryGetValue(webRequest, out debugData))
                 {
                     var logString = new System.Text.StringBuilder();
-                    logString.AppendLine("[mod.io] Web Request Sent");
+                    logString.AppendLine("[mod.io] Duplicate Web Request Sent");
                     logString.Append("URL: ");
                     logString.Append(webRequest.url);
                     logString.Append(" (");
@@ -71,47 +72,87 @@ namespace ModIO
                         logString.AppendLine(downloadLocation);
                     }
 
-                    if(timeSent >= 0)
+                    if(debugData.timeSent >= 0)
                     {
                         logString.Append("Sent: ");
+                        logString.Append(ServerTimeStamp.ToLocalDateTime(debugData.timeSent).ToString());
+                        logString.Append(" [");
+                        logString.Append(debugData.timeSent.ToString());
+                        logString.AppendLine("]");
+                    }
+
+                    if(timeSent >= 0)
+                    {
+                        logString.Append("Re-sent: ");
                         logString.Append(ServerTimeStamp.ToLocalDateTime(timeSent).ToString());
                         logString.Append(" [");
                         logString.Append(timeSent.ToString());
                         logString.AppendLine("]");
                     }
 
-                    logString.AppendLine();
-
-                    string requestString = DebugUtilities.GetRequestInfo(webRequest, userIdString);
-
-                    logString.AppendLine("------[ Request ]------");
-                    logString.AppendLine(requestString);
-
                     Debug.Log(logString.ToString());
                 }
-
-                if(PluginSettings.REQUEST_LOGGING.logAllResponses
-                   || PluginSettings.REQUEST_LOGGING.errorsAsWarnings)
+                else
                 {
-
-                    RequestDebugData debugData = new RequestDebugData()
+                    debugData = new RequestDebugData()
                     {
                         userIdString = userIdString,
                         timeSent = timeSent,
                         downloadLocation = downloadLocation,
                     };
 
-                    DebugUtilities.webRequestDebugData.Add(webRequest, debugData);
+                    if(PluginSettings.REQUEST_LOGGING.logOnSend)
+                    {
+                        var logString = new System.Text.StringBuilder();
+                        logString.AppendLine("[mod.io] Web Request Sent");
+                        logString.Append("URL: ");
+                        logString.Append(webRequest.url);
+                        logString.Append(" (");
+                        logString.Append(webRequest.method.ToUpper());
+                        logString.AppendLine(")");
 
-                    // handle completion
-                    if(operation.isDone)
-                    {
-                        DebugUtilities.OnOperationCompleted(operation);
+                        if(!string.IsNullOrEmpty(debugData.downloadLocation))
+                        {
+                            logString.Append("Download Location: ");
+                            logString.AppendLine(debugData.downloadLocation);
+                        }
+
+                        if(debugData.timeSent >= 0)
+                        {
+                            logString.Append("Sent: ");
+                            logString.Append(ServerTimeStamp.ToLocalDateTime(debugData.timeSent).ToString());
+                            logString.Append(" [");
+                            logString.Append(debugData.timeSent.ToString());
+                            logString.AppendLine("]");
+                        }
+
+                        logString.AppendLine();
+
+                        string requestString = DebugUtilities.GetRequestInfo(webRequest,
+                                                                             debugData.userIdString);
+
+                        logString.AppendLine("------[ Request ]------");
+                        logString.AppendLine(requestString);
+
+                        Debug.Log(logString.ToString());
                     }
-                    else
+
+                    if(PluginSettings.REQUEST_LOGGING.logAllResponses
+                       || PluginSettings.REQUEST_LOGGING.errorsAsWarnings)
                     {
-                        operation.completed += DebugUtilities.OnOperationCompleted;
+                        DebugUtilities.webRequestDebugData.Add(webRequest, debugData);
+
+                        // handle completion
+                        if(operation.isDone)
+                        {
+                            DebugUtilities.OnOperationCompleted(operation);
+                        }
+                        else
+                        {
+                            operation.completed += DebugUtilities.OnOperationCompleted;
+                        }
                     }
+
                 }
 
             #endif // DEBUG
@@ -590,6 +631,8 @@ namespace ModIO
                         elementStartIndex = searchIndex + searchString.Length;
                         newStringParam.value = s.Substring(elementStartIndex).Trim();
                     }
+
+                    stringFields.Add(newStringParam);
                 }
                 // process literally anything else
                 else

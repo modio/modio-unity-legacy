@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 
-using Debug = UnityEngine.Debug;
-
 namespace ModIO
 {
     /// <summary>Structure for storing data about a user specific to this device.</summary>
@@ -81,6 +79,17 @@ namespace ModIO
         }
 
         // --- Static Accessors ---
+        /// <summary>[Singleton Instance Accessor] mod.io User Id.</summary>
+        public static int UserId
+        {
+            get
+            {
+                return (LocalUser._instance.profile != null
+                        ? LocalUser._instance.profile.id
+                        : UserProfile.NULL_ID);
+            }
+        }
+
         /// <summary>[Singleton Instance Accessor] mod.io User Profile.</summary>
         public static UserProfile Profile
         {
@@ -178,8 +187,6 @@ namespace ModIO
             LocalUser._instance = new LocalUser();
             LocalUser.AssertListsNotNull(ref LocalUser._instance);
             LocalUser.isLoaded = false;
-
-            LocalUser.Load();
         }
 
         // ---------[ Data I/O ]---------

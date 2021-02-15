@@ -3,9 +3,16 @@ using ModIO.UserDataIOCallbacks;
 namespace ModIO
 {
     /// <summary>Defines the functions necessary for the platform user data IO.</summary>
-    public interface IPlatformUserDataIO
+    public interface IUserDataIO
     {
+        // --- Directories ---
+        /// <summary>The directory for the active user's data.</summary>
+        string UserDirectory { get; }
+
         // --- Initialization ---
+        /// <summary>Initializes the storage system for the defaul user.</summary>
+        void InitializeForDefaultUser(System.Action<bool> callback);
+
         /// <summary>Initializes the storage system for the given user.</summary>
         void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback);
 
@@ -22,15 +29,6 @@ namespace ModIO
         // --- File Management ---
         /// <summary>Deletes a file.</summary>
         void DeleteFile(string pathRelative, DeleteFileCallback callback);
-
-        /// <summary>Checks for the existence of a file.</summary>
-        void GetFileExists(string pathRelative, GetFileExistsCallback callback);
-
-        /// <summary>Gets the size of a file.</summary>
-        void GetFileSize(string pathRelative, GetFileSizeCallback callback);
-
-        /// <summary>Gets the size and md5 hash of a file.</summary>
-        void GetFileSizeAndHash(string pathRelative, GetFileSizeAndHashCallback callback);
 
         /// <summary>Clears all of the active user's data.</summary>
         void ClearActiveUserData(ClearActiveUserDataCallback callback);

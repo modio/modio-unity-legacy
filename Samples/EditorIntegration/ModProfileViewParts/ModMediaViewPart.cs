@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 
+using File = System.IO.File;
 using Path = System.IO.Path;
 
 using UnityEngine;
@@ -128,11 +129,9 @@ namespace ModIO.EditorCode
                     else
                     {
                         byte[] data = null;
-                        bool success = false;
+                        data = File.ReadAllBytes(imageURL);
 
-                        success = LocalDataStorage.ReadFile(imageURL, out data);
-
-                        if(success)
+                        if(data != null)
                         {
                             this.textureCache[imageFileName] = IOUtilities.ParseImageData(data);
                         }
@@ -249,13 +248,11 @@ namespace ModIO.EditorCode
                                                                          "",
                                                                          ModMediaViewPart.IMAGE_FILE_FILTER);
 
-                    bool success = false;
                     byte[] data = null;
-
-                    success = LocalDataStorage.ReadFile(path, out data);
+                    data = File.ReadAllBytes(path);
 
                     Texture2D newTexture = null;
-                    if(success) { newTexture = IOUtilities.ParseImageData(data); }
+                    if(data != null) { newTexture = IOUtilities.ParseImageData(data); }
 
                     if(newTexture != null)
                     {
@@ -323,13 +320,14 @@ namespace ModIO.EditorCode
                 byte[] data = null;
                 Texture2D imageData = null;
 
-                if(LocalDataStorage.ReadFile(imageSource, out data))
+                data = File.ReadAllBytes(imageSource);
+
+                if(data != null)
                 {
                     imageData = IOUtilities.ParseImageData(data);
                 }
 
                 this.textureCache.Add(imageFileName, imageData);
-
                 return this.textureCache[imageFileName];
             }
         }

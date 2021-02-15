@@ -2,11 +2,6 @@
 // #define MODIO_FACEPUNCH_SUPPORT
 // #define MODIO_STEAMWORKSNET_SUPPORT
 
-using System;
-using System.Text;
-
-using Newtonsoft.Json;
-
 using Debug = UnityEngine.Debug;
 
 using ModIO.UserDataIOCallbacks;
@@ -18,7 +13,7 @@ namespace ModIO
     {
         // ---------[ Constants ]---------
         /// <summary>Defines the i/o functions to use for this platform.</summary>
-        public static readonly IPlatformUserDataIO PLATFORM_IO;
+        public static readonly IUserDataIO PLATFORM_IO;
 
         // ---------[ Initialization ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
@@ -34,18 +29,80 @@ namespace ModIO
             #else
                 UserDataStorage.PLATFORM_IO = new SystemIOWrapper();
             #endif
+
+            UserDataStorage.PLATFORM_IO.InitializeForDefaultUser((success) =>
+            {
+                if(success) { LocalUser.Load(); }
+            });
         }
 
         /// <summary>Initializes the data storage functionality for a given user.</summary>
         public static void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
         {
-            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId, callback);
+            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId,
+            (id, success) =>
+            {
+                if(success)
+                {
+                    LocalUser.Load(
+                    () =>
+                    {
+                        if(callback != null)
+                        {
+                            callback.Invoke(id, success);
+                        }
+                    });
+                }
+                else
+                {
+                    LocalUser.instance = new LocalUser();
+
+                    Debug.Log("[mod.io] Failed to set active user. LocalUser cleared.");
+
+                    if(callback != null)
+                    {
+                        callback.Invoke(id, success);
+                    }
+                }
+            });
         }
 
         /// <summary>Initializes the data storage functionality for a given user.</summary>
         public static void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback)
         {
-            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId, callback);
+            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId,
+            (id, success) =>
+            {
+                if(success)
+                {
+                    LocalUser.Load(
+                    () =>
+                    {
+                        if(callback != null)
+                        {
+                            callback.Invoke(id, success);
+                        }
+                    });
+                }
+                else
+                {
+                    LocalUser.instance = new LocalUser();
+
+                    Debug.Log("[mod.io] Failed to set active user. LocalUser cleared.");
+
+                    if(callback != null)
+                    {
+                        callback.Invoke(id, success);
+                    }
+                }
+            });
+        }
+
+        // ---------[ Directories ]---------
+        /// <summary>The directory for the active user's data.</summary>
+        public static string USER_DIRECTORY
+        {
+            get { return UserDataStorage.PLATFORM_IO.UserDirectory; }
         }
 
         // ---------[ I/O Interface ]---------
@@ -117,24 +174,6 @@ namespace ModIO
             UserDataStorage.PLATFORM_IO.DeleteFile(relativePath, callback);
         }
 
-        /// <summary>Checks for the existence of a file.</summary>
-        public static void GetFileExists(string pathRelative, GetFileExistsCallback callback)
-        {
-            UserDataStorage.PLATFORM_IO.GetFileExists(pathRelative, callback);
-        }
-
-        /// <summary>Gets the size of a file.</summary>
-        public static void GetFileSize(string pathRelative, GetFileSizeCallback callback)
-        {
-            UserDataStorage.PLATFORM_IO.GetFileSize(pathRelative, callback);
-        }
-
-        /// <summary>Gets the size and md5 hash of a file.</summary>
-        public static void GetFileSizeAndHash(string pathRelative, GetFileSizeAndHashCallback callback)
-        {
-            UserDataStorage.PLATFORM_IO.GetFileSizeAndHash(pathRelative, callback);
-        }
-
         /// <summary>Function for clearing of the active user's data.</summary>
         public static void ClearActiveUserData(ClearActiveUserDataCallback callback)
         {
@@ -146,21 +185,38 @@ namespace ModIO
     #if MODIO_FACEPUNCH_SUPPORT
 
         /// <summary>Facepunch User Data I/O interface.</summary>
-        public class FacepunchUserDataIO : IPlatformUserDataIO
+        public class FacepunchUserDataIO : IUserDataIO
         {
             // ---------[ Constants ]---------
-            /// <summary>Defines the base directory for the user-specific data.</summary>
-            public static readonly string USER_DIR_ROOT = IOUtilities.CombinePath("mod.io");
+            /// <summary>The root directory for active user directories.</summary>
+            protected const string ROOT_DIR = "mod.io";
 
-            // ---------[ Fields ]--------
-            /// <summary>The directory for the active user's data.</summary>
-            public string userDir = FacepunchUserDataIO.USER_DIR_ROOT;
+            /// <summary>Directory to use for user data.</summary>
+            public string UserDirectory { get; private set; }
 
             // --- Initialization ---
+            public FacepunchUserDataIO()
+            {
+                this.UserDirectory = FacepunchUserDataIO.ROOT_DIR;
+            }
+
+            /// <summary>Initializes the storage system for the defaul user.</summary>
+            public void InitializeForDefaultUser(Action<bool> callback)
+            {
+                this.SetActiveUser(null,
+                (userId, success) =>
+                {
+                    if(callback != null)
+                    {
+                        callback.Invoke(success);
+                    }
+                });
+            }
+
             /// <summary>Initializes the storage system for the given user.</summary>
             public void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
             {
-                this.userDir = this.GenerateActiveUserDirectory(platformUserId);
+                this.UserDirectory = this.GenerateActiveUserDirectory(platformUserId);
 
                 if(callback != null)
                 {
@@ -171,7 +227,7 @@ namespace ModIO
             /// <summary>Initializes the storage system for the given user.</summary>
             public void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback)
             {
-                this.userDir = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
+                this.UserDirectory = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
 
                 if(callback != null)
                 {
@@ -182,12 +238,12 @@ namespace ModIO
             /// <summary>Determines the user directory for a given user id.</summary>
             protected string GenerateActiveUserDirectory(string platformUserId)
             {
-                string userDir = FacepunchUserDataIO.USER_DIR_ROOT;
+                string userDir = FacepunchUserDataIO.ROOT_DIR;
 
                 if(!string.IsNullOrEmpty(platformUserId))
                 {
                     string folderName = IOUtilities.MakeValidFileName(platformUserId);
-                    userDir = IOUtilities.CombinePath(FacepunchUserDataIO.USER_DIR_ROOT, folderName);
+                    userDir = IOUtilities.CombinePath(FacepunchUserDataIO.ROOT_DIR, folderName);
                 }
 
                 return userDir;
@@ -200,7 +256,7 @@ namespace ModIO
                 Debug.Assert(!string.IsNullOrEmpty(relativePath));
                 Debug.Assert(callback != null);
 
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
+                string path = IOUtilities.CombinePath(this.UserDirectory, relativePath);
                 byte[] data = null;
                 if(Steamworks.SteamRemoteStorage.FileExists(path))
                 {
@@ -216,7 +272,7 @@ namespace ModIO
                 Debug.Assert(!string.IsNullOrEmpty(relativePath));
                 Debug.Assert(data != null);
 
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
+                string path = IOUtilities.CombinePath(this.UserDirectory, relativePath);
                 bool success = Steamworks.SteamRemoteStorage.FileWrite(path, data);
 
                 if(callback != null)
@@ -231,7 +287,7 @@ namespace ModIO
             {
                 Debug.Assert(!string.IsNullOrEmpty(relativePath));
 
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
+                string path = IOUtilities.CombinePath(this.UserDirectory, relativePath);
                 bool success = true;
 
                 if(Steamworks.SteamRemoteStorage.FileExists(path))
@@ -245,60 +301,6 @@ namespace ModIO
                 }
             }
 
-            /// <summary>Checks for the existence of a file.</summary>
-            public void GetFileExists(string relativePath, GetFileExistsCallback callback)
-            {
-                Debug.Assert(!string.IsNullOrEmpty(relativePath));
-                Debug.Assert(callback != null);
-
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
-                bool fileExists = Steamworks.SteamRemoteStorage.FileExists(path);
-
-                callback.Invoke(relativePath, fileExists);
-            }
-
-            /// <summary>Gets the size of a file.</summary>
-            public void GetFileSize(string relativePath, GetFileSizeCallback callback)
-            {
-                Debug.Assert(!string.IsNullOrEmpty(relativePath));
-                Debug.Assert(callback != null);
-
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
-                int fileSize = Steamworks.SteamRemoteStorage.FileSize(path);
-
-                callback.Invoke(relativePath, (Int64)fileSize);
-            }
-
-            /// <summary>Gets the size and md5 hash of a file.</summary>
-            public void GetFileSizeAndHash(string relativePath, GetFileSizeAndHashCallback callback)
-            {
-                Debug.Assert(!string.IsNullOrEmpty(relativePath));
-                Debug.Assert(callback != null);
-
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
-                byte[] data = null;
-                Int64 byteCount = -1;
-                string md5Hash = null;
-
-                if(Steamworks.SteamRemoteStorage.FileExists(path))
-                {
-                    data = Steamworks.SteamRemoteStorage.FileRead(path);
-
-                    if(data != null)
-                    {
-                        byteCount = data.Length;
-
-                        using (var md5 = System.Security.Cryptography.MD5.Create())
-                        {
-                            var hash = md5.ComputeHash(data);
-                            md5Hash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                        }
-                    }
-                }
-
-                callback.Invoke(relativePath, (data != null), byteCount, md5Hash);
-            }
-
             /// <summary>Clears all of the active user's data.</summary>
             public void ClearActiveUserData(ClearActiveUserDataCallback callback)
             {
@@ -307,7 +309,7 @@ namespace ModIO
 
                 foreach(string path in steamFiles)
                 {
-                    if(path.StartsWith(FacepunchUserDataIO.USER_DIR_ROOT))
+                    if(path.StartsWith(FacepunchUserDataIO.ROOT_DIR))
                     {
                         success = Steamworks.SteamRemoteStorage.FileDelete(path) && success;
                     }
@@ -317,26 +319,41 @@ namespace ModIO
             }
         }
 
-    #endif // MODIO_FACEPUNCH_SUPPORT
-
-    #if MODIO_STEAMWORKSNET_SUPPORT
+    #elif MODIO_STEAMWORKSNET_SUPPORT
 
         /// <summary>Steamworks.NET User Data I/O interface.</summary>
-        public class SteamworksNETUserDataIO : IPlatformUserDataIO
+        public class SteamworksNETUserDataIO : IUserDataIO
         {
             // ---------[ Constants ]---------
-            /// <summary>Defines the base directory for the user-specific data.</summary>
-            public static readonly string USER_DIR_ROOT = IOUtilities.CombinePath("mod.io");
+            /// <summary>The root directory for active user directories.</summary>
+            protected const string ROOT_DIR = "mod.io";
 
-            // ---------[ Fields ]--------
-            /// <summary>The directory for the active user's data.</summary>
-            public string userDir = SteamworksNETUserDataIO.USER_DIR_ROOT;
+            /// <summary>Directory to use for user data.</summary>
+            public string UserDirectory { get; private set; }
 
             // --- Initialization ---
+            public SteamworksNETUserDataIO()
+            {
+                this.UserDirectory = SteamworksNETUserDataIO.ROOT_DIR;
+            }
+
+            /// <summary>Initializes the storage system for the defaul user.</summary>
+            public void InitializeForDefaultUser(Action<bool> callback)
+            {
+                this.SetActiveUser(null,
+                (userId, success) =>
+                {
+                    if(callback != null)
+                    {
+                        callback.Invoke(success);
+                    }
+                });
+            }
+
             /// <summary>Initializes the storage system for the given user.</summary>
             public void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
             {
-                this.userDir = this.GenerateActiveUserDirectory(platformUserId);
+                this.UserDirectory = this.GenerateActiveUserDirectory(platformUserId);
 
                 if(callback != null)
                 {
@@ -347,7 +364,7 @@ namespace ModIO
             /// <summary>Initializes the storage system for the given user.</summary>
             public void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback)
             {
-                this.userDir = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
+                this.UserDirectory = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
 
                 if(callback != null)
                 {
@@ -358,12 +375,12 @@ namespace ModIO
             /// <summary>Determines the user directory for a given user id.</summary>
             protected string GenerateActiveUserDirectory(string platformUserId)
             {
-                string userDir = SteamworksNETUserDataIO.USER_DIR_ROOT;
+                string userDir = SteamworksNETUserDataIO.ROOT_DIR;
 
                 if(!string.IsNullOrEmpty(platformUserId))
                 {
                     string folderName = IOUtilities.MakeValidFileName(platformUserId);
-                    userDir = IOUtilities.CombinePath(SteamworksNETUserDataIO.USER_DIR_ROOT, folderName);
+                    userDir = IOUtilities.CombinePath(SteamworksNETUserDataIO.ROOT_DIR, folderName);
                 }
 
                 return userDir;
@@ -376,7 +393,7 @@ namespace ModIO
                 Debug.Assert(!string.IsNullOrEmpty(relativePath));
                 Debug.Assert(callback != null);
 
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
+                string path = IOUtilities.CombinePath(this.UserDirectory, relativePath);
                 byte[] data = null;
                 if(Steamworks.SteamRemoteStorage.FileExists(path))
                 {
@@ -398,7 +415,7 @@ namespace ModIO
                 Debug.Assert(!string.IsNullOrEmpty(relativePath));
                 Debug.Assert(data != null);
 
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
+                string path = IOUtilities.CombinePath(this.UserDirectory, relativePath);
                 bool success = Steamworks.SteamRemoteStorage.FileWrite(path, data, data.Length);
 
                 if(callback != null)
@@ -413,7 +430,7 @@ namespace ModIO
             {
                 Debug.Assert(!string.IsNullOrEmpty(relativePath));
 
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
+                string path = IOUtilities.CombinePath(this.UserDirectory, relativePath);
                 bool success = true;
 
                 if(Steamworks.SteamRemoteStorage.FileExists(path))
@@ -425,60 +442,6 @@ namespace ModIO
                 {
                     callback.Invoke(relativePath, success);
                 }
-            }
-
-            /// <summary>Checks for the existence of a file.</summary>
-            public void GetFileExists(string relativePath, GetFileExistsCallback callback)
-            {
-                Debug.Assert(!string.IsNullOrEmpty(relativePath));
-                Debug.Assert(callback != null);
-
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
-                bool fileExists = Steamworks.SteamRemoteStorage.FileExists(path);
-
-                callback.Invoke(relativePath, fileExists);
-            }
-
-            /// <summary>Gets the size of a file.</summary>
-            public void GetFileSize(string relativePath, GetFileSizeCallback callback)
-            {
-                Debug.Assert(!string.IsNullOrEmpty(relativePath));
-                Debug.Assert(callback != null);
-
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
-                int fileSize = Steamworks.SteamRemoteStorage.FileSize(path);
-
-                callback.Invoke(relativePath, (Int64)fileSize);
-            }
-
-            /// <summary>Gets the size and md5 hash of a file.</summary>
-            public void GetFileSizeAndHash(string relativePath, GetFileSizeAndHashCallback callback)
-            {
-                Debug.Assert(!string.IsNullOrEmpty(relativePath));
-                Debug.Assert(callback != null);
-
-                string path = IOUtilities.CombinePath(this.userDir, relativePath);
-                byte[] data = null;
-                Int64 byteCount = -1;
-                string md5Hash = null;
-
-                if(Steamworks.SteamRemoteStorage.FileExists(path))
-                {
-                    data = Steamworks.SteamRemoteStorage.FileRead(path);
-
-                    if(data != null)
-                    {
-                        byteCount = data.Length;
-
-                        using (var md5 = System.Security.Cryptography.MD5.Create())
-                        {
-                            var hash = md5.ComputeHash(data);
-                            md5Hash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                        }
-                    }
-                }
-
-                callback.Invoke(relativePath, (data != null), byteCount, md5Hash);
             }
 
             /// <summary>Clears all of the active user's data.</summary>
@@ -494,7 +457,7 @@ namespace ModIO
 
                     path = Steamworks.SteamRemoteStorage.GetFileNameAndSize(i, out fileSize);
 
-                    if(path.StartsWith(SteamworksNETUserDataIO.USER_DIR_ROOT))
+                    if(path.StartsWith(SteamworksNETUserDataIO.ROOT_DIR))
                     {
                         success = Steamworks.SteamRemoteStorage.FileDelete(path) && success;
                     }
@@ -504,5 +467,5 @@ namespace ModIO
             }
         }
 
-    #endif // MODIO_STEAMWORKSNET_SUPPORT
+    #endif // ---[ Futher User Data Interfaces ]---
 }

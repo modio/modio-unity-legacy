@@ -44,5 +44,9 @@ namespace ModIO
         /// <summary>URL to the user's mod.io profile.</summary>
         [JsonProperty("profile_url")]
         public string profileURL;
+
+        /// <summary>Display name of the user for the provided platform.</summary>
+        [JsonProperty("username_platform")]
+        public string usernamePlatform;
     }
 }
