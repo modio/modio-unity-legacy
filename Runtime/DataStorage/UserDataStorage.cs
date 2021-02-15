@@ -42,14 +42,28 @@ namespace ModIO
             UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId,
             (id, success) =>
             {
-                LocalUser.Load(
-                () =>
+                if(success)
                 {
+                    LocalUser.Load(
+                    () =>
+                    {
+                        if(callback != null)
+                        {
+                            callback.Invoke(id, success);
+                        }
+                    });
+                }
+                else
+                {
+                    LocalUser.instance = new LocalUser();
+
+                    Debug.Log("[mod.io] Failed to set active user. LocalUser cleared.");
+
                     if(callback != null)
                     {
                         callback.Invoke(id, success);
                     }
-                });
+                }
             });
         }
 
@@ -59,14 +73,28 @@ namespace ModIO
             UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId,
             (id, success) =>
             {
-                LocalUser.Load(
-                () =>
+                if(success)
                 {
+                    LocalUser.Load(
+                    () =>
+                    {
+                        if(callback != null)
+                        {
+                            callback.Invoke(id, success);
+                        }
+                    });
+                }
+                else
+                {
+                    LocalUser.instance = new LocalUser();
+
+                    Debug.Log("[mod.io] Failed to set active user. LocalUser cleared.");
+
                     if(callback != null)
                     {
                         callback.Invoke(id, success);
                     }
-                });
+                }
             });
         }
 
