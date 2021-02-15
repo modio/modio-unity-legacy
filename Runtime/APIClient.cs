@@ -42,23 +42,33 @@ namespace ModIO
         /// <summary>Header key for the external auth user consent value.</summary>
         public static readonly string EXTERNAL_AUTH_CONSENT_KEY = "terms_agreed";
 
-        /// <summary>Platform header value.</summary>
+        /// <summary>Header key for the platform header.</summary>
+        public const string PLATFORM_HEADER_KEY = "x-modio-platform";
+
         #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-            public const string PLATFORM_HEADER = "windows_draft";
+            /// <summary>Platform header value. (Windows)</summary>
+            public const string PLATFORM_HEADER_VALUE = "windows_draft";
         #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
-            public const string PLATFORM_HEADER = "osx_draft";
+            /// <summary>Platform header value. (Mac OS)</summary>
+            public const string PLATFORM_HEADER_VALUE = "osx_draft";
         #elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
-            public const string PLATFORM_HEADER = "linux_draft";
+            /// <summary>Platform header value. (Linux)</summary>
+            public const string PLATFORM_HEADER_VALUE = "linux_draft";
         #elif UNITY_WII
-            public const string PLATFORM_HEADER = "wii_draft";
+            /// <summary>Platform header value. (Wii)</summary>
+            public const string PLATFORM_HEADER_VALUE = "wii_draft";
         #elif UNITY_IOS
-            public const string PLATFORM_HEADER = "ios_draft";
+            /// <summary>Platform header value. (iOS)</summary>
+            public const string PLATFORM_HEADER_VALUE = "ios_draft";
         #elif UNITY_ANDROID
-            public const string PLATFORM_HEADER = "android_draft";
+            /// <summary>Platform header value. (Android)</summary>
+            public const string PLATFORM_HEADER_VALUE = "android_draft";
         #elif UNITY_PS4
-            public const string PLATFORM_HEADER = "ps4_draft";
+            /// <summary>Platform header value. (PS4)</summary>
+            public const string PLATFORM_HEADER_VALUE = "ps4_draft";
         #elif UNITY_XBOXONE
-            public const string PLATFORM_HEADER = "xboxone_draft";
+            /// <summary>Platform header value. (Xbox One)</summary>
+            public const string PLATFORM_HEADER_VALUE = "xboxone_draft";
         #endif
 
         /// <summary>Collection of the HTTP request header keys used by mod.io.</summary>
@@ -69,7 +79,7 @@ namespace ModIO
             "content-type",
             "x-unity-version",
             "user-agent",
-            "x-modio-platform",
+            APIClient.PLATFORM_HEADER_KEY,
             APIClient.EXTERNAL_AUTH_CONSENT_KEY,
         };
 
@@ -153,7 +163,7 @@ namespace ModIO
 
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
-            webRequest.SetRequestHeader("x-modio-platform", APIClient.PLATFORM_HEADER);
+            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
 
             return webRequest;
         }
@@ -184,7 +194,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
-            webRequest.SetRequestHeader("x-modio-platform", APIClient.PLATFORM_HEADER);
+            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
 
             return webRequest;
         }
@@ -209,7 +219,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
-            webRequest.SetRequestHeader("x-modio-platform", APIClient.PLATFORM_HEADER);
+            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
 
             return webRequest;
         }
@@ -242,7 +252,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
-            webRequest.SetRequestHeader("x-modio-platform", APIClient.PLATFORM_HEADER);
+            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
 
             return webRequest;
         }
@@ -267,7 +277,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
-            webRequest.SetRequestHeader("x-modio-platform", APIClient.PLATFORM_HEADER);
+            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
 
             return webRequest;
         }
@@ -600,7 +610,7 @@ namespace ModIO
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
-            webRequest.SetRequestHeader("x-modio-platform", APIClient.PLATFORM_HEADER);
+            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
 
             return webRequest;
         }
