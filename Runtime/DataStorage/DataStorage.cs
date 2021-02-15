@@ -28,10 +28,22 @@ namespace ModIO
             #else
                 DataStorage.PLATFORM_IO = new SystemIOWrapper();
             #endif
-
         }
 
         // ---------[ Data Management Interface ]---------
+        // ------ Directories ------
+        /// <summary>Directory to use for mod installations</summary>
+        public static string INSTALLATION_DIRECTORY
+        {
+            get { return DataStorage.PLATFORM_IO.InstallationDirectory; }
+        }
+
+        /// <summary>Directory to use for cached server data</summary>
+        public static string CACHE_DIRECTORY
+        {
+            get { return DataStorage.PLATFORM_IO.CacheDirectory; }
+        }
+
         // ------ File I/O ------
         /// <summary>Reads a file.</summary>
         public static void ReadFile(string path, ReadFileCallback onComplete)
