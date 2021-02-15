@@ -14,13 +14,13 @@ namespace ModIO
         /// <summary>Directory to use for mod installations</summary>
         string IPlatformIO.InstallationDirectory
         {
-            get { return PluginSettings.INSTALLATION_DIRECTORY; }
+            get { return PluginSettings.data.installationDirectory; }
         }
 
         /// <summary>Directory to use for cached server data</summary>
         string IPlatformIO.CacheDirectory
         {
-            get { return PluginSettings.CACHE_DIRECTORY; }
+            get { return PluginSettings.data.cacheDirectory; }
         }
 
         // --- File I/O ---
@@ -176,7 +176,7 @@ namespace ModIO
 
         // ---------[ IUserDataIO Interface ]---------
         /// <summary>The directory for the active user's data.</summary>
-        public string userDir = PluginSettings.USER_DIRECTORY;
+        public string userDir = PluginSettings.data.userDirectory;
 
         /// <summary>Directory to use for user data.</summary>
         string IUserDataIO.UserDirectory
@@ -212,12 +212,12 @@ namespace ModIO
         /// <summary>Determines the user directory for a given user id..</summary>
         protected virtual string GenerateActiveUserDirectory(string platformUserId)
         {
-            string userDir = PluginSettings.USER_DIRECTORY;
+            string userDir = PluginSettings.data.userDirectory;
 
             if(!string.IsNullOrEmpty(platformUserId))
             {
                 string folderName = IOUtilities.MakeValidFileName(platformUserId);
-                userDir = IOUtilities.CombinePath(PluginSettings.USER_DIRECTORY, folderName);
+                userDir = IOUtilities.CombinePath(PluginSettings.data.userDirectory, folderName);
             }
 
             return userDir;
