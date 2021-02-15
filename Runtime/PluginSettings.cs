@@ -380,7 +380,23 @@ namespace ModIO
 
             return settings;
         }
-        #endif
+
+        /// <summary>[Obsolete] Sets the values of the Plugin Settings.</summary>
+        [System.Obsolete("Use PluginSettings.SetRuntimeData() instead.")]
+        public static PluginSettings SetGlobalValues(PluginSettings.Data data)
+        {
+            return PluginSettings.SetRuntimeData(data);
+        }
+
+        /// <summary>[Obsolete] Creates the asset instance that the plugin will use.</summary>
+        [System.Obsolete("Use PluginSettings.GenerateDefaultData() and PluginSettings.SetRuntimeData() instead.")]
+        private static PluginSettings InitializeAsset()
+        {
+            PluginSettings.Data data = PluginSettings.GenerateDefaultData();
+            return PluginSettings.SetRuntimeData(data);
+        }
+
+        #endif // UNITY_EDITOR
 
         // ---------[ Obsolete ]---------
         [System.Obsolete("Use DataStorage.INSTALLATION_DIRECTORY instead.")]
@@ -399,21 +415,6 @@ namespace ModIO
         public static string USER_DIRECTORY
         {
             get { return UserDataStorage.USER_DIRECTORY; }
-        }
-
-        /// <summary>[Obsolete] Sets the values of the Plugin Settings.</summary>
-        [System.Obsolete("Use PluginSettings.SetRuntimeData() instead.")]
-        public static PluginSettings SetGlobalValues(PluginSettings.Data data)
-        {
-            return PluginSettings.SetRuntimeData(data);
-        }
-
-        /// <summary>[Obsolete] Creates the asset instance that the plugin will use.</summary>
-        [System.Obsolete("Use PluginSettings.GenerateDefaultData() and PluginSettings.SetRuntimeData() instead.")]
-        private static PluginSettings InitializeAsset()
-        {
-            PluginSettings.Data data = PluginSettings.GenerateDefaultData();
-            return PluginSettings.SetRuntimeData(data);
         }
     }
 }
