@@ -71,7 +71,14 @@ APIClient.GetAllMods(filter
 ### User Authentication
 ```java
 // -- Authenticate using external service using wrapper functions --
+APIClient.GetTermsOfUse(ExternalAuthenticationProvider.GOG,
+                        (termsInfo) => DisplayTermsOfUse(termsInfo),
+                        (e) => OnError(e));
+
+bool hasUserConsentedToTermsOfUse = true;
+
 UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(ticketData, ticketSize,
+                                                            hasUserConsentedToTermsOfUse,
                                                             (userProfile) => OnUserAuthenticated(userProfile),
                                                             (e) => OnError(e));
 
