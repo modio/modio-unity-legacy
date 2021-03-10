@@ -50,8 +50,18 @@ namespace ModIO.UI.EditorCode
 
                 while(!directoryIsValid && !string.IsNullOrEmpty(testDir))
                 {
-                    testDir = Path.GetDirectoryName(testDir);
-                    directoryIsValid = Directory.Exists(testDir);
+                    string testDirParent = Path.GetDirectoryName(testDir);
+
+                    if(testDirParent == testDir)
+                    {
+                        directoryIsValid = false;
+                        break;
+                    }
+                    else
+                    {
+                        testDir = testDirParent;
+                        directoryIsValid = Directory.Exists(testDir);
+                    }
                 }
             }
             catch
