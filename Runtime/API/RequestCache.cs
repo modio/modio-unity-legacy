@@ -20,6 +20,9 @@ namespace ModIO.API
         /// <summary>Number of seconds for which a cached response is considered valid.</summary>
         private const int ENTRY_LIFETIME = 15;
 
+        /// <summary>Max cache size.</summary>
+        private const uint MAX_CACHE_SIZE = 1024^2;
+
         // ---------[ Fields ]---------
         /// <summary>Map of url to saved responses.</summary>
         private static Dictionary<string, Entry> urlResponseMap
@@ -91,13 +94,27 @@ namespace ModIO.API
                 RequestCache.RemoveOldestEntries(oldIndex + 1);
             }
 
-            // add new entry
+            // calculate new entry size
             uint size = 0;
             if(responseBody != null)
             {
                 size = (uint)responseBody.Length * sizeof(char);
             }
 
+            // trim cache if necessary
+            if(size > RequestCache.MAX_CACHE_SIZE)
+            {
+                Debug.Log("[mod.io] Could not cache entry as the response body is larger than MAX_CACHE_SIZE."
+                          + "\nURL=" + url);
+                return;
+            }
+
+            if(RequestCache.currentCacheSize + size > RequestCache.MAX_CACHE_SIZE)
+            {
+                RequestCache.TrimCacheToMaxSize(RequestCache.MAX_CACHE_SIZE - size);
+            }
+
+            // add new entry
             Entry newValue = new Entry()
             {
                 timeStamp = ServerTimeStamp.Now,
