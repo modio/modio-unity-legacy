@@ -29,6 +29,9 @@ namespace ModIO.API
         /// <summary>OAuthToken present during the last StoreResponse call.</summary>
         private static string lastOAuthToken = null;
 
+        /// <summary>Current running size of the cache.</summary>
+        private static uint currentCacheSize = 0;
+
         /// <summary>Fetches a response from the cache.</summary>
         public static bool TryGetResponse(string url, out string response)
         {
@@ -82,12 +85,14 @@ namespace ModIO.API
             };
 
             RequestCache.storedResponses[url] = entry;
+            RequestCache.currentCacheSize += size;
         }
 
         /// <summary>Clears the data from the cache.</summary>
         public static void Clear()
         {
             RequestCache.storedResponses.Clear();
+            RequestCache.currentCacheSize = 0;
         }
     }
 }
