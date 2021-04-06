@@ -37,6 +37,9 @@ namespace ModIO.API
         {
             response = null;
 
+            // early out for null URL
+            if(string.IsNullOrEmpty(url)) { return false; }
+
             bool success = false;
             Entry entry;
 
