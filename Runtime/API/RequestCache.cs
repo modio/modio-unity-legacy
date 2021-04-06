@@ -74,13 +74,14 @@ namespace ModIO.API
                 return;
             }
 
+            // build new entry values
             uint size = 0;
             if(responseBody != null)
             {
                 size = (uint)responseBody.Length * sizeof(char);
             }
 
-            Entry entry = new Entry()
+            Entry newValue = new Entry()
             {
                 timeStamp = ServerTimeStamp.Now,
                 lastAccessed = ServerTimeStamp.Now,
@@ -88,8 +89,20 @@ namespace ModIO.API
                 size = size,
             };
 
-            RequestCache.storedResponses[url] = entry;
-            RequestCache.currentCacheSize += size;
+            // handle entry adding / replacement
+            Entry oldValue;
+            if(RequestCache.storedResponses.TryGetValue(url, out oldValue))
+            {
+                RequestCache.currentCacheSize -= oldValue.size;
+
+                RequestCache.storedResponses[url] = newValue;
+                RequestCache.currentCacheSize += newValue.size;
+            }
+            else
+            {
+                RequestCache.storedResponses.Add(url, newValue);
+                RequestCache.currentCacheSize += newValue.size;
+            }
         }
 
         /// <summary>Removes an entry from the cache.</summary>
