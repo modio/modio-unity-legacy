@@ -151,8 +151,7 @@ namespace ModIO.API
                 return;
             }
 
-            RequestCache.responses.RemoveRange(0, count);
-
+            // update url map
             List<string> urlKeys = new List<string>(RequestCache.urlResponseIndexMap.Keys);
             foreach(string url in urlKeys)
             {
@@ -164,6 +163,17 @@ namespace ModIO.API
                     RequestCache.urlResponseIndexMap.Remove(url);
                 }
             }
+
+            // update cache size
+            uint sizeToRemove = 0;
+            for(int i = 0; i < count; ++i)
+            {
+                sizeToRemove += RequestCache.responses[i].size;
+            }
+            RequestCache.currentCacheSize -= sizeToRemove;
+
+            // remove responses
+            RequestCache.responses.RemoveRange(0, count);
         }
     }
 }
