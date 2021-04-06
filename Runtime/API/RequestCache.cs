@@ -25,6 +25,9 @@ namespace ModIO.API
         private static Dictionary<string, Entry> urlResponseMap
             = new Dictionary<string, Entry>();
 
+        /// <summary>Map of url to saved responses.</summary>
+        private static Dictionary<string, int> urlResponseIndexMap = new Dictionary<string, int>();
+
         /// <summary>List of saved responses.</summary>
         private static List<Entry> responses = new List<Entry>();
 
@@ -103,7 +106,9 @@ namespace ModIO.API
                 RequestCache.currentCacheSize += newValue.size;
             }
 
-            RequestCache.responses.Add(entry);
+            // add to stores
+            RequestCache.urlResponseIndexMap.Add(url, RequestCache.responses.Count);
+            RequestCache.responses.Add(newValue);
         }
 
         /// <summary>Removes an entry from the cache.</summary>
@@ -123,6 +128,7 @@ namespace ModIO.API
         public static void Clear()
         {
             RequestCache.urlResponseMap.Clear();
+            RequestCache.urlResponseIndexMap.Clear();
             RequestCache.responses.Clear();
             RequestCache.currentCacheSize = 0;
         }
