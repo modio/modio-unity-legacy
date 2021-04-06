@@ -13,6 +13,7 @@ namespace ModIO.API
         {
             public int timeStamp;
             public string responseBody;
+            public uint size;
         }
 
         // ---------[ Constants ]---------
@@ -64,10 +65,17 @@ namespace ModIO.API
                 return;
             }
 
+            uint size = 0;
+            if(responseBody != null)
+            {
+                size = (uint)responseBody.Length * sizeof(char);
+            }
+
             Entry entry = new Entry()
             {
                 timeStamp = ServerTimeStamp.Now,
                 responseBody = responseBody,
+                size = size,
             };
 
             RequestCache.storedResponses[url] = entry;
