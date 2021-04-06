@@ -47,13 +47,18 @@ namespace ModIO.API
 
             bool success = false;
             Entry entry;
+            int entryIndex;
 
-            if(LocalUser.OAuthToken == RequestCache.lastOAuthToken)
+            if(LocalUser.OAuthToken == RequestCache.lastOAuthToken
+               && RequestCache.TryGetEntry(url, out entryIndex, out entry))
             {
-                success = RequestCache.urlResponseMap.TryGetValue(url, out entry);
-                success &= (ServerTimeStamp.Now - entry.timeStamp) <= RequestCache.ENTRY_LIFETIME;
-
-                if(success)
+                // check if stale
+                if((ServerTimeStamp.Now - entry.timeStamp) <= RequestCache.ENTRY_LIFETIME)
+                {
+                    // clear it, and any entries older than it
+                    RequestCache.RemoveOldestEntries(entryIndex + 1);
+                }
+                else
                 {
                     response = entry.responseBody;
                 }
