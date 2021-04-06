@@ -132,5 +132,24 @@ namespace ModIO.API
             RequestCache.responses.Clear();
             RequestCache.currentCacheSize = 0;
         }
+
+        /// <summary>Gets the index and entry for a URL.</summary>
+        private static bool TryGetEntry(string url, out int index, out Entry entry)
+        {
+            if(string.IsNullOrEmpty(url)
+               || !RequestCache.urlResponseIndexMap.TryGetValue(url, out index)
+               || index < 0
+               || index >= RequestCache.responses.Count)
+            {
+                index = -1;
+                entry = new Entry();
+                return false;
+            }
+            else
+            {
+                entry = RequestCache.responses[index];
+                return true;
+            }
+        }
     }
 }
