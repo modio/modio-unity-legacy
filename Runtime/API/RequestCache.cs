@@ -51,6 +51,7 @@ namespace ModIO.API
                 if(success)
                 {
                     entry.lastAccessed = ServerTimeStamp.Now;
+                    RequestCache.storedResponses[url] = entry;
                     response = entry.responseBody;
                 }
             }
