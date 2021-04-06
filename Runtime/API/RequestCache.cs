@@ -25,6 +25,9 @@ namespace ModIO.API
         private static Dictionary<string, Entry> urlResponseMap
             = new Dictionary<string, Entry>();
 
+        /// <summary>List of saved responses.</summary>
+        private static List<Entry> responses = new List<Entry>();
+
         /// <summary>OAuthToken present during the last StoreResponse call.</summary>
         private static string lastOAuthToken = null;
 
@@ -99,6 +102,8 @@ namespace ModIO.API
                 RequestCache.urlResponseMap.Add(url, newValue);
                 RequestCache.currentCacheSize += newValue.size;
             }
+
+            RequestCache.responses.Add(entry);
         }
 
         /// <summary>Removes an entry from the cache.</summary>
@@ -118,6 +123,7 @@ namespace ModIO.API
         public static void Clear()
         {
             RequestCache.urlResponseMap.Clear();
+            RequestCache.responses.Clear();
             RequestCache.currentCacheSize = 0;
         }
     }
