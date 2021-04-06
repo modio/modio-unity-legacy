@@ -151,5 +151,32 @@ namespace ModIO.API
                 return true;
             }
         }
+
+        /// <summary>Removes the oldest entries from the cache.</summary>
+        private static void RemoveOldestEntries(int count)
+        {
+            Debug.Assert(count > 0);
+
+            // check if clearing all
+            if(count >= RequestCache.responses.Count)
+            {
+                RequestCache.Clear();
+                return;
+            }
+
+            RequestCache.responses.RemoveRange(0, count);
+
+            List<string> urlKeys = new List<string>(RequestCache.urlResponseIndexMap.Keys);
+            foreach(string url in urlKeys)
+            {
+                int newValue = RequestCache.urlResponseIndexMap[url] - count;
+                RequestCache.urlResponseIndexMap[url] = newValue;
+
+                if(newValue < 0)
+                {
+                    RequestCache.urlResponseIndexMap.Remove(url);
+                }
+            }
+        }
     }
 }
