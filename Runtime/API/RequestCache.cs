@@ -111,19 +111,6 @@ namespace ModIO.API
             RequestCache.responses.Add(newValue);
         }
 
-        /// <summary>Removes an entry from the cache.</summary>
-        public static void RemoveResponse(string url)
-        {
-            if(string.IsNullOrEmpty(url)) { return; }
-
-            Entry entry;
-            if(RequestCache.urlResponseMap.TryGetValue(url, out entry))
-            {
-                RequestCache.currentCacheSize -= entry.size;
-                RequestCache.urlResponseMap.Remove(url);
-            }
-        }
-
         /// <summary>Clears the data from the cache.</summary>
         public static void Clear()
         {
