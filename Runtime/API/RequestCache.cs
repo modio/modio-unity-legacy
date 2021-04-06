@@ -12,7 +12,6 @@ namespace ModIO.API
         private struct Entry
         {
             public int timeStamp;
-            public int lastAccessed;
             public string responseBody;
             public uint size;
         }
@@ -50,8 +49,6 @@ namespace ModIO.API
 
                 if(success)
                 {
-                    entry.lastAccessed = ServerTimeStamp.Now;
-                    RequestCache.storedResponses[url] = entry;
                     response = entry.responseBody;
                 }
             }
@@ -84,7 +81,6 @@ namespace ModIO.API
             Entry newValue = new Entry()
             {
                 timeStamp = ServerTimeStamp.Now,
-                lastAccessed = ServerTimeStamp.Now,
                 responseBody = responseBody,
                 size = size,
             };
