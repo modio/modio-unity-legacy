@@ -88,6 +88,19 @@ namespace ModIO.API
             RequestCache.currentCacheSize += size;
         }
 
+        /// <summary>Removes an entry from the cache.</summary>
+        public static void RemoveResponse(string url)
+        {
+            if(string.IsNullOrEmpty(url)) { return; }
+
+            Entry entry;
+            if(RequestCache.storedResponses.TryGetValue(url, out entry))
+            {
+                RequestCache.currentCacheSize -= entry.size;
+                RequestCache.storedResponses.Remove(url);
+            }
+        }
+
         /// <summary>Clears the data from the cache.</summary>
         public static void Clear()
         {
