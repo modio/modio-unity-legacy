@@ -118,6 +118,29 @@ namespace ModIO.API
             RequestCache.currentCacheSize = 0;
         }
 
+        /// <summary>Removes entries from the cache until the total cache size is below the given value.</summary>
+        private static void TrimCacheToMaxSize(uint maxSize)
+        {
+            uint trimmedSize = RequestCache.currentCacheSize;
+            int lastIndex;
+
+            for(lastIndex = 0;
+                lastIndex < RequestCache.responses.Count && trimmedSize > maxSize;
+                ++lastIndex)
+            {
+                trimmedSize -= RequestCache.responses[lastIndex].size;
+            }
+
+            if(trimmedSize > 0)
+            {
+                RequestCache.RemoveOldestEntries(lastIndex + 1);
+            }
+            else
+            {
+                RequestCache.Clear();
+            }
+        }
+
         /// <summary>Gets the index and entry for a URL.</summary>
         private static bool TryGetEntry(string url, out int index, out Entry entry)
         {
