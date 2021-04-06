@@ -22,7 +22,7 @@ namespace ModIO.API
 
         // ---------[ Fields ]---------
         /// <summary>Map of url to saved responses.</summary>
-        private static Dictionary<string, Entry> storedResponses
+        private static Dictionary<string, Entry> urlResponseMap
             = new Dictionary<string, Entry>();
 
         /// <summary>OAuthToken present during the last StoreResponse call.</summary>
@@ -44,7 +44,7 @@ namespace ModIO.API
 
             if(LocalUser.OAuthToken == RequestCache.lastOAuthToken)
             {
-                success = RequestCache.storedResponses.TryGetValue(url, out entry);
+                success = RequestCache.urlResponseMap.TryGetValue(url, out entry);
                 success &= (ServerTimeStamp.Now - entry.timeStamp) <= RequestCache.ENTRY_LIFETIME;
 
                 if(success)
@@ -87,16 +87,16 @@ namespace ModIO.API
 
             // handle entry adding / replacement
             Entry oldValue;
-            if(RequestCache.storedResponses.TryGetValue(url, out oldValue))
+            if(RequestCache.urlResponseMap.TryGetValue(url, out oldValue))
             {
                 RequestCache.currentCacheSize -= oldValue.size;
 
-                RequestCache.storedResponses[url] = newValue;
+                RequestCache.urlResponseMap[url] = newValue;
                 RequestCache.currentCacheSize += newValue.size;
             }
             else
             {
-                RequestCache.storedResponses.Add(url, newValue);
+                RequestCache.urlResponseMap.Add(url, newValue);
                 RequestCache.currentCacheSize += newValue.size;
             }
         }
@@ -107,17 +107,17 @@ namespace ModIO.API
             if(string.IsNullOrEmpty(url)) { return; }
 
             Entry entry;
-            if(RequestCache.storedResponses.TryGetValue(url, out entry))
+            if(RequestCache.urlResponseMap.TryGetValue(url, out entry))
             {
                 RequestCache.currentCacheSize -= entry.size;
-                RequestCache.storedResponses.Remove(url);
+                RequestCache.urlResponseMap.Remove(url);
             }
         }
 
         /// <summary>Clears the data from the cache.</summary>
         public static void Clear()
         {
-            RequestCache.storedResponses.Clear();
+            RequestCache.urlResponseMap.Clear();
             RequestCache.currentCacheSize = 0;
         }
     }
