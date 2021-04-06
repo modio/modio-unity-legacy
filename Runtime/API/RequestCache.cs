@@ -77,7 +77,16 @@ namespace ModIO.API
                 return;
             }
 
-            // build new entry values
+            // remove stale entry
+            int oldIndex;
+            Entry oldValue;
+            if(RequestCache.TryGetEntry(url, out oldIndex, out oldValue))
+            {
+                Debug.LogWarning("[mod.io] Stale cached request found. Removing all older entries.");
+                RequestCache.RemoveOldestEntries(oldIndex + 1);
+            }
+
+            // add new entry
             uint size = 0;
             if(responseBody != null)
             {
@@ -91,22 +100,6 @@ namespace ModIO.API
                 size = size,
             };
 
-            // handle entry adding / replacement
-            Entry oldValue;
-            if(RequestCache.urlResponseMap.TryGetValue(url, out oldValue))
-            {
-                RequestCache.currentCacheSize -= oldValue.size;
-
-                RequestCache.urlResponseMap[url] = newValue;
-                RequestCache.currentCacheSize += newValue.size;
-            }
-            else
-            {
-                RequestCache.urlResponseMap.Add(url, newValue);
-                RequestCache.currentCacheSize += newValue.size;
-            }
-
-            // add to stores
             RequestCache.urlResponseIndexMap.Add(url, RequestCache.responses.Count);
             RequestCache.responses.Add(newValue);
         }
