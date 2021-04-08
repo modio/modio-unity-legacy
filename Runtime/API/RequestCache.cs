@@ -132,6 +132,8 @@ namespace ModIO.API
 
             RequestCache.urlResponseIndexMap.Add(endpointURL, RequestCache.responses.Count);
             RequestCache.responses.Add(newValue);
+
+            RequestCache.currentCacheSize += size;
         }
 
         /// <summary>Clears the data from the cache.</summary>
