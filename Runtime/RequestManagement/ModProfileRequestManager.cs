@@ -30,66 +30,6 @@ namespace ModIO.UI
             }
         }
 
-        // ---------[ NESTED DATA-TYPES ]--------
-        public struct RequestPageData
-        {
-            public int resultOffset;
-            public int resultTotal;
-            public int[] modIds;
-
-            /// <summary>Appends a collection of ids to a RequestPageData.</summary>
-            public static RequestPageData Append(RequestPageData pageData,
-                                                 int appendCollectionOffset,
-                                                 int[] appendCollection)
-            {
-                if(appendCollection == null
-                   || appendCollection.Length == 0)
-                {
-                    return pageData;
-                }
-
-                // asserts
-                Debug.Assert(appendCollectionOffset >= 0);
-                Debug.Assert(appendCollectionOffset + appendCollection.Length <= pageData.resultTotal);
-
-                // calc last indicies
-                int newOffset = (appendCollectionOffset < pageData.resultOffset
-                                 ? appendCollectionOffset
-                                 : pageData.resultOffset);
-
-                int oldLastIndex = pageData.modIds.Length + pageData.resultOffset - 1;
-                int appendingLastIndex = appendCollection.Length + appendCollectionOffset - 1;
-
-                int newLastIndex = (appendingLastIndex > oldLastIndex
-                                    ? appendingLastIndex
-                                    : oldLastIndex);
-
-                // fill array
-                int[] newArray = new int[newLastIndex - newOffset + 1];
-                for(int i = 0; i < newArray.Length; ++i)
-                {
-                    newArray[i] = ModProfile.NULL_ID;
-                }
-
-                Array.Copy(pageData.modIds, 0,
-                           newArray, pageData.resultOffset - newOffset,
-                           pageData.modIds.Length);
-                Array.Copy(appendCollection, 0,
-                           newArray, appendCollectionOffset - newOffset,
-                           appendCollection.Length);
-
-                // Create appended page data
-                RequestPageData retData = new RequestPageData()
-                {
-                    resultOffset = newOffset,
-                    resultTotal = pageData.resultTotal,
-                    modIds = newArray,
-                };
-
-                return retData;
-            }
-        }
-
         // ---------[ FIELDS ]---------
         /// <summary>Minimum profile count to request from the API.</summary>
         public int minimumFetchSize = APIPaginationParameters.LIMIT_MAX;
