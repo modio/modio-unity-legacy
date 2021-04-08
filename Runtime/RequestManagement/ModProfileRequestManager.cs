@@ -62,7 +62,7 @@ namespace ModIO.UI
             Debug.Assert(this.minimumFetchSize <= APIPaginationParameters.LIMIT_MAX);
 
             // early out if onSuccess == null
-            if(onSuccess == null) { return; }
+            if(onSuccess == null && onError == null) { return; }
 
             if(profileCount > APIPaginationParameters.LIMIT_MAX)
             {
@@ -182,69 +182,7 @@ namespace ModIO.UI
                                                Action<ModProfile[]> onSuccess,
                                                Action<WebRequestError> onError)
         {
-            Debug.Assert(orderedIdList != null);
-            Debug.Assert(onSuccess != null);
-
-            ModProfile[] results = new ModProfile[orderedIdList.Count];
-            List<int> missingIds = new List<int>(orderedIdList.Count);
-
-            // grab from cache
-            for(int i = 0; i < orderedIdList.Count; ++i)
-            {
-                int modId = orderedIdList[i];
-                ModProfile profile = null;
-
-                if(profile == null)
-                {
-                    missingIds.Add(modId);
-                }
-            }
-
-            CacheClient.RequestFilteredModProfiles(missingIds, (cachedProfiles) =>
-            {
-                // check disk for any missing profiles
-                foreach(ModProfile profile in cachedProfiles)
-                {
-                    int index = orderedIdList.IndexOf(profile.id);
-                    if(index >= 0 && results[index] == null)
-                    {
-                        results[index] = profile;
-                    }
-
-                    missingIds.Remove(profile.id);
-                }
-
-                // if no missing profiles, early out
-                if(missingIds.Count == 0)
-                {
-                    onSuccess(results);
-                    return;
-                }
-
-                // fetch missing profiles
-                Action<List<ModProfile>> onFetchProfiles = (modProfiles) =>
-                {
-                    if(this != null)
-                    {
-                        this.CacheModProfiles(modProfiles);
-                    }
-
-                    foreach(ModProfile profile in modProfiles)
-                    {
-                        int i = orderedIdList.IndexOf(profile.id);
-                        if(i >= 0)
-                        {
-                            results[i] = profile;
-                        }
-                    }
-
-                    onSuccess(results);
-                };
-
-                this.StartCoroutine(this.FetchAllModProfiles(missingIds.ToArray(),
-                                                             onFetchProfiles,
-                                                             onError));
-            });
+            ModManager.GetModProfiles(orderedIdList, onSuccess, onError);
         }
 
         // ---------[ UTILITY ]---------
