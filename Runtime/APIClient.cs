@@ -995,10 +995,20 @@ namespace ModIO
             string endpointURL = PluginSettings.API_URL + @"/games/" + PluginSettings.GAME_ID + @"/mods";
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                              filter.GenerateFilterString(),
-                                                              pagination);
+                                                                 filter.GenerateFilterString(),
+                                                                 pagination);
 
-            APIClient.SendRequest(webRequest, successCallback, errorCallback);
+            Action<RequestPage<ModProfile>> cacheAndInvokeSuccess = (r) =>
+            {
+                RequestCache.StoreMods(PluginSettings.GAME_ID, r.items);
+
+                if(successCallback != null)
+                {
+                    successCallback.Invoke(r);
+                }
+            };
+
+            APIClient.SendRequest(webRequest, cacheAndInvokeSuccess, errorCallback);
         }
 
         /// <summary>Fetches a mod profile from the mod.io servers.</summary>
