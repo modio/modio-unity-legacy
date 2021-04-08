@@ -26,10 +26,6 @@ namespace ModIO.API
 
         // ---------[ Fields ]---------
         /// <summary>Map of url to saved responses.</summary>
-        private static Dictionary<string, Entry> urlResponseMap
-            = new Dictionary<string, Entry>();
-
-        /// <summary>Map of url to saved responses.</summary>
         private static Dictionary<string, int> urlResponseIndexMap = new Dictionary<string, int>();
 
         /// <summary>List of saved responses.</summary>
@@ -151,7 +147,7 @@ namespace ModIO.API
             {
                 if(mod != null)
                 {
-                    string endpointURL = APIClient.BuildGetModEndpoint(gameId, mod.id);
+                    string endpointURL = APIClient.BuildGetModEndpointURL(gameId, mod.id);
 
                     // skip if already cached
                     if(RequestCache.urlResponseIndexMap.ContainsKey(endpointURL))
@@ -204,7 +200,6 @@ namespace ModIO.API
         /// <summary>Clears the data from the cache.</summary>
         public static void Clear()
         {
-            RequestCache.urlResponseMap.Clear();
             RequestCache.urlResponseIndexMap.Clear();
             RequestCache.responses.Clear();
             RequestCache.currentCacheSize = 0;
