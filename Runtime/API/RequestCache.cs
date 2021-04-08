@@ -55,7 +55,7 @@ namespace ModIO.API
                && RequestCache.TryGetEntry(endpointURL, out entryIndex, out entry))
             {
                 // check if stale
-                if((ServerTimeStamp.Now - entry.timeStamp) <= RequestCache.ENTRY_LIFETIME)
+                if((ServerTimeStamp.Now - entry.timeStamp) >= RequestCache.ENTRY_LIFETIME)
                 {
                     // clear it, and any entries older than it
                     RequestCache.RemoveOldestEntries(entryIndex + 1);
@@ -63,6 +63,7 @@ namespace ModIO.API
                 else
                 {
                     response = entry.responseBody;
+                    success = true;
                 }
             }
 
