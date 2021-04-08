@@ -128,13 +128,11 @@ namespace ModIO
         private static Dictionary<string, GetRequestHandle> _activeGetRequests
             = new Dictionary<string, GetRequestHandle>();
 
-        /// <summary>Generates the object for a basic mod.io server request.</summary>
-        public static UnityWebRequest GenerateQuery(string endpointURL,
-                                                    string filterString,
-                                                    APIPaginationParameters pagination)
+        /// <summary>Utility function for building a query URL.</summary>
+        public static string BuildEndpointURL(string baseURL,
+                                              string filterString,
+                                              APIPaginationParameters pagination)
         {
-            APIClient.AssertAuthorizationDetails(false);
-
             string paginationString;
             if(pagination == null)
             {
@@ -146,12 +144,21 @@ namespace ModIO
                                     + "&_offset=" + pagination.offset);
             }
 
-            string queryURL = (endpointURL
-                               + "?" + filterString
-                               + paginationString);
+            return (baseURL + "?" + filterString + paginationString);
+        }
+
+        /// <summary>Generates the object for a basic mod.io server request.</summary>
+        public static UnityWebRequest GenerateQuery(string endpointURL,
+                                                    string filterString,
+                                                    APIPaginationParameters pagination)
+        {
+            APIClient.AssertAuthorizationDetails(false);
+
+            string queryURL = APIClient.BuildEndpointURL(endpointURL, filterString, pagination);
 
             UnityWebRequest webRequest = UnityWebRequest.Get(queryURL);
 
+            // NOTE(@jackson): Do this after so that it's only one branch if we're adding the header
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
@@ -175,20 +182,7 @@ namespace ModIO
         {
             APIClient.AssertAuthorizationDetails(true);
 
-            string paginationString;
-            if(pagination == null)
-            {
-                paginationString = string.Empty;
-            }
-            else
-            {
-                paginationString = ("&_limit=" + pagination.limit
-                                    + "&_offset=" + pagination.offset);
-            }
-
-            string constructedURL = (endpointURL
-                                     + "?" + filterString
-                                     + paginationString);
+            string constructedURL = APIClient.BuildEndpointURL(endpointURL, filterString, pagination);
 
             UnityWebRequest webRequest = UnityWebRequest.Get(constructedURL);
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
