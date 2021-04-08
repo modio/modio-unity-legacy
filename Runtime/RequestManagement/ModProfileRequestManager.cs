@@ -94,9 +94,6 @@ namespace ModIO.UI
         /// <summary>Should the cache be cleared on disable</summary>
         public bool clearCacheOnDisable = true;
 
-        /// <summary>If enabled, stores retrieved profiles for subscribed mods.</summary>
-        public bool storeIfSubscribed = true;
-
         /// <summary>Minimum profile count to request from the API.</summary>
         public int minimumFetchSize = APIPaginationParameters.LIMIT_MAX;
 
@@ -188,8 +185,6 @@ namespace ModIO.UI
             if(!this.isCachingPermitted || modProfiles == null) { return; }
 
             // store
-            if(this.storeIfSubscribed)
-            {
                 IList<int> subMods = LocalUser.SubscribedModIds;
                 foreach(ModProfile profile in modProfiles)
                 {
@@ -199,7 +194,6 @@ namespace ModIO.UI
                         CacheClient.SaveModProfile(profile, null);
                     }
                 }
-            }
         }
 
         /// <summary>Append the response page to the cached data.</summary>
@@ -234,8 +228,7 @@ namespace ModIO.UI
                     {
                         if(this != null)
                         {
-                            if(this.storeIfSubscribed
-                               && LocalUser.SubscribedModIds.Contains(p.id))
+                            if(LocalUser.SubscribedModIds.Contains(p.id))
                             {
                                 CacheClient.SaveModProfile(p, null);
                             }
@@ -448,8 +441,7 @@ namespace ModIO.UI
         public void OnModSubscriptionsUpdated(IList<int> addedSubscriptions,
                                               IList<int> removedSubscriptions)
         {
-            if(this.storeIfSubscribed
-               && addedSubscriptions.Count > 0)
+            if(addedSubscriptions.Count > 0)
             {
                 foreach(int modId in addedSubscriptions)
                 {
