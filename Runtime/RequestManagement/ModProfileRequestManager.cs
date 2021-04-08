@@ -171,33 +171,10 @@ namespace ModIO.UI
 
         /// <summary>Requests an individual ModProfile by id.</summary>
         public virtual void RequestModProfile(int id,
-                                              Action<ModProfile> onSuccess, Action<WebRequestError> onError)
+                                              Action<ModProfile> onSuccess,
+                                              Action<WebRequestError> onError)
         {
-            Debug.Assert(onSuccess != null);
-
-            CacheClient.LoadModProfile(id, (cachedProfile) =>
-            {
-                if(cachedProfile != null)
-                {
-                    onSuccess(cachedProfile);
-                }
-                else
-                {
-                    APIClient.GetMod(id, (p) =>
-                    {
-                        if(this != null)
-                        {
-                            if(LocalUser.SubscribedModIds.Contains(p.id))
-                            {
-                                CacheClient.SaveModProfile(p, null);
-                            }
-                        }
-
-                        onSuccess(p);
-                    },
-                    onError);
-                }
-            });
+            ModManager.GetModProfile(id, onSuccess, onError);
         }
 
         /// <summary>Requests a collection of ModProfiles by id.</summary>
