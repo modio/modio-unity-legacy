@@ -928,7 +928,7 @@ namespace ModIO
 
         /// <summary>Fetches a list of mod profiles checking the cache, storing if subscribed.</summary>
         public static void GetModProfiles(IList<int> orderedIdList,
-                                          Action<List<ModProfile>> onSuccess,
+                                          Action<ModProfile[]> onSuccess,
                                           Action<WebRequestError> onError)
         {
             // early out
@@ -965,7 +965,7 @@ namespace ModIO
             {
                 if(onSuccess != null)
                 {
-                    onSuccess.Invoke(new List<ModProfile>(modProfiles));
+                    onSuccess.Invoke(modProfiles);
                 }
 
                 return;
@@ -978,7 +978,7 @@ namespace ModIO
                 {
                     if(onSuccess != null)
                     {
-                        onSuccess.Invoke(new List<ModProfile>(modProfiles));
+                        onSuccess.Invoke(modProfiles);
                     }
                 }
 
@@ -1002,7 +1002,7 @@ namespace ModIO
                     }
                     else
                     {
-                        if(onSuccess != null) { onSuccess.Invoke(new List<ModProfile>(modProfiles)); }
+                        if(onSuccess != null) { onSuccess.Invoke(modProfiles); }
                     }
                 });
             };
@@ -1918,6 +1918,29 @@ namespace ModIO
 
             ModManager.QueryInstalledMods(modIdFilter, (r) => result = r);
             return result;
+        }
+
+
+        /// <summary>[Obsolete] Fetches a list of mod profiles checking the cache, storing if subscribed.</summary>
+        [Obsolete("Use GetModProfiles(IList<int>, Action<ModProfile[]>, Action<WebRequestError>) instead.")]
+        public static void GetModProfiles(IList<int> orderedIdList,
+                                          Action<List<ModProfile>> onSuccess,
+                                          Action<WebRequestError> onError)
+        {
+            ModManager.GetModProfiles(orderedIdList,
+            (ModProfile[] result) =>
+            {
+                if(onSuccess != null)
+                {
+                    List<ModProfile> profiles = null;
+                    if(result != null)
+                    {
+                        profiles = new List<ModProfile>(result);
+                    }
+
+                    onSuccess.Invoke(profiles);
+                }
+            }, onError);
         }
 
         #pragma warning restore 0067
