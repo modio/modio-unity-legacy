@@ -982,6 +982,12 @@ namespace ModIO
 
 
         // ---------[ MOD ENDPOINTS ]---------
+        /// <summary>Builds the endpoint for a specific mod.</summary>
+        public static string BuildGetModEndpoint(int gameId, int modId)
+        {
+            return (@"/games/" + gameId + @"/mods/" + modId);
+        }
+
         /// <summary>Fetches all mod profiles from the mod.io servers.</summary>
         public static void GetAllMods(RequestFilter filter, APIPaginationParameters pagination,
                                       Action<RequestPage<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
@@ -999,7 +1005,8 @@ namespace ModIO
         public static void GetMod(int modId,
                                   Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
-            string endpointURL = PluginSettings.API_URL + @"/games/" + PluginSettings.GAME_ID + @"/mods/" + modId;
+            string endpointURL = (PluginSettings.API_URL
+                                  + APIClient.BuildGetModEndpoint(PluginSettings.GAME_ID, modId));
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
                                                                  "",
