@@ -882,30 +882,47 @@ namespace ModIO
             });
         }
 
-
         // ---------[ MOD PROFILES ]---------
         /// <summary>Fetches and caches a Mod Profile (if not already cached).</summary>
         public static void GetModProfile(int modId,
                                          Action<ModProfile> onSuccess,
                                          Action<WebRequestError> onError)
         {
-            CacheClient.LoadModProfile(modId, (cachedProfile) =>
-            {
-                if(cachedProfile != null)
-                {
-                    if(onSuccess != null) { onSuccess(cachedProfile); }
-                }
-                else
-                {
-                    // - Fetch from Server -
-                    Action<ModProfile> onGetMod = (profile) =>
-                    {
-                        CacheClient.SaveModProfile(profile, null);
-                        if(onSuccess != null) { onSuccess(profile); }
-                    };
+            if(onSuccess == null && onError == null) { return; }
 
-                    APIClient.GetMod(modId, onGetMod, onError);
+            APIClient.GetMod(modId,
+            (p) =>
+            {
+                if(LocalUser.SubscribedModIds.Contains(p.id))
+                {
+                    CacheClient.SaveModProfile(p, null);
                 }
+
+                if(onSuccess != null)
+                {
+                    onSuccess.Invoke(p);
+                }
+            },
+            (e) =>
+            {
+                CacheClient.LoadModProfile(modId,
+                (cachedProfile) =>
+                {
+                    if(cachedProfile != null)
+                    {
+                        if(onSuccess != null)
+                        {
+                            onSuccess.Invoke(cachedProfile);
+                        }
+                    }
+                    else
+                    {
+                        if(onError != null)
+                        {
+                            onError.Invoke(e);
+                        }
+                    }
+                });
             });
         }
 
