@@ -267,11 +267,9 @@ namespace ModIO.API
 
         // ---------[ Utility ]---------
         /// <summary>Gets the index and entry for a URL.</summary>
-        private static bool TryGetEntry(string url, out int index, out Entry entry)
+        private static bool TryGetEntry(string endpointURL, out int index, out Entry entry)
         {
-            string endpointURL = null;
-            if(!RequestCache.TryTrimAPIURLAndKey(url, out endpointURL)
-               || !RequestCache.urlResponseIndexMap.TryGetValue(endpointURL, out index)
+            if(!RequestCache.urlResponseIndexMap.TryGetValue(endpointURL, out index)
                || index < 0
                || index >= RequestCache.responses.Count)
             {
