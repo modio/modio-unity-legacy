@@ -100,12 +100,6 @@ namespace ModIO.UI
         /// <summary>Minimum profile count to request from the API.</summary>
         public int minimumFetchSize = APIPaginationParameters.LIMIT_MAX;
 
-        /// <summary>Cached profiles.</summary>
-        public Dictionary<int, ModProfile> profileCache = new Dictionary<int, ModProfile>()
-        {
-            { ModProfile.NULL_ID, null },
-        };
-
         // --- ACCESSORS ---
         public virtual bool isCachingPermitted
         {
@@ -129,15 +123,6 @@ namespace ModIO.UI
                 this.enabled = false;
             }
             #endif
-        }
-
-        protected virtual void OnDisable()
-        {
-            if(this.clearCacheOnDisable)
-            {
-                this.profileCache.Clear();
-                this.profileCache.Add(ModProfile.NULL_ID, null);
-            }
         }
 
         // ---------[ FUNCTIONALITY ]---------
@@ -202,15 +187,6 @@ namespace ModIO.UI
         {
             if(!this.isCachingPermitted || modProfiles == null) { return; }
 
-            // cache profiles
-            foreach(ModProfile profile in modProfiles)
-            {
-                if(profile != null)
-                {
-                    this.profileCache[profile.id] = profile;
-                }
-            }
-
             // store
             if(this.storeIfSubscribed)
             {
@@ -246,18 +222,10 @@ namespace ModIO.UI
         {
             Debug.Assert(onSuccess != null);
 
-            ModProfile profile = null;
-            if(profileCache.TryGetValue(id, out profile))
-            {
-                onSuccess(profile);
-                return;
-            }
-
             CacheClient.LoadModProfile(id, (cachedProfile) =>
             {
                 if(cachedProfile != null)
                 {
-                    profileCache.Add(id, cachedProfile);
                     onSuccess(cachedProfile);
                 }
                 else
@@ -266,8 +234,6 @@ namespace ModIO.UI
                     {
                         if(this != null)
                         {
-                            profileCache[p.id] = p;
-
                             if(this.storeIfSubscribed
                                && LocalUser.SubscribedModIds.Contains(p.id))
                             {
@@ -298,10 +264,6 @@ namespace ModIO.UI
             {
                 int modId = orderedIdList[i];
                 ModProfile profile = null;
-                if(this.profileCache.TryGetValue(modId, out profile))
-                {
-                    results[i] = profile;
-                }
 
                 if(profile == null)
                 {
@@ -475,8 +437,6 @@ namespace ModIO.UI
             for(int i = 0; i < result.Length; ++i)
             {
                 ModProfile profile = null;
-                this.profileCache.TryGetValue(modIds[i], out profile);
-
                 result[i] = profile;
             }
 
@@ -493,11 +453,6 @@ namespace ModIO.UI
             {
                 foreach(int modId in addedSubscriptions)
                 {
-                    ModProfile profile;
-                    if(this.profileCache.TryGetValue(modId, out profile))
-                    {
-                        CacheClient.SaveModProfile(profile, null);
-                    }
                 }
             }
         }
