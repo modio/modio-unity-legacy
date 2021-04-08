@@ -48,7 +48,7 @@ namespace ModIO.API
             string endpointURL = null;
 
             // try to remove the apiURL
-            if(!RequestCache.TryTrimAPIURL(url, out endpointURL)) { return false; }
+            if(!RequestCache.TryTrimAPIURLAndKey(url, out endpointURL)) { return false; }
 
             bool success = false;
             Entry entry;
@@ -84,7 +84,7 @@ namespace ModIO.API
             string endpointURL = null;
 
             // try to remove the apiURL
-            if(!RequestCache.TryTrimAPIURL(url, out endpointURL))
+            if(!RequestCache.TryTrimAPIURLAndKey(url, out endpointURL))
             {
                 Debug.LogWarning("[mod.io] Attempted to cache response for url that does not contain the api URL."
                                  + "\nRequest URL: " + (url == null ? "NULL" : url));
@@ -210,7 +210,7 @@ namespace ModIO.API
         private static bool TryGetEntry(string url, out int index, out Entry entry)
         {
             string endpointURL = null;
-            if(!RequestCache.TryTrimAPIURL(url, out endpointURL)
+            if(!RequestCache.TryTrimAPIURLAndKey(url, out endpointURL)
                || !RequestCache.urlResponseIndexMap.TryGetValue(endpointURL, out index)
                || index < 0
                || index >= RequestCache.responses.Count)
@@ -226,8 +226,8 @@ namespace ModIO.API
             }
         }
 
-        /// <summary>Trims the API URL from the front of the request URL.</summary>
-        private static bool TryTrimAPIURL(string requestURL, out string endpointURL)
+        /// <summary>Trims the API URL and API Key from the request URL.</summary>
+        private static bool TryTrimAPIURLAndKey(string requestURL, out string endpointURL)
         {
             if(string.IsNullOrEmpty(requestURL)
                || !requestURL.StartsWith(PluginSettings.API_URL)
@@ -237,7 +237,7 @@ namespace ModIO.API
                 return false;
             }
 
-            endpointURL = requestURL.Substring(PluginSettings.API_URL.Length+1);
+            endpointURL = requestURL.Substring(PluginSettings.API_URL.Length+1).Replace("&api_key=" + PluginSettings.GAME_API_KEY, string.Empty);
             return true;
         }
 
