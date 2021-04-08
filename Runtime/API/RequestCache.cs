@@ -166,25 +166,6 @@ namespace ModIO.API
             }
         }
 
-        /// <summary>Gets the index and entry for a URL.</summary>
-        private static bool TryGetEntry(string url, out int index, out Entry entry)
-        {
-            if(string.IsNullOrEmpty(url)
-               || !RequestCache.urlResponseIndexMap.TryGetValue(url, out index)
-               || index < 0
-               || index >= RequestCache.responses.Count)
-            {
-                index = -1;
-                entry = new Entry();
-                return false;
-            }
-            else
-            {
-                entry = RequestCache.responses[index];
-                return true;
-            }
-        }
-
         /// <summary>Removes the oldest entries from the cache.</summary>
         private static void RemoveOldestEntries(int count)
         {
@@ -222,6 +203,27 @@ namespace ModIO.API
             RequestCache.responses.RemoveRange(0, count);
         }
 
+        // ---------[ Utility ]---------
+        /// <summary>Gets the index and entry for a URL.</summary>
+        private static bool TryGetEntry(string url, out int index, out Entry entry)
+        {
+            string endpointURL = null;
+            if(!RequestCache.TryTrimAPIURL(url, out endpointURL)
+               || !RequestCache.urlResponseIndexMap.TryGetValue(endpointURL, out index)
+               || index < 0
+               || index >= RequestCache.responses.Count)
+            {
+                index = -1;
+                entry = new Entry();
+                return false;
+            }
+            else
+            {
+                entry = RequestCache.responses[index];
+                return true;
+            }
+        }
+
         /// <summary>Trims the API URL from the front of the request URL.</summary>
         private static bool TryTrimAPIURL(string requestURL, out string endpointURL)
         {
@@ -236,5 +238,50 @@ namespace ModIO.API
             endpointURL = requestURL.Substring(PluginSettings.API_URL.Length+1);
             return true;
         }
+
+        #if DEBUG
+
+        /// <summary>Generates the string for debugging the data in the request cache.</summary>
+        public static string GenerateDebugInfo(int responseBodyCharacterLimit)
+        {
+            var s = new System.Text.StringBuilder();
+
+            s.AppendLine("currentCacheSize="
+                         + ValueFormatting.ByteCount(RequestCache.currentCacheSize, "0.0")
+                         + "/"
+                         + ValueFormatting.ByteCount(RequestCache.MAX_CACHE_SIZE, "0.0"));
+
+            s.AppendLine("urlResponseIndexMap=");
+            foreach(var kvp in RequestCache.urlResponseIndexMap)
+            {
+                s.AppendLine("[" + kvp.Value.ToString("00") + "]:" + kvp.Key);
+            }
+
+            s.AppendLine("responses=");
+            for(int i = 0; i < RequestCache.responses.Count; ++i)
+            {
+                Entry e = RequestCache.responses[i];
+                s.Append("[" + i.ToString("00") + "]:");
+                s.Append(ServerTimeStamp.ToLocalDateTime(e.timeStamp).ToString());
+                s.Append("--");
+                s.AppendLine(ValueFormatting.ByteCount(e.size, "0.00"));
+
+                string r = e.responseBody;
+                if(string.IsNullOrEmpty(r))
+                {
+                    r = "[NULL-OR-EMPTY]";
+                }
+                else
+                {
+                    r = r.Substring(0, UnityEngine.Mathf.Min(responseBodyCharacterLimit, r.Length));
+                }
+                s.AppendLine(">>" + r);
+            }
+
+            return s.ToString();
+        }
+
+
+        #endif // DEBUG
     }
 }
