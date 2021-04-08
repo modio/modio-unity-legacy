@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 using Debug = UnityEngine.Debug;
 
@@ -134,6 +135,70 @@ namespace ModIO.API
             RequestCache.responses.Add(newValue);
 
             RequestCache.currentCacheSize += size;
+        }
+
+        /// <summary>Stores a collection of mods in the response cache.</summary>
+        public static void StoreMods(int gameId, IEnumerable<ModProfile> mods)
+        {
+            if(mods == null) { return; }
+
+            List<string> endpointList = new List<string>();
+            List<Entry> entryList = new List<Entry>();
+            int now = ServerTimeStamp.Now;
+            uint culmativeSize = 0;
+
+            foreach(var mod in mods)
+            {
+                if(mod != null)
+                {
+                    string endpointURL = APIClient.BuildGetModEndpoint(gameId, mod.id);
+
+                    // skip if already cached
+                    if(RequestCache.urlResponseIndexMap.ContainsKey(endpointURL))
+                    {
+                        continue;
+                    }
+
+                    string modJSON = JsonConvert.SerializeObject(mod);
+                    uint size = (uint)modJSON.Length * sizeof(char);
+
+                    // break out if size is greater than max cache size
+                    if(culmativeSize + size >= RequestCache.MAX_CACHE_SIZE)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        endpointList.Add(endpointURL);
+                        entryList.Add(new Entry()
+                        {
+                            timeStamp = now,
+                            size = size,
+                            responseBody = modJSON,
+                        });
+
+                        culmativeSize += size;
+                    }
+                }
+            }
+
+            if(culmativeSize == 0)
+            {
+                Debug.Log("[mod.io] No mods were saved to the cache.");
+                return;
+            }
+
+            if(culmativeSize + RequestCache.currentCacheSize > RequestCache.MAX_CACHE_SIZE)
+            {
+                RequestCache.TrimCacheToMaxSize(RequestCache.MAX_CACHE_SIZE - culmativeSize);
+            }
+
+            int indexBase = RequestCache.responses.Count;
+            for(int i = 0; i < endpointList.Count; ++i)
+            {
+                RequestCache.urlResponseIndexMap.Add(endpointList[i], i + indexBase);
+            }
+            RequestCache.responses.AddRange(entryList);
         }
 
         /// <summary>Clears the data from the cache.</summary>
