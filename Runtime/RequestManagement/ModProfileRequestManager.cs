@@ -91,17 +91,8 @@ namespace ModIO.UI
         }
 
         // ---------[ FIELDS ]---------
-        /// <summary>Should the cache be cleared on disable</summary>
-        public bool clearCacheOnDisable = true;
-
         /// <summary>Minimum profile count to request from the API.</summary>
         public int minimumFetchSize = APIPaginationParameters.LIMIT_MAX;
-
-        // --- ACCESSORS ---
-        public virtual bool isCachingPermitted
-        {
-            get { return this.isActiveAndEnabled || !this.clearCacheOnDisable; }
-        }
 
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
@@ -182,7 +173,7 @@ namespace ModIO.UI
         /// <summary>Updates the cache - both on disk and in this object.</summary>
         public virtual void CacheModProfiles(IEnumerable<ModProfile> modProfiles)
         {
-            if(!this.isCachingPermitted || modProfiles == null) { return; }
+            if(modProfiles == null) { return; }
 
             // store
                 IList<int> subMods = LocalUser.SubscribedModIds;
@@ -199,9 +190,6 @@ namespace ModIO.UI
         /// <summary>Append the response page to the cached data.</summary>
         public virtual void CacheRequestPage(RequestFilter filter, RequestPage<ModProfile> page)
         {
-            // early out if shouldn't cache
-            if(!this.isCachingPermitted) { return; }
-
             // asserts
             Debug.Assert(filter != null);
             Debug.Assert(page != null);
