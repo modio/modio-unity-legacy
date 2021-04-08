@@ -974,16 +974,15 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-
         // ---------[ MOD ENDPOINTS ]---------
         /// <summary>Builds the endpoint for a specific mod.</summary>
-        public static string BuildGetModEndpoint(int gameId, int modId)
+        public static string BuildGetModEndpointURL(int gameId, int modId)
         {
             return (@"/games/" + gameId.ToString() + @"/mods/" + modId.ToString());
         }
 
         /// <summary>Builds the endpoint for a specific mod.</summary>
-        public static string BuildGetAllModsEndpoint(int gameId, string filterString, APIPaginationParameters pagination)
+        public static string BuildGetAllModsEndpointURL(int gameId, string filterString, APIPaginationParameters pagination)
         {
             string baseURL = (@"/games/" + gameId.ToString() + @"/mods");
 
@@ -1018,7 +1017,7 @@ namespace ModIO
                                   Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = (PluginSettings.API_URL
-                                  + APIClient.BuildGetModEndpoint(PluginSettings.GAME_ID, modId));
+                                  + APIClient.BuildGetModEndpointURL(PluginSettings.GAME_ID, modId));
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
                                                                  "",
