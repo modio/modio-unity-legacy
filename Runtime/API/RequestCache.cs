@@ -40,20 +40,22 @@ namespace ModIO.API
         /// <summary>Current running size of the cache.</summary>
         private static uint currentCacheSize = 0;
 
+        // ---------[ Access Interface ]---------
         /// <summary>Fetches a response from the cache.</summary>
         public static bool TryGetResponse(string url, out string response)
         {
             response = null;
+            string endpointURL = null;
 
-            // early out for null URL
-            if(string.IsNullOrEmpty(url)) { return false; }
+            // try to remove the apiURL
+            if(!RequestCache.TryTrimAPIURL(url, out endpointURL)) { return false; }
 
             bool success = false;
             Entry entry;
             int entryIndex;
 
             if(LocalUser.OAuthToken == RequestCache.lastOAuthToken
-               && RequestCache.TryGetEntry(url, out entryIndex, out entry))
+               && RequestCache.TryGetEntry(endpointURL, out entryIndex, out entry))
             {
                 // check if stale
                 if((ServerTimeStamp.Now - entry.timeStamp) <= RequestCache.ENTRY_LIFETIME)
@@ -79,16 +81,20 @@ namespace ModIO.API
                 RequestCache.lastOAuthToken = LocalUser.OAuthToken;
             }
 
-            if(string.IsNullOrEmpty(url))
+            string endpointURL = null;
+
+            // try to remove the apiURL
+            if(!RequestCache.TryTrimAPIURL(url, out endpointURL))
             {
-                Debug.LogWarning("[mod.io] Attempted to cache response for null or empty URL.");
+                Debug.LogWarning("[mod.io] Attempted to cache response for url that does not contain the api URL."
+                                 + "\nRequest URL: " + (url == null ? "NULL" : url));
                 return;
             }
 
             // remove stale entry
             int oldIndex;
             Entry oldValue;
-            if(RequestCache.TryGetEntry(url, out oldIndex, out oldValue))
+            if(RequestCache.TryGetEntry(endpointURL, out oldIndex, out oldValue))
             {
                 Debug.LogWarning("[mod.io] Stale cached request found. Removing all older entries.");
                 RequestCache.RemoveOldestEntries(oldIndex + 1);
@@ -105,7 +111,9 @@ namespace ModIO.API
             if(size > RequestCache.MAX_CACHE_SIZE)
             {
                 Debug.Log("[mod.io] Could not cache entry as the response body is larger than MAX_CACHE_SIZE."
-                          + "\nURL=" + url);
+                          + "\nMAX_CACHE_SIZE=" + ValueFormatting.ByteCount(RequestCache.MAX_CACHE_SIZE, "0.0")
+                          + "\nendpointURL=" + endpointURL
+                          + "\nResponseBody Size=" + ValueFormatting.ByteCount(size, "0.0"));
                 return;
             }
 
@@ -122,7 +130,7 @@ namespace ModIO.API
                 size = size,
             };
 
-            RequestCache.urlResponseIndexMap.Add(url, RequestCache.responses.Count);
+            RequestCache.urlResponseIndexMap.Add(endpointURL, RequestCache.responses.Count);
             RequestCache.responses.Add(newValue);
         }
 
@@ -212,6 +220,21 @@ namespace ModIO.API
 
             // remove responses
             RequestCache.responses.RemoveRange(0, count);
+        }
+
+        /// <summary>Trims the API URL from the front of the request URL.</summary>
+        private static bool TryTrimAPIURL(string requestURL, out string endpointURL)
+        {
+            if(string.IsNullOrEmpty(requestURL)
+               || !requestURL.StartsWith(PluginSettings.API_URL)
+               || requestURL.Length == PluginSettings.API_URL.Length)
+            {
+                endpointURL = null;
+                return false;
+            }
+
+            endpointURL = requestURL.Substring(PluginSettings.API_URL.Length+1);
+            return true;
         }
     }
 }
