@@ -979,7 +979,15 @@ namespace ModIO
         /// <summary>Builds the endpoint for a specific mod.</summary>
         public static string BuildGetModEndpoint(int gameId, int modId)
         {
-            return (@"/games/" + gameId + @"/mods/" + modId);
+            return (@"/games/" + gameId.ToString() + @"/mods/" + modId.ToString());
+        }
+
+        /// <summary>Builds the endpoint for a specific mod.</summary>
+        public static string BuildGetAllModsEndpoint(int gameId, string filterString, APIPaginationParameters pagination)
+        {
+            string baseURL = (@"/games/" + gameId.ToString() + @"/mods");
+
+            return APIClient.BuildEndpointURL(baseURL, filterString, pagination);
         }
 
         /// <summary>Fetches all mod profiles from the mod.io servers.</summary>
