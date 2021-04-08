@@ -76,40 +76,80 @@ namespace ModIO.UI
             // ensure indicies are positive
             if(resultOffset < 0) { resultOffset = 0; }
             if(profileCount < 0) { profileCount = 0; }
-            if(profileCount < this.minimumFetchSize)
-            {
-                profileCount = this.minimumFetchSize;
-            }
+
+            // setup request structures
+            List<ModProfile> results = new List<ModProfile>(profileCount);
 
             // PaginationParameters
             APIPaginationParameters pagination = new APIPaginationParameters();
-            pagination.offset = resultOffset;
-            pagination.limit = profileCount;
 
-            // Send Request
+            int pageIndex = resultOffset / this.minimumFetchSize;
+            pagination.offset = pageIndex * this.minimumFetchSize;
+            pagination.limit = this.minimumFetchSize;
+
             APIClient.GetAllMods(filter, pagination,
-            (r) =>
+            (r01) =>
             {
-                if(this != null)
+                int pageOffset = resultOffset % this.minimumFetchSize;
+
+                for(int i = pageOffset;
+                    i < r01.items.Length
+                    && i < pageOffset + profileCount;
+                    ++i)
                 {
-                    this.CacheModProfiles(r.items);
+                    results.Add(r01.items[i]);
                 }
 
-                if(onSuccess != null)
+                if(pageOffset + profileCount > r01.size
+                   && r01.items.Length == r01.size)
                 {
-                    if(pagination.limit != profileCount)
+                    pagination.offset += pagination.limit;
+                    APIClient.GetAllMods(filter, pagination,
+                    (r02) =>
                     {
-                        var subPage = ModProfileRequestManager.CreatePageSubset(r,
-                                                                                resultOffset,
-                                                                                profileCount);
-                        onSuccess(subPage);
-                    }
-                    else
-                    {
-                        onSuccess(r);
-                    }
+                        for(int i = 0;
+                            i < r02.items.Length
+                            && i < pageOffset + profileCount - r02.size;
+                            ++i)
+                        {
+                            results.Add(r02.items[i]);
+                            OnModsReceived(resultOffset, profileCount, r02.resultTotal,
+                                           results, onSuccess);
+                        }
+                    }, onError);
+                }
+                else
+                {
+                    OnModsReceived(resultOffset, profileCount, r01.resultTotal,
+                                   results, onSuccess);
                 }
             }, onError);
+        }
+
+        /// <summary>Processes the received mod collection and generates a request page.</summary>
+        private void OnModsReceived(int resultOffset, int pageSize, int resultTotal,
+                                    List<ModProfile> results,
+                                    Action<RequestPage<ModProfile>> onSuccess)
+        {
+            if(onSuccess == null) { return; }
+
+            this.CacheModProfiles(results);
+
+            RequestPage<ModProfile> page = new RequestPage<ModProfile>()
+            {
+                size = pageSize,
+                resultOffset = resultOffset,
+                resultTotal = resultTotal,
+                items = results.ToArray(),
+            };
+
+            Debug.Log("RequestPage Generated:"
+                      + "\n.size=" + page.size.ToString()
+                      + "\n.resultOffset=" + page.resultOffset.ToString()
+                      + "\n.resultTotal=" + page.resultTotal.ToString()
+                      + "\n.items.Length=" + page.items.Length.ToString());
+
+            onSuccess.Invoke(page);
         }
 
         /// <summary>Updates the cache - both on disk and in this object.</summary>
