@@ -59,8 +59,10 @@ namespace ModIO.UI
                                                 Action<RequestPage<ModProfile>> onSuccess,
                                                 Action<WebRequestError> onError)
         {
-            Debug.Assert(onSuccess != null);
             Debug.Assert(this.minimumFetchSize <= APIPaginationParameters.LIMIT_MAX);
+
+            // early out if onSuccess == null
+            if(onSuccess == null) { return; }
 
             if(profileCount > APIPaginationParameters.LIMIT_MAX)
             {
@@ -74,15 +76,15 @@ namespace ModIO.UI
             // ensure indicies are positive
             if(resultOffset < 0) { resultOffset = 0; }
             if(profileCount < 0) { profileCount = 0; }
+            if(profileCount < this.minimumFetchSize)
+            {
+                profileCount = this.minimumFetchSize;
+            }
 
             // PaginationParameters
             APIPaginationParameters pagination = new APIPaginationParameters();
             pagination.offset = resultOffset;
             pagination.limit = profileCount;
-            if(profileCount < this.minimumFetchSize)
-            {
-                pagination.limit = this.minimumFetchSize;
-            }
 
             // Send Request
             APIClient.GetAllMods(filter, pagination,
@@ -90,7 +92,7 @@ namespace ModIO.UI
             {
                 if(this != null)
                 {
-                    this.CacheRequestPage(filter, r);
+                    this.CacheModProfiles(r.items);
                 }
 
                 if(onSuccess != null)
@@ -125,17 +127,6 @@ namespace ModIO.UI
                         CacheClient.SaveModProfile(profile, null);
                     }
                 }
-        }
-
-        /// <summary>Append the response page to the cached data.</summary>
-        public virtual void CacheRequestPage(RequestFilter filter, RequestPage<ModProfile> page)
-        {
-            // asserts
-            Debug.Assert(filter != null);
-            Debug.Assert(page != null);
-
-            // cache profiles
-            this.CacheModProfiles(page.items);
         }
 
         /// <summary>Requests an individual ModProfile by id.</summary>
