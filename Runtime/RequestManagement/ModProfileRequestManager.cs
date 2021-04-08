@@ -100,9 +100,6 @@ namespace ModIO.UI
         /// <summary>Minimum profile count to request from the API.</summary>
         public int minimumFetchSize = APIPaginationParameters.LIMIT_MAX;
 
-        /// <summary>Cached requests.</summary>
-        public Dictionary<string, RequestPageData> requestCache = new Dictionary<string, RequestPageData>();
-
         /// <summary>Cached profiles.</summary>
         public Dictionary<int, ModProfile> profileCache = new Dictionary<int, ModProfile>()
         {
@@ -138,7 +135,6 @@ namespace ModIO.UI
         {
             if(this.clearCacheOnDisable)
             {
-                this.requestCache.Clear();
                 this.profileCache.Clear();
                 this.profileCache.Add(ModProfile.NULL_ID, null);
             }
@@ -165,60 +161,6 @@ namespace ModIO.UI
             // ensure indicies are positive
             if(resultOffset < 0) { resultOffset = 0; }
             if(profileCount < 0) { profileCount = 0; }
-
-            // check if results already cached
-            string filterString = filter.GenerateFilterString();
-            RequestPageData cachedPage;
-            if(this.requestCache.TryGetValue(filterString, out cachedPage))
-            {
-                List<int> requestModIds = new List<int>(profileCount);
-
-                int cachedPageOffset = resultOffset - cachedPage.resultOffset;
-
-                if(cachedPageOffset >= 0)
-                {
-                    int expectedIdCount = profileCount;
-                    if(profileCount + resultOffset > cachedPage.resultTotal)
-                    {
-                        expectedIdCount = cachedPage.resultTotal - resultOffset;
-                    }
-
-                    for(int i = 0;
-                        i < profileCount
-                        && i + cachedPageOffset < cachedPage.modIds.Length;
-                        ++i)
-                    {
-                        requestModIds.Add(cachedPage.modIds[i+cachedPageOffset]);
-                    }
-
-                    if(expectedIdCount == requestModIds.Count)
-                    {
-                        RequestPage<ModProfile> requestPage = new RequestPage<ModProfile>()
-                        {
-                            size = profileCount,
-                            resultOffset = resultOffset,
-                            resultTotal = cachedPage.resultTotal,
-                            items = this.PullProfilesFromCache(requestModIds),
-                        };
-
-                        bool isPageComplete = true;
-                        for(int i = 0;
-                            i < requestPage.items.Length
-                            && isPageComplete;
-                            ++i)
-                        {
-                            isPageComplete = (requestPage.items[i] != null);
-                        }
-
-
-                        if(isPageComplete)
-                        {
-                            onSuccess(requestPage);
-                            return;
-                        }
-                    }
-                }
-            }
 
             // PaginationParameters
             APIPaginationParameters pagination = new APIPaginationParameters();
@@ -293,29 +235,6 @@ namespace ModIO.UI
             // asserts
             Debug.Assert(filter != null);
             Debug.Assert(page != null);
-
-            // cache request
-            string filterString = filter.GenerateFilterString();
-            RequestPageData cachedData;
-            if(this.requestCache.TryGetValue(filterString, out cachedData))
-            {
-                cachedData.resultTotal = page.resultTotal;
-
-                this.requestCache[filterString] = RequestPageData.Append(cachedData,
-                                                                         page.resultOffset,
-                                                                         Utility.MapProfileIds(page.items));
-            }
-            else
-            {
-                cachedData = new RequestPageData()
-                {
-                    resultOffset = page.resultOffset,
-                    resultTotal = page.resultTotal,
-                    modIds = Utility.MapProfileIds(page.items),
-                };
-
-                this.requestCache.Add(filterString, cachedData);
-            }
 
             // cache profiles
             this.CacheModProfiles(page.items);
