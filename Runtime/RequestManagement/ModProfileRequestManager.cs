@@ -158,15 +158,15 @@ namespace ModIO.UI
             if(modProfiles == null) { return; }
 
             // store
-                IList<int> subMods = LocalUser.SubscribedModIds;
-                foreach(ModProfile profile in modProfiles)
+            IList<int> subMods = LocalUser.SubscribedModIds;
+            foreach(ModProfile profile in modProfiles)
+            {
+                if(profile != null
+                   && subMods.Contains(profile.id))
                 {
-                    if(profile != null
-                       && subMods.Contains(profile.id))
-                    {
-                        CacheClient.SaveModProfile(profile, null);
-                    }
+                    CacheClient.SaveModProfile(profile, null);
                 }
+            }
         }
 
         /// <summary>Requests an individual ModProfile by id.</summary>
