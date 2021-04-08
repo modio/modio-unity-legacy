@@ -179,17 +179,16 @@ namespace ModIO.API
                 }
             }
 
-            if(culmativeSize == 0)
-            {
-                Debug.Log("[mod.io] No mods were saved to the cache.");
-                return;
-            }
+            // early out if no mods to add
+            if(culmativeSize == 0) { return; }
 
+            // make space in cache
             if(culmativeSize + RequestCache.currentCacheSize > RequestCache.MAX_CACHE_SIZE)
             {
                 RequestCache.TrimCacheToMaxSize(RequestCache.MAX_CACHE_SIZE - culmativeSize);
             }
 
+            // add entries
             int indexBase = RequestCache.responses.Count;
             for(int i = 0; i < endpointList.Count; ++i)
             {
