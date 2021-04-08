@@ -311,36 +311,41 @@ namespace ModIO.API
                          + "/"
                          + ValueFormatting.ByteCount(RequestCache.MAX_CACHE_SIZE, "0.0"));
 
-            s.AppendLine("urlResponseIndexMap=");
+            s.AppendLine("constructedCache=");
+
             foreach(var kvp in RequestCache.urlResponseIndexMap)
             {
                 s.AppendLine("[" + kvp.Value.ToString("00") + "]:" + kvp.Key);
-            }
 
-            s.AppendLine("responses=");
-            for(int i = 0; i < RequestCache.responses.Count; ++i)
-            {
-                Entry e = RequestCache.responses[i];
-                s.Append("[" + i.ToString("00") + "]:");
-                s.Append(ServerTimeStamp.ToLocalDateTime(e.timeStamp).ToString());
-                s.Append("--");
-                s.AppendLine(ValueFormatting.ByteCount(e.size, "0.00"));
-
-                string r = e.responseBody;
-                if(string.IsNullOrEmpty(r))
+                if(kvp.Value < RequestCache.responses.Count)
                 {
-                    r = "[NULL-OR-EMPTY]";
+                    Entry e = RequestCache.responses[kvp.Value];
+
+                    s.AppendLine("> "
+                                 + ServerTimeStamp.ToLocalDateTime(e.timeStamp).ToString()
+                                 + " [+" + (ServerTimeStamp.Now - e.timeStamp).ToString() + "s] -- "
+                                 + ValueFormatting.ByteCount(e.size, "0.00"));
+
+                    string r = e.responseBody;
+                    if(string.IsNullOrEmpty(r))
+                    {
+                        r = "[NULL-OR-EMPTY]";
+                    }
+                    else
+                    {
+                        r = r.Substring(0, UnityEngine.Mathf.Min(responseBodyCharacterLimit, r.Length));
+                    }
+
+                    s.AppendLine("> " + r);
                 }
                 else
                 {
-                    r = r.Substring(0, UnityEngine.Mathf.Min(responseBodyCharacterLimit, r.Length));
+                    s.AppendLine("[BAD INDEX!!!]:" + kvp.Key.ToString());
                 }
-                s.AppendLine(">>" + r);
             }
 
             return s.ToString();
         }
-
 
         #endif // DEBUG
     }
