@@ -197,6 +197,37 @@ namespace ModIO.API
             RequestCache.responses.AddRange(entryList);
         }
 
+        /// <summary>Fetches a Mod Profile from the cache if available.</summary>
+        public static bool TryGetMod(int gameId, int modId, out ModProfile profile)
+        {
+            profile = null;
+
+            bool success = false;
+            string endpointURL = APIClient.BuildGetModEndpointURL(gameId, modId);
+
+            Entry entry;
+            int entryIndex;
+
+            if(LocalUser.OAuthToken == RequestCache.lastOAuthToken
+               && RequestCache.TryGetEntry(endpointURL, out entryIndex, out entry))
+            {
+                // check if stale
+                if((ServerTimeStamp.Now - entry.timeStamp) >= RequestCache.ENTRY_LIFETIME)
+                {
+                    // clear it, and any entries older than it
+                    RequestCache.RemoveOldestEntries(entryIndex + 1);
+                }
+                else
+                {
+                    string modJSON = entry.responseBody;
+                    profile = JsonConvert.DeserializeObject<ModProfile>(modJSON);
+                    success = true;
+                }
+            }
+
+            return success;
+        }
+
         /// <summary>Clears the data from the cache.</summary>
         public static void Clear()
         {
