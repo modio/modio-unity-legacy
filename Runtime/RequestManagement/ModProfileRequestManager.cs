@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ModIO.UI
 {
     /// <summary>Manages requests made for ModProfiles.</summary>
-    public class ModProfileRequestManager : MonoBehaviour, IModSubscriptionsUpdateReceiver
+    public class ModProfileRequestManager : MonoBehaviour
     {
         // ---------[ SINGLETON ]---------
         /// <summary>Singleton instance.</summary>
@@ -133,8 +133,6 @@ namespace ModIO.UI
         {
             if(onSuccess == null) { return; }
 
-            this.CacheModProfiles(results);
-
             RequestPage<ModProfile> page = new RequestPage<ModProfile>()
             {
                 size = pageSize,
@@ -143,24 +141,13 @@ namespace ModIO.UI
                 items = results.ToArray(),
             };
 
+            Debug.Log("RequestPage Generated:"
+                      + "\n.size=" + page.size.ToString()
+                      + "\n.resultOffset=" + page.resultOffset.ToString()
+                      + "\n.resultTotal=" + page.resultTotal.ToString()
+                      + "\n.items.Length=" + page.items.Length.ToString());
+
             onSuccess.Invoke(page);
-        }
-
-        /// <summary>Updates the cache - both on disk and in this object.</summary>
-        public virtual void CacheModProfiles(IEnumerable<ModProfile> modProfiles)
-        {
-            if(modProfiles == null) { return; }
-
-            // store
-            IList<int> subMods = LocalUser.SubscribedModIds;
-            foreach(ModProfile profile in modProfiles)
-            {
-                if(profile != null
-                   && subMods.Contains(profile.id))
-                {
-                    CacheClient.SaveModProfile(profile, null);
-                }
-            }
         }
 
         /// <summary>Requests an individual ModProfile by id.</summary>
@@ -177,19 +164,6 @@ namespace ModIO.UI
                                                Action<WebRequestError> onError)
         {
             ModManager.GetModProfiles(orderedIdList, onSuccess, onError);
-        }
-
-        // ---------[ EVENTS ]---------
-        /// <summary>Stores any cached profiles when the mod subscriptions are updated.</summary>
-        public void OnModSubscriptionsUpdated(IList<int> addedSubscriptions,
-                                              IList<int> removedSubscriptions)
-        {
-            if(addedSubscriptions.Count > 0)
-            {
-                foreach(int modId in addedSubscriptions)
-                {
-                }
-            }
         }
     }
 }
