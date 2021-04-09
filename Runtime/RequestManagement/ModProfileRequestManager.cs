@@ -141,12 +141,6 @@ namespace ModIO.UI
                 items = results.ToArray(),
             };
 
-            Debug.Log("RequestPage Generated:"
-                      + "\n.size=" + page.size.ToString()
-                      + "\n.resultOffset=" + page.resultOffset.ToString()
-                      + "\n.resultTotal=" + page.resultTotal.ToString()
-                      + "\n.items.Length=" + page.items.Length.ToString());
-
             onSuccess.Invoke(page);
         }
 
