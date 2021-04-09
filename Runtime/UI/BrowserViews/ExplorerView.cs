@@ -715,7 +715,6 @@ namespace ModIO.UI
             int displayCount = profileCollection.Count;
             ModProfile[] displayProfiles = new ModProfile[displayCount];
             ModStatistics[] displayStats = new ModStatistics[displayCount];
-            List<int> missingStatsData = new List<int>(displayCount);
 
             // build arrays
             for(int i = 0;
@@ -724,15 +723,9 @@ namespace ModIO.UI
             {
                 ModProfile profile = profileCollection[i];
                 ModStatistics stats = null;
-
                 if(profile != null)
                 {
-                    stats = ModStatisticsRequestManager.instance.TryGetValid(profile.id);
-
-                    if(stats == null)
-                    {
-                        missingStatsData.Add(profile.id);
-                    }
+                    stats = profile.statistics;
                 }
 
                 displayProfiles[i] = profile;
@@ -741,52 +734,6 @@ namespace ModIO.UI
 
             // display
             modContainer.DisplayMods(displayProfiles, displayStats);
-
-            // fetch missing stats
-            if(missingStatsData.Count > 0)
-            {
-                ModStatisticsRequestManager.instance.RequestModStatistics(missingStatsData,
-                (statsArray) =>
-                {
-                    if(this != null
-                       && modContainer != null)
-                    {
-                        // verify still valid
-                        bool doPushStats = (displayProfiles.Length == modContainer.modProfiles.Length);
-                        for(int i = 0;
-                            doPushStats && i < displayProfiles.Length;
-                            ++i)
-                        {
-                            // check profiles match
-                            ModProfile profile = displayProfiles[i];
-                            doPushStats = (profile == modContainer.modProfiles[i]);
-
-                            if(doPushStats
-                               && profile != null
-                               && displayStats[i] == null)
-                            {
-                                // get missing stats
-                                foreach(ModStatistics stats in statsArray)
-                                {
-                                    if(stats != null
-                                       && stats.modId == profile.id)
-                                    {
-                                        displayStats[i] = stats;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        // push display data
-                        if(doPushStats)
-                        {
-                            modContainer.DisplayMods(displayProfiles, displayStats);
-                        }
-                    }
-                },
-                null);
-            }
         }
 
         // ----------[ PAGE TRANSITIONS ]---------
