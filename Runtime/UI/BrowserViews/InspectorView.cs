@@ -46,18 +46,15 @@ namespace ModIO.UI
                                && this.m_modId == value)
                             {
                                 this.modView.profile = p;
-                            }
-                        },
-                        null);
 
-                        // statistics
-                        ModStatisticsRequestManager.instance.RequestModStatistics(this.m_modId,
-                        (s) =>
-                        {
-                            if(this != null
-                               && this.m_modId == value)
-                            {
-                                this.modView.statistics = s;
+                                if(p != null)
+                                {
+                                    this.modView.statistics = p.statistics;
+                                }
+                                else
+                                {
+                                    this.modView.statistics = null;
+                                }
                             }
                         },
                         null);
