@@ -30,16 +30,6 @@ namespace ModIO.UI
             }
         }
 
-        // ---------[ FIELDS ]---------
-        /// <summary>Should the cache be cleared on disable</summary>
-        public bool clearCacheOnDisable = true;
-
-        /// <summary>Cached ModStatistics to id map.</summary>
-        public Dictionary<int, ModStatistics> cache = new Dictionary<int, ModStatistics>();
-
-        /// <summary>Should the statistics be refetched if expired.</summary>
-        public bool refetchIfExpired = true;
-
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
         {
@@ -57,14 +47,6 @@ namespace ModIO.UI
                 this.enabled = false;
             }
             #endif
-        }
-
-        protected virtual void OnDisable()
-        {
-            if(this.clearCacheOnDisable)
-            {
-                this.cache.Clear();
-            }
         }
 
         // ---------[ ACCESSOR FUNCTIONS ]---------
