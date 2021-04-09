@@ -526,9 +526,6 @@ namespace ModIO.UI
             LocalUser.SubscribedModIds.AddRange(subsAdded);
             LocalUser.Save();
 
-            // cache profiles
-            ModProfileRequestManager.instance.CacheModProfiles(subProfiles);
-
             // handle changes
             OnSubscriptionsChanged(subsAdded, subsRemoved);
 
@@ -1094,7 +1091,6 @@ namespace ModIO.UI
             if(modEvents != null
                && modEvents.Count > 0)
             {
-                List<int> editedMods = new List<int>();
                 List<int> modfileChanged = new List<int>();
                 List<int> deletedMods = new List<int>();
 
@@ -1102,11 +1098,6 @@ namespace ModIO.UI
                 {
                     switch(modEvent.eventType)
                     {
-                        case ModEventType.ModEdited:
-                        {
-                            editedMods.Add(modEvent.modId);
-                        }
-                        break;
                         case ModEventType.ModfileChanged:
                         {
                             modfileChanged.Add(modEvent.modId);
@@ -1143,40 +1134,6 @@ namespace ModIO.UI
                         message = deletedModCount.ToString() + " subscribed mods have become unavailable and have been removed from your subscriptions.";
                     }
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
-                }
-
-                // remove duplicates from editedMods
-                if(editedMods.Count > 0
-                   && modfileChanged.Count > 0)
-                {
-                    foreach(int modId in modfileChanged)
-                    {
-                        editedMods.Remove(modId);
-                    }
-                }
-
-                // fetch and cache profile edits
-                if(editedMods.Count > 0)
-                {
-                    var pagination = new APIPaginationParameters()
-                    {
-                        limit = APIPaginationParameters.LIMIT_MAX,
-                        offset = 0,
-                    };
-
-                    RequestFilter modFilter = new RequestFilter();
-                    modFilter.sortFieldName = API.GetAllModsFilterFields.id;
-                    modFilter.AddFieldFilter(API.GetAllModsFilterFields.id, new InArrayFilter<int>()
-                    {
-                        filterArray = editedMods.ToArray()
-                    });
-
-                    APIClient.GetAllMods(modFilter, pagination,
-                    (r) =>
-                    {
-                        ModProfileRequestManager.instance.CacheModProfiles(r.items);
-                    },
-                    null);
                 }
 
                 // get new versions of subscribed mods
@@ -1237,8 +1194,6 @@ namespace ModIO.UI
                     else
                     {
                         // installs
-                        ModProfileRequestManager.instance.CacheModProfiles(response.items);
-
                         List<Modfile> latestBuilds = new List<Modfile>(response.items.Length);
                         List<int> subscribedModIds = LocalUser.SubscribedModIds;
                         foreach(ModProfile profile in response.items)
