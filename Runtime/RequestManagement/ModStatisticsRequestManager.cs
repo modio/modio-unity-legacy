@@ -73,46 +73,14 @@ namespace ModIO.UI
                                                  Action<ModStatistics> onSuccess,
                                                  Action<WebRequestError> onError)
         {
-            Debug.Assert(onSuccess != null);
-
-            // check loaded cache
-            ModStatistics cachedStats = null;
-            if(this.cache.TryGetValue(modId, out cachedStats)
-               && this.IsValid(cachedStats))
+            ModManager.GetModProfile(modId,
+            (profile) =>
             {
-                onSuccess.Invoke(cachedStats);
-                return;
-            }
-
-            CacheClient.LoadModStatistics(modId, (stats) =>
-            {
-                if(this == null) { return; }
-
-                if(this.IsValid(stats))
+                if(onSuccess != null)
                 {
-                    this.cache.Add(modId, stats);
-
-                    if(onSuccess != null)
-                    {
-                        onSuccess.Invoke(stats);
-                    }
+                    onSuccess.Invoke(profile.statistics);
                 }
-                else
-                {
-                    APIClient.GetModStats(modId, (s) =>
-                    {
-                        if(this != null)
-                        {
-                            this.cache[modId] = s;
-                        }
-                        if(onSuccess != null)
-                        {
-                            onSuccess(s);
-                        }
-                    },
-                    onError);
-                }
-            });
+            }, onError);
         }
 
         /// <summary>Requests a collection of ModStatistcs by id.</summary>
