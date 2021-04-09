@@ -180,7 +180,10 @@ namespace ModIO.API
             }
 
             // early out if no mods to add
-            if(culmativeSize == 0) { return; }
+            if(culmativeSize == 0)
+            {
+                return;
+            }
 
             // make space in cache
             if(culmativeSize + RequestCache.currentCacheSize > RequestCache.MAX_CACHE_SIZE)
@@ -195,6 +198,7 @@ namespace ModIO.API
                 RequestCache.urlResponseIndexMap.Add(endpointList[i], i + indexBase);
             }
             RequestCache.responses.AddRange(entryList);
+            RequestCache.currentCacheSize += culmativeSize;
         }
 
         /// <summary>Fetches a Mod Profile from the cache if available.</summary>
