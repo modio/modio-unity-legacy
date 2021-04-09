@@ -54,7 +54,7 @@ namespace ModIO.UI
             Texture2D texture = null;
 
             // attempt cache retrieval
-            ImageRequestManager.instance.cache.TryGetValue(imageURL, out texture);
+            ImageRequestManager.instance.TryGetImage(imageURL, out texture);
             if(texture != null)
             {
                 if(loadingOverlay != null)
@@ -69,8 +69,8 @@ namespace ModIO.UI
 
             // get fallback?
             if(this.enableFallback
-               && ImageRequestManager.instance.cache.TryGetValue(this.m_data.GetImageURL(!this.useOriginal),
-                                                                 out texture))
+               && ImageRequestManager.instance.TryGetImage(this.m_data.GetImageURL(!this.useOriginal),
+                                                           out texture))
             {
                 DisplayTexture(texture);
                 SetOverlayVisibility(true);

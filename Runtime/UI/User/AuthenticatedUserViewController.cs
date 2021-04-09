@@ -42,7 +42,7 @@ namespace ModIO.UI
                 thumbnail_50x50 = avatarURL,
                 thumbnail_100x100 = avatarURL,
             };
-            ImageRequestManager.instance.cache[avatarURL] = this.m_unauthenticatedUser.avatar;
+            ImageRequestManager.instance.StoreImage(avatarURL, this.m_unauthenticatedUser.avatar);
 
             // set view profile
             this.view.profile = this.m_unauthenticatedUser.profile;
