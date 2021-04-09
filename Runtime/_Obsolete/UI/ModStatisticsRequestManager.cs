@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace ModIO.UI
 {
-    /// <summary>A simple component for caching ModStatistics objects.</summary>
+    /// <summary>[Obsolete] A simple component for caching ModStatistics objects.</summary>
+    [Obsolete("No longer necessary. Access the staistics from ModProfile objects retrieved via the ModProfileRequestManager.")]
     public class ModStatisticsRequestManager : MonoBehaviour
     {
         // ---------[ SINGLETON ]---------
