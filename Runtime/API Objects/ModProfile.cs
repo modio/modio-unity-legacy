@@ -114,6 +114,10 @@ namespace ModIO
         [JsonProperty("tags")]
         public ModTag[] tags;
 
+        /// <summary>Contains stats data.</summary>
+        [JsonProperty("stats")]
+        public ModStatistics statistics;
+
         // ---------[ ACCESSORS ]---------
         [JsonIgnore]
         public IEnumerable<string> tagNames
