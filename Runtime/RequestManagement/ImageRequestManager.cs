@@ -38,6 +38,10 @@ namespace ModIO.UI
             public Action<Texture2D> onTextureDownloaded = null;
         }
 
+        // ---------[ CONSTANTS ]---------
+        /// <summary>The URL for the unauthenticated guest account avatar.</summary>
+        public const string GUEST_AVATAR_URL = @":GUEST_AVATAR:";
+
         // ---------[ FIELDS ]---------
         /// <summary>Should the downloads made by this object be excluded from logging?</summary>
         [Tooltip("Should the downloads made by this object be excluded from logging?")]
@@ -49,8 +53,11 @@ namespace ModIO.UI
         /// <summary>If enabled, stores retrieved images for subscribed mods.</summary>
         public bool storeIfSubscribed = true;
 
-        /// <summary>Cached images.</summary>
-        public Dictionary<string, Texture2D> cache = new Dictionary<string, Texture2D>();
+        /// <summary>Texture for the guest avatar.</summary>
+        public Texture2D guestAvatar = null;
+
+        // /// <summary>Cached images.</summary>
+        // public Dictionary<string, Texture2D> cache = new Dictionary<string, Texture2D>();
 
         /// <summary>Callback map for images currently being fetched.</summary>
         private Dictionary<string, Callbacks> m_callbackMap = new Dictionary<string, Callbacks>();
@@ -72,14 +79,6 @@ namespace ModIO.UI
                 this.enabled = false;
             }
             #endif
-        }
-
-        protected virtual void OnDisable()
-        {
-            if(this.clearCacheOnDisable)
-            {
-                this.cache.Clear();
-            }
         }
 
         // ---------[ FUNCTIONALITY ]---------
@@ -215,6 +214,15 @@ namespace ModIO.UI
 
             string url = locator.GetSizeURL(size);
 
+            if(url == ImageRequestManager.GUEST_AVATAR_URL)
+            {
+                if(onAvatarReceived != null)
+                {
+                    onAvatarReceived.Invoke(this.guestAvatar);
+                }
+                return;
+            }
+
             // check cache and existing callbacks
             if(this.TryGetCacheOrSetCallbacks(url, onAvatarReceived, onFallbackFound, onError))
             {
@@ -333,12 +341,12 @@ namespace ModIO.UI
                 return true;
             }
 
-            // check cache
-            if(this.cache.ContainsKey(url))
-            {
-                onSuccess.Invoke(this.cache[url]);
-                return true;
-            }
+            // // check cache
+            // if(this.cache.ContainsKey(url))
+            // {
+            //     onSuccess.Invoke(this.cache[url]);
+            //     return true;
+            // }
 
             // check requests in progress
             Callbacks callbacks = null;
@@ -383,21 +391,23 @@ namespace ModIO.UI
         /// <summary>Finds a fallback texture for the given locator.</summary>
         protected virtual Texture2D FindFallbackTexture<E>(IMultiSizeImageLocator<E> locator)
         {
-            Debug.Assert(locator != null);
+            // Debug.Assert(locator != null);
 
-            Texture2D fallbackTexture = null;
-            foreach(var pair in locator.GetAllURLs())
-            {
-                Texture2D cachedTexture = null;
-                E originalSize = locator.GetOriginalSize();
-                if(!pair.size.Equals(originalSize)
-                   && this.cache.TryGetValue(pair.url, out cachedTexture))
-                {
-                    fallbackTexture = cachedTexture;
-                }
-            }
+            // Texture2D fallbackTexture = null;
+            // foreach(var pair in locator.GetAllURLs())
+            // {
+            //     Texture2D cachedTexture = null;
+            //     E originalSize = locator.GetOriginalSize();
+            //     if(!pair.size.Equals(originalSize)
+            //        && this.cache.TryGetValue(pair.url, out cachedTexture))
+            //     {
+            //         fallbackTexture = cachedTexture;
+            //     }
+            // }
 
-            return fallbackTexture;
+            // return fallbackTexture;
+
+            return null;
         }
 
         /// <summary>Creates and sends an image download request for the given url.</summary>
@@ -481,10 +491,10 @@ namespace ModIO.UI
         {
             if(this == null) { return; }
 
-            if(this.isActiveAndEnabled || !this.clearCacheOnDisable)
-            {
-                this.cache[url] = texture;
-            }
+            // if(this.isActiveAndEnabled || !this.clearCacheOnDisable)
+            // {
+            //     this.cache[url] = texture;
+            // }
 
             if(this.m_callbackMap.ContainsKey(url))
             {
@@ -532,53 +542,53 @@ namespace ModIO.UI
         /// <summary>Finds any images relating to the profile and stores them using the CacheClient.</summary>
         protected virtual void StoreModImages(ModProfile profile)
         {
-            Texture2D cachedTexture = null;
+            // Texture2D cachedTexture = null;
 
-            // check for logo
-            if(profile.logoLocator != null)
-            {
-                foreach(var sizeURLPair in profile.logoLocator.GetAllURLs())
-                {
-                    if(this.cache.TryGetValue(sizeURLPair.url, out cachedTexture))
-                    {
-                        CacheClient.SaveModLogo(profile.id, profile.logoLocator.GetFileName(),
-                                                sizeURLPair.size, cachedTexture, null);
-                    }
-                }
-            }
+            // // check for logo
+            // if(profile.logoLocator != null)
+            // {
+            //     foreach(var sizeURLPair in profile.logoLocator.GetAllURLs())
+            //     {
+            //         if(this.cache.TryGetValue(sizeURLPair.url, out cachedTexture))
+            //         {
+            //             CacheClient.SaveModLogo(profile.id, profile.logoLocator.GetFileName(),
+            //                                     sizeURLPair.size, cachedTexture, null);
+            //         }
+            //     }
+            // }
 
-            // check for gallery images
-            if(profile.media != null && profile.media.galleryImageLocators != null)
-            {
-                foreach(var locator in profile.media.galleryImageLocators)
-                {
-                    foreach(var sizeURLPair in locator.GetAllURLs())
-                    {
-                        if(this.cache.TryGetValue(sizeURLPair.url, out cachedTexture))
-                        {
-                            CacheClient.SaveModGalleryImage(profile.id, locator.GetFileName(),
-                                                            sizeURLPair.size, cachedTexture,
-                                                            null);
-                        }
-                    }
-                }
-            }
+            // // check for gallery images
+            // if(profile.media != null && profile.media.galleryImageLocators != null)
+            // {
+            //     foreach(var locator in profile.media.galleryImageLocators)
+            //     {
+            //         foreach(var sizeURLPair in locator.GetAllURLs())
+            //         {
+            //             if(this.cache.TryGetValue(sizeURLPair.url, out cachedTexture))
+            //             {
+            //                 CacheClient.SaveModGalleryImage(profile.id, locator.GetFileName(),
+            //                                                 sizeURLPair.size, cachedTexture,
+            //                                                 null);
+            //             }
+            //         }
+            //     }
+            // }
 
-            // check for YouTube thumbs
-            if(profile.media != null && profile.media.youTubeURLs != null)
-            {
-                foreach(string videoURL in profile.media.youTubeURLs)
-                {
-                    string youTubeId = Utility.ExtractYouTubeIdFromURL(videoURL);
-                    string thumbURL = Utility.GenerateYouTubeThumbnailURL(youTubeId);
+            // // check for YouTube thumbs
+            // if(profile.media != null && profile.media.youTubeURLs != null)
+            // {
+            //     foreach(string videoURL in profile.media.youTubeURLs)
+            //     {
+            //         string youTubeId = Utility.ExtractYouTubeIdFromURL(videoURL);
+            //         string thumbURL = Utility.GenerateYouTubeThumbnailURL(youTubeId);
 
-                    if(this.cache.TryGetValue(thumbURL, out cachedTexture))
-                    {
-                        CacheClient.SaveModYouTubeThumbnail(profile.id, youTubeId, cachedTexture,
-                                                            null);
-                    }
-                }
-            }
+            //         if(this.cache.TryGetValue(thumbURL, out cachedTexture))
+            //         {
+            //             CacheClient.SaveModYouTubeThumbnail(profile.id, youTubeId, cachedTexture,
+            //                                                 null);
+            //         }
+            //     }
+            // }
         }
 
         /// <summary>Get images from the cache that match the given URLS.</summary>
@@ -588,13 +598,13 @@ namespace ModIO.UI
 
             Texture2D[] result = new Texture2D[urlList.Count];
 
-            for(int i = 0; i < result.Length; ++i)
-            {
-                Texture2D t = null;
-                this.cache.TryGetValue(urlList[i], out t);
+            // for(int i = 0; i < result.Length; ++i)
+            // {
+            //     Texture2D t = null;
+            //     this.cache.TryGetValue(urlList[i], out t);
 
-                result[i] = t;
-            }
+            //     result[i] = t;
+            // }
 
             return result;
         }

@@ -51,39 +51,8 @@ namespace ModIO.UI
         private void PresentData()
         {
             string imageURL = this.m_data.GetImageURL(this.useOriginal);
-            Texture2D texture = null;
 
-            // attempt cache retrieval
-            ImageRequestManager.instance.cache.TryGetValue(imageURL, out texture);
-            if(texture != null)
-            {
-                if(loadingOverlay != null)
-                {
-                    loadingOverlay.SetActive(false);
-                }
-
-                DisplayTexture(texture);
-                SetOverlayVisibility(true);
-                return;
-            }
-
-            // get fallback?
-            if(this.enableFallback
-               && ImageRequestManager.instance.cache.TryGetValue(this.m_data.GetImageURL(!this.useOriginal),
-                                                                 out texture))
-            {
-                DisplayTexture(texture);
-                SetOverlayVisibility(true);
-
-                if(loadingOverlay != null)
-                {
-                    loadingOverlay.SetActive(true);
-                }
-            }
-            else
-            {
-                DisplayLoading();
-            }
+            DisplayLoading();
 
             // request missing texture
             if(!string.IsNullOrEmpty(imageURL))

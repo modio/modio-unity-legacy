@@ -128,13 +128,11 @@ namespace ModIO
         private static Dictionary<string, GetRequestHandle> _activeGetRequests
             = new Dictionary<string, GetRequestHandle>();
 
-        /// <summary>Generates the object for a basic mod.io server request.</summary>
-        public static UnityWebRequest GenerateQuery(string endpointURL,
-                                                    string filterString,
-                                                    APIPaginationParameters pagination)
+        /// <summary>Utility function for building a query URL.</summary>
+        public static string BuildEndpointURL(string baseURL,
+                                              string filterString,
+                                              APIPaginationParameters pagination)
         {
-            APIClient.AssertAuthorizationDetails(false);
-
             string paginationString;
             if(pagination == null)
             {
@@ -146,12 +144,21 @@ namespace ModIO
                                     + "&_offset=" + pagination.offset);
             }
 
-            string queryURL = (endpointURL
-                               + "?" + filterString
-                               + paginationString);
+            return (baseURL + "?" + filterString + paginationString);
+        }
+
+        /// <summary>Generates the object for a basic mod.io server request.</summary>
+        public static UnityWebRequest GenerateQuery(string endpointURL,
+                                                    string filterString,
+                                                    APIPaginationParameters pagination)
+        {
+            APIClient.AssertAuthorizationDetails(false);
+
+            string queryURL = APIClient.BuildEndpointURL(endpointURL, filterString, pagination);
 
             UnityWebRequest webRequest = UnityWebRequest.Get(queryURL);
 
+            // NOTE(@jackson): Do this after so that it's only one branch if we're adding the header
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
@@ -175,20 +182,7 @@ namespace ModIO
         {
             APIClient.AssertAuthorizationDetails(true);
 
-            string paginationString;
-            if(pagination == null)
-            {
-                paginationString = string.Empty;
-            }
-            else
-            {
-                paginationString = ("&_limit=" + pagination.limit
-                                    + "&_offset=" + pagination.offset);
-            }
-
-            string constructedURL = (endpointURL
-                                     + "?" + filterString
-                                     + paginationString);
+            string constructedURL = APIClient.BuildEndpointURL(endpointURL, filterString, pagination);
 
             UnityWebRequest webRequest = UnityWebRequest.Get(constructedURL);
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
@@ -980,8 +974,21 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-
         // ---------[ MOD ENDPOINTS ]---------
+        /// <summary>Builds the endpoint for a specific mod.</summary>
+        public static string BuildGetModEndpointURL(int gameId, int modId)
+        {
+            return (@"/games/" + gameId.ToString() + @"/mods/" + modId.ToString());
+        }
+
+        /// <summary>Builds the endpoint for a specific mod.</summary>
+        public static string BuildGetAllModsEndpointURL(int gameId, string filterString, APIPaginationParameters pagination)
+        {
+            string baseURL = (@"/games/" + gameId.ToString() + @"/mods");
+
+            return APIClient.BuildEndpointURL(baseURL, filterString, pagination);
+        }
+
         /// <summary>Fetches all mod profiles from the mod.io servers.</summary>
         public static void GetAllMods(RequestFilter filter, APIPaginationParameters pagination,
                                       Action<RequestPage<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
@@ -989,17 +996,28 @@ namespace ModIO
             string endpointURL = PluginSettings.API_URL + @"/games/" + PluginSettings.GAME_ID + @"/mods";
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                              filter.GenerateFilterString(),
-                                                              pagination);
+                                                                 filter.GenerateFilterString(),
+                                                                 pagination);
 
-            APIClient.SendRequest(webRequest, successCallback, errorCallback);
+            Action<RequestPage<ModProfile>> cacheAndInvokeSuccess = (r) =>
+            {
+                RequestCache.StoreMods(PluginSettings.GAME_ID, r.items);
+
+                if(successCallback != null)
+                {
+                    successCallback.Invoke(r);
+                }
+            };
+
+            APIClient.SendRequest(webRequest, cacheAndInvokeSuccess, errorCallback);
         }
 
         /// <summary>Fetches a mod profile from the mod.io servers.</summary>
         public static void GetMod(int modId,
                                   Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
-            string endpointURL = PluginSettings.API_URL + @"/games/" + PluginSettings.GAME_ID + @"/mods/" + modId;
+            string endpointURL = (PluginSettings.API_URL
+                                  + APIClient.BuildGetModEndpointURL(PluginSettings.GAME_ID, modId));
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
                                                                  "",

@@ -882,81 +882,159 @@ namespace ModIO
             });
         }
 
-
         // ---------[ MOD PROFILES ]---------
-        /// <summary>Fetches and caches a Mod Profile (if not already cached).</summary>
+        /// <summary>Fetches a mod profile checking the cache, storing if subscribed.</summary>
         public static void GetModProfile(int modId,
                                          Action<ModProfile> onSuccess,
                                          Action<WebRequestError> onError)
         {
-            CacheClient.LoadModProfile(modId, (cachedProfile) =>
-            {
-                if(cachedProfile != null)
-                {
-                    if(onSuccess != null) { onSuccess(cachedProfile); }
-                }
-                else
-                {
-                    // - Fetch from Server -
-                    Action<ModProfile> onGetMod = (profile) =>
-                    {
-                        CacheClient.SaveModProfile(profile, null);
-                        if(onSuccess != null) { onSuccess(profile); }
-                    };
+            if(onSuccess == null && onError == null) { return; }
 
-                    APIClient.GetMod(modId, onGetMod, onError);
+            APIClient.GetMod(modId,
+            (p) =>
+            {
+                if(LocalUser.SubscribedModIds.Contains(p.id))
+                {
+                    CacheClient.SaveModProfile(p, null);
                 }
+
+                if(onSuccess != null)
+                {
+                    onSuccess.Invoke(p);
+                }
+            },
+            (e) =>
+            {
+                CacheClient.LoadModProfile(modId,
+                (cachedProfile) =>
+                {
+                    if(cachedProfile != null)
+                    {
+                        if(onSuccess != null)
+                        {
+                            onSuccess.Invoke(cachedProfile);
+                        }
+                    }
+                    else
+                    {
+                        if(onError != null)
+                        {
+                            onError.Invoke(e);
+                        }
+                    }
+                });
             });
         }
 
-        /// <summary>Fetches and caches Mod Profiles (if not already cached).</summary>
-        public static void GetModProfiles(IEnumerable<int> modIds,
-                                          Action<List<ModProfile>> onSuccess,
+        /// <summary>Fetches a list of mod profiles checking the cache, storing if subscribed.</summary>
+        public static void GetModProfiles(IList<int> orderedIdList,
+                                          Action<ModProfile[]> onSuccess,
                                           Action<WebRequestError> onError)
         {
-            List<int> missingModIds = new List<int>(modIds);
-            List<ModProfile> modProfiles = new List<ModProfile>(missingModIds.Count);
-
-            CacheClient.RequestAllModProfiles((cachedProfiles) =>
+            // early out
+            if(orderedIdList == null)
             {
-                foreach(ModProfile profile in cachedProfiles)
+                if(onSuccess != null)
                 {
-                    if(missingModIds.Contains(profile.id))
-                    {
-                        missingModIds.Remove(profile.id);
-                        modProfiles.Add(profile);
-                    }
+                    onSuccess.Invoke(null);
                 }
 
-                if(missingModIds.Count == 0)
+                return;
+            }
+
+            // grab from request cache
+            ModProfile[] modProfiles = new ModProfile[orderedIdList.Count];
+            List<int> missingModIds = new List<int>(orderedIdList.Count);
+
+            for(int i = 0; i < orderedIdList.Count; ++i)
+            {
+                int modId = orderedIdList[i];
+                ModProfile profile;
+                if(RequestCache.TryGetMod(PluginSettings.GAME_ID, modId, out profile))
                 {
-                    if(onSuccess != null) { onSuccess(modProfiles); }
+                    modProfiles[i] = profile;
                 }
                 else
                 {
-                    // - Filter -
-                    RequestFilter modFilter = new RequestFilter();
-                    modFilter.sortFieldName = GetAllModsFilterFields.id;
-                    modFilter.AddFieldFilter(GetAllModsFilterFields.id, new InArrayFilter<int>()
-                    {
-                        filterArray = missingModIds.ToArray()
-                    });
-
-                    Action<List<ModProfile>> onGetMods = (profiles) =>
-                    {
-                        modProfiles.AddRange(profiles);
-
-                        CacheClient.SaveModProfiles(profiles, null);
-
-                        if(onSuccess != null) { onSuccess(modProfiles); }
-                    };
-
-                    // - Get All Events -
-                    ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetAllMods(modFilter, p, s, e),
-                                                                   onGetMods,
-                                                                   onError);
+                    missingModIds.Add(modId);
                 }
+            }
+
+            // all found - out
+            if(missingModIds.Count == 0)
+            {
+                if(onSuccess != null)
+                {
+                    onSuccess.Invoke(modProfiles);
+                }
+
+                return;
+            }
+
+            // setup callbacks
+            Action<WebRequestError> checkForMissingModsInCache = (error) =>
+            {
+                if(missingModIds.Count == 0)
+                {
+                    if(onSuccess != null)
+                    {
+                        onSuccess.Invoke(modProfiles);
+                    }
+                }
+
+                CacheClient.RequestFilteredModProfiles(missingModIds,
+                (cachedProfiles) =>
+                {
+                    foreach(var profile in cachedProfiles)
+                    {
+                        int index = orderedIdList.IndexOf(profile.id);
+                        if(index >= 0)
+                        {
+                            modProfiles[index] = profile;
+                        }
+
+                        missingModIds.Remove(profile.id);
+                    }
+
+                    if(missingModIds.Count > 0 && error != null)
+                    {
+                        if(onError != null) { onError.Invoke(error); }
+                    }
+                    else
+                    {
+                        if(onSuccess != null) { onSuccess.Invoke(modProfiles); }
+                    }
+                });
+            };
+
+            Action<List<ModProfile>> onGetMods = (fetchedProfiles) =>
+            {
+                foreach(var profile in fetchedProfiles)
+                {
+                    int index = orderedIdList.IndexOf(profile.id);
+                    if(index >= 0)
+                    {
+                        modProfiles[index] = profile;
+                    }
+
+                    missingModIds.Remove(profile.id);
+                }
+
+                checkForMissingModsInCache(null);
+            };
+
+            // setup filter
+            RequestFilter modFilter = new RequestFilter();
+            modFilter.sortFieldName = GetAllModsFilterFields.id;
+            modFilter.AddFieldFilter(GetAllModsFilterFields.id, new InArrayFilter<int>()
+            {
+                filterArray = missingModIds.ToArray()
             });
+
+            // - Get All Mods -
+            ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetAllMods(modFilter, p, s, e),
+                                                           onGetMods,
+                                                           checkForMissingModsInCache);
         }
 
         // ---------[ MOD IMAGES ]---------
@@ -1840,6 +1918,29 @@ namespace ModIO
 
             ModManager.QueryInstalledMods(modIdFilter, (r) => result = r);
             return result;
+        }
+
+
+        /// <summary>[Obsolete] Fetches a list of mod profiles checking the cache, storing if subscribed.</summary>
+        [Obsolete("Use GetModProfiles(IList<int>, Action<ModProfile[]>, Action<WebRequestError>) instead.")]
+        public static void GetModProfiles(IList<int> orderedIdList,
+                                          Action<List<ModProfile>> onSuccess,
+                                          Action<WebRequestError> onError)
+        {
+            ModManager.GetModProfiles(orderedIdList,
+            (ModProfile[] result) =>
+            {
+                if(onSuccess != null)
+                {
+                    List<ModProfile> profiles = null;
+                    if(result != null)
+                    {
+                        profiles = new List<ModProfile>(result);
+                    }
+
+                    onSuccess.Invoke(profiles);
+                }
+            }, onError);
         }
 
         #pragma warning restore 0067
