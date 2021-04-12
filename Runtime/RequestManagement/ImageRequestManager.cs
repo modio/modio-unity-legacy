@@ -38,6 +38,10 @@ namespace ModIO.UI
             public Action<Texture2D> onTextureDownloaded = null;
         }
 
+        // ---------[ CONSTANTS ]---------
+        /// <summary>The URL for the unauthenticated guest account avatar.</summary>
+        public const string GUEST_AVATAR_URL = @":GUEST_AVATAR:";
+
         // ---------[ FIELDS ]---------
         /// <summary>Should the downloads made by this object be excluded from logging?</summary>
         [Tooltip("Should the downloads made by this object be excluded from logging?")]
@@ -48,6 +52,9 @@ namespace ModIO.UI
 
         /// <summary>If enabled, stores retrieved images for subscribed mods.</summary>
         public bool storeIfSubscribed = true;
+
+        /// <summary>Texture for the guest avatar.</summary>
+        public Texture2D guestAvatar = null;
 
         // /// <summary>Cached images.</summary>
         // public Dictionary<string, Texture2D> cache = new Dictionary<string, Texture2D>();
@@ -75,12 +82,6 @@ namespace ModIO.UI
         }
 
         // ---------[ FUNCTIONALITY ]---------
-        /// <summary>Stores an image in the cache.</summary>
-        public void StoreImage(string url, Texture2D image)
-        {
-            throw new System.NotImplementedException();
-        }
-
         /// <summary>Attempts to retrieve an image from the cache.</summary>
         public bool TryGetImage(string url, out Texture2D image)
         {
@@ -218,6 +219,15 @@ namespace ModIO.UI
             Debug.Assert(onAvatarReceived != null);
 
             string url = locator.GetSizeURL(size);
+
+            if(url == ImageRequestManager.GUEST_AVATAR_URL)
+            {
+                if(onAvatarReceived != null)
+                {
+                    onAvatarReceived.Invoke(this.guestAvatar);
+                }
+                return;
+            }
 
             // check cache and existing callbacks
             if(this.TryGetCacheOrSetCallbacks(url, onAvatarReceived, onFallbackFound, onError))

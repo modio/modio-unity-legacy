@@ -34,15 +34,14 @@ namespace ModIO.UI
         protected virtual void Start()
         {
             // cache the guest avatar
-            string avatarURL = this.GetInstanceID().ToString() + @":GUEST_AVATAR";
             this.m_unauthenticatedUser.profile.avatarLocator = new AvatarImageLocator()
             {
                 fileName = "_AVATAR_",
-                original = avatarURL,
-                thumbnail_50x50 = avatarURL,
-                thumbnail_100x100 = avatarURL,
+                original = ImageRequestManager.GUEST_AVATAR_URL,
+                thumbnail_50x50 = ImageRequestManager.GUEST_AVATAR_URL,
+                thumbnail_100x100 = ImageRequestManager.GUEST_AVATAR_URL,
             };
-            ImageRequestManager.instance.StoreImage(avatarURL, this.m_unauthenticatedUser.avatar);
+            ImageRequestManager.instance.guestAvatar = this.m_unauthenticatedUser.avatar;
 
             // set view profile
             this.view.profile = this.m_unauthenticatedUser.profile;
