@@ -19,7 +19,7 @@ namespace ModIO.API
 
         // ---------[ Constants ]---------
         /// <summary>Number of seconds for which a cached response is considered valid.</summary>
-        private const int ENTRY_LIFETIME = 15;
+        private const int ENTRY_LIFETIME = 120;
 
         /// <summary>Max cache size.</summary>
         private static readonly uint MAX_CACHE_SIZE = PluginSettings.CACHE_SIZE*1024;
