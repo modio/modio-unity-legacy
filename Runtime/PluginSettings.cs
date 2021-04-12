@@ -40,6 +40,9 @@ namespace ModIO
             [Tooltip("API Key assigned to your game profile")]
             public string gameAPIKey;
 
+            [Tooltip("Amount of memory the request cache is permitted to grow to (KB)")]
+            public uint requestCacheSizeKB;
+
             /// <summary>Request logging options.</summary>
             public RequestLoggingOptions requestLogging;
 
@@ -209,6 +212,10 @@ namespace ModIO
         {
             get { return PluginSettings.data.requestLogging; }
         }
+        public static uint CACHE_SIZE
+        {
+            get { return PluginSettings.data.requestCacheSizeKB; }
+        }
 
         // ---------[ FUNCTIONALITY ]---------
         /// <summary>Loads the data from a PluginSettings asset.</summary>
@@ -342,6 +349,7 @@ namespace ModIO
                 apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
                 gameId = GameProfile.NULL_ID,
                 gameAPIKey = string.Empty,
+                requestCacheSizeKB = 4*1024,
                 requestLogging = new RequestLoggingOptions()
                 {
                     errorsAsWarnings = true,
