@@ -82,12 +82,6 @@ namespace ModIO.UI
         }
 
         // ---------[ FUNCTIONALITY ]---------
-        /// <summary>Attempts to retrieve an image from the cache.</summary>
-        public bool TryGetImage(string url, out Texture2D image)
-        {
-            throw new System.NotImplementedException();
-        }
-
         /// <summary>Requests the image for a given locator.</summary>
         public virtual void RequestModLogo(int modId, LogoImageLocator locator,
                                            LogoSize size,
