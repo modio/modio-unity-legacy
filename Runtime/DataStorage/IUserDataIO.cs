@@ -33,4 +33,11 @@ namespace ModIO
         /// <summary>Clears all of the active user's data.</summary>
         void ClearActiveUserData(ClearActiveUserDataCallback callback);
     }
+
+    /// <summary>Defines the functions necessary for the platform user data IO.</summary>
+    public interface IUserDataIO<T> : IUserDataIO
+    {
+        /// <summary>Initializes the storage system for the given user.</summary>
+        void SetActiveUser(T platformUserId, SetActiveUserCallback<T> callback);
+    }
 }

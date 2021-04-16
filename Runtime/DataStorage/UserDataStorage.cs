@@ -98,6 +98,54 @@ namespace ModIO
             });
         }
 
+        /// <summary>Initializes the data storage functionality for a given user.</summary>
+        public static void SetActiveUser<T>(T platformUserHandle, SetActiveUserCallback<T> callback)
+        {
+            if(UserDataStorage.PLATFORM_IO is IUserDataIO<T>)
+            {
+                ((IUserDataIO<T>)UserDataStorage.PLATFORM_IO).SetActiveUser(platformUserHandle,
+                (id, success) =>
+                {
+                    if(success)
+                    {
+                        LocalUser.Load(
+                        () =>
+                        {
+                            if(callback != null)
+                            {
+                                callback.Invoke(id, success);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        LocalUser.instance = new LocalUser();
+
+                        Debug.Log("[mod.io] Failed to set active user. LocalUser cleared.");
+
+                        if(callback != null)
+                        {
+                            callback.Invoke(id, success);
+                        }
+                    }
+                });
+            }
+            else
+            {
+                Debug.LogWarning("[mod.io] Attempt to call SetActiveUser with a type of: "
+                                 + typeof(T).ToString()
+                                 + "\nThis type of user handle is unsupported by the assigned IUserDataIO implementation: "
+                                 + (UserDataStorage.PLATFORM_IO == null
+                                    ? "NULL"
+                                    : UserDataStorage.PLATFORM_IO.GetType().ToString()));
+
+                if(callback != null)
+                {
+                    callback.Invoke(platformUserHandle, false);
+                }
+            }
+        }
+
         // ---------[ Directories ]---------
         /// <summary>The directory for the active user's data.</summary>
         public static string USER_DIRECTORY
