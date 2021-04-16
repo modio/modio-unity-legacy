@@ -7,7 +7,7 @@ using Debug = UnityEngine.Debug;
 namespace ModIO
 {
     /// <summary>Wraps the System.IO functionality in an IPlatformIO class.</summary>
-    public class SystemIOWrapper : IPlatformIO, IUserDataIO
+    public class SystemIOWrapper : IPlatformIO, IUserDataIO, IUserDataIO<string>, IUserDataIO<int>
     {
         // ---------[ Initialization ]---------
         public SystemIOWrapper() : this(PluginSettings.data.installationDirectory,

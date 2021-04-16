@@ -37,68 +37,6 @@ namespace ModIO
         }
 
         /// <summary>Initializes the data storage functionality for a given user.</summary>
-        public static void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
-        {
-            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId,
-            (id, success) =>
-            {
-                if(success)
-                {
-                    LocalUser.Load(
-                    () =>
-                    {
-                        if(callback != null)
-                        {
-                            callback.Invoke(id, success);
-                        }
-                    });
-                }
-                else
-                {
-                    LocalUser.instance = new LocalUser();
-
-                    Debug.Log("[mod.io] Failed to set active user. LocalUser cleared.");
-
-                    if(callback != null)
-                    {
-                        callback.Invoke(id, success);
-                    }
-                }
-            });
-        }
-
-        /// <summary>Initializes the data storage functionality for a given user.</summary>
-        public static void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback)
-        {
-            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId,
-            (id, success) =>
-            {
-                if(success)
-                {
-                    LocalUser.Load(
-                    () =>
-                    {
-                        if(callback != null)
-                        {
-                            callback.Invoke(id, success);
-                        }
-                    });
-                }
-                else
-                {
-                    LocalUser.instance = new LocalUser();
-
-                    Debug.Log("[mod.io] Failed to set active user. LocalUser cleared.");
-
-                    if(callback != null)
-                    {
-                        callback.Invoke(id, success);
-                    }
-                }
-            });
-        }
-
-        /// <summary>Initializes the data storage functionality for a given user.</summary>
         public static void SetActiveUser<T>(T platformUserHandle, SetActiveUserCallback<T> callback)
         {
             if(UserDataStorage.PLATFORM_IO is IUserDataIO<T>)

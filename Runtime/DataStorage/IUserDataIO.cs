@@ -13,12 +13,6 @@ namespace ModIO
         /// <summary>Initializes the storage system for the defaul user.</summary>
         void InitializeForDefaultUser(System.Action<bool> callback);
 
-        /// <summary>Initializes the storage system for the given user.</summary>
-        void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback);
-
-        /// <summary>Initializes the storage system for the given user.</summary>
-        void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback);
-
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
         void ReadFile(string pathRelative, ReadFileCallback callback);
