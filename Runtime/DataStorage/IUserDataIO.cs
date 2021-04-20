@@ -10,7 +10,7 @@ namespace ModIO
         string UserDirectory { get; }
 
         // --- Initialization ---
-        /// <summary>Initializes the storage system for the defaul user.</summary>
+        /// <summary>Initializes the storage system for the default user.</summary>
         void InitializeForDefaultUser(System.Action<bool> callback);
 
         // --- File I/O ---
