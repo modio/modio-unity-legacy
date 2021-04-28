@@ -72,17 +72,25 @@ namespace ModIO
         public static WebRequestError GenerateFromWebRequest(UnityWebRequest webRequest)
         {
             UnityEngine.Debug.Assert(webRequest != null);
-            UnityEngine.Debug.Assert(webRequest.isNetworkError || webRequest.isHttpError);
 
-            WebRequestError error = new WebRequestError();
-            error.webRequest = webRequest;
+            if(webRequest == null)
+            {
+                Debug.LogWarning("[mod.io] WebRequestError.GenerateFromWebRequest(webRequest) parameter was null.");
+                WebRequestError.GenerateLocal("An unknown error occurred.")
+            }
+            else
+            {
+                WebRequestError error = new WebRequestError();
 
-            error.timeStamp = ParseDateHeaderAsTimeStamp(webRequest);
+                error.webRequest = webRequest;
 
-            error.ApplyAPIErrorValues();
-            error.ApplyInterpretedValues();
+                error.timeStamp = ParseDateHeaderAsTimeStamp(webRequest);
 
-            return error;
+                error.ApplyAPIErrorValues();
+                error.ApplyInterpretedValues();
+
+                return error;
+            }
         }
 
         public static WebRequestError GenerateLocal(string errorMessage)
