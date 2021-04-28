@@ -466,7 +466,10 @@ namespace ModIO.UI
 
                     foreach(var errorCallback in callbacks.failed)
                     {
-                        errorCallback(error);
+                        if(errorCallback != null)
+                        {
+                            errorCallback.Invoke(error);
+                        }
                     }
                 }
 
