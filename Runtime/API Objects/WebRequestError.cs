@@ -138,33 +138,53 @@ namespace ModIO
             this.errorMessage = null;
             this.fieldValidationMessages = null;
 
+            // early out
+            if(this.webRequest == null)
+            {
+                this.errorMessage = "An unknown error occurred. Please try again later.";
+                return;
+            }
+
             // null-ref and type-check
             if(this.webRequest.downloadHandler != null
                && !(this.webRequest.downloadHandler is DownloadHandlerFile))
             {
+                string requestContent = null;
+
                 try
                 {
                     // get the request content
-                    string requestContent = this.webRequest.downloadHandler.text;
-                    if(string.IsNullOrEmpty(requestContent)) { return; }
-
-                    // deserialize into an APIError
-                    WebRequestError.APIWrapper errorWrapper = JsonConvert.DeserializeObject<APIWrapper>(requestContent);
-                    if(errorWrapper == null
-                       || errorWrapper.error == null)
-                    {
-                        return;
-                    }
-
-                    // extract values
-                    this.errorReference = errorWrapper.error.errorReference;
-                    this.errorMessage = errorWrapper.error.message;
-                    this.fieldValidationMessages = errorWrapper.error.errors;
+                    requestContent = this.webRequest.downloadHandler.text;
                 }
                 catch(System.Exception e)
                 {
-                    Debug.LogWarning("[mod.io] Error deserializing API Error:\n"
+                    Debug.LogWarning("[mod.io] Error reading webRequest.downloadHandler text body:\n"
                                      + e.Message);
+                }
+
+                if(!string.IsNullOrEmpty(requestContent))
+                {
+                    WebRequestError.APIWrapper errorWrapper = null;
+
+                    try
+                    {
+                        // deserialize into an APIError
+                        errorWrapper = JsonConvert.DeserializeObject<APIWrapper>(requestContent);
+                    }
+                    catch(System.Exception e)
+                    {
+                        Debug.LogWarning("[mod.io] Error reading webRequest.downloadHandler text body:\n"
+                                         + e.Message);
+                    }
+
+                    if(errorWrapper != null
+                       && errorWrapper.error != null)
+                    {
+                        // extract values
+                        this.errorReference = errorWrapper.error.errorReference;
+                        this.errorMessage = errorWrapper.error.message;
+                        this.fieldValidationMessages = errorWrapper.error.errors;
+                    }
                 }
             }
 
