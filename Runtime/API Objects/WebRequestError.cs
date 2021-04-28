@@ -166,24 +166,51 @@ namespace ModIO
                 {
                     WebRequestError.APIWrapper errorWrapper = null;
 
-                    try
+                    // Parse Cloudflare error
+                    if(requestContent.StartsWith(@"<!DOCTYPE html>"))
                     {
-                        // deserialize into an APIError
-                        errorWrapper = JsonConvert.DeserializeObject<APIWrapper>(requestContent);
-                    }
-                    catch(System.Exception e)
-                    {
-                        Debug.LogWarning("[mod.io] Error reading webRequest.downloadHandler text body:\n"
-                                         + e.Message);
-                    }
+                        int readIndex = requestContent.IndexOf("what-happened-section");
+                        int messageEnd = -1;
 
-                    if(errorWrapper != null
-                       && errorWrapper.error != null)
+                        if(readIndex > 0)
+                        {
+                            readIndex = requestContent.IndexOf(@"<p>", readIndex);
+
+                            if(readIndex > 0)
+                            {
+                                readIndex += 3;
+                                messageEnd = requestContent.IndexOf(@"</p>", readIndex);
+                            }
+                        }
+
+                        if(messageEnd > 0)
+                        {
+                            this.errorMessage = ("A Cloudflare error has occurred: "
+                                                 + requestContent.Substring(readIndex, messageEnd - readIndex));
+                        }
+                    }
+                    else
                     {
-                        // extract values
-                        this.errorReference = errorWrapper.error.errorReference;
-                        this.errorMessage = errorWrapper.error.message;
-                        this.fieldValidationMessages = errorWrapper.error.errors;
+                        try
+                        {
+                            // deserialize into an APIError
+                            errorWrapper = JsonConvert.DeserializeObject<APIWrapper>(requestContent);
+                        }
+                        catch(System.Exception e)
+                        {
+                            Debug.LogWarning("[mod.io] Eror parsing error object from repsonse:\n"
+                                             + e.Message);
+
+                        }
+
+                        if(errorWrapper != null
+                           && errorWrapper.error != null)
+                        {
+                            // extract values
+                            this.errorReference = errorWrapper.error.errorReference;
+                            this.errorMessage = errorWrapper.error.message;
+                            this.fieldValidationMessages = errorWrapper.error.errors;
+                        }
                     }
                 }
             }
@@ -390,9 +417,6 @@ namespace ModIO
                                                + this.webRequest.responseCode + "]");
 
                         this.isRequestUnresolvable = true;
-
-                        Debug.LogWarning("[mod.io] An unhandled error was returned during a web request."
-                                         + "\nPlease report this to jackson@mod.io with the following information");
                     }
                 }
                 break;
