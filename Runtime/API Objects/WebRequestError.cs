@@ -72,17 +72,25 @@ namespace ModIO
         public static WebRequestError GenerateFromWebRequest(UnityWebRequest webRequest)
         {
             UnityEngine.Debug.Assert(webRequest != null);
-            UnityEngine.Debug.Assert(webRequest.isNetworkError || webRequest.isHttpError);
 
-            WebRequestError error = new WebRequestError();
-            error.webRequest = webRequest;
+            if(webRequest == null)
+            {
+                Debug.LogWarning("[mod.io] WebRequestError.GenerateFromWebRequest(webRequest) parameter was null.");
+                WebRequestError.GenerateLocal("An unknown error occurred.")
+            }
+            else
+            {
+                WebRequestError error = new WebRequestError();
 
-            error.timeStamp = ParseDateHeaderAsTimeStamp(webRequest);
+                error.webRequest = webRequest;
 
-            error.ApplyAPIErrorValues();
-            error.ApplyInterpretedValues();
+                error.timeStamp = ParseDateHeaderAsTimeStamp(webRequest);
 
-            return error;
+                error.ApplyAPIErrorValues();
+                error.ApplyInterpretedValues();
+
+                return error;
+            }
         }
 
         public static WebRequestError GenerateLocal(string errorMessage)
@@ -138,33 +146,80 @@ namespace ModIO
             this.errorMessage = null;
             this.fieldValidationMessages = null;
 
+            // early out
+            if(this.webRequest == null)
+            {
+                this.errorMessage = "An unknown error occurred. Please try again later.";
+                return;
+            }
+
             // null-ref and type-check
             if(this.webRequest.downloadHandler != null
                && !(this.webRequest.downloadHandler is DownloadHandlerFile))
             {
+                string requestContent = null;
+
                 try
                 {
                     // get the request content
-                    string requestContent = this.webRequest.downloadHandler.text;
-                    if(string.IsNullOrEmpty(requestContent)) { return; }
-
-                    // deserialize into an APIError
-                    WebRequestError.APIWrapper errorWrapper = JsonConvert.DeserializeObject<APIWrapper>(requestContent);
-                    if(errorWrapper == null
-                       || errorWrapper.error == null)
-                    {
-                        return;
-                    }
-
-                    // extract values
-                    this.errorReference = errorWrapper.error.errorReference;
-                    this.errorMessage = errorWrapper.error.message;
-                    this.fieldValidationMessages = errorWrapper.error.errors;
+                    requestContent = this.webRequest.downloadHandler.text;
                 }
                 catch(System.Exception e)
                 {
-                    Debug.LogWarning("[mod.io] Error deserializing API Error:\n"
+                    Debug.LogWarning("[mod.io] Error reading webRequest.downloadHandler text body:\n"
                                      + e.Message);
+                }
+
+                if(!string.IsNullOrEmpty(requestContent))
+                {
+                    WebRequestError.APIWrapper errorWrapper = null;
+
+                    // Parse Cloudflare error
+                    if(requestContent.StartsWith(@"<!DOCTYPE html>"))
+                    {
+                        int readIndex = requestContent.IndexOf("what-happened-section");
+                        int messageEnd = -1;
+
+                        if(readIndex > 0)
+                        {
+                            readIndex = requestContent.IndexOf(@"<p>", readIndex);
+
+                            if(readIndex > 0)
+                            {
+                                readIndex += 3;
+                                messageEnd = requestContent.IndexOf(@"</p>", readIndex);
+                            }
+                        }
+
+                        if(messageEnd > 0)
+                        {
+                            this.errorMessage = ("A Cloudflare error has occurred: "
+                                                 + requestContent.Substring(readIndex, messageEnd - readIndex));
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            // deserialize into an APIError
+                            errorWrapper = JsonConvert.DeserializeObject<APIWrapper>(requestContent);
+                        }
+                        catch(System.Exception e)
+                        {
+                            Debug.LogWarning("[mod.io] Eror parsing error object from repsonse:\n"
+                                             + e.Message);
+
+                        }
+
+                        if(errorWrapper != null
+                           && errorWrapper.error != null)
+                        {
+                            // extract values
+                            this.errorReference = errorWrapper.error.errorReference;
+                            this.errorMessage = errorWrapper.error.message;
+                            this.fieldValidationMessages = errorWrapper.error.errors;
+                        }
+                    }
                 }
             }
 
@@ -370,9 +425,6 @@ namespace ModIO
                                                + this.webRequest.responseCode + "]");
 
                         this.isRequestUnresolvable = true;
-
-                        Debug.LogWarning("[mod.io] An unhandled error was returned during a web request."
-                                         + "\nPlease report this to jackson@mod.io with the following information");
                     }
                 }
                 break;
