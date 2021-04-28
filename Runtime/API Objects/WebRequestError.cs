@@ -76,7 +76,7 @@ namespace ModIO
             if(webRequest == null)
             {
                 Debug.LogWarning("[mod.io] WebRequestError.GenerateFromWebRequest(webRequest) parameter was null.");
-                WebRequestError.GenerateLocal("An unknown error occurred.")
+                return WebRequestError.GenerateLocal("An unknown error occurred.");
             }
             else
             {
