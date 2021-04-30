@@ -494,6 +494,8 @@ namespace ModIO.UI
                         }
                     }
 
+                    CacheClient.SaveModProfiles(request_page.items, null);
+
                     // check pages
                     allPagesReceived = (request_page.items.Length < request_page.size);
                     if(!allPagesReceived)
