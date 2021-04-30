@@ -107,13 +107,6 @@ namespace ModIO
         /// <summary>Writes a file.</summary>
         public static void WriteFile(string path, byte[] data, WriteFileCallback onComplete)
         {
-            #if DEBUG
-            if(data.Length == 0)
-            {
-                Debug.Log("[mod.io] Writing 0-byte file to: " + path);
-            }
-            #endif // DEBUG
-
             DataStorage.PLATFORM_IO.WriteFile(path, data, onComplete);
         }
 
