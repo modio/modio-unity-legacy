@@ -888,7 +888,7 @@ namespace ModIO.UI
                    || ModBrowser._state.lastSync_userId != sync_userId)
                 {
                     yield return this.StartCoroutine(this.PerformInitialSubscriptionSync());
-                    this.VerifySubscriptionInstallations();
+                    this.StartCoroutine(this.VerifySubscriptionInstallations());
                 }
                 // update
                 else
