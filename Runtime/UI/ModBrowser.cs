@@ -876,8 +876,8 @@ namespace ModIO.UI
                && isFetchRequired)
             {
                 this.m_isSyncInProgress = true;
-                ModBrowser._state.lastSync_userId = LocalUser.UserId;
 
+                int sync_userId = LocalUser.UserId;
                 int timestamp = ServerTimeStamp.Now;
                 bool invalidUserEvent = (LocalUser.AuthenticationState != AuthenticationState.NoToken
                                          && ModBrowser._state.userEventId <= 0);
@@ -885,7 +885,7 @@ namespace ModIO.UI
                 // perform initial sync
                 if(ModBrowser._state.modEventId <= 0
                    || invalidUserEvent
-                   || LocalUser.UserId != ModBrowser._state.lastSync_userId)
+                   || ModBrowser._state.lastSync_userId != sync_userId)
                 {
                     yield return this.StartCoroutine(this.PerformInitialSubscriptionSync());
                     this.VerifySubscriptionInstallations();
@@ -904,6 +904,7 @@ namespace ModIO.UI
 
                 this.m_isSyncInProgress = false;
                 ModBrowser._state.lastSync_timestamp = ServerTimeStamp.Now;
+                ModBrowser._state.lastSync_userId = sync_userId;
             }
             else
             {
