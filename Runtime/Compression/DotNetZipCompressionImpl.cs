@@ -28,8 +28,6 @@ namespace ModIO
                                  + "\nTarget: " + targetDirectory
                                  + "\n\n"
                                  + Utility.GenerateExceptionDebugString(e));
-
-                DataStorage.DeleteDirectory(targetDirectory, null);
             }
 
             return success;

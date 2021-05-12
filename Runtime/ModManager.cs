@@ -99,29 +99,20 @@ namespace ModIO
                 }
                 else
                 {
-
                     DataStorage.DeleteDirectory(tempLocation, (dd_path, dd_success) =>
                     DataStorage.CreateDirectory(tempLocation, (cd_path, cd_success) =>
                     {
                         if(dd_success && cd_success)
                         {
-                            // extract
-                            try
-                            {
-                                using (var zip = Ionic.Zip.ZipFile.Read(archivePath))
-                                {
-                                    zip.ExtractAll(tempLocation);
-                                }
+                            bool didExtract = CompressionModule.ExtractAll(archivePath, tempLocation);
 
+                            if(didExtract)
+                            {
                                 // Remove old versions
                                 ModManager.UninstallMod(modId, onOldVersionsUninstalled);
                             }
-                            catch(Exception e)
+                            else
                             {
-                                Debug.LogWarning("[mod.io] Unable to extract binary to a temporary folder."
-                                                 + "\nLocation: " + tempLocation + "\n\n"
-                                                 + Utility.GenerateExceptionDebugString(e));
-
                                 DataStorage.DeleteDirectory(tempLocation, null);
 
                                 if(onComplete != null)
