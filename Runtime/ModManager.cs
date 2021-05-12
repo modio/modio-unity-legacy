@@ -1573,32 +1573,19 @@ namespace ModIO
 
             DataStorage.CreateDirectory(Path.GetDirectoryName(binaryZipLocation), (path, success) =>
             {
-                try
-                {
-                    using(var zip = new Ionic.Zip.ZipFile())
-                    {
-                        zip.AddFile(unzippedBinaryLocation, "");
-                        zip.Save(binaryZipLocation);
-                    }
-
-                    zipSucceeded = true;
-                }
-                catch(Exception e)
-                {
-                    Debug.LogError("[mod.io] Unable to zip mod binary prior to uploading.\n\n"
-                                   + Utility.GenerateExceptionDebugString(e));
-
-                    if(onError != null)
-                    {
-                        WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
-
-                        onError(error);
-                    }
-                }
+                zipSucceeded = CompressionModule.CompressFile(unzippedBinaryLocation, binaryZipLocation);
 
                 if(zipSucceeded)
                 {
                     UploadModBinary_Zipped(modId, modfileValues, binaryZipLocation, setActiveBuild, onSuccess, onError);
+                }
+                else
+                {
+                    if(onError != null)
+                    {
+                        WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
+                        onError.Invoke(error);
+                    }
                 }
             });
         }
