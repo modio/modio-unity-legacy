@@ -1512,46 +1512,20 @@ namespace ModIO
                 {
                     if(success)
                     {
-                        try
+                        success = CompressionModule.CompressFileCollection(rootDirectory, fileList, archiveFilePath);
+
+                        if(success)
                         {
-                            using(var zip = new Ionic.Zip.ZipFile())
-                            {
-                                foreach(string filePath in fileList)
-                                {
-                                    string relativeFilePath = filePath.Substring(rootDirectoryLength);
-                                    string relativeDirectory = Path.GetDirectoryName(relativeFilePath);
-
-                                    zip.AddFile(filePath, relativeDirectory);
-                                    zip.Save(archiveFilePath);
-                                }
-                            }
-
                             UploadModBinary_Zipped(modId, modfileValues, archiveFilePath, setActiveBuild, onSuccess, onError);
                         }
-                        catch(Exception e)
-                        {
-                            Debug.LogError("[mod.io] Unable to zip mod binary prior to uploading.\n\n"
-                                           + Utility.GenerateExceptionDebugString(e));
-
-                            if(onError != null)
-                            {
-                                WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
-
-                                onError(error);
-                            }
-                        }
                     }
-                    else
+
+                    if(!success)
                     {
-                        string errorString = ("Unable to create directory for mod binary archive prior to upload."
-                                              + "\nDirectory: " + path);
-
-                        Debug.LogError("[mod.io] " + errorString);
-
                         if(onError != null)
                         {
-                            WebRequestError error = WebRequestError.GenerateLocal(errorString);
-                            onError(error);
+                            WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
+                            onError.Invoke(error);
                         }
                     }
                 });
