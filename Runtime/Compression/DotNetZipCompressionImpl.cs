@@ -51,8 +51,10 @@ namespace ModIO
             return success;
         }
 
-        /// <summary>Compresses the contents of a file collection into an output archive.</summary>
-        public bool CompressFileCollection(string rootDirectory, IEnumerable<string> fileCollection, string outputPath)
+        /// <summary>Compresses the contents of a file collection into a new output archive.</summary>
+        public bool CompressFileCollection(string rootDirectory,
+                                           IEnumerable<string> filePathCollection,
+                                           string targetFilePath)
         {
             // early outs
             if(string.IsNullOrEmpty(rootDirectory))
@@ -61,16 +63,16 @@ namespace ModIO
                                  + "\nrootDirectory is NULL or EMPTY.");
                 return false;
             }
-            if(fileCollection == null)
+            if(filePathCollection == null)
             {
                 Debug.LogWarning("[mod.io] Unable to compress file collection to archive."
-                                 + "\nfileCollection is NULL.");
+                                 + "\nfilePathCollection is NULL.");
                 return false;
             }
-            if(string.IsNullOrEmpty(outputPath))
+            if(string.IsNullOrEmpty(targetFilePath))
             {
                 Debug.LogWarning("[mod.io] Unable to compress file collection to archive."
-                                 + "\noutputPath is NULL or EMPTY.");
+                                 + "\ntargetFilePath is NULL or EMPTY.");
                 return false;
             }
 
@@ -82,7 +84,7 @@ namespace ModIO
             {
                 using(var zip = new Ionic.Zip.ZipFile())
                 {
-                    foreach(string filePath in fileCollection)
+                    foreach(string filePath in filePathCollection)
                     {
                         lastFilePath = filePath;
 
@@ -92,7 +94,7 @@ namespace ModIO
                         zip.AddFile(filePath, relativeDirectory);
                     }
 
-                    zip.Save(outputPath);
+                    zip.Save(targetFilePath);
 
                     success = true;
                 }
@@ -101,7 +103,7 @@ namespace ModIO
             {
                 Debug.LogWarning("[mod.io] Unable to compress file collection to archive."
                                  + "\nLast Attempted File: " + lastFilePath
-                                 + "\nOutput: " + outputPath
+                                 + "\nOutput: " + targetFilePath
                                  + "\n\n"
                                  + Utility.GenerateExceptionDebugString(e));
             }
@@ -109,8 +111,8 @@ namespace ModIO
             return success;
         }
 
-        /// <summary>Compresses a single file into an output archive.</summary>
-        public bool CompressFile(string filePath, string outputPath)
+        /// <summary>Compresses a single file into a new output archive.</summary>
+        public bool CompressFile(string filePath, string targetFilePath)
         {
             // early outs
             if(string.IsNullOrEmpty(filePath))
@@ -119,10 +121,10 @@ namespace ModIO
                                  + "\nfilePath is NULL or EMPTY.");
                 return false;
             }
-            if(string.IsNullOrEmpty(outputPath))
+            if(string.IsNullOrEmpty(targetFilePath))
             {
                 Debug.LogWarning("[mod.io] Unable to compress file collection to archive."
-                                 + "\noutputPath is NULL or EMPTY.");
+                                 + "\ntargetFilePath is NULL or EMPTY.");
                 return false;
             }
 
@@ -134,7 +136,7 @@ namespace ModIO
                 using(var zip = new Ionic.Zip.ZipFile())
                 {
                     zip.AddFile(filePath, "");
-                    zip.Save(outputPath);
+                    zip.Save(targetFilePath);
                     success = true;
                 }
             }
@@ -142,7 +144,7 @@ namespace ModIO
             {
                 Debug.LogWarning("[mod.io] Unable to compress file to archive."
                                  + "\nFile: " + filePath
-                                 + "\nOutput: " + outputPath
+                                 + "\nOutput: " + targetFilePath
                                  + "\n\n"
                                  + Utility.GenerateExceptionDebugString(e));
             }
