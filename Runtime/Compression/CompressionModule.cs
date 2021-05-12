@@ -11,7 +11,7 @@
         /// <summary>Loads the compression implementation.</summary>
         static CompressionModule()
         {
-            CompressionModule.IMPLEMENTATION = null;
+            CompressionModule.IMPLEMENTATION = new DotNetZipCompressionImpl();
         }
 
         // ---------[ Interface ]---------
