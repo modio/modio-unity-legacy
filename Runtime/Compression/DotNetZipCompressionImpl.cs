@@ -13,6 +13,21 @@ namespace ModIO
         /// <summary>Extracts the contents of an archive.</summary>
         public bool ExtractAll(string archivePath, string targetDirectory)
         {
+            // early outs
+            if(string.IsNullOrEmpty(archivePath))
+            {
+                Debug.LogWarning("[mod.io] Unable to extract archive to target directory."
+                                 + "\narchivePath is NULL or EMPTY.");
+                return false;
+            }
+            if(string.IsNullOrEmpty(targetDirectory))
+            {
+                Debug.LogWarning("[mod.io] Unable to extract archive to target directory."
+                                 + "\ntargetDirectory is NULL or EMPTY.");
+                return false;
+            }
+
+            // Extract
             bool success = false;
 
             try
@@ -39,6 +54,27 @@ namespace ModIO
         /// <summary>Compresses the contents of a file collection into an output archive.</summary>
         public bool CompressFileCollection(string rootDirectory, IEnumerable<string> fileCollection, string outputPath)
         {
+            // early outs
+            if(string.IsNullOrEmpty(rootDirectory))
+            {
+                Debug.LogWarning("[mod.io] Unable to compress file collection to archive."
+                                 + "\nrootDirectory is NULL or EMPTY.");
+                return false;
+            }
+            if(fileCollection == null)
+            {
+                Debug.LogWarning("[mod.io] Unable to compress file collection to archive."
+                                 + "\nfileCollection is NULL.");
+                return false;
+            }
+            if(string.IsNullOrEmpty(outputPath))
+            {
+                Debug.LogWarning("[mod.io] Unable to compress file collection to archive."
+                                 + "\noutputPath is NULL or EMPTY.");
+                return false;
+            }
+
+            // compress
             bool success = false;
             string lastFilePath = string.Empty;
 
@@ -76,6 +112,21 @@ namespace ModIO
         /// <summary>Compresses a single file into an output archive.</summary>
         public bool CompressFile(string filePath, string outputPath)
         {
+            // early outs
+            if(string.IsNullOrEmpty(filePath))
+            {
+                Debug.LogWarning("[mod.io] Unable to compress file collection to archive."
+                                 + "\nfilePath is NULL or EMPTY.");
+                return false;
+            }
+            if(string.IsNullOrEmpty(outputPath))
+            {
+                Debug.LogWarning("[mod.io] Unable to compress file collection to archive."
+                                 + "\noutputPath is NULL or EMPTY.");
+                return false;
+            }
+
+            // compress
             bool success = false;
 
             try
