@@ -42,7 +42,27 @@ namespace ModIO
         /// <summary>Compresses a single file into an output archive.</summary>
         public bool CompressFile(string filePath, string outputPath)
         {
-            throw new System.NotImplementedException();
+            bool success = false;
+
+            try
+            {
+                using(var zip = new Ionic.Zip.ZipFile())
+                {
+                    zip.AddFile(filePath, "");
+                    zip.Save(outputPath);
+                    success = true;
+                }
+            }
+            catch(Exception e)
+            {
+                Debug.LogWarning("[mod.io] Unable to compress file to archive."
+                                 + "\nFile: " + filePath
+                                 + "\nOutput: " + outputPath
+                                 + "\n\n"
+                                 + Utility.GenerateExceptionDebugString(e));
+            }
+
+            return success;
         }
     }
 }
