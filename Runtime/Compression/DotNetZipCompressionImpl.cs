@@ -1,3 +1,6 @@
+using Exception = System.Exception;
+using Debug = UnityEngine.Debug;
+
 namespace ModIO
 {
     /// <summary>A wrapper for the DotNetZip library that matches the ICompressionImpl interface.</summary>
@@ -7,7 +10,29 @@ namespace ModIO
         /// <summary>Extracts the contents of an archive.</summary>
         public bool ExtractAll(string archivePath, string targetDirectory)
         {
-            throw new System.NotImplementedException();
+            bool success = false;
+
+            try
+            {
+                using (var zip = Ionic.Zip.ZipFile.Read(archivePath))
+                {
+                    zip.ExtractAll(targetDirectory);
+
+                    success = true;
+                }
+            }
+            catch(Exception e)
+            {
+                Debug.LogWarning("[mod.io] Unable to extract archive to target directory."
+                                 + "\nArchive: " + archivePath
+                                 + "\nTarget: " + targetDirectory
+                                 + "\n\n"
+                                 + Utility.GenerateExceptionDebugString(e));
+
+                DataStorage.DeleteDirectory(targetDirectory, null);
+            }
+
+            return success;
         }
 
         /// <summary>Compresses the contents of a directory.</summary>
