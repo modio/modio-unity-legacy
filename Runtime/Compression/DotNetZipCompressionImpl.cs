@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using Exception = System.Exception;
 using Debug = UnityEngine.Debug;
 
@@ -33,8 +35,8 @@ namespace ModIO
             return success;
         }
 
-        /// <summary>Compresses the contents of a directory.</summary>
-        public bool CompressDirectory(string directoryPath, string outputPath)
+        /// <summary>Compresses the contents of a file collection into an output archive.</summary>
+        public bool CompressFileCollection(string rootDirectory, IEnumerable<string> fileCollection, string outputPath)
         {
             throw new System.NotImplementedException();
         }

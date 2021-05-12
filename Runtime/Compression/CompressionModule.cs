@@ -1,4 +1,6 @@
-﻿namespace ModIO
+﻿using System.Collections.Generic;
+
+namespace ModIO
 {
     /// <summary>Defines the static interface for the compression operations.</summary>
     public static class CompressionModule
@@ -21,10 +23,10 @@
             return CompressionModule.IMPLEMENTATION.ExtractAll(archivePath, targetDirectory);
         }
 
-        /// <summary>Compresses the contents of a directory.</summary>
-        public static bool CompressDirectory(string directoryPath, string outputPath)
+        /// <summary>Compresses the contents of a file collection into an output archive.</summary>
+        public static bool CompressFileCollection(string rootDirectory, IEnumerable<string> fileCollection, string outputPath)
         {
-            return CompressionModule.IMPLEMENTATION.CompressDirectory(directoryPath, outputPath);
+            return CompressionModule.IMPLEMENTATION.CompressFileCollection(rootDirectory, fileCollection, outputPath);
         }
 
         /// <summary>Compresses a single file into an output archive.</summary>
