@@ -13,5 +13,24 @@
         {
             CompressionModule.IMPLEMENTATION = null;
         }
+
+        // ---------[ Interface ]---------
+        /// <summary>Extracts the contents of an archive.</summary>
+        public static bool ExtractAll(string archivePath, string targetDirectory)
+        {
+            return CompressionModule.IMPLEMENTATION.ExtractAll(archivePath, targetDirectory);
+        }
+
+        /// <summary>Compresses the contents of a directory.</summary>
+        public static bool CompressDirectory(string directoryPath, string outputPath)
+        {
+            return CompressionModule.IMPLEMENTATION.CompressDirectory(directoryPath, outputPath);
+        }
+
+        /// <summary>Compresses a single file into an output archive.</summary>
+        public static bool CompressFile(string filePath, string outputPath)
+        {
+            return CompressionModule.IMPLEMENTATION.CompressFile(filePath, outputPath);
+        }
     }
 }
