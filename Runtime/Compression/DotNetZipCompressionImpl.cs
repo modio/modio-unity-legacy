@@ -57,12 +57,6 @@ namespace ModIO
                                            string targetFilePath)
         {
             // early outs
-            if(string.IsNullOrEmpty(rootDirectory))
-            {
-                Debug.LogWarning("[mod.io] Unable to compress file collection to archive."
-                                 + "\nrootDirectory is NULL or EMPTY.");
-                return false;
-            }
             if(filePathCollection == null)
             {
                 Debug.LogWarning("[mod.io] Unable to compress file collection to archive."
@@ -77,6 +71,11 @@ namespace ModIO
             }
 
             // compress
+            if(string.IsNullOrEmpty(rootDirectory))
+            {
+                rootDirectory = string.Empty;
+            }
+
             bool success = false;
             string lastFilePath = string.Empty;
 

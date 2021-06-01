@@ -386,23 +386,15 @@ namespace ModIO
                 {
                     if(success)
                     {
-                        try
-                        {
-                            using(var zip = new Ionic.Zip.ZipFile())
-                            {
-                                foreach(string imageFilePath in this.addedImageFilePaths)
-                                {
-                                    zip.AddFile(imageFilePath);
-                                }
-                                zip.Save(imageArchivePath);
-                            }
+                        bool didZip = CompressionModule.CompressFileCollection(null, this.addedImageFilePaths, imageArchivePath);
 
+                        if(didZip)
+                        {
                             DataStorage.ReadFile(imageArchivePath, this.SubmitModChanges_Internal_OnReadImageArchive);
                         }
-                        catch(Exception e)
+                        else
                         {
-                            this.SubmissionError_Local("Unable to zip image gallery prior to uploading.\n"
-                                                       + Utility.GenerateExceptionDebugString(e));
+                            this.SubmissionError_Local("Unable to zip image gallery prior to uploading.");
                         }
                     }
                     else
