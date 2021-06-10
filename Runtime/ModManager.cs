@@ -1435,10 +1435,16 @@ namespace ModIO
                 filterValue = PluginSettings.GAME_ID,
             });
 
+            var pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
             // - Get All Events -
-            ModManager.FetchAllResultsForQuery<UserEvent>((p,s,e) => APIClient.GetUserEvents(userEventFilter, p, s, e),
-                                                          onSuccess,
-                                                          onError);
+            APIClient.GetUserEvents(userEventFilter, pagination,
+                                    (r) => ModManager._OnUserEventsFetched(r, onSuccess),
+                                    onError);
         }
 
         /// <summary>Fetches all user events for the authenticated user.</summary>
@@ -1462,10 +1468,34 @@ namespace ModIO
                 filterValue = PluginSettings.GAME_ID,
             });
 
+            var pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
             // - Get All Events -
-            ModManager.FetchAllResultsForQuery<UserEvent>((p,s,e) => APIClient.GetUserEvents(userEventFilter, p, s, e),
-                                                          onSuccess,
-                                                          onError);
+            APIClient.GetUserEvents(userEventFilter, pagination,
+                                    (r) => ModManager._OnUserEventsFetched(r, onSuccess),
+                                    onError);
+        }
+
+        /// <summary>Processes results from the events fetch results.</summary>
+        private static void _OnUserEventsFetched(RequestPage<UserEvent> r,
+                                                 Action<List<UserEvent>> onSuccess)
+        {
+            if(onSuccess != null)
+            {
+                List<UserEvent> eventList = new List<UserEvent>();
+                if(r != null
+                   && r.items != null
+                   && r.items.Length > 0)
+                {
+                    eventList = new List<UserEvent>(r.items);
+                }
+
+                onSuccess.Invoke(eventList);
+            }
         }
 
         // ---------[ UPLOADING ]---------
