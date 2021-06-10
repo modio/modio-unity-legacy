@@ -1279,6 +1279,25 @@ namespace ModIO
                                           Action<List<ModEvent>> onSuccess,
                                           Action<WebRequestError> onError)
         {
+            // init
+            int[] modIdFilterArray = null;
+            if(modIdFilter != null)
+            {
+                modIdFilterArray = modIdFilter.ToArray();
+            }
+
+            // early out
+            if(modIdFilterArray != null
+               && modIdFilterArray.Length == 0)
+            {
+                if(onSuccess != null)
+                {
+                    onSuccess.Invoke(new List<ModEvent>());
+                }
+
+                return;
+            }
+
             // - Filter -
             RequestFilter modEventFilter = new RequestFilter();
             modEventFilter.sortFieldName = GetAllModEventsFilterFields.id;
@@ -1295,11 +1314,11 @@ namespace ModIO
                 isInclusive = true,
             });
 
-            if(modIdFilter != null)
+            if(modIdFilterArray != null)
             {
                 modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.modId, new InArrayFilter<int>()
                 {
-                    filterArray = modIdFilter.ToArray(),
+                    filterArray = modIdFilterArray,
                 });
             }
 
@@ -1321,6 +1340,25 @@ namespace ModIO
                                                  Action<List<ModEvent>> onSuccess,
                                                  Action<WebRequestError> onError)
         {
+            // init
+            int[] modIdFilterArray = null;
+            if(modIdFilter != null)
+            {
+                modIdFilterArray = modIdFilter.ToArray();
+            }
+
+            // early out
+            if(modIdFilterArray != null
+               && modIdFilterArray.Length == 0)
+            {
+                if(onSuccess != null)
+                {
+                    onSuccess.Invoke(new List<ModEvent>());
+                }
+
+                return;
+            }
+
             // - Filter -
             RequestFilter modEventFilter = new RequestFilter();
             modEventFilter.sortFieldName = GetAllModEventsFilterFields.id;
@@ -1332,11 +1370,11 @@ namespace ModIO
                 isInclusive = false,
             });
 
-            if(modIdFilter != null)
+            if(modIdFilterArray != null)
             {
                 modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.modId, new InArrayFilter<int>()
                 {
-                    filterArray = modIdFilter.ToArray(),
+                    filterArray = modIdFilterArray,
                 });
             }
 
