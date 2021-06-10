@@ -1279,9 +1279,29 @@ namespace ModIO
                                           Action<List<ModEvent>> onSuccess,
                                           Action<WebRequestError> onError)
         {
+            // init
+            int[] modIdFilterArray = null;
+            if(modIdFilter != null)
+            {
+                modIdFilterArray = modIdFilter.ToArray();
+            }
+
+            // early out
+            if(modIdFilterArray != null
+               && modIdFilterArray.Length == 0)
+            {
+                if(onSuccess != null)
+                {
+                    onSuccess.Invoke(new List<ModEvent>());
+                }
+
+                return;
+            }
+
             // - Filter -
             RequestFilter modEventFilter = new RequestFilter();
-            modEventFilter.sortFieldName = GetAllModEventsFilterFields.dateAdded;
+            modEventFilter.sortFieldName = GetAllModEventsFilterFields.id;
+            modEventFilter.isSortAscending = false;
 
             modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.dateAdded, new MinimumFilter<int>()
             {
@@ -1294,18 +1314,24 @@ namespace ModIO
                 isInclusive = true,
             });
 
-            if(modIdFilter != null)
+            if(modIdFilterArray != null)
             {
                 modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.modId, new InArrayFilter<int>()
                 {
-                    filterArray = modIdFilter.ToArray(),
+                    filterArray = modIdFilterArray,
                 });
             }
 
+            var pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
             // - Get All Events -
-            ModManager.FetchAllResultsForQuery<ModEvent>((p,s,e) => APIClient.GetAllModEvents(modEventFilter, p, s, e),
-                                                         onSuccess,
-                                                         onError);
+            APIClient.GetAllModEvents(modEventFilter, pagination,
+                                      (r) => ModManager._OnModEventSuccess(r, onSuccess),
+                                      onError);
         }
 
         /// <summary>Fetches all mod events after the given event id.</summary>
@@ -1314,9 +1340,29 @@ namespace ModIO
                                                  Action<List<ModEvent>> onSuccess,
                                                  Action<WebRequestError> onError)
         {
+            // init
+            int[] modIdFilterArray = null;
+            if(modIdFilter != null)
+            {
+                modIdFilterArray = modIdFilter.ToArray();
+            }
+
+            // early out
+            if(modIdFilterArray != null
+               && modIdFilterArray.Length == 0)
+            {
+                if(onSuccess != null)
+                {
+                    onSuccess.Invoke(new List<ModEvent>());
+                }
+
+                return;
+            }
+
             // - Filter -
             RequestFilter modEventFilter = new RequestFilter();
             modEventFilter.sortFieldName = GetAllModEventsFilterFields.id;
+            modEventFilter.isSortAscending = false;
 
             modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.id, new MinimumFilter<int>()
             {
@@ -1324,18 +1370,42 @@ namespace ModIO
                 isInclusive = false,
             });
 
-            if(modIdFilter != null)
+            if(modIdFilterArray != null)
             {
                 modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.modId, new InArrayFilter<int>()
                 {
-                    filterArray = modIdFilter.ToArray(),
+                    filterArray = modIdFilterArray,
                 });
             }
 
+            var pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
             // - Get All Events -
-            ModManager.FetchAllResultsForQuery<ModEvent>((p,s,e) => APIClient.GetAllModEvents(modEventFilter, p, s, e),
-                                                         onSuccess,
-                                                         onError);
+            APIClient.GetAllModEvents(modEventFilter, pagination,
+                                      (r) => ModManager._OnModEventSuccess(r, onSuccess),
+                                      onError);
+        }
+
+        /// <summary>Processes results from the events fetch results.</summary>
+        private static void _OnModEventSuccess(RequestPage<ModEvent> r,
+                                               Action<List<ModEvent>> onSuccess)
+        {
+            if(onSuccess != null)
+            {
+                List<ModEvent> eventList = new List<ModEvent>();
+                if(r != null
+                   && r.items != null
+                   && r.items.Length > 0)
+                {
+                    eventList = new List<ModEvent>(r.items);
+                }
+
+                onSuccess.Invoke(eventList);
+            }
         }
 
         /// <summary>Fetches all user events for the authenticated user.</summary>
@@ -1346,7 +1416,8 @@ namespace ModIO
         {
             // - Filter -
             RequestFilter userEventFilter = new RequestFilter();
-            userEventFilter.sortFieldName = GetUserEventsFilterFields.dateAdded;
+            userEventFilter.sortFieldName = GetUserEventsFilterFields.id;
+            userEventFilter.isSortAscending = false;
 
             userEventFilter.AddFieldFilter(GetUserEventsFilterFields.dateAdded, new MinimumFilter<int>()
             {
@@ -1364,10 +1435,16 @@ namespace ModIO
                 filterValue = PluginSettings.GAME_ID,
             });
 
+            var pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
             // - Get All Events -
-            ModManager.FetchAllResultsForQuery<UserEvent>((p,s,e) => APIClient.GetUserEvents(userEventFilter, p, s, e),
-                                                          onSuccess,
-                                                          onError);
+            APIClient.GetUserEvents(userEventFilter, pagination,
+                                    (r) => ModManager._OnUserEventsFetched(r, onSuccess),
+                                    onError);
         }
 
         /// <summary>Fetches all user events for the authenticated user.</summary>
@@ -1378,6 +1455,7 @@ namespace ModIO
             // - Filter -
             RequestFilter userEventFilter = new RequestFilter();
             userEventFilter.sortFieldName = GetUserEventsFilterFields.id;
+            userEventFilter.isSortAscending = false;
 
             userEventFilter.AddFieldFilter(GetUserEventsFilterFields.id, new MinimumFilter<int>()
             {
@@ -1390,10 +1468,34 @@ namespace ModIO
                 filterValue = PluginSettings.GAME_ID,
             });
 
+            var pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
             // - Get All Events -
-            ModManager.FetchAllResultsForQuery<UserEvent>((p,s,e) => APIClient.GetUserEvents(userEventFilter, p, s, e),
-                                                          onSuccess,
-                                                          onError);
+            APIClient.GetUserEvents(userEventFilter, pagination,
+                                    (r) => ModManager._OnUserEventsFetched(r, onSuccess),
+                                    onError);
+        }
+
+        /// <summary>Processes results from the events fetch results.</summary>
+        private static void _OnUserEventsFetched(RequestPage<UserEvent> r,
+                                                 Action<List<UserEvent>> onSuccess)
+        {
+            if(onSuccess != null)
+            {
+                List<UserEvent> eventList = new List<UserEvent>();
+                if(r != null
+                   && r.items != null
+                   && r.items.Length > 0)
+                {
+                    eventList = new List<UserEvent>(r.items);
+                }
+
+                onSuccess.Invoke(eventList);
+            }
         }
 
         // ---------[ UPLOADING ]---------
