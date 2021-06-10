@@ -7,7 +7,7 @@ using Debug = UnityEngine.Debug;
 namespace ModIO
 {
     /// <summary>Wraps the System.IO functionality in an IPlatformIO class.</summary>
-    public class SystemIOWrapper : IPlatformIO, IUserDataIO
+    public class SystemIOWrapper : IPlatformIO, IUserDataIO, IUserDataIO<string>, IUserDataIO<int>
     {
         // ---------[ Initialization ]---------
         public SystemIOWrapper() : this(PluginSettings.data.installationDirectory,
@@ -371,8 +371,22 @@ namespace ModIO
         /// <summary>Moves a file.</summary>
         public virtual bool MoveFile(string source, string destination)
         {
-            Debug.Assert(!string.IsNullOrEmpty(source));
-            Debug.Assert(!string.IsNullOrEmpty(destination));
+            if(string.IsNullOrEmpty(source))
+            {
+                Debug.Log("[mod.io] Failed to move file. source is NullOrEmpty.");
+                return false;
+            }
+
+            if(string.IsNullOrEmpty(destination))
+            {
+                Debug.Log("[mod.io] Failed to move file. destination is NullOrEmpty.");
+                return false;
+            }
+
+            if(!this.DeleteFile(destination))
+            {
+                return false;
+            }
 
             try
             {

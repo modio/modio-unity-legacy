@@ -10,14 +10,8 @@ namespace ModIO
         string UserDirectory { get; }
 
         // --- Initialization ---
-        /// <summary>Initializes the storage system for the defaul user.</summary>
+        /// <summary>Initializes the storage system for the default user.</summary>
         void InitializeForDefaultUser(System.Action<bool> callback);
-
-        /// <summary>Initializes the storage system for the given user.</summary>
-        void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback);
-
-        /// <summary>Initializes the storage system for the given user.</summary>
-        void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback);
 
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
@@ -32,5 +26,12 @@ namespace ModIO
 
         /// <summary>Clears all of the active user's data.</summary>
         void ClearActiveUserData(ClearActiveUserDataCallback callback);
+    }
+
+    /// <summary>Defines the functions necessary for the platform user data IO.</summary>
+    public interface IUserDataIO<T> : IUserDataIO
+    {
+        /// <summary>Initializes the storage system for the given user.</summary>
+        void SetActiveUser(T platformUserId, SetActiveUserCallback<T> callback);
     }
 }

@@ -77,6 +77,7 @@ namespace ModIO.UI
                 t.offsetMin = Vector2.zero;
                 t.offsetMax = Vector2.zero;
 
+                m_clickBlocker.AddComponent<CanvasRenderer>();
                 m_clickBlocker.AddComponent<Touchable>();
                 m_clickBlocker.SetActive(false);
             }

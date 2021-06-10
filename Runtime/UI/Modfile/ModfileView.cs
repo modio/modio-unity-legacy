@@ -33,7 +33,8 @@ namespace ModIO.UI
                 {
                     this.m_modfile = value;
 
-                    if(string.IsNullOrEmpty(this.m_modfile.changelog))
+                    if(this.m_modfile != null
+                       && string.IsNullOrEmpty(this.m_modfile.changelog))
                     {
                         this.m_modfile.changelog = this.emptyChangelogText;
                     }

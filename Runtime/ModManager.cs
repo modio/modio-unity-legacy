@@ -99,29 +99,20 @@ namespace ModIO
                 }
                 else
                 {
-
                     DataStorage.DeleteDirectory(tempLocation, (dd_path, dd_success) =>
                     DataStorage.CreateDirectory(tempLocation, (cd_path, cd_success) =>
                     {
                         if(dd_success && cd_success)
                         {
-                            // extract
-                            try
-                            {
-                                using (var zip = Ionic.Zip.ZipFile.Read(archivePath))
-                                {
-                                    zip.ExtractAll(tempLocation);
-                                }
+                            bool didExtract = CompressionModule.ExtractAll(archivePath, tempLocation);
 
+                            if(didExtract)
+                            {
                                 // Remove old versions
                                 ModManager.UninstallMod(modId, onOldVersionsUninstalled);
                             }
-                            catch(Exception e)
+                            else
                             {
-                                Debug.LogWarning("[mod.io] Unable to extract binary to a temporary folder."
-                                                 + "\nLocation: " + tempLocation + "\n\n"
-                                                 + Utility.GenerateExceptionDebugString(e));
-
                                 DataStorage.DeleteDirectory(tempLocation, null);
 
                                 if(onComplete != null)
@@ -586,7 +577,7 @@ namespace ModIO
                 {
                     if(error.isAuthenticationInvalid)
                     {
-                        yield break;
+                        isRequestResolved = true;
                     }
                     else if(error.isRequestUnresolvable)
                     {
@@ -1288,9 +1279,29 @@ namespace ModIO
                                           Action<List<ModEvent>> onSuccess,
                                           Action<WebRequestError> onError)
         {
+            // init
+            int[] modIdFilterArray = null;
+            if(modIdFilter != null)
+            {
+                modIdFilterArray = modIdFilter.ToArray();
+            }
+
+            // early out
+            if(modIdFilterArray != null
+               && modIdFilterArray.Length == 0)
+            {
+                if(onSuccess != null)
+                {
+                    onSuccess.Invoke(new List<ModEvent>());
+                }
+
+                return;
+            }
+
             // - Filter -
             RequestFilter modEventFilter = new RequestFilter();
-            modEventFilter.sortFieldName = GetAllModEventsFilterFields.dateAdded;
+            modEventFilter.sortFieldName = GetAllModEventsFilterFields.id;
+            modEventFilter.isSortAscending = false;
 
             modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.dateAdded, new MinimumFilter<int>()
             {
@@ -1303,18 +1314,24 @@ namespace ModIO
                 isInclusive = true,
             });
 
-            if(modIdFilter != null)
+            if(modIdFilterArray != null)
             {
                 modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.modId, new InArrayFilter<int>()
                 {
-                    filterArray = modIdFilter.ToArray(),
+                    filterArray = modIdFilterArray,
                 });
             }
 
+            var pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
             // - Get All Events -
-            ModManager.FetchAllResultsForQuery<ModEvent>((p,s,e) => APIClient.GetAllModEvents(modEventFilter, p, s, e),
-                                                         onSuccess,
-                                                         onError);
+            APIClient.GetAllModEvents(modEventFilter, pagination,
+                                      (r) => ModManager._OnModEventSuccess(r, onSuccess),
+                                      onError);
         }
 
         /// <summary>Fetches all mod events after the given event id.</summary>
@@ -1323,9 +1340,29 @@ namespace ModIO
                                                  Action<List<ModEvent>> onSuccess,
                                                  Action<WebRequestError> onError)
         {
+            // init
+            int[] modIdFilterArray = null;
+            if(modIdFilter != null)
+            {
+                modIdFilterArray = modIdFilter.ToArray();
+            }
+
+            // early out
+            if(modIdFilterArray != null
+               && modIdFilterArray.Length == 0)
+            {
+                if(onSuccess != null)
+                {
+                    onSuccess.Invoke(new List<ModEvent>());
+                }
+
+                return;
+            }
+
             // - Filter -
             RequestFilter modEventFilter = new RequestFilter();
             modEventFilter.sortFieldName = GetAllModEventsFilterFields.id;
+            modEventFilter.isSortAscending = false;
 
             modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.id, new MinimumFilter<int>()
             {
@@ -1333,18 +1370,42 @@ namespace ModIO
                 isInclusive = false,
             });
 
-            if(modIdFilter != null)
+            if(modIdFilterArray != null)
             {
                 modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.modId, new InArrayFilter<int>()
                 {
-                    filterArray = modIdFilter.ToArray(),
+                    filterArray = modIdFilterArray,
                 });
             }
 
+            var pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
             // - Get All Events -
-            ModManager.FetchAllResultsForQuery<ModEvent>((p,s,e) => APIClient.GetAllModEvents(modEventFilter, p, s, e),
-                                                         onSuccess,
-                                                         onError);
+            APIClient.GetAllModEvents(modEventFilter, pagination,
+                                      (r) => ModManager._OnModEventSuccess(r, onSuccess),
+                                      onError);
+        }
+
+        /// <summary>Processes results from the events fetch results.</summary>
+        private static void _OnModEventSuccess(RequestPage<ModEvent> r,
+                                               Action<List<ModEvent>> onSuccess)
+        {
+            if(onSuccess != null)
+            {
+                List<ModEvent> eventList = new List<ModEvent>();
+                if(r != null
+                   && r.items != null
+                   && r.items.Length > 0)
+                {
+                    eventList = new List<ModEvent>(r.items);
+                }
+
+                onSuccess.Invoke(eventList);
+            }
         }
 
         /// <summary>Fetches all user events for the authenticated user.</summary>
@@ -1355,7 +1416,8 @@ namespace ModIO
         {
             // - Filter -
             RequestFilter userEventFilter = new RequestFilter();
-            userEventFilter.sortFieldName = GetUserEventsFilterFields.dateAdded;
+            userEventFilter.sortFieldName = GetUserEventsFilterFields.id;
+            userEventFilter.isSortAscending = false;
 
             userEventFilter.AddFieldFilter(GetUserEventsFilterFields.dateAdded, new MinimumFilter<int>()
             {
@@ -1373,10 +1435,16 @@ namespace ModIO
                 filterValue = PluginSettings.GAME_ID,
             });
 
+            var pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
             // - Get All Events -
-            ModManager.FetchAllResultsForQuery<UserEvent>((p,s,e) => APIClient.GetUserEvents(userEventFilter, p, s, e),
-                                                          onSuccess,
-                                                          onError);
+            APIClient.GetUserEvents(userEventFilter, pagination,
+                                    (r) => ModManager._OnUserEventsFetched(r, onSuccess),
+                                    onError);
         }
 
         /// <summary>Fetches all user events for the authenticated user.</summary>
@@ -1387,6 +1455,7 @@ namespace ModIO
             // - Filter -
             RequestFilter userEventFilter = new RequestFilter();
             userEventFilter.sortFieldName = GetUserEventsFilterFields.id;
+            userEventFilter.isSortAscending = false;
 
             userEventFilter.AddFieldFilter(GetUserEventsFilterFields.id, new MinimumFilter<int>()
             {
@@ -1399,10 +1468,34 @@ namespace ModIO
                 filterValue = PluginSettings.GAME_ID,
             });
 
+            var pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
             // - Get All Events -
-            ModManager.FetchAllResultsForQuery<UserEvent>((p,s,e) => APIClient.GetUserEvents(userEventFilter, p, s, e),
-                                                          onSuccess,
-                                                          onError);
+            APIClient.GetUserEvents(userEventFilter, pagination,
+                                    (r) => ModManager._OnUserEventsFetched(r, onSuccess),
+                                    onError);
+        }
+
+        /// <summary>Processes results from the events fetch results.</summary>
+        private static void _OnUserEventsFetched(RequestPage<UserEvent> r,
+                                                 Action<List<UserEvent>> onSuccess)
+        {
+            if(onSuccess != null)
+            {
+                List<UserEvent> eventList = new List<UserEvent>();
+                if(r != null
+                   && r.items != null
+                   && r.items.Length > 0)
+                {
+                    eventList = new List<UserEvent>(r.items);
+                }
+
+                onSuccess.Invoke(eventList);
+            }
         }
 
         // ---------[ UPLOADING ]---------
@@ -1521,46 +1614,20 @@ namespace ModIO
                 {
                     if(success)
                     {
-                        try
+                        success = CompressionModule.CompressFileCollection(rootDirectory, fileList, archiveFilePath);
+
+                        if(success)
                         {
-                            using(var zip = new Ionic.Zip.ZipFile())
-                            {
-                                foreach(string filePath in fileList)
-                                {
-                                    string relativeFilePath = filePath.Substring(rootDirectoryLength);
-                                    string relativeDirectory = Path.GetDirectoryName(relativeFilePath);
-
-                                    zip.AddFile(filePath, relativeDirectory);
-                                    zip.Save(archiveFilePath);
-                                }
-                            }
-
                             UploadModBinary_Zipped(modId, modfileValues, archiveFilePath, setActiveBuild, onSuccess, onError);
                         }
-                        catch(Exception e)
-                        {
-                            Debug.LogError("[mod.io] Unable to zip mod binary prior to uploading.\n\n"
-                                           + Utility.GenerateExceptionDebugString(e));
-
-                            if(onError != null)
-                            {
-                                WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
-
-                                onError(error);
-                            }
-                        }
                     }
-                    else
+
+                    if(!success)
                     {
-                        string errorString = ("Unable to create directory for mod binary archive prior to upload."
-                                              + "\nDirectory: " + path);
-
-                        Debug.LogError("[mod.io] " + errorString);
-
                         if(onError != null)
                         {
-                            WebRequestError error = WebRequestError.GenerateLocal(errorString);
-                            onError(error);
+                            WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
+                            onError.Invoke(error);
                         }
                     }
                 });
@@ -1582,32 +1649,19 @@ namespace ModIO
 
             DataStorage.CreateDirectory(Path.GetDirectoryName(binaryZipLocation), (path, success) =>
             {
-                try
-                {
-                    using(var zip = new Ionic.Zip.ZipFile())
-                    {
-                        zip.AddFile(unzippedBinaryLocation, "");
-                        zip.Save(binaryZipLocation);
-                    }
-
-                    zipSucceeded = true;
-                }
-                catch(Exception e)
-                {
-                    Debug.LogError("[mod.io] Unable to zip mod binary prior to uploading.\n\n"
-                                   + Utility.GenerateExceptionDebugString(e));
-
-                    if(onError != null)
-                    {
-                        WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
-
-                        onError(error);
-                    }
-                }
+                zipSucceeded = CompressionModule.CompressFile(unzippedBinaryLocation, binaryZipLocation);
 
                 if(zipSucceeded)
                 {
                     UploadModBinary_Zipped(modId, modfileValues, binaryZipLocation, setActiveBuild, onSuccess, onError);
+                }
+                else
+                {
+                    if(onError != null)
+                    {
+                        WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
+                        onError.Invoke(error);
+                    }
                 }
             });
         }

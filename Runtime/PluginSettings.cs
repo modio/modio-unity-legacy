@@ -1,3 +1,7 @@
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+    #define MODIO_ENABLE_VARIABLE_PATHS
+#endif
+
 using Path = System.IO.Path;
 
 using UnityEngine;
@@ -233,7 +237,7 @@ namespace ModIO
                 settings = wrapper.m_data;
 
                 // - Path variable replacement -
-                #if UNITY_STANDALONE
+                #if MODIO_ENABLE_VARIABLE_PATHS && !UNITY_EDITOR
 
                     // cachedir
                     if(settings.cacheDirectory != null)
@@ -256,7 +260,12 @@ namespace ModIO
                                                                            settings.gameId);
                     }
 
-                #endif // UNITY_STANDALONE
+                    Debug.Log("[mod.io] PluginSettings variable directories resolved to:"
+                              + "\n.cacheDirectory=" + settings.cacheDirectory
+                              + "\n.installationDirectory=" + settings.installationDirectory
+                              + "\n.userDirectory=" + settings.userDirectory);
+
+                #endif // MODIO_ENABLE_VARIABLE_PATHS && !UNITY_EDITOR
 
                 #if UNITY_EDITOR
 
@@ -281,7 +290,13 @@ namespace ModIO
                                                                                  settings.gameId);
                     }
 
+                    Debug.Log("[mod.io] PluginSettings variable directories resolved to:"
+                              + "\n.cacheDirectoryEditor=" + settings.cacheDirectoryEditor
+                              + "\n.installationDirectoryEditor=" + settings.installationDirectoryEditor
+                              + "\n.userDirectoryEditor=" + settings.userDirectoryEditor);
+
                 #endif // UNITY_EDITOR
+
             }
 
             return settings;

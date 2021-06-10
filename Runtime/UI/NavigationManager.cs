@@ -78,6 +78,18 @@ namespace ModIO.UI
             #endif
         }
 
+        /// <summary>Asserts that an EventManager exists.</summary>
+        private void OnEnable()
+        {
+            if(EventSystem.current == null)
+            {
+                Debug.LogError("[mod.io] NavigationManager cannot be enabled without an active EventSystem."
+                               + "\nAs such, the ModBrowser UI will not work as intended.", this);
+
+                this.enabled = false;
+            }
+        }
+
         /// <summary>Links with View Manager.</summary>
         private void Start()
         {

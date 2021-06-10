@@ -15,7 +15,7 @@ namespace ModIO
         /// <summary>Parse data as image.</summary>
         public static Texture2D ParseImageData(byte[] data)
         {
-            if(data == null || data.Length > 0) { return null; }
+            if(data == null || data.Length == 0) { return null; }
 
             Texture2D texture = new Texture2D(0,0);
             texture.LoadImage(data);
