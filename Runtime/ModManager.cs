@@ -1302,10 +1302,16 @@ namespace ModIO
                 });
             }
 
+            var pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
             // - Get All Events -
-            ModManager.FetchAllResultsForQuery<ModEvent>((p,s,e) => APIClient.GetAllModEvents(modEventFilter, p, s, e),
-                                                         onSuccess,
-                                                         onError);
+            APIClient.GetAllModEvents(modEventFilter, pagination,
+                                      (r) => ModManager._OnModEventSuccess(r, onSuccess),
+                                      onError);
         }
 
         /// <summary>Fetches all mod events after the given event id.</summary>
@@ -1332,10 +1338,34 @@ namespace ModIO
                 });
             }
 
+            var pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
             // - Get All Events -
-            ModManager.FetchAllResultsForQuery<ModEvent>((p,s,e) => APIClient.GetAllModEvents(modEventFilter, p, s, e),
-                                                         onSuccess,
-                                                         onError);
+            APIClient.GetAllModEvents(modEventFilter, pagination,
+                                      (r) => ModManager._OnModEventSuccess(r, onSuccess),
+                                      onError);
+        }
+
+        /// <summary>Processes results from the events fetch results.</summary>
+        private static void _OnModEventSuccess(RequestPage<ModEvent> r,
+                                               Action<List<ModEvent>> onSuccess)
+        {
+            if(onSuccess != null)
+            {
+                List<ModEvent> eventList = new List<ModEvent>();
+                if(r != null
+                   && r.items != null
+                   && r.items.Length > 0)
+                {
+                    eventList = new List<ModEvent>(r.items);
+                }
+
+                onSuccess.Invoke(eventList);
+            }
         }
 
         /// <summary>Fetches all user events for the authenticated user.</summary>
