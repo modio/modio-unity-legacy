@@ -1416,7 +1416,8 @@ namespace ModIO
         {
             // - Filter -
             RequestFilter userEventFilter = new RequestFilter();
-            userEventFilter.sortFieldName = GetUserEventsFilterFields.dateAdded;
+            userEventFilter.sortFieldName = GetUserEventsFilterFields.id;
+            userEventFilter.isSortAscending = false;
 
             userEventFilter.AddFieldFilter(GetUserEventsFilterFields.dateAdded, new MinimumFilter<int>()
             {
@@ -1448,6 +1449,7 @@ namespace ModIO
             // - Filter -
             RequestFilter userEventFilter = new RequestFilter();
             userEventFilter.sortFieldName = GetUserEventsFilterFields.id;
+            userEventFilter.isSortAscending = false;
 
             userEventFilter.AddFieldFilter(GetUserEventsFilterFields.id, new MinimumFilter<int>()
             {
