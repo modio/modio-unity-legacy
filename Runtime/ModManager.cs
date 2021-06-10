@@ -577,7 +577,7 @@ namespace ModIO
                 {
                     if(error.isAuthenticationInvalid)
                     {
-                        yield break;
+                        isRequestResolved = true;
                     }
                     else if(error.isRequestUnresolvable)
                     {
