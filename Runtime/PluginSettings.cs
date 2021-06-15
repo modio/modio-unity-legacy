@@ -407,27 +407,27 @@ namespace ModIO
         /// <summary>Generates a PluginSettings.Data instance with runtime defaults.</summary>
         public static PluginSettings.Data GenerateDefaultData()
         {
-            PluginSettings.Data data = new PluginSettings.Data()
+            PluginSettings.Data data = new PluginSettings.Data();
+            data = PluginSettings.UpdateVersionedValues(-1, data);
+
+            data.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
+            data.gameId = GameProfile.NULL_ID;
+            data.gameAPIKey = string.Empty;
+            data.requestCacheSizeKB = 4*1024;
+            data.requestLogging = new RequestLoggingOptions()
             {
-                apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
-                gameId = GameProfile.NULL_ID,
-                gameAPIKey = string.Empty,
-                requestCacheSizeKB = 4*1024,
-                requestLogging = new RequestLoggingOptions()
-                {
-                    errorsAsWarnings = true,
-                    logAllResponses = false,
-                    logOnSend = false,
-                },
-
-                installationDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","mods"),
-                cacheDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","cache"),
-                userDirectory = IOUtilities.CombinePath("$PERSISTENT_DATA_PATH$","mod.io-$GAME_ID$"),
-
-                installationDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","mods"),
-                cacheDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","cache"),
-                userDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","user"),
+                errorsAsWarnings = true,
+                logAllResponses = false,
+                logOnSend = false,
             };
+
+            data.installationDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","mods");
+            data.cacheDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","cache");
+            data.userDirectory = IOUtilities.CombinePath("$PERSISTENT_DATA_PATH$","mod.io-$GAME_ID$");
+
+            data.installationDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","mods");
+            data.cacheDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","cache");
+            data.userDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","user");
 
             return data;
         }
