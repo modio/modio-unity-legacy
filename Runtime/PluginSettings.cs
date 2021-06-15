@@ -233,9 +233,9 @@ namespace ModIO
         {
             get { return PluginSettings.data.requestLogging; }
         }
-        public static uint CACHE_SIZE
+        public static uint CACHE_SIZE_BYTES
         {
-            get { return PluginSettings.data.requestCacheSizeKB; }
+            get { return PluginSettings.data.requestCacheSizeKB * 1024; }
         }
 
         // ---------[ FUNCTIONALITY ]---------
