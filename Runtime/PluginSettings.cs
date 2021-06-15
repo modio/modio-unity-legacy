@@ -55,8 +55,8 @@ namespace ModIO
             public string gameAPIKey;
 
             [Tooltip("Amount of memory the request cache is permitted to grow to (KB)")]
-            [VersionedData(1, (uint)0)]
-            public uint requestCacheSizeKB;
+            [VersionedData(1, (int)-1)]
+            public int requestCacheSizeKB;
 
             /// <summary>Request logging options.</summary>
             public RequestLoggingOptions requestLogging;
@@ -243,7 +243,7 @@ namespace ModIO
                 }
                 else
                 {
-                    return PluginSettings.data.requestCacheSizeKB * 1024;
+                    return (uint)PluginSettings.data.requestCacheSizeKB * 1024;
                 }
             }
         }
