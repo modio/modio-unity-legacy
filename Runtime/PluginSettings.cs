@@ -54,7 +54,8 @@ namespace ModIO
             [VersionedData(0, "")]
             public string gameAPIKey;
 
-            [Tooltip("Amount of memory the request cache is permitted to grow to (KB)")]
+            [Tooltip("Amount of memory the request cache is permitted to grow to (KB)."
+                     + "\nA negative value indicates an unlimited cache size.")]
             [VersionedData(1, (int)-1)]
             public int requestCacheSizeKB;
 
@@ -374,33 +375,10 @@ namespace ModIO
             {
                 return dataValues;
             }
-
-            // set up data
-            PluginSettings.Data updatedValues = dataValues;
-            System.Object boxedData = updatedValues;
-
-            // iterate over PluginSettings.Data values
-            var fieldList = typeof(PluginSettings.Data).GetFields();
-            foreach(var field in fieldList)
+            else
             {
-                // check for the VersionedDataAttribute attribute
-                var attributeList = field.GetCustomAttributes(typeof(VersionedDataAttribute), false);
-                if(attributeList != null
-                   && attributeList.Length == 1)
-                {
-                    // set the default value if attribute is newer than the dataVersion
-                    VersionedDataAttribute dataAttribute = (VersionedDataAttribute)attributeList[0];
-                    if(dataAttribute.version > dataVersion)
-                    {
-                        field.SetValue(boxedData, dataAttribute.defaultValue);
-                    }
-                }
+                return VersionedDataAttribute.UpdateStructFields(dataVersion, dataValues);
             }
-
-            //  unbox the updatedValues
-            updatedValues = (PluginSettings.Data)boxedData;
-
-            return updatedValues;
         }
 
         // ---------[ ISerializationCallbackReceiver ]---------
