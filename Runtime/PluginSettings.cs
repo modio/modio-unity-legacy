@@ -55,7 +55,7 @@ namespace ModIO
             public string gameAPIKey;
 
             [Tooltip("Amount of memory the request cache is permitted to grow to (KB)")]
-            [VersionedData(1, 0)]
+            [VersionedData(1, (uint)0)]
             public uint requestCacheSizeKB;
 
             /// <summary>Request logging options.</summary>
