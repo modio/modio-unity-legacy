@@ -9,7 +9,7 @@ using UnityEngine;
 namespace ModIO
 {
     /// <summary>Stores the settings used by various classes that are unique to the game/app.</summary>
-    public class PluginSettings : ScriptableObject
+    public class PluginSettings : ScriptableObject, ISerializationCallbackReceiver
     {
         // ---------[ NESTED CLASSES ]---------
         /// <summary>Attribute for denoting a field as containing directory variables.</summary>
@@ -392,6 +392,13 @@ namespace ModIO
 
             return updatedValues;
         }
+
+        // ---------[ ISerializationCallbackReceiver ]---------
+        /// <summary>Implement this method to receive a callback after Unity deserializes your object.</summary>
+        public void OnAfterDeserialize() {}
+
+        /// <summary>Implement this method to receive a callback before Unity serializes your object.</summary>
+        public void OnBeforeSerialize() {}
 
         // ---------[ EDITOR CODE ]---------
         #if UNITY_EDITOR
