@@ -22,7 +22,7 @@ namespace ModIO.API
         private const int ENTRY_LIFETIME = 120;
 
         /// <summary>Max cache size.</summary>
-        private static readonly uint MAX_CACHE_SIZE = PluginSettings.CACHE_SIZE*1024;
+        private static readonly uint MAX_CACHE_SIZE = PluginSettings.CACHE_SIZE_BYTES;
 
         // ---------[ Fields ]---------
         /// <summary>Map of url to saved responses.</summary>

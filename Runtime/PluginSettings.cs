@@ -9,7 +9,7 @@ using UnityEngine;
 namespace ModIO
 {
     /// <summary>Stores the settings used by various classes that are unique to the game/app.</summary>
-    public class PluginSettings : ScriptableObject
+    public class PluginSettings : ScriptableObject, ISerializationCallbackReceiver
     {
         // ---------[ NESTED CLASSES ]---------
         /// <summary>Attribute for denoting a field as containing directory variables.</summary>
@@ -33,46 +33,64 @@ namespace ModIO
         [System.Serializable]
         public struct Data
         {
+            // ---------[ Versioning ]---------
+            internal const int VERSION = 1;
+
+            [HideInInspector]
+            [VersionedData(VERSION, VERSION)]
+            public int version;
+
             // ---------[ Fields ]---------
             [Header("API Settings")]
             [Tooltip("API URL to use when making requests")]
+            [VersionedData(0, "")]
             public string apiURL;
 
             [Tooltip("Game Id assigned to your game profile")]
+            [VersionedData(0, GameProfile.NULL_ID)]
             public int gameId;
 
             [Tooltip("API Key assigned to your game profile")]
+            [VersionedData(0, "")]
             public string gameAPIKey;
 
-            [Tooltip("Amount of memory the request cache is permitted to grow to (KB)")]
-            public uint requestCacheSizeKB;
+            [Tooltip("Amount of memory the request cache is permitted to grow to (KB)."
+                     + "\nA negative value indicates an unlimited cache size.")]
+            [VersionedData(1, (int)-1)]
+            public int requestCacheSizeKB;
 
             /// <summary>Request logging options.</summary>
             public RequestLoggingOptions requestLogging;
 
             [Header("Standalone Directories")]
             [Tooltip("Directory to use for mod installations")]
+            [VersionedData(0, @"$DATA_PATH$/mod.io/mods")]
             [VariableDirectory]
             public string installationDirectory;
 
             [Tooltip("Directory to use for cached server data")]
+            [VersionedData(0, @"$DATA_PATH$/mod.io/cache")]
             [VariableDirectory]
             public string cacheDirectory;
 
             [Tooltip("Directory to use for user data")]
+            [VersionedData(0, @"$PERSISTENT_DATA_PATH$/mod.io-$GAME_ID$")]
             [VariableDirectory]
             public string userDirectory;
 
             [Header("Editor Directories")]
             [Tooltip("Directory to use for mod installations")]
+            [VersionedData(0, @"$CURRENT_DIRECTORY$/mod.io/editor/$GAME_ID$/mods")]
             [VariableDirectory]
             public string installationDirectoryEditor;
 
             [Tooltip("Directory to use for cached server data")]
+            [VersionedData(0, @"$CURRENT_DIRECTORY$/mod.io/editor/$GAME_ID$/cache")]
             [VariableDirectory]
             public string cacheDirectoryEditor;
 
             [Tooltip("Directory to use for user data")]
+            [VersionedData(0, @"$CURRENT_DIRECTORY$/mod.io/editor/$GAME_ID$/user")]
             [VariableDirectory]
             public string userDirectoryEditor;
 
@@ -216,9 +234,19 @@ namespace ModIO
         {
             get { return PluginSettings.data.requestLogging; }
         }
-        public static uint CACHE_SIZE
+        public static uint CACHE_SIZE_BYTES
         {
-            get { return PluginSettings.data.requestCacheSizeKB; }
+            get
+            {
+                if(PluginSettings.data.requestCacheSizeKB < 0)
+                {
+                    return uint.MaxValue;
+                }
+                else
+                {
+                    return (uint)PluginSettings.data.requestCacheSizeKB * 1024;
+                }
+            }
         }
 
         // ---------[ FUNCTIONALITY ]---------
@@ -338,6 +366,31 @@ namespace ModIO
             return directory;
         }
 
+        /// <summary>Creates an updated version of passed PluginSettings.Data.</summary>
+        public static PluginSettings.Data UpdateVersionedValues(int dataVersion,
+                                                                PluginSettings.Data dataValues)
+        {
+            // early out
+            if(dataVersion >= PluginSettings.Data.VERSION)
+            {
+                return dataValues;
+            }
+            else
+            {
+                return VersionedDataAttribute.UpdateStructFields(dataVersion, dataValues);
+            }
+        }
+
+        // ---------[ ISerializationCallbackReceiver ]---------
+        /// <summary>Implement this method to receive a callback after Unity deserializes your object.</summary>
+        public void OnAfterDeserialize()
+        {
+            this.m_data = PluginSettings.UpdateVersionedValues(this.m_data.version, this.m_data);
+        }
+
+        /// <summary>Implement this method to receive a callback before Unity serializes your object.</summary>
+        public void OnBeforeSerialize() {}
+
         // ---------[ EDITOR CODE ]---------
         #if UNITY_EDITOR
         /// <summary>Locates the PluginSettings asset used at runtime.</summary>
@@ -359,26 +412,16 @@ namespace ModIO
         /// <summary>Generates a PluginSettings.Data instance with runtime defaults.</summary>
         public static PluginSettings.Data GenerateDefaultData()
         {
-            PluginSettings.Data data = new PluginSettings.Data()
+            PluginSettings.Data data = new PluginSettings.Data();
+            data = PluginSettings.UpdateVersionedValues(-1, data);
+
+            // non-constant defaults
+            data.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
+            data.requestLogging = new RequestLoggingOptions()
             {
-                apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
-                gameId = GameProfile.NULL_ID,
-                gameAPIKey = string.Empty,
-                requestCacheSizeKB = 4*1024,
-                requestLogging = new RequestLoggingOptions()
-                {
-                    errorsAsWarnings = true,
-                    logAllResponses = false,
-                    logOnSend = false,
-                },
-
-                installationDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","mods"),
-                cacheDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","cache"),
-                userDirectory = IOUtilities.CombinePath("$PERSISTENT_DATA_PATH$","mod.io-$GAME_ID$"),
-
-                installationDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","mods"),
-                cacheDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","cache"),
-                userDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","user"),
+                errorsAsWarnings = true,
+                logAllResponses = false,
+                logOnSend = false,
             };
 
             return data;
