@@ -355,6 +355,37 @@ namespace ModIO
             return directory;
         }
 
+        /// <summary>Creates an updated version of passed PluginSettings.Data.</summary>
+        public static PluginSettings.Data UpdateVersionedValues(int dataVersion,
+                                                                PluginSettings.Data dataValues)
+        {
+            PluginSettings.Data updatedValues = dataValues;
+            System.Object boxedData = updatedValues;
+
+            // iterate over PluginSettings.Data values
+            var fieldList = typeof(PluginSettings.Data).GetFields();
+            foreach(var field in fieldList)
+            {
+                // check for the VersionedDataAttribute attribute
+                var attributeList = field.GetCustomAttributes(typeof(VersionedDataAttribute), false);
+                if(attributeList != null
+                   && attributeList.Length == 1)
+                {
+                    // set the default value if attribute is newer than the dataVersion
+                    VersionedDataAttribute dataAttribute = (VersionedDataAttribute)attributeList[0];
+                    if(dataAttribute.version > dataVersion)
+                    {
+                        field.SetValue(boxedData, dataAttribute.defaultValue);
+                    }
+                }
+            }
+
+            //  unbox the updatedValues
+            updatedValues = (PluginSettings.Data)boxedData;
+
+            return updatedValues;
+        }
+
         // ---------[ EDITOR CODE ]---------
         #if UNITY_EDITOR
         /// <summary>Locates the PluginSettings asset used at runtime.</summary>
