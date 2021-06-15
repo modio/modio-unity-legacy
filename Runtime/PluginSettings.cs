@@ -34,61 +34,62 @@ namespace ModIO
         public struct Data
         {
             // ---------[ Versioning ]---------
+            private const int VERSION = 1;
+
             [HideInInspector]
-            [FieldVersion(1)]
+            [VersionedData(VERSION, VERSION)]
             public int version;
 
             // ---------[ Fields ]---------
             [Header("API Settings")]
             [Tooltip("API URL to use when making requests")]
-            [FieldVersion(0)]
+            [VersionedData(0, "")]
             public string apiURL;
 
             [Tooltip("Game Id assigned to your game profile")]
-            [FieldVersion(0)]
+            [VersionedData(0, GameProfile.NULL_ID)]
             public int gameId;
 
             [Tooltip("API Key assigned to your game profile")]
-            [FieldVersion(0)]
+            [VersionedData(0, "")]
             public string gameAPIKey;
 
             [Tooltip("Amount of memory the request cache is permitted to grow to (KB)")]
-            [FieldVersion(1)]
+            [VersionedData(1, 0)]
             public uint requestCacheSizeKB;
 
             /// <summary>Request logging options.</summary>
-            [FieldVersion(0)]
             public RequestLoggingOptions requestLogging;
 
             [Header("Standalone Directories")]
             [Tooltip("Directory to use for mod installations")]
-            [FieldVersion(0)]
+            [VersionedData(0, "")]
             [VariableDirectory]
             public string installationDirectory;
 
             [Tooltip("Directory to use for cached server data")]
-            [FieldVersion(0)]
+            [VersionedData(0, "")]
             [VariableDirectory]
             public string cacheDirectory;
 
             [Tooltip("Directory to use for user data")]
-            [FieldVersion(0)]
+            [VersionedData(0, "")]
             [VariableDirectory]
             public string userDirectory;
 
             [Header("Editor Directories")]
             [Tooltip("Directory to use for mod installations")]
-            [FieldVersion(0)]
+            [VersionedData(0, "")]
             [VariableDirectory]
             public string installationDirectoryEditor;
 
             [Tooltip("Directory to use for cached server data")]
-            [FieldVersion(0)]
+            [VersionedData(0, "")]
             [VariableDirectory]
             public string cacheDirectoryEditor;
 
             [Tooltip("Directory to use for user data")]
-            [FieldVersion(0)]
+            [VersionedData(0, "")]
             [VariableDirectory]
             public string userDirectoryEditor;
 
