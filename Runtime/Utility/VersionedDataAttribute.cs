@@ -18,8 +18,8 @@
         }
 
         // ---------[ Utility ]---------
-        /// <summary>Creates an updated version of passed PluginSettings.Data.</summary>
-        public static T UpdateVersionedValues<T>(int dataVersion, T dataValues)
+        /// <summary>Creates an updated version of the data structure passed.</summary>
+        public static T UpdateStructFields<T>(int dataVersion, T dataValues)
         where T : struct
         {
             // set up data
