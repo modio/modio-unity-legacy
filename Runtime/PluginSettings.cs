@@ -235,7 +235,17 @@ namespace ModIO
         }
         public static uint CACHE_SIZE_BYTES
         {
-            get { return PluginSettings.data.requestCacheSizeKB * 1024; }
+            get
+            {
+                if(PluginSettings.data.requestCacheSizeKB < 0)
+                {
+                    return uint.MaxValue;
+                }
+                else
+                {
+                    return PluginSettings.data.requestCacheSizeKB * 1024;
+                }
+            }
         }
 
         // ---------[ FUNCTIONALITY ]---------
