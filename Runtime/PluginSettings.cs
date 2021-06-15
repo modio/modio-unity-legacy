@@ -63,33 +63,33 @@ namespace ModIO
 
             [Header("Standalone Directories")]
             [Tooltip("Directory to use for mod installations")]
-            [VersionedData(0, "")]
+            [VersionedData(0, @"$DATA_PATH$/mod.io/mods")]
             [VariableDirectory]
             public string installationDirectory;
 
             [Tooltip("Directory to use for cached server data")]
-            [VersionedData(0, "")]
+            [VersionedData(0, @"$DATA_PATH$/mod.io/cache")]
             [VariableDirectory]
             public string cacheDirectory;
 
             [Tooltip("Directory to use for user data")]
-            [VersionedData(0, "")]
+            [VersionedData(0, @"$PERSISTENT_DATA_PATH$/mod.io-$GAME_ID$")]
             [VariableDirectory]
             public string userDirectory;
 
             [Header("Editor Directories")]
             [Tooltip("Directory to use for mod installations")]
-            [VersionedData(0, "")]
+            [VersionedData(0, @"$CURRENT_DIRECTORY$/mod.io/editor/$GAME_ID$/mods")]
             [VariableDirectory]
             public string installationDirectoryEditor;
 
             [Tooltip("Directory to use for cached server data")]
-            [VersionedData(0, "")]
+            [VersionedData(0, @"$CURRENT_DIRECTORY$/mod.io/editor/$GAME_ID$/cache")]
             [VariableDirectory]
             public string cacheDirectoryEditor;
 
             [Tooltip("Directory to use for user data")]
-            [VersionedData(0, "")]
+            [VersionedData(0, @"$CURRENT_DIRECTORY$/mod.io/editor/$GAME_ID$/user")]
             [VariableDirectory]
             public string userDirectoryEditor;
 
@@ -410,24 +410,14 @@ namespace ModIO
             PluginSettings.Data data = new PluginSettings.Data();
             data = PluginSettings.UpdateVersionedValues(-1, data);
 
+            // non-constant defaults
             data.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
-            data.gameId = GameProfile.NULL_ID;
-            data.gameAPIKey = string.Empty;
-            data.requestCacheSizeKB = 4*1024;
             data.requestLogging = new RequestLoggingOptions()
             {
                 errorsAsWarnings = true,
                 logAllResponses = false,
                 logOnSend = false,
             };
-
-            data.installationDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","mods");
-            data.cacheDirectory = IOUtilities.CombinePath("$DATA_PATH$","mod.io","cache");
-            data.userDirectory = IOUtilities.CombinePath("$PERSISTENT_DATA_PATH$","mod.io-$GAME_ID$");
-
-            data.installationDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","mods");
-            data.cacheDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","cache");
-            data.userDirectoryEditor = IOUtilities.CombinePath("$CURRENT_DIRECTORY$","mod.io","editor","$GAME_ID$","user");
 
             return data;
         }
