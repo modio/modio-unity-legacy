@@ -34,7 +34,7 @@ namespace ModIO
         public struct Data
         {
             // ---------[ Versioning ]---------
-            private const int VERSION = 1;
+            internal const int VERSION = 1;
 
             [HideInInspector]
             [VersionedData(VERSION, VERSION)]
@@ -359,6 +359,13 @@ namespace ModIO
         public static PluginSettings.Data UpdateVersionedValues(int dataVersion,
                                                                 PluginSettings.Data dataValues)
         {
+            // early out
+            if(dataVersion >= PluginSettings.Data.VERSION)
+            {
+                return dataValues;
+            }
+
+            // set up data
             PluginSettings.Data updatedValues = dataValues;
             System.Object boxedData = updatedValues;
 
