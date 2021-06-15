@@ -395,7 +395,10 @@ namespace ModIO
 
         // ---------[ ISerializationCallbackReceiver ]---------
         /// <summary>Implement this method to receive a callback after Unity deserializes your object.</summary>
-        public void OnAfterDeserialize() {}
+        public void OnAfterDeserialize()
+        {
+            this.m_data = PluginSettings.UpdateVersionedValues(this.m_data.version, this.m_data);
+        }
 
         /// <summary>Implement this method to receive a callback before Unity serializes your object.</summary>
         public void OnBeforeSerialize() {}
