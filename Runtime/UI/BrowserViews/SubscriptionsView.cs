@@ -166,14 +166,17 @@ namespace ModIO.UI
 
             IList<int> subscribedModIds = LocalUser.SubscribedModIds;
 
-            ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds,
-            (profiles) => Refresh_OnGetModProfiles(profiles, this.m_nameFieldFilter, this.m_sortDelegate),
-            (requestError) =>
+            ModManager.GetModProfiles(subscribedModIds,
+            new Action<ModProfile[]>(delegate(ModProfile[] profiles)
+            {
+                Refresh_OnGetModProfiles(profiles, this.m_nameFieldFilter, this.m_sortDelegate);
+                }),
+            new Action<WebRequestError>(delegate(WebRequestError requestError)
             {
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                            "Failed to get subscription data from mod.io servers.\n"
                                            + requestError.displayMessage);
-            });
+            }));
         }
 
         /// <summary>Handle the mods returned by the refresh request.</summary>

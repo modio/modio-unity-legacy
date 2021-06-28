@@ -731,8 +731,9 @@ namespace ModIO.UI
             List<Modfile> modfilesToAssert = new List<Modfile>(subscribedModIds.Count);
             bool isRequestDone = false;
 
-            ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds,
-            (modProfiles) =>
+            ModManager.GetModProfiles(subscribedModIds,
+                new Action<ModProfile[]>(delegate(ModProfile[] modProfiles) 
+            
             {
                 foreach(ModProfile profile in modProfiles)
                 {
@@ -755,12 +756,11 @@ namespace ModIO.UI
                 }
 
                 isRequestDone = true;
-            },
-            (e) =>
-            {
+            }),
+            new Action<WebRequestError>(delegate {
                 modfilesToAssert = null;
                 isRequestDone = true;
-            });
+            }));
 
             while(!isRequestDone) { yield return null; }
 
@@ -1271,7 +1271,7 @@ namespace ModIO.UI
             EnableMod(modId);
             UpdateSubscriptionReceivers(new int[] { modId }, null);
 
-            ModProfileRequestManager.instance.RequestModProfile(modId,
+            ModManager.GetModProfile(modId,
             (p) =>
             {
                 if(this != null && this.isActiveAndEnabled
@@ -1331,8 +1331,8 @@ namespace ModIO.UI
                 }
 
                 // start downloads
-                ModProfileRequestManager.instance.RequestModProfiles(addedSubscriptions,
-                (modProfiles) =>
+                ModManager.GetModProfiles(addedSubscriptions,
+                new Action<ModProfile[]>(delegate(ModProfile[] modProfiles)
                 {
                     if(this != null && this.isActiveAndEnabled)
                     {
@@ -1352,8 +1352,8 @@ namespace ModIO.UI
 
                         this.StartCoroutine(ModManager.AssertDownloadedAndInstalled_Coroutine(modfiles));
                     }
-                },
-                (requestError) =>
+                }),
+                new Action<WebRequestError>(delegate(WebRequestError requestError)
                 {
                     if(requestError.isAuthenticationInvalid)
                     {
@@ -1369,7 +1369,7 @@ namespace ModIO.UI
                                                    "Failed to start mod downloads. They will be retried shortly.\n"
                                                    + requestError.displayMessage);
                     }
-                });
+                }));
             }
 
             if(removedSubscriptions != null
@@ -1514,7 +1514,7 @@ namespace ModIO.UI
         {
             if(this == null) { return; }
 
-            ModProfileRequestManager.instance.RequestModProfile(idPair.modId,
+            ModManager.GetModProfile(idPair.modId,
             (p) =>
             {
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
@@ -1527,7 +1527,7 @@ namespace ModIO.UI
         {
             if(this == null) { return; }
 
-            ModProfileRequestManager.instance.RequestModProfile(idPair.modId,
+            ModManager.GetModProfile(idPair.modId,
             (p) =>
             {
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
@@ -1579,7 +1579,7 @@ namespace ModIO.UI
             }
             else
             {
-                ModProfileRequestManager.instance.FetchModProfilePage(this.explorerView.GenerateRequestFilter(),
+                ModManager.GetRangeOfModProfiles(this.explorerView.GenerateRequestFilter(),
                                                                       pageIndex * this.explorerView.itemsPerPage,
                                                                       this.explorerView.itemsPerPage,
                                                                       onSuccess, onError);
