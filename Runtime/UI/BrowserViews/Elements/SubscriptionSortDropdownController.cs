@@ -97,7 +97,7 @@ namespace ModIO.UI
                     }
 
                     // compare
-                    int compareResult = a.dateUpdated - b.dateUpdated;
+                    int compareResult = (int)(a.dateUpdated - b.dateUpdated);
                     if(compareResult == 0)
                     {
                         compareResult = String.Compare(a.name, b.name);

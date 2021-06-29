@@ -30,7 +30,7 @@ namespace ModIO
         /// Unix timestamp of date the event occurred.
         /// </summary>
         [JsonProperty("date_added")]
-        public int dateAdded;
+        public long dateAdded;
 
         /// <summary>
         /// Type of event was 'USER_TEAM_JOIN', 'USER_TEAM_LEAVE', 'USER_SUBSCRIBE', 'USER_UNSUBSCRIBE'.

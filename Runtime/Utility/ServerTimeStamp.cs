@@ -26,7 +26,7 @@ namespace ModIO
             return serverTimeStamp;
         }
 
-        public static DateTime ToLocalDateTime(int serverTimeStamp)
+        public static DateTime ToLocalDateTime(long serverTimeStamp)
         {
             DateTime dateTime = UNIX_EPOCH.AddSeconds(serverTimeStamp).ToLocalTime();
             return dateTime;

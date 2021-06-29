@@ -8,9 +8,9 @@ namespace ModIO.UI
         public int gameId;
         public ModStatus status;
         public ModVisibility visibility;
-        public int dateAdded;
-        public int dateUpdated;
-        public int dateLive;
+        public long dateAdded;
+        public long dateUpdated;
+        public long dateLive;
         public ModContentWarnings contentWarnings;
         public string homepageURL;
         public string name;

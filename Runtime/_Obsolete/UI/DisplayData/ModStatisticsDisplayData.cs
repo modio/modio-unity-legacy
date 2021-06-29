@@ -14,7 +14,7 @@ namespace ModIO.UI
         public int      ratingNegativeCount;
         public float    ratingWeightedAggregate;
         public string   ratingDisplayText;
-        public int      dateExpires;
+        public long      dateExpires;
 
         public static ModStatisticsDisplayData CreateFromStatistics(ModStatistics statistics)
         {

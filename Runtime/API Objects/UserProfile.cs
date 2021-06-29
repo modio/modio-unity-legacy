@@ -31,7 +31,7 @@ namespace ModIO
 
         /// <summary>Unix timestamp of when the user was last online.</summary>
         [JsonProperty("date_online")]
-        public int lastOnline;
+        public long lastOnline;
 
         /// <summary>Timezone of the user.</summary>
         [JsonProperty("timezone")]

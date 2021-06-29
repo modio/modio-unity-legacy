@@ -28,7 +28,7 @@ namespace ModIO
         /// Unix timestamp of the date the user was added to the team.
         /// </summary>
         [JsonProperty("date_added")]
-        public int dateAdded;
+        public long dateAdded;
 
         /// <summary>
         /// Custom title given to the user in this team.

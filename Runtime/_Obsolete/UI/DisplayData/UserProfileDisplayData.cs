@@ -7,7 +7,7 @@ namespace ModIO.UI
         public int      userId;
         public string   nameId;
         public string   username;
-        public int      lastOnline;
+        public long      lastOnline;
         public string   timezone;
         public string   language;
         public string   profileURL;

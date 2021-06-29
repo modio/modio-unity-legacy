@@ -53,7 +53,7 @@ namespace ModIO
 
         /// <summary>Unix timestamp until this object is considered out-dated.</summary>
         [JsonProperty("date_expires")]
-        public int dateExpires;
+        public long dateExpires;
 
         // --- Accessors ---
         /// <summary>Percentage of votes that are positive.</summary>

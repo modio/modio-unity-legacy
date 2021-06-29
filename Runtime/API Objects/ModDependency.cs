@@ -16,6 +16,6 @@ namespace ModIO
         /// Unix timestamp of date the dependency was added.
         /// </summary>
         [JsonProperty("date_added")]
-        public int dateAdded;
+        public long dateAdded;
     }
 }
