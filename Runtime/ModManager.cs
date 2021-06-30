@@ -1042,6 +1042,7 @@ namespace ModIO
                                                            checkForMissingModsInCache);
         }
 
+        /// <summary>Get a range of mod profiles.</summary>
         public static void GetRangeOfModProfiles(RequestFilter filter, int resultOffset, int profileCount,
                                                 Action<RequestPage<ModProfile>> onSuccess,
                                                 Action<WebRequestError> onError) {
