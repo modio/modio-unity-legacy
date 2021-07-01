@@ -1568,7 +1568,7 @@ namespace ModIO.UI
             ViewManager.instance.ActivateExplorerView();
         }
 
-        [Obsolete("Use ModProfileRequestManager.FetchModProfilePage() instead.")]
+        [Obsolete("Use ModManager.GetRangeOfModProfiles() instead.")]
         public void RequestExplorerPage(int pageIndex,
                                         Action<RequestPage<ModProfile>> onSuccess,
                                         Action<WebRequestError> onError)

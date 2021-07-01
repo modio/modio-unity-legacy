@@ -1033,7 +1033,8 @@ namespace ModIO
 
         public static void GetRangeOfModProfiles(RequestFilter filter, int resultOffset, int profileCount,
                                                 Action<RequestPage<ModProfile>> onSuccess,
-                                                Action<WebRequestError> onError) {
+                                                Action<WebRequestError> onError)
+        {
             Debug.Assert(minimumFetchSize <= APIPaginationParameters.LIMIT_MAX);
 
             // early out if onSuccess == null

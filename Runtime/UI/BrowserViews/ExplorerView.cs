@@ -184,9 +184,6 @@ namespace ModIO.UI
             }
         }
 
-        /// <summary>Accessor for the ModProfileRequestManager instance.</summary>
-        //private ModProfileRequestManager profileManager { get { return ModProfileRequestManager.instance; } }
-
         // --- IBrowserView Implementation ---
         /// <summary>Canvas Group.</summary>
         public CanvasGroup canvasGroup
