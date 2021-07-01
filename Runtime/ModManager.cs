@@ -521,7 +521,7 @@ namespace ModIO
             }
 
             // --- local delegates ---
-            Func<WebRequestError, int> calcReattemptDelay = (requestError) =>
+            Func<WebRequestError, long> calcReattemptDelay = (requestError) =>
             {
                 if(requestError.limitedUntilTimeStamp > 0)
                 {
@@ -593,7 +593,7 @@ namespace ModIO
                     {
                         ++attemptCount;
 
-                        int reattemptDelay = calcReattemptDelay(error);
+                        long reattemptDelay = calcReattemptDelay(error);
                         yield return new WaitForSecondsRealtime(reattemptDelay);
                     }
                 }
