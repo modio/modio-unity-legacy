@@ -740,8 +740,7 @@ namespace ModIO
                     {
                         --awaitingModfileUpdates;
 
-                        if(modfile.downloadLocator == null
-                           || modfile.downloadLocator.dateExpires <= ServerTimeStamp.Now)
+                        if(modfile.downloadLocator == null)
                         {
                             badModfiles.Add(modfile);
 
