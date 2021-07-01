@@ -72,14 +72,16 @@ namespace ModIO
                     }
                     else
                     {
-                            if (value is long) displayString = ServerTimeStamp.ToLocalDateTime((long)value).ToString(toStringParameter);
-                            else if (value is int)
-                            {
-                                UnityEngine.Debug.LogWarning("[mod.io] A DateTime value is being cast as an Int32 and not an Int64 (long). This may cause issues in the future.");
-                                displayString = ServerTimeStamp.ToLocalDateTime((int)value).ToString(toStringParameter);
-                            }
+                        if (value is long)
+                        {
+                            displayString = ServerTimeStamp.ToLocalDateTime((long)value).ToString(toStringParameter);
+                        }
+                        else if (value is int)
+                        {
+                            UnityEngine.Debug.LogWarning("[mod.io] A DateTime value is being cast as an Int32 and not an Int64 (long). This may cause issues in the future.");
+                            displayString = ServerTimeStamp.ToLocalDateTime((int)value).ToString(toStringParameter);
+                        }
                     }
-
                 }
                 break;
 
