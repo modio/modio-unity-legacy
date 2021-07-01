@@ -34,7 +34,7 @@ namespace ModIO.UI
         [Serializable]
         private struct BrowserState
         {
-            public int lastSync_timestamp;
+            public long lastSync_timestamp;
             public int lastSync_userId;
             public int modEventId;
             public int userEventId;
@@ -229,7 +229,7 @@ namespace ModIO.UI
 
                 if(requestError != null)
                 {
-                    int reattemptDelay = CalculateReattemptDelay(requestError);
+                    long reattemptDelay = CalculateReattemptDelay(requestError);
                     if(requestError.isAuthenticationInvalid)
                     {
                         if(LocalUser.AuthenticationState == AuthenticationState.NoToken)
@@ -315,7 +315,7 @@ namespace ModIO.UI
 
                 if(requestError != null)
                 {
-                    int reattemptDelay = CalculateReattemptDelay(requestError);
+                    long reattemptDelay = CalculateReattemptDelay(requestError);
                     if(requestError.isAuthenticationInvalid)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
@@ -446,7 +446,7 @@ namespace ModIO.UI
 
                 if(request_error != null)
                 {
-                    int reattemptDelay = CalculateReattemptDelay(request_error);
+                    long reattemptDelay = CalculateReattemptDelay(request_error);
                     if(request_error.isAuthenticationInvalid)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
@@ -650,7 +650,7 @@ namespace ModIO.UI
 
                 if(requestError != null)
                 {
-                    int reattemptDelay = CalculateReattemptDelay(requestError);
+                    long reattemptDelay = CalculateReattemptDelay(requestError);
                     if(requestError.isAuthenticationInvalid)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
@@ -837,13 +837,13 @@ namespace ModIO.UI
         }
 
         // ---------[ REQUESTS ]---------
-        private int CalculateReattemptDelay(WebRequestError requestError)
+        private long CalculateReattemptDelay(WebRequestError requestError)
         {
             Debug.Assert(requestError != null);
 
             if(requestError.limitedUntilTimeStamp > 0)
             {
-                return (requestError.limitedUntilTimeStamp - ServerTimeStamp.Now);
+                return requestError.limitedUntilTimeStamp - ServerTimeStamp.Now;
             }
             else if(!requestError.isRequestUnresolvable)
             {
@@ -878,7 +878,7 @@ namespace ModIO.UI
                 this.m_isSyncInProgress = true;
 
                 int sync_userId = LocalUser.UserId;
-                int timestamp = ServerTimeStamp.Now;
+                long timestamp = ServerTimeStamp.Now;
                 bool invalidUserEvent = (LocalUser.AuthenticationState != AuthenticationState.NoToken
                                          && ModBrowser._state.userEventId <= 0);
 
@@ -896,7 +896,7 @@ namespace ModIO.UI
                     yield return this.StartCoroutine(this.PullRemoteEventsAndUpdate());
                 }
 
-                int remainingTime = MIN_COMPLETE_TIME - (ServerTimeStamp.Now - timestamp);
+                long remainingTime = MIN_COMPLETE_TIME - (ServerTimeStamp.Now - timestamp);
                 if(remainingTime > 0)
                 {
                     yield return new WaitForSeconds(remainingTime);

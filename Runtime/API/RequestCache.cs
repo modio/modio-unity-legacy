@@ -12,7 +12,7 @@ namespace ModIO.API
         /// <summary>Entry for a stored response in the request cache.</summary>
         private struct Entry
         {
-            public int timeStamp;
+            public long timeStamp;
             public string responseBody;
             public uint size;
         }
@@ -141,7 +141,7 @@ namespace ModIO.API
 
             List<string> endpointList = new List<string>();
             List<Entry> entryList = new List<Entry>();
-            int now = ServerTimeStamp.Now;
+            long now = ServerTimeStamp.Now;
             uint culmativeSize = 0;
 
             foreach(var mod in mods)

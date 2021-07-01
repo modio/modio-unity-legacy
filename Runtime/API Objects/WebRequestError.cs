@@ -38,7 +38,7 @@ namespace ModIO
         public UnityWebRequest webRequest;
 
         /// <summary>The ServerTimeStamp at which the request was received.</summary>
-        public int timeStamp;
+        public long timeStamp;
 
         /// <summary>The mod.io error reference code.</summary>
         public int errorReference;
@@ -63,7 +63,7 @@ namespace ModIO
         public bool isRequestUnresolvable;
 
         /// <summary>Indicates whether the request triggered the Rate Limiter and when to retry.</summary>
-        public int limitedUntilTimeStamp;
+        public long limitedUntilTimeStamp;
 
         /// <summary>A player/user-friendly message to display on the UI.</summary>
         public string displayMessage;
@@ -114,7 +114,7 @@ namespace ModIO
         }
 
         // ---------[ VALUE INTERPRETATION AND APPLICATION ]---------
-        private static int ParseDateHeaderAsTimeStamp(UnityWebRequest webRequest)
+        private static long ParseDateHeaderAsTimeStamp(UnityWebRequest webRequest)
         {
             var dateHeaderValue = webRequest.GetResponseHeader("Date");
 
@@ -206,7 +206,7 @@ namespace ModIO
                         }
                         catch(System.Exception e)
                         {
-                            Debug.LogWarning("[mod.io] Eror parsing error object from repsonse:\n"
+                            Debug.LogWarning("[mod.io] Error parsing error object from response:\n"
                                              + e.Message);
 
                         }

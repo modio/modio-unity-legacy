@@ -148,8 +148,8 @@ namespace ModIO.UI
             }
             else
             {
-                int filterPeriod = dateLiveUntil - ServerTimeStamp.Now;
-                int optionDifference = int.MaxValue;
+                long filterPeriod = dateLiveUntil - ServerTimeStamp.Now;
+                long optionDifference = int.MaxValue;
 
                 for(int i = 0; i < this.options.Length; ++i)
                 {
@@ -157,7 +157,7 @@ namespace ModIO.UI
                     if(option.filterPeriodSeconds < 0) { continue; }
 
                     int minOptionPeriod = option.filterPeriodSeconds - option.filterRoundingSeconds;
-                    int filterDifference = filterPeriod - minOptionPeriod;
+                    long filterDifference = filterPeriod - minOptionPeriod;
 
                     if(filterDifference >= 0
                        && filterDifference < optionDifference)
@@ -180,24 +180,24 @@ namespace ModIO.UI
             OptionData option = GetSelectedOption();
 
             // calc
-            int fromTimeStamp = -1;
+            long fromTimeStamp = -1;
             if(option != null)
             {
-                int now = ServerTimeStamp.Now;
+                long now = ServerTimeStamp.Now;
                 if(option.filterPeriodSeconds > 0)
                 {
                     fromTimeStamp = now - option.filterPeriodSeconds;
 
-                    int roundingValue = fromTimeStamp % option.filterRoundingSeconds;
+                    long roundingValue = fromTimeStamp % option.filterRoundingSeconds;
                     fromTimeStamp -= roundingValue;
                 }
             }
 
             // set
-            MinimumFilter<int> fieldFilter = null;
+            MinimumFilter<long> fieldFilter = null;
             if(fromTimeStamp > 0)
             {
-                fieldFilter = new MinimumFilter<int>()
+                fieldFilter = new MinimumFilter<long>()
                 {
                     minimum = fromTimeStamp,
                     isInclusive = false,
