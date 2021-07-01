@@ -732,8 +732,7 @@ namespace ModIO.UI
             bool isRequestDone = false;
 
             ModManager.GetModProfiles(subscribedModIds,
-                new Action<ModProfile[]>(delegate(ModProfile[] modProfiles) 
-            
+            (ModProfile[] modProfiles) =>
             {
                 foreach(ModProfile profile in modProfiles)
                 {
@@ -756,11 +755,12 @@ namespace ModIO.UI
                 }
 
                 isRequestDone = true;
-            }),
-            new Action<WebRequestError>(delegate {
+            },
+            (WebRequestError error) =>
+            {
                 modfilesToAssert = null;
                 isRequestDone = true;
-            }));
+            });
 
             while(!isRequestDone) { yield return null; }
 
@@ -1332,7 +1332,7 @@ namespace ModIO.UI
 
                 // start downloads
                 ModManager.GetModProfiles(addedSubscriptions,
-                new Action<ModProfile[]>(delegate(ModProfile[] modProfiles)
+                (ModProfile[] modProfiles) =>
                 {
                     if(this != null && this.isActiveAndEnabled)
                     {
@@ -1352,8 +1352,8 @@ namespace ModIO.UI
 
                         this.StartCoroutine(ModManager.AssertDownloadedAndInstalled_Coroutine(modfiles));
                     }
-                }),
-                new Action<WebRequestError>(delegate(WebRequestError requestError)
+                },
+                (WebRequestError requestError) =>
                 {
                     if(requestError.isAuthenticationInvalid)
                     {
@@ -1369,7 +1369,7 @@ namespace ModIO.UI
                                                    "Failed to start mod downloads. They will be retried shortly.\n"
                                                    + requestError.displayMessage);
                     }
-                }));
+                });
             }
 
             if(removedSubscriptions != null

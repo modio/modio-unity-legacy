@@ -523,21 +523,20 @@ namespace ModIO.UI
                && addedSubscriptions.Count > 0)
             {
                 ModManager.GetModProfiles(addedSubscriptions,
-                    new Action<ModProfile[]>(delegate (ModProfile[] modProfiles)
-                    {
-
+                (ModProfile[] modProfiles) =>
+                {
                     if (this == null || !this.isActiveAndEnabled || modProfiles == null) { return; }
 
                     IList<int> subbedIds = LocalUser.SubscribedModIds;
 
-                    foreach (ModProfile profile in modProfiles) {
-                        if (profile != null && subbedIds.Contains(profile.id)) {
+                    foreach (ModProfile profile in modProfiles)
+                    {
+                        if (profile != null && subbedIds.Contains(profile.id))
+                        {
                             StoreModImages(profile);
                         }
                     }
-
-                }), null);
-
+                }, null);
             }
         }
 
