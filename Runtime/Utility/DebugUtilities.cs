@@ -18,7 +18,7 @@ namespace ModIO
             public string userIdString;
 
             /// <summary>ServerTimeStamp at which the request was sent.</summary>
-            public int timeSent;
+            public long timeSent;
 
             /// <summary>FilePath to which the request is saving data.</summary>
             public string downloadLocation;
@@ -30,7 +30,7 @@ namespace ModIO
         /// <summary>Tracks and logs a request upon it completing.</summary>
         public static void DebugWebRequest(UnityWebRequestAsyncOperation operation,
                                            LocalUser userData,
-                                           int timeSent = -1)
+                                           long timeSent = -1)
         {
             #if DEBUG
                 DebugUtilities.DebugDownload(operation, userData, null, timeSent);
@@ -41,7 +41,7 @@ namespace ModIO
         public static void DebugDownload(UnityWebRequestAsyncOperation operation,
                                          LocalUser userData,
                                          string downloadLocation,
-                                         int timeSent = -1)
+                                         long timeSent = -1)
         {
             #if DEBUG
 

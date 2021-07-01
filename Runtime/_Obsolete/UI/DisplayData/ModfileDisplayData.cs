@@ -8,14 +8,14 @@ namespace ModIO.UI
     {
         public int modfileId;
         public int modId;
-        public int dateAdded;
+        public long dateAdded;
         public string fileName;
         public Int64 fileSize;
         public string MD5;
         public string version;
         public string changelog;
         public string metadataBlob;
-        public int virusScanDate;
+        public long virusScanDate;
         public ModfileVirusScanStatus virusScanStatus;
         public ModfileVirusScanResult virusScanResult;
         public string virusScanHash;

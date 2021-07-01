@@ -30,7 +30,7 @@ namespace ModIO
         /// Unix timestamp of date the event occurred.
         /// </summary>
         [JsonProperty("date_added")]
-        public int dateAdded;
+        public long dateAdded;
 
         /// <summary>
         /// Type of event was 'MODFILE_CHANGED', 'MOD_AVAILABLE', 'MOD_UNAVAILABLE', 'MOD_EDITED',

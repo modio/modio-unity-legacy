@@ -12,6 +12,6 @@ namespace ModIO
 
         /// <summary>Unix timestamp of date tag was applied.</summary>
         [JsonProperty("date_added")]
-        public int dateAdded;
+        public long dateAdded;
     }
 }

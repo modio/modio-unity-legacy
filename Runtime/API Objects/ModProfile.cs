@@ -40,15 +40,15 @@ namespace ModIO
 
         /// <summary> Unix timestamp of date mod was registered. </summary>
         [JsonProperty("date_added")]
-        public int dateAdded;
+        public long dateAdded;
 
         /// <summary> Unix timestamp of date mod was updated. </summary>
         [JsonProperty("date_updated")]
-        public int dateUpdated;
+        public long dateUpdated;
 
         /// <summary> Unix timestamp of date mod was set live. </summary>
         [JsonProperty("date_live")]
-        public int dateLive;
+        public long dateLive;
 
         /// <summary>
         /// Maturity options flagged by the mod developer, this is only relevant if the parent game

@@ -518,11 +518,11 @@ namespace ModIO
             }
 
             // --- local delegates ---
-            Func<WebRequestError, int> calcReattemptDelay = (requestError) =>
+            Func<WebRequestError, long> calcReattemptDelay = (requestError) =>
             {
                 if(requestError.limitedUntilTimeStamp > 0)
                 {
-                    return (requestError.limitedUntilTimeStamp - ServerTimeStamp.Now);
+                    return requestError.limitedUntilTimeStamp - ServerTimeStamp.Now;
                 }
                 else if(!requestError.isRequestUnresolvable)
                 {
@@ -590,7 +590,7 @@ namespace ModIO
                     {
                         ++attemptCount;
 
-                        int reattemptDelay = calcReattemptDelay(error);
+                        long reattemptDelay = calcReattemptDelay(error);
                         yield return new WaitForSecondsRealtime(reattemptDelay);
                     }
                 }
@@ -877,6 +877,7 @@ namespace ModIO
         }
 
         // ---------[ MOD PROFILES ]---------
+
         /// <summary>Fetches a mod profile checking the cache, storing if subscribed.</summary>
         public static void GetModProfile(int modId,
                                          Action<ModProfile> onSuccess,

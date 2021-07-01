@@ -21,7 +21,7 @@ namespace ModIO
 
         /// <summary>Unix timestamp of date file was added.</summary>
         [JsonProperty("date_added")]
-        public int dateAdded;
+        public long dateAdded;
 
         /// <summary>Filename including extension.</summary>
         [JsonProperty("filename")]
@@ -49,7 +49,7 @@ namespace ModIO
 
         /// <summary>Unix timestamp of date file was virus scanned.</summary>
         [JsonProperty("date_scanned")]
-        public int dateScanned;
+        public long dateScanned;
 
         /// <summary>Current virus scan status of the file. For newly added
         /// files that have yet to be scanned this field will change frequently

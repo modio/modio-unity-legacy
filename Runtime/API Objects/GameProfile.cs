@@ -44,15 +44,15 @@ namespace ModIO
 
         /// <summary>Server time stamp for the creation of the game profile.</summary>
         [JsonProperty("date_added")]
-        public int dateAdded;
+        public long dateAdded;
 
         /// <summary>Server time stamp of last edit made to the game profile.</summary>
         [JsonProperty("date_updated")]
-        public int dateUpdated;
+        public long dateUpdated;
 
         /// <summary>Server time stamp for the first time the game profile was made live.</summary>
         [JsonProperty("date_live")]
-        public int dateLive;
+        public long dateLive;
 
         /// <summary>Word used to describe the user-generated content on mod.io.</summary>
         [JsonProperty("ugc_name")]

@@ -26,7 +26,7 @@ namespace ModIO
 
         /// <summary>Unix timestamp of date rating was submitted.</summary>
         [JsonProperty("date_added")]
-        public int dateAdded;
+        public long dateAdded;
 
 
         // ---------[ API SERIALIZATION ]---------

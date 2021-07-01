@@ -19,6 +19,6 @@ namespace ModIO
 
         /// <summary>Unix timestamp of when the binary_url will expire.</summary>
         [JsonProperty("date_expires")]
-        public int dateExpires;
+        public long dateExpires;
     }
 }

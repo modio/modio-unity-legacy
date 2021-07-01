@@ -40,7 +40,7 @@ namespace ModIO
         /// Unix timestamp of date the comment was posted.
         /// </summary>
         [JsonProperty("date_added")]
-        public int dateAdded;
+        public long dateAdded;
 
         /// <summary>
         /// Id of the parent comment this comment is replying to (can be 0 if the comment is not a reply).
