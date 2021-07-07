@@ -1697,59 +1697,7 @@ namespace ModIO
                                          Action<TermsOfUseInfo> successCallback,
                                          Action<WebRequestError> errorCallback)
         {
-
-            string endpointURL = PluginSettings.API_URL + @"/authenticate/terms";
-            string authenticatorString = null;
-
-            switch(authProvider)
-            {
-                case ExternalAuthenticationProvider.Steam:
-                {
-                    authenticatorString = "service=steam";
-                }
-                break;
-                case ExternalAuthenticationProvider.GOG:
-                {
-                    authenticatorString = "service=gog";
-                }
-                break;
-                case ExternalAuthenticationProvider.ItchIO:
-                {
-                    authenticatorString = "service=itchio";
-                }
-                break;
-                case ExternalAuthenticationProvider.OculusRift:
-                {
-                    authenticatorString = "service=oculus";
-                }
-                break;
-                case ExternalAuthenticationProvider.XboxLive:
-                {
-                    authenticatorString = "service=xbox";
-                }
-                break;
-                case ExternalAuthenticationProvider.Switch:
-                {
-                    authenticatorString = "service=switch";
-                }
-                break;
-                case ExternalAuthenticationProvider.Discord:
-                {
-                    authenticatorString = "service=discord";
-                }
-                break;
-                default:
-                {
-                    authenticatorString = string.Empty;
-                }
-                break;
-            }
-
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                                 authenticatorString,
-                                                                 null);
-
-            APIClient.SendRequest(webRequest, successCallback, errorCallback);
+            APIClient.GetTermsOfUse(successCallback, errorCallback);
         }
     }
 }
