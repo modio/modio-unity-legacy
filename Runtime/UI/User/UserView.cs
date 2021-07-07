@@ -73,44 +73,5 @@ namespace ModIO.UI
                 onClick(this);
             }
         }
-
-        // ---------[ OBSOLETE ]---------
-        [System.Obsolete("Use UserAvatarDisplay component instead.")][HideInInspector]
-        public ImageDisplay avatarDisplay;
-
-        [System.Obsolete("Use UserProfileFieldDisplay components instead.")][HideInInspector]
-        public UserProfileDisplayComponent  profileDisplay;
-
-        [System.Obsolete]
-        public UserDisplayData data
-        {
-            get
-            {
-                if(this.m_profile == null)
-                {
-                    return new UserDisplayData();
-                }
-                else
-                {
-                    UserDisplayData data = new UserDisplayData();
-                    data.profile = UserProfileDisplayData.CreateFromProfile(profile);
-                    data.avatar = ImageDisplayData.CreateForUserAvatar(profile.id, profile.avatarLocator);
-                    return data;
-                }
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
-
-        [System.Obsolete("No longer necessary.")]
-        public void Initialize() {}
-
-        [System.Obsolete("Use UserView.profile instead.")]
-        public void DisplayUser(UserProfile userProfile)
-        {
-            this.profile = userProfile;
-        }
     }
 }
