@@ -34,7 +34,7 @@ namespace ModIO
         public struct Data
         {
             // ---------[ Versioning ]---------
-            internal const int VERSION = 1;
+            internal const int VERSION = 2;
 
             [HideInInspector]
             [VersionedData(VERSION, VERSION)]
@@ -53,6 +53,10 @@ namespace ModIO
             [Tooltip("API Key assigned to your game profile")]
             [VersionedData(0, "")]
             public string gameAPIKey;
+
+            [Tooltip("User Portal that this build of the game will be launching through.")]
+            [VersionedData(2, UserPortal.None)]
+            public UserPortal userPortal;
 
             [Tooltip("Amount of memory the request cache is permitted to grow to (KB)."
                      + "\nA negative value indicates an unlimited cache size.")]
