@@ -71,6 +71,9 @@ namespace ModIO
             public const string PLATFORM_HEADER_VALUE = "wii";
         #endif
 
+        /// <summary>Header key for the portal header.</summary>
+        public const string PORTAL_HEADER_KEY = "x-modio-portal";
+
         /// <summary>Collection of the HTTP request header keys used by mod.io.</summary>
         public static readonly string[] MODIO_REQUEST_HEADER_KEYS = new string[]
         {
@@ -80,6 +83,7 @@ namespace ModIO
             "x-unity-version",
             "user-agent",
             APIClient.PLATFORM_HEADER_KEY,
+            APIClient.PORTAL_HEADER_KEY,
             APIClient.EXTERNAL_AUTH_CONSENT_KEY,
         };
 
@@ -171,6 +175,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
             webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
+            webRequest.SetRequestHeader(APIClient.PORTAL_HEADER_KEY, ServiceConstants.GetPortalHeaderValue(PluginSettings.USER_PORTAL));
 
             return webRequest;
         }
@@ -189,6 +194,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
             webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
+            webRequest.SetRequestHeader(APIClient.PORTAL_HEADER_KEY, ServiceConstants.GetPortalHeaderValue(PluginSettings.USER_PORTAL));
 
             return webRequest;
         }
@@ -214,6 +220,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
             webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
+            webRequest.SetRequestHeader(APIClient.PORTAL_HEADER_KEY, ServiceConstants.GetPortalHeaderValue(PluginSettings.USER_PORTAL));
 
             return webRequest;
         }
@@ -247,6 +254,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
             webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
+            webRequest.SetRequestHeader(APIClient.PORTAL_HEADER_KEY, ServiceConstants.GetPortalHeaderValue(PluginSettings.USER_PORTAL));
 
             return webRequest;
         }
@@ -272,6 +280,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
             webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
+            webRequest.SetRequestHeader(APIClient.PORTAL_HEADER_KEY, ServiceConstants.GetPortalHeaderValue(PluginSettings.USER_PORTAL));
 
             return webRequest;
         }
@@ -556,6 +565,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
             webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
+            webRequest.SetRequestHeader(APIClient.PORTAL_HEADER_KEY, ServiceConstants.GetPortalHeaderValue(PluginSettings.USER_PORTAL));
 
             return webRequest;
         }
