@@ -238,6 +238,10 @@ namespace ModIO
         {
             get { return PluginSettings.data.requestLogging; }
         }
+        public static UserPortal USER_PORTAL
+        {
+            get { return PluginSettings.data.userPortal; }
+        }
         public static uint CACHE_SIZE_BYTES
         {
             get
