@@ -278,37 +278,4 @@ namespace ModIO
             this.filterValue = filterValue;
         }
     }
-
-    // ---------[ OBSOLETE ]---------
-    [Obsolete("Combine a MinimumFilter and MaximumFilter instead.")]
-    public class RangeFilter<T> : IRequestFieldFilter<T>, IRequestFieldFilter
-        where T : IComparable<T>
-    {
-        public T min;
-        public bool isMinInclusive;
-        public T max;
-        public bool isMaxInclusive;
-
-        public string GenerateFilterString(string fieldName)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(fieldName));
-            Debug.Assert(this.min != null);
-            Debug.Assert(this.max != null);
-
-            return (fieldName + (isMinInclusive ? "-min=" : "-gt=") + min
-                    + "&" + fieldName + (isMaxInclusive ? "-max=" : "-st=") + max);
-        }
-
-        public FieldFilterMethod filterMethod { get { throw new System.NotImplementedException(); } }
-        object IRequestFieldFilter.filterValue
-        {
-            get { throw new System.NotImplementedException(); }
-        }
-
-        T IRequestFieldFilter<T>.filterValue
-        {
-            get { throw new System.NotImplementedException(); }
-        }
-    }
-
 }
