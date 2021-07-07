@@ -462,41 +462,6 @@ namespace ModIO
 
             return settings;
         }
-
-        /// <summary>[Obsolete] Sets the values of the Plugin Settings.</summary>
-        [System.Obsolete("Use PluginSettings.SetRuntimeData() instead.")]
-        public static PluginSettings SetGlobalValues(PluginSettings.Data data)
-        {
-            return PluginSettings.SetRuntimeData(data);
-        }
-
-        /// <summary>[Obsolete] Creates the asset instance that the plugin will use.</summary>
-        [System.Obsolete("Use PluginSettings.GenerateDefaultData() and PluginSettings.SetRuntimeData() instead.")]
-        private static PluginSettings InitializeAsset()
-        {
-            PluginSettings.Data data = PluginSettings.GenerateDefaultData();
-            return PluginSettings.SetRuntimeData(data);
-        }
-
         #endif // UNITY_EDITOR
-
-        // ---------[ Obsolete ]---------
-        [System.Obsolete("Use DataStorage.INSTALLATION_DIRECTORY instead.")]
-        public static string INSTALLATION_DIRECTORY
-        {
-            get { return DataStorage.INSTALLATION_DIRECTORY; }
-        }
-
-        [System.Obsolete("Use DataStorage.CACHE_DIRECTORY instead.")]
-        public static string CACHE_DIRECTORY
-        {
-            get { return DataStorage.CACHE_DIRECTORY; }
-        }
-
-        [System.Obsolete("Use UserDataStorage.USER_DIRECTORY instead.")]
-        public static string USER_DIRECTORY
-        {
-            get { return UserDataStorage.USER_DIRECTORY; }
-        }
     }
 }
