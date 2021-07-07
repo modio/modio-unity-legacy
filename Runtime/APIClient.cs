@@ -47,28 +47,28 @@ namespace ModIO
 
         #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             /// <summary>Platform header value. (Windows)</summary>
-            public const string PLATFORM_HEADER_VALUE = "windows_draft";
+            public const string PLATFORM_HEADER_VALUE = "windows";
         #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
             /// <summary>Platform header value. (Mac OS)</summary>
-            public const string PLATFORM_HEADER_VALUE = "osx_draft";
+            public const string PLATFORM_HEADER_VALUE = "mac";
         #elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
             /// <summary>Platform header value. (Linux)</summary>
-            public const string PLATFORM_HEADER_VALUE = "linux_draft";
-        #elif UNITY_WII
-            /// <summary>Platform header value. (Wii)</summary>
-            public const string PLATFORM_HEADER_VALUE = "wii_draft";
-        #elif UNITY_IOS
-            /// <summary>Platform header value. (iOS)</summary>
-            public const string PLATFORM_HEADER_VALUE = "ios_draft";
+            public const string PLATFORM_HEADER_VALUE = "linux";
         #elif UNITY_ANDROID
             /// <summary>Platform header value. (Android)</summary>
-            public const string PLATFORM_HEADER_VALUE = "android_draft";
-        #elif UNITY_PS4
-            /// <summary>Platform header value. (PS4)</summary>
-            public const string PLATFORM_HEADER_VALUE = "ps4_draft";
+            public const string PLATFORM_HEADER_VALUE = "android";
+        #elif UNITY_IOS
+            /// <summary>Platform header value. (iOS)</summary>
+            public const string PLATFORM_HEADER_VALUE = "ios";
         #elif UNITY_XBOXONE
             /// <summary>Platform header value. (Xbox One)</summary>
-            public const string PLATFORM_HEADER_VALUE = "xboxone_draft";
+            public const string PLATFORM_HEADER_VALUE = "xboxone";
+        #elif UNITY_PS4
+            /// <summary>Platform header value. (PS4)</summary>
+            public const string PLATFORM_HEADER_VALUE = "ps4";
+        #elif UNITY_WII
+            /// <summary>Platform header value. (Wii)</summary>
+            public const string PLATFORM_HEADER_VALUE = "wii";
         #endif
 
         /// <summary>Collection of the HTTP request header keys used by mod.io.</summary>
