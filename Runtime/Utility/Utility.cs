@@ -181,13 +181,5 @@ namespace ModIO
 
             return retVal;
         }
-
-
-        /// <summary>[Obsolete] Converts a byte array representing a Steam Ticket to a base64 string.</summary>
-        [Obsolete("Use EncodeEncryptedAppTicket() instead")]
-        public static string ConvertSteamEncryptedAppTicket(byte[] pTicket, uint pcbTicket)
-        {
-            return Utility.EncodeEncryptedAppTicket(pTicket, pcbTicket);
-        }
     }
 }

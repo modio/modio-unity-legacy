@@ -42,10 +42,5 @@ namespace ModIO
                 }
             }
         }
-
-
-        // ---------[ Obsolete ]---------
-        [System.Obsolete("No longer supported. Use EditableReport.reportType instead.", true)]
-        public EditableBoolField isDMCA = null;
     }
 }

@@ -174,21 +174,5 @@ namespace ModIO.UI
 
             inputField.interactable = true;
         }
-
-        // ---------[ OBSOLETE ]---------
-        #pragma warning disable 0067
-        [Obsolete("No longer trigger by this object.")]
-        public event Action<string> onInvalidSubmissionAttempted;
-        [Obsolete("No longer trigger by this object.")]
-        public event Action<string> onEmailRefused;
-        [Obsolete("No longer trigger by this object.")]
-        public event Action<APIMessage> onSecurityCodeSent;
-        [Obsolete("No longer trigger by this object.")]
-        public event Action<string> onSecurityCodeRefused;
-        [Obsolete("No longer trigger by this object.")]
-        public event Action<string> onUserOAuthTokenReceived;
-        [Obsolete("No longer trigger by this object.")]
-        public event Action<WebRequestError> onWebRequestError;
-        #pragma warning restore 0067
     }
 }

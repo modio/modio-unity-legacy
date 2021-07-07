@@ -560,13 +560,5 @@ namespace ModIO
                 markers.byteCounts[markers.lastIndex] = bytesReceived;
             }
         }
-
-        // ---------[ OBSOLETE ]---------
-        /// <summary>Enable logging of all web requests.</summary>
-        [Obsolete("Use PluginSettings.REQUEST_LOGGING instead.")]
-        public static bool logAllRequests
-        {
-            get { return PluginSettings.REQUEST_LOGGING.logAllResponses; }
-        }
     }
 }

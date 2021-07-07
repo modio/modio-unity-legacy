@@ -67,12 +67,5 @@ namespace ModIO.API
                 }
             }
         }
-
-        // ---------[ OBSOLETE ]---------
-        [System.Obsolete("Use ratingValue instead.")]
-        public int rating
-        {
-            set { this.SetStringValue("rating", value.ToString()); }
-        }
     }
 }
