@@ -24,7 +24,7 @@ namespace ModIO
 
                 case UserPortal.EpicGamesStore:
                 {
-                    headerValue = "epicgamesstore";
+                    headerValue = "egs";
                 }
                 break;
 
@@ -60,7 +60,7 @@ namespace ModIO
 
                 case UserPortal.PlayStationNetwork:
                 {
-                    headerValue = "playstationnetwork";
+                    headerValue = "psn";
                 }
                 break;
 
