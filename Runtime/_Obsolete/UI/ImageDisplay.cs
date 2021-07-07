@@ -58,21 +58,21 @@ namespace ModIO.UI
             if(!string.IsNullOrEmpty(imageURL))
             {
                 ImageDisplayData iData = this.m_data;
-                ImageRequestManager.instance.RequestImageForData(this.m_data, this.useOriginal,
-                (t) =>
-                {
-                    if(this != null && iData.Equals(this.m_data))
-                    {
-                        if(loadingOverlay != null)
-                        {
-                            loadingOverlay.SetActive(false);
-                        }
+                // ImageRequestManager.instance.RequestImageForData(this.m_data, this.useOriginal,
+                // (t) =>
+                // {
+                //     if(this != null && iData.Equals(this.m_data))
+                //     {
+                //         if(loadingOverlay != null)
+                //         {
+                //             loadingOverlay.SetActive(false);
+                //         }
 
-                        DisplayTexture(t);
-                        SetOverlayVisibility(true);
-                    }
-                },
-                null);
+                //         DisplayTexture(t);
+                //         SetOverlayVisibility(true);
+                //     }
+                // },
+                // null);
             }
         }
 
