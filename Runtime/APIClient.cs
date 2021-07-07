@@ -505,61 +505,12 @@ namespace ModIO
 
         // ---------[ AUTHENTICATION ]---------
         /// <summary>Retrieves the terms of use to present to the user.</summary>
-        public static void GetTermsOfUse(ExternalAuthenticationProvider authProvider,
-                                         Action<TermsOfUseInfo> successCallback,
+        public static void GetTermsOfUse(Action<TermsOfUseInfo> successCallback,
                                          Action<WebRequestError> errorCallback)
         {
-
             string endpointURL = PluginSettings.API_URL + @"/authenticate/terms";
-            string authenticatorString = null;
 
-            switch(authProvider)
-            {
-                case ExternalAuthenticationProvider.Steam:
-                {
-                    authenticatorString = "service=steam";
-                }
-                break;
-                case ExternalAuthenticationProvider.GOG:
-                {
-                    authenticatorString = "service=gog";
-                }
-                break;
-                case ExternalAuthenticationProvider.ItchIO:
-                {
-                    authenticatorString = "service=itchio";
-                }
-                break;
-                case ExternalAuthenticationProvider.OculusRift:
-                {
-                    authenticatorString = "service=oculus";
-                }
-                break;
-                case ExternalAuthenticationProvider.XboxLive:
-                {
-                    authenticatorString = "service=xbox";
-                }
-                break;
-                case ExternalAuthenticationProvider.Switch:
-                {
-                    authenticatorString = "service=switch";
-                }
-                break;
-                case ExternalAuthenticationProvider.Discord:
-                {
-                    authenticatorString = "service=discord";
-                }
-                break;
-                default:
-                {
-                    authenticatorString = string.Empty;
-                }
-                break;
-            }
-
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                                 authenticatorString,
-                                                                 null);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, string.Empty, null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -1727,6 +1678,68 @@ namespace ModIO
         {
             APIClient.RequestXboxLiveAuthentication(xboxLiveUserToken, false,
                                                     successCallback, errorCallback);
+        }
+
+
+        /// <summary>[Obsolete] Retrieves the terms of use to present to the user.</summary>
+        [Obsolete("No longer requires the ExternalAuthenticationProvider parameter.")]
+        public static void GetTermsOfUse(ExternalAuthenticationProvider authProvider,
+                                         Action<TermsOfUseInfo> successCallback,
+                                         Action<WebRequestError> errorCallback)
+        {
+
+            string endpointURL = PluginSettings.API_URL + @"/authenticate/terms";
+            string authenticatorString = null;
+
+            switch(authProvider)
+            {
+                case ExternalAuthenticationProvider.Steam:
+                {
+                    authenticatorString = "service=steam";
+                }
+                break;
+                case ExternalAuthenticationProvider.GOG:
+                {
+                    authenticatorString = "service=gog";
+                }
+                break;
+                case ExternalAuthenticationProvider.ItchIO:
+                {
+                    authenticatorString = "service=itchio";
+                }
+                break;
+                case ExternalAuthenticationProvider.OculusRift:
+                {
+                    authenticatorString = "service=oculus";
+                }
+                break;
+                case ExternalAuthenticationProvider.XboxLive:
+                {
+                    authenticatorString = "service=xbox";
+                }
+                break;
+                case ExternalAuthenticationProvider.Switch:
+                {
+                    authenticatorString = "service=switch";
+                }
+                break;
+                case ExternalAuthenticationProvider.Discord:
+                {
+                    authenticatorString = "service=discord";
+                }
+                break;
+                default:
+                {
+                    authenticatorString = string.Empty;
+                }
+                break;
+            }
+
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
+                                                                 authenticatorString,
+                                                                 null);
+
+            APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
     }
 }
