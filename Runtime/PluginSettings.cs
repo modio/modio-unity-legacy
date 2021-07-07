@@ -97,14 +97,6 @@ namespace ModIO
             [VersionedData(0, @"$CURRENT_DIRECTORY$/mod.io/editor/$GAME_ID$/user")]
             [VariableDirectory]
             public string userDirectoryEditor;
-
-            // ---------[ Obsolete ]---------
-            [System.Obsolete("Use requestLogging.logAllResponses instead.")]
-            public bool logAllRequests
-            {
-                get { return this.requestLogging.logAllResponses; }
-                set { this.requestLogging.logAllResponses = value; }
-            }
         }
 
         // ---------[ CONSTANTS & STATICS ]---------
