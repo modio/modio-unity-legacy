@@ -1,10 +1,10 @@
 namespace ModIO
 {
     /// <summary>Contant values pertaining to the mod.io service.</summary>
-    public static class ServiceConstants
+    public static class ServerConstants
     {
         /// <summary>Returns the portal header value for the given UserPortal.</summary>
-        public static string GetPortalHeaderValue(UserPortal portal)
+        public static string ConvertUserPortalToHeaderValue(UserPortal portal)
         {
             string headerValue = null;
 
