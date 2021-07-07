@@ -54,15 +54,15 @@ namespace ModIO
                 string steamTicket = null;
                 string gogTicket = null;
 
-                switch(LocalUser.ExternalAuthentication.provider)
+                switch(LocalUser.ExternalAuthentication.portal)
                 {
-                    case ExternalAuthenticationProvider.Steam:
+                    case UserPortal.Steam:
                     {
                         steamTicket = LocalUser.ExternalAuthentication.ticket;
                     }
                     break;
 
-                    case ExternalAuthenticationProvider.GOG:
+                    case UserPortal.GOG:
                     {
                         gogTicket = LocalUser.ExternalAuthentication.ticket;
                     }
@@ -110,18 +110,18 @@ namespace ModIO
                 var externalAuth = new ExternalAuthenticationData()
                 {
                     ticket = null,
-                    provider = ExternalAuthenticationProvider.None,
+                    portal = UserPortal.None,
                 };
 
                 if(!string.IsNullOrEmpty(value.steamTicket))
                 {
                     externalAuth.ticket = value.steamTicket;
-                    externalAuth.provider = ExternalAuthenticationProvider.Steam;
+                    externalAuth.portal = UserPortal.Steam;
                 }
                 else if(!string.IsNullOrEmpty(value.gogTicket))
                 {
                     externalAuth.ticket = value.gogTicket;
-                    externalAuth.provider = ExternalAuthenticationProvider.GOG;
+                    externalAuth.portal = UserPortal.GOG;
                 }
 
                 // set
