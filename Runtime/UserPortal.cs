@@ -5,11 +5,13 @@ namespace ModIO
     {
         None = 0,
         Apple,
+        Discord,
         EpicGamesStore,
         GOG,
         Google,
         itchio,
         Nintendo,
+        Oculus,
         PlaystationNetwork,
         Steam,
         XboxLive,
