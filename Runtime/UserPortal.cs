@@ -12,7 +12,7 @@ namespace ModIO
         itchio,
         Nintendo,
         Oculus,
-        PlaystationNetwork,
+        PlayStationNetwork,
         Steam,
         XboxLive,
     }
