@@ -80,9 +80,5 @@ namespace ModIO.UI
         {
             this.view.profile = profile;
         }
-
-        // ---------[ OBSOLETE ]---------
-        [System.Obsolete][SerializeField][HideInInspector]
-        private UserDisplayData m_guestData;
     }
 }
