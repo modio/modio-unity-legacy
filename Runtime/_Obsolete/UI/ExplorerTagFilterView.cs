@@ -74,10 +74,10 @@ namespace ModIO.UI
                          + "FilterView.tagCategoryPrefab to have a Toggle Component.");
 
             // init tag selection
-            this.view.onTagFilterUpdated += (t) =>
-            {
-                this.selectedTags = t;
-            };
+            // this.view.onTagFilterUpdated += (t) =>
+            // {
+            //     this.selectedTags = t;
+            // };
 
             var viewFilter = this.view.GetTagFilter();
             if(viewFilter == null)

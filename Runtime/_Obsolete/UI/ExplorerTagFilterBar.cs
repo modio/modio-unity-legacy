@@ -25,11 +25,11 @@ namespace ModIO.UI
         private void Start()
         {
             // init tag selection
-            this.view.onTagFilterUpdated += (t) =>
-            {
-                this.m_selectedTags = new List<string>(t);
-                this.Refresh();
-            };
+            // this.view.onTagFilterUpdated += (t) =>
+            // {
+            //     this.m_selectedTags = new List<string>(t);
+            //     this.Refresh();
+            // };
             this.m_selectedTags = new List<string>(this.view.GetTagFilter());
             this.Refresh();
         }
