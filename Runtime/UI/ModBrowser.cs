@@ -628,7 +628,8 @@ namespace ModIO.UI
             bool isRequestDone = false;
             List<ModRating> retrievedRatings = new List<ModRating>();
 
-            while(LocalUser.AuthenticationState == AuthenticationState.ValidToken
+            // @FIXME(@jackson): This needs to be paired with mod fetching rather than just one-pass
+            if(LocalUser.AuthenticationState == AuthenticationState.ValidToken
                   && !isRequestDone)
             {
                 RequestPage<ModRating> response = null;
@@ -669,7 +670,6 @@ namespace ModIO.UI
                     else
                     {
                         yield return new WaitForSecondsRealtime(reattemptDelay);
-                        continue;
                     }
                 }
                 else
