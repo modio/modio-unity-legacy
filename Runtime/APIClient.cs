@@ -1680,5 +1680,14 @@ namespace ModIO
             APIClient.RequestXboxLiveAuthentication(xboxLiveUserToken, false,
                                                     successCallback, errorCallback);
         }
+
+        /// <summary>[Obsolete] Retrieves the terms of use to present to the user.</summary>
+        [Obsolete("No longer requires an ExternalAuthenticationProvider parameter.")]
+        public static void GetTermsOfUse(ExternalAuthenticationProvider authProvider,
+                                         Action<TermsOfUseInfo> successCallback,
+                                         Action<WebRequestError> errorCallback)
+        {
+            APIClient.GetTermsOfUse(successCallback, errorCallback);
+        }
     }
 }
