@@ -5,8 +5,8 @@ namespace ModIO
     /// <summary>Data for an external authentication ticket.</summary>
     public struct ExternalAuthenticationData
     {
-        /// <summary>Provider of the ticket.</summary>
-        public ExternalAuthenticationProvider provider;
+        /// <summary>Portal that the auth data is provided by.</summary>
+        public UserPortal portal;
 
         /// <summary>Base64 encoded ticket value.</summary>
         public string ticket;
