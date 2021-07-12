@@ -1,6 +1,7 @@
 namespace ModIO
 {
-    /// <summary>Defines the possible external authentication providers for mod.io.</summary>
+    /// <summary>[Obsolete] Defines the possible external authentication providers for mod.io.</summary>
+    [System.Obsolete("Use UserPortal instead.")]
     public enum ExternalAuthenticationProvider
     {
         None = 0,
@@ -14,6 +15,7 @@ namespace ModIO
         UNDEFINED,
     }
 
+    [System.Obsolete()]
     public static class ExternalAuthenticationProviderEnum
     {
         public static UserPortal ToUserPortalEnum(ExternalAuthenticationProvider provider)
