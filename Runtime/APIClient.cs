@@ -151,6 +151,15 @@ namespace ModIO
             return (baseURL + "?" + filterString + paginationString);
         }
 
+        /// <summary>Applies the mod.io headers to a UnityWebRequest.</summary>
+        public static void ApplyStandardHeaders(UnityWebRequest webRequest)
+        {
+            webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
+            webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
+            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
+            webRequest.SetRequestHeader(APIClient.PORTAL_HEADER_KEY, ServerConstants.ConvertUserPortalToHeaderValue(PluginSettings.USER_PORTAL));
+        }
+
         /// <summary>Generates the object for a basic mod.io server request.</summary>
         public static UnityWebRequest GenerateQuery(string endpointURL,
                                                     string filterString,
@@ -172,10 +181,7 @@ namespace ModIO
                 webRequest.url += "&api_key=" + PluginSettings.GAME_API_KEY;
             }
 
-            webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
-            webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
-            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
-            webRequest.SetRequestHeader(APIClient.PORTAL_HEADER_KEY, ServerConstants.ConvertUserPortalToHeaderValue(PluginSettings.USER_PORTAL));
+            APIClient.ApplyStandardHeaders(webRequest);
 
             return webRequest;
         }
@@ -191,10 +197,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Get(constructedURL);
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
-            webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
-            webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
-            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
-            webRequest.SetRequestHeader(APIClient.PORTAL_HEADER_KEY, ServerConstants.ConvertUserPortalToHeaderValue(PluginSettings.USER_PORTAL));
+            APIClient.ApplyStandardHeaders(webRequest);
 
             return webRequest;
         }
@@ -217,10 +220,7 @@ namespace ModIO
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.method = UnityWebRequest.kHttpVerbPUT;
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
-            webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
-            webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
-            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
-            webRequest.SetRequestHeader(APIClient.PORTAL_HEADER_KEY, ServerConstants.ConvertUserPortalToHeaderValue(PluginSettings.USER_PORTAL));
+            APIClient.ApplyStandardHeaders(webRequest);
 
             return webRequest;
         }
@@ -251,10 +251,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
-            webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
-            webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
-            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
-            webRequest.SetRequestHeader(APIClient.PORTAL_HEADER_KEY, ServerConstants.ConvertUserPortalToHeaderValue(PluginSettings.USER_PORTAL));
+            APIClient.ApplyStandardHeaders(webRequest);
 
             return webRequest;
         }
@@ -277,10 +274,7 @@ namespace ModIO
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.method = UnityWebRequest.kHttpVerbDELETE;
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
-            webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
-            webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
-            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
-            webRequest.SetRequestHeader(APIClient.PORTAL_HEADER_KEY, ServerConstants.ConvertUserPortalToHeaderValue(PluginSettings.USER_PORTAL));
+            APIClient.ApplyStandardHeaders(webRequest);
 
             return webRequest;
         }
@@ -562,10 +556,7 @@ namespace ModIO
             form.AddField(APIClient.EXTERNAL_AUTH_CONSENT_KEY, hasUserAcceptedTerms.ToString());
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
-            webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
-            webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
-            webRequest.SetRequestHeader(APIClient.PLATFORM_HEADER_KEY, APIClient.PLATFORM_HEADER_VALUE);
-            webRequest.SetRequestHeader(APIClient.PORTAL_HEADER_KEY, ServerConstants.ConvertUserPortalToHeaderValue(PluginSettings.USER_PORTAL));
+            APIClient.ApplyStandardHeaders(webRequest);
 
             return webRequest;
         }
