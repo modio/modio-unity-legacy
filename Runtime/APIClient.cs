@@ -485,6 +485,9 @@ namespace ModIO
             else if(webRequest.isNetworkError || webRequest.isHttpError)
             {
                 error = WebRequestError.GenerateFromWebRequest(webRequest);
+
+                // the previous code branch checks sent token = user token
+                LocalUser.WasTokenRejected |= error.isAuthenticationInvalid;
             }
             else
             {
