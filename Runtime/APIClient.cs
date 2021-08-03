@@ -487,7 +487,12 @@ namespace ModIO
                 error = WebRequestError.GenerateFromWebRequest(webRequest);
 
                 // the previous code branch checks sent token = user token
-                LocalUser.WasTokenRejected |= error.isAuthenticationInvalid;
+                if(wasTokenBearer
+                   && error.isAuthenticationInvalid)
+                {
+                    LocalUser.WasTokenRejected |= error.isAuthenticationInvalid;
+                    LocalUser.Save();
+                }
             }
             else
             {
