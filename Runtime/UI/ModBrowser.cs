@@ -246,9 +246,6 @@ namespace ModIO.UI
                         {
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
-
-                            LocalUser.WasTokenRejected = true;
-                            LocalUser.Save();
                         }
 
                         yield break;
@@ -320,10 +317,6 @@ namespace ModIO.UI
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
-
                         yield break;
                     }
                     else if(requestError.isRequestUnresolvable
@@ -335,10 +328,6 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    "Failed to collect user profile data from mod.io.\n"
                                                    + requestError.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
-
                         yield break;
                     }
                     else
@@ -451,10 +440,6 @@ namespace ModIO.UI
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    request_error.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
-
                         yield break;
                     }
                     else if(request_error.isRequestUnresolvable
@@ -656,10 +641,6 @@ namespace ModIO.UI
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
-
                         yield break;
                     }
                     else if(requestError.isRequestUnresolvable
@@ -951,9 +932,6 @@ namespace ModIO.UI
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
                     }
 
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
@@ -1012,9 +990,6 @@ namespace ModIO.UI
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
                     }
 
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
@@ -1182,9 +1157,6 @@ namespace ModIO.UI
                         {
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
-
-                            LocalUser.WasTokenRejected = true;
-                            LocalUser.Save();
                         }
                         else
                         {
@@ -1285,9 +1257,6 @@ namespace ModIO.UI
             {
                 if(requestError.isAuthenticationInvalid)
                 {
-                    LocalUser.WasTokenRejected = true;
-                    LocalUser.Save();
-
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                requestError.displayMessage);
                 }
@@ -1359,9 +1328,6 @@ namespace ModIO.UI
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
                     }
                     else
                     {

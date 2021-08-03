@@ -273,7 +273,7 @@ namespace ModIO
                     }
 
                     this.isAuthenticationInvalid = true;
-                    this.isRequestUnresolvable = true;
+                    this.isRequestUnresolvable = false;
                 }
                 break;
 
