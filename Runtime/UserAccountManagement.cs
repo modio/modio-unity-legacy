@@ -167,12 +167,14 @@ namespace ModIO
                 {
 
                     // Error for "Mod is already subscribed"
-                    if(e.webRequest.responseCode == 400)
+                    if(e.webRequest != null
+                       && e.webRequest.responseCode == 400)
                     {
                         unsubscribesPushed.Remove(modId);
                     }
                     // Error for "Mod is unavailable"
-                    else if(e.webRequest.responseCode == 404)
+                    else if(e.webRequest != null
+                            && e.webRequest.responseCode == 404)
                     {
                         unsubscribesPushed.Remove(modId);
                     }
