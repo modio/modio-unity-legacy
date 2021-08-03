@@ -474,11 +474,11 @@ namespace ModIO
             error = null;
 
             string authValue = webRequest.GetRequestHeader("authorization");
+            bool wasTokenBearer = (!string.IsNullOrEmpty(authValue)
+                                   && authValue.StartsWith("Bearer "));
 
             // check if user has changed
-            if(!string.IsNullOrEmpty(authValue)
-               && authValue.StartsWith("Bearer ")
-               && LocalUser.OAuthToken != authValue.Substring(7))
+            if(wasTokenBearer && LocalUser.OAuthToken != authValue.Substring(7))
             {
                 error = WebRequestError.GenerateLocal("User token changed while waiting for the request to complete.");
             }
