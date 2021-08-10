@@ -459,21 +459,9 @@ namespace ModIO.UI
 
             if(webRequest.isHttpError || webRequest.isNetworkError)
             {
-                if(callbacks.failed.Count > 0)
-                {
-                    WebRequestError error = WebRequestError.GenerateFromWebRequest(webRequest);
+                WebRequestError error = WebRequestError.GenerateFromWebRequest(webRequest);
 
-                    foreach(var errorCallback in callbacks.failed)
-                    {
-                        if(errorCallback != null)
-                        {
-                            errorCallback.Invoke(error);
-                        }
-                    }
-                }
-
-                // remove from "in progress"
-                this.m_callbackMap.Remove(imageURL);
+                this.OnRequestFailed(imageURL, error);
             }
             else
             {
@@ -485,6 +473,29 @@ namespace ModIO.UI
                 }
 
                 this.OnRequestSucceeded(imageURL, texture);
+            }
+        }
+
+        /// <summary>Handles a failed image request.</summary>
+        protected virtual void OnRequestFailed(string url, WebRequestError error)
+        {
+            if(this == null || string.IsNullOrEmpty(url))
+            {
+                return;
+            }
+
+            if(this.m_callbackMap.ContainsKey(url))
+            {
+                foreach(var errorCallback in this.m_callbackMap[url].failed)
+                {
+                    if(errorCallback != null)
+                    {
+                        errorCallback.Invoke(error);
+                    }
+                }
+
+                // remove from "in progress"
+                this.m_callbackMap.Remove(url);
             }
         }
 
