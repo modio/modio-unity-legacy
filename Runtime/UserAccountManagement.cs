@@ -167,12 +167,14 @@ namespace ModIO
                 {
 
                     // Error for "Mod is already subscribed"
-                    if(e.webRequest.responseCode == 400)
+                    if(e.webRequest != null
+                       && e.webRequest.responseCode == 400)
                     {
                         unsubscribesPushed.Remove(modId);
                     }
                     // Error for "Mod is unavailable"
-                    else if(e.webRequest.responseCode == 404)
+                    else if(e.webRequest != null
+                            && e.webRequest.responseCode == 404)
                     {
                         unsubscribesPushed.Remove(modId);
                     }
@@ -428,7 +430,7 @@ namespace ModIO
             LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
             {
                 ticket = encodedTicket,
-                provider = ExternalAuthenticationProvider.Steam,
+                portal = UserPortal.Steam,
             };
 
             APIClient.RequestSteamAuthentication(encodedTicket, hasUserAcceptedTerms, (t) =>
@@ -463,7 +465,7 @@ namespace ModIO
             LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
             {
                 ticket = encodedTicket,
-                provider = ExternalAuthenticationProvider.Steam,
+                portal = UserPortal.Steam,
             };
 
             APIClient.RequestGOGAuthentication(encodedTicket, hasUserAcceptedTerms,
@@ -487,7 +489,7 @@ namespace ModIO
             LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
             {
                 ticket = jwtToken,
-                provider = ExternalAuthenticationProvider.ItchIO,
+                portal = UserPortal.itchio,
             };
 
             APIClient.RequestItchIOAuthentication(jwtToken, hasUserAcceptedTerms,
@@ -512,7 +514,7 @@ namespace ModIO
         {
             LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
             {
-                provider = ExternalAuthenticationProvider.OculusRift,
+                portal = UserPortal.Oculus,
                 ticket = oculusUserAccessToken,
                 additionalData = new Dictionary<string, string>()
                 {
@@ -542,7 +544,7 @@ namespace ModIO
             LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
             {
                 ticket = xboxLiveUserToken,
-                provider = ExternalAuthenticationProvider.XboxLive,
+                portal = UserPortal.XboxLive,
             };
 
             APIClient.RequestXboxLiveAuthentication(xboxLiveUserToken, hasUserAcceptedTerms,
@@ -565,7 +567,7 @@ namespace ModIO
             ExternalAuthenticationData authData = LocalUser.ExternalAuthentication;
 
             Debug.Assert(!string.IsNullOrEmpty(authData.ticket));
-            Debug.Assert(authData.provider != ExternalAuthenticationProvider.None);
+            Debug.Assert(authData.portal != UserPortal.None);
 
             Action<string> onSuccessWrapper = (t) =>
             {
@@ -579,9 +581,9 @@ namespace ModIO
                 }
             };
 
-            switch(LocalUser.ExternalAuthentication.provider)
+            switch(LocalUser.ExternalAuthentication.portal)
             {
-                case ExternalAuthenticationProvider.Steam:
+                case UserPortal.Steam:
                 {
                     APIClient.RequestSteamAuthentication(authData.ticket,
                                                          hasUserAcceptedTerms,
@@ -590,7 +592,7 @@ namespace ModIO
                 }
                 break;
 
-                case ExternalAuthenticationProvider.GOG:
+                case UserPortal.GOG:
                 {
                     APIClient.RequestGOGAuthentication(authData.ticket,
                                                        hasUserAcceptedTerms,
@@ -599,7 +601,7 @@ namespace ModIO
                 }
                 break;
 
-                case ExternalAuthenticationProvider.ItchIO:
+                case UserPortal.itchio:
                 {
                     APIClient.RequestItchIOAuthentication(authData.ticket,
                                                           hasUserAcceptedTerms,
@@ -608,7 +610,7 @@ namespace ModIO
                 }
                 break;
 
-                case ExternalAuthenticationProvider.OculusRift:
+                case UserPortal.Oculus:
                 {
                     string token = authData.ticket;
                     string nonce = null;
@@ -658,7 +660,7 @@ namespace ModIO
                 }
                 break;
 
-                case ExternalAuthenticationProvider.XboxLive:
+                case UserPortal.XboxLive:
                 {
                     APIClient.RequestXboxLiveAuthentication(authData.ticket,
                                                             hasUserAcceptedTerms,

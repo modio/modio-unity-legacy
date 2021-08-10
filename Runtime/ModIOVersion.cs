@@ -6,7 +6,7 @@ namespace ModIO
     {
         // ---------[ Singleton ]---------
         /// <summary>Singleton instance for current version.</summary>
-        public static readonly ModIOVersion Current = new ModIOVersion(2, 3, 3);
+        public static readonly ModIOVersion Current = new ModIOVersion(2, 3, 4);
 
         // ---------[ Fields ]---------
         /// <summary>Major version number.</summary>
@@ -47,25 +47,27 @@ namespace ModIO
         }
 
         // ---------[ Operator Overloads ]---------
-        public static bool operator >  (ModIOVersion a, ModIOVersion b)
+        // clang-format off
+        public static bool operator > (ModIOVersion a, ModIOVersion b)
         {
-           return a.CompareTo(b) == 1;
+            return a.CompareTo(b) == 1;
         }
 
-        public static bool operator <  (ModIOVersion a, ModIOVersion b)
+        public static bool operator < (ModIOVersion a, ModIOVersion b)
         {
-           return a.CompareTo(b) == -1;
+            return a.CompareTo(b) == -1;
         }
 
-        public static bool operator >=  (ModIOVersion a, ModIOVersion b)
+        public static bool operator >= (ModIOVersion a, ModIOVersion b)
         {
-           return a.CompareTo(b) >= 0;
+            return a.CompareTo(b) >= 0;
         }
 
-        public static bool operator <=  (ModIOVersion a, ModIOVersion b)
+        public static bool operator <= (ModIOVersion a, ModIOVersion b)
         {
-           return a.CompareTo(b) <= 0;
+            return a.CompareTo(b) <= 0;
         }
+        // clang-format on
 
         // ---------[ Utility ]---------
         /// <summary>Generates a string to represent the version.</summary>
@@ -80,11 +82,9 @@ namespace ModIO
             format = format.ToUpper();
 
             string result = format.Replace("X", major.ToString())
-                                  .Replace("Y", minor.ToString())
-                                  .Replace("Z", patch.ToString());
-
+                                .Replace("Y", minor.ToString())
+                                .Replace("Z", patch.ToString());
             return result;
         }
-
     }
 }

@@ -206,7 +206,7 @@ namespace ModIO
                         }
                         catch(System.Exception e)
                         {
-                            Debug.LogWarning("[mod.io] Eror parsing error object from repsonse:\n"
+                            Debug.LogWarning("[mod.io] Error parsing error object from response:\n"
                                              + e.Message);
 
                         }
@@ -273,7 +273,7 @@ namespace ModIO
                     }
 
                     this.isAuthenticationInvalid = true;
-                    this.isRequestUnresolvable = true;
+                    this.isRequestUnresolvable = false;
                 }
                 break;
 

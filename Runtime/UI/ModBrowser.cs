@@ -246,9 +246,6 @@ namespace ModIO.UI
                         {
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
-
-                            LocalUser.WasTokenRejected = true;
-                            LocalUser.Save();
                         }
 
                         yield break;
@@ -320,10 +317,6 @@ namespace ModIO.UI
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
-
                         yield break;
                     }
                     else if(requestError.isRequestUnresolvable
@@ -335,10 +328,6 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    "Failed to collect user profile data from mod.io.\n"
                                                    + requestError.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
-
                         yield break;
                     }
                     else
@@ -451,10 +440,6 @@ namespace ModIO.UI
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    request_error.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
-
                         yield break;
                     }
                     else if(request_error.isRequestUnresolvable
@@ -628,7 +613,8 @@ namespace ModIO.UI
             bool isRequestDone = false;
             List<ModRating> retrievedRatings = new List<ModRating>();
 
-            while(LocalUser.AuthenticationState == AuthenticationState.ValidToken
+            // @FIXME(@jackson): This needs to be paired with mod fetching rather than just one-pass
+            if(LocalUser.AuthenticationState == AuthenticationState.ValidToken
                   && !isRequestDone)
             {
                 RequestPage<ModRating> response = null;
@@ -655,10 +641,6 @@ namespace ModIO.UI
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
-
                         yield break;
                     }
                     else if(requestError.isRequestUnresolvable
@@ -669,7 +651,6 @@ namespace ModIO.UI
                     else
                     {
                         yield return new WaitForSecondsRealtime(reattemptDelay);
-                        continue;
                     }
                 }
                 else
@@ -731,8 +712,8 @@ namespace ModIO.UI
             List<Modfile> modfilesToAssert = new List<Modfile>(subscribedModIds.Count);
             bool isRequestDone = false;
 
-            ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds,
-            (modProfiles) =>
+            ModManager.GetModProfiles(subscribedModIds,
+            (ModProfile[] modProfiles) =>
             {
                 foreach(ModProfile profile in modProfiles)
                 {
@@ -756,7 +737,7 @@ namespace ModIO.UI
 
                 isRequestDone = true;
             },
-            (e) =>
+            (WebRequestError error) =>
             {
                 modfilesToAssert = null;
                 isRequestDone = true;
@@ -951,9 +932,6 @@ namespace ModIO.UI
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
                     }
 
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
@@ -1012,9 +990,6 @@ namespace ModIO.UI
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
                     }
 
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
@@ -1182,9 +1157,6 @@ namespace ModIO.UI
                         {
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
-
-                            LocalUser.WasTokenRejected = true;
-                            LocalUser.Save();
                         }
                         else
                         {
@@ -1271,7 +1243,7 @@ namespace ModIO.UI
             EnableMod(modId);
             UpdateSubscriptionReceivers(new int[] { modId }, null);
 
-            ModProfileRequestManager.instance.RequestModProfile(modId,
+            ModManager.GetModProfile(modId,
             (p) =>
             {
                 if(this != null && this.isActiveAndEnabled
@@ -1285,9 +1257,6 @@ namespace ModIO.UI
             {
                 if(requestError.isAuthenticationInvalid)
                 {
-                    LocalUser.WasTokenRejected = true;
-                    LocalUser.Save();
-
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                requestError.displayMessage);
                 }
@@ -1331,8 +1300,8 @@ namespace ModIO.UI
                 }
 
                 // start downloads
-                ModProfileRequestManager.instance.RequestModProfiles(addedSubscriptions,
-                (modProfiles) =>
+                ModManager.GetModProfiles(addedSubscriptions,
+                (ModProfile[] modProfiles) =>
                 {
                     if(this != null && this.isActiveAndEnabled)
                     {
@@ -1353,15 +1322,12 @@ namespace ModIO.UI
                         this.StartCoroutine(ModManager.AssertDownloadedAndInstalled_Coroutine(modfiles));
                     }
                 },
-                (requestError) =>
+                (WebRequestError requestError) =>
                 {
                     if(requestError.isAuthenticationInvalid)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
-
-                        LocalUser.WasTokenRejected = true;
-                        LocalUser.Save();
                     }
                     else
                     {
@@ -1514,7 +1480,7 @@ namespace ModIO.UI
         {
             if(this == null) { return; }
 
-            ModProfileRequestManager.instance.RequestModProfile(idPair.modId,
+            ModManager.GetModProfile(idPair.modId,
             (p) =>
             {
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
@@ -1527,7 +1493,7 @@ namespace ModIO.UI
         {
             if(this == null) { return; }
 
-            ModProfileRequestManager.instance.RequestModProfile(idPair.modId,
+            ModManager.GetModProfile(idPair.modId,
             (p) =>
             {
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
