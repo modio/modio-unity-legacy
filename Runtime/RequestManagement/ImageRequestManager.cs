@@ -423,6 +423,9 @@ namespace ModIO.UI
         protected virtual Callbacks CreateCallbacksEntry(string url, Action<Texture2D> onSuccess,
                                                          Action<WebRequestError> onError)
         {
+            Debug.Assert(!string.IsNullOrEmpty(url));
+            Debug.Assert(onSuccess != null);
+
             Callbacks callbacks = new Callbacks() {
                 fallback = null,
                 succeeded = new List<Action<Texture2D>>(),
@@ -430,7 +433,11 @@ namespace ModIO.UI
             };
 
             callbacks.succeeded.Add(onSuccess);
-            callbacks.failed.Add(onError);
+
+            if(onError != null)
+            {
+                callbacks.failed.Add(onError);
+            }
 
             this.m_callbackMap[url] = callbacks;
 
