@@ -666,6 +666,14 @@ namespace ModIO.UI
             return error;
         }
 
+        /// <summary>Creates a WebRequestError for a missing URL.</summary>
+        protected WebRequestError GenerateErrorForMissingURL()
+        {
+            var error = WebRequestError.GenerateLocal("No valid URL exists in the locator.");
+            error.displayMessage = "There was an error downloading this image. Try again later.";
+            return error;
+        }
+
 #pragma warning disable 0618
 
         // ---------[ OBSOLETE ]---------
