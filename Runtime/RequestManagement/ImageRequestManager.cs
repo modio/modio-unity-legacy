@@ -105,6 +105,16 @@ namespace ModIO.UI
             string url = locator.GetSizeURL(size);
             string fileName = locator.GetFileName();
 
+            // check url
+            if(string.IsNullOrEmpty(url))
+            {
+                if(onError != null)
+                {
+                    onError.Invoke(this.GenerateErrorForMissingURL());
+                }
+                return;
+            }
+
             // check cache and existing callbacks
             if(this.TryGetCacheOrSetCallbacks(url, onLogoReceived, onFallbackFound, onError))
             {
@@ -177,6 +187,16 @@ namespace ModIO.UI
             string url = locator.GetSizeURL(size);
             string fileName = locator.GetFileName();
 
+            // check url
+            if(string.IsNullOrEmpty(url))
+            {
+                if(onError != null)
+                {
+                    onError.Invoke(this.GenerateErrorForMissingURL());
+                }
+                return;
+            }
+
             // check cache and existing callbacks
             if(this.TryGetCacheOrSetCallbacks(url, onImageReceived, onFallbackFound, onError))
             {
@@ -247,6 +267,16 @@ namespace ModIO.UI
             }
 
             string url = locator.GetSizeURL(size);
+
+            // check url
+            if(string.IsNullOrEmpty(url))
+            {
+                if(onError != null)
+                {
+                    onError.Invoke(this.GenerateErrorForMissingURL());
+                }
+                return;
+            }
 
             if(url == ImageRequestManager.GUEST_AVATAR_URL)
             {
