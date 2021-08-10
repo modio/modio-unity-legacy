@@ -88,7 +88,11 @@ namespace ModIO.UI
                                            Action<Texture2D> onFallbackFound,
                                            Action<WebRequestError> onError)
         {
-            // - early out -
+            // - early outs -
+            if(onLogoReceived == null)
+            {
+                return;
+            }
             if(locator == null)
             {
                 if(onError != null)
@@ -97,8 +101,6 @@ namespace ModIO.UI
                 }
                 return;
             }
-
-            Debug.Assert(onLogoReceived != null);
 
             string url = locator.GetSizeURL(size);
             string fileName = locator.GetFileName();
@@ -158,7 +160,11 @@ namespace ModIO.UI
                                                    Action<Texture2D> onFallbackFound,
                                                    Action<WebRequestError> onError)
         {
-            // - early out -
+            // - early outs -
+            if(onImageReceived == null)
+            {
+                return;
+            }
             if(locator == null)
             {
                 if(onError != null)
@@ -167,8 +173,6 @@ namespace ModIO.UI
                 }
                 return;
             }
-
-            Debug.Assert(onImageReceived != null);
 
             string url = locator.GetSizeURL(size);
             string fileName = locator.GetFileName();
@@ -228,7 +232,11 @@ namespace ModIO.UI
                                               Action<Texture2D> onFallbackFound,
                                               Action<WebRequestError> onError)
         {
-            // - early out -
+            // - early outs -
+            if(onAvatarReceived == null)
+            {
+                return;
+            }
             if(locator == null)
             {
                 if(onError != null)
@@ -237,8 +245,6 @@ namespace ModIO.UI
                 }
                 return;
             }
-
-            Debug.Assert(onAvatarReceived != null);
 
             string url = locator.GetSizeURL(size);
 
