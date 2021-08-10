@@ -88,7 +88,16 @@ namespace ModIO.UI
                                            Action<Texture2D> onFallbackFound,
                                            Action<WebRequestError> onError)
         {
-            Debug.Assert(locator != null);
+            // - early out -
+            if(locator == null)
+            {
+                if(onError != null)
+                {
+                    onError.Invoke(this.GenerateErrorForMissingLocator());
+                }
+                return;
+            }
+
             Debug.Assert(onLogoReceived != null);
 
             string url = locator.GetSizeURL(size);
@@ -149,7 +158,16 @@ namespace ModIO.UI
                                                    Action<Texture2D> onFallbackFound,
                                                    Action<WebRequestError> onError)
         {
-            Debug.Assert(locator != null);
+            // - early out -
+            if(locator == null)
+            {
+                if(onError != null)
+                {
+                    onError.Invoke(this.GenerateErrorForMissingLocator());
+                }
+                return;
+            }
+
             Debug.Assert(onImageReceived != null);
 
             string url = locator.GetSizeURL(size);
@@ -210,7 +228,16 @@ namespace ModIO.UI
                                               Action<Texture2D> onFallbackFound,
                                               Action<WebRequestError> onError)
         {
-            Debug.Assert(locator != null);
+            // - early out -
+            if(locator == null)
+            {
+                if(onError != null)
+                {
+                    onError.Invoke(this.GenerateErrorForMissingLocator());
+                }
+                return;
+            }
+
             Debug.Assert(onAvatarReceived != null);
 
             string url = locator.GetSizeURL(size);
