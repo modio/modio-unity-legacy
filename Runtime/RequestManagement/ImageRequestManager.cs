@@ -116,7 +116,7 @@ namespace ModIO.UI
             }
 
             // check cache and existing callbacks
-            if(this.TryGetCacheOrSetCallbacks(url, onLogoReceived, onFallbackFound, onError))
+            if(this.TryAddCallbacksToExisting(url, onLogoReceived, onFallbackFound, onError))
             {
                 return;
             }
@@ -198,7 +198,7 @@ namespace ModIO.UI
             }
 
             // check cache and existing callbacks
-            if(this.TryGetCacheOrSetCallbacks(url, onImageReceived, onFallbackFound, onError))
+            if(this.TryAddCallbacksToExisting(url, onImageReceived, onFallbackFound, onError))
             {
                 return;
             }
@@ -288,7 +288,7 @@ namespace ModIO.UI
             }
 
             // check cache and existing callbacks
-            if(this.TryGetCacheOrSetCallbacks(url, onAvatarReceived, onFallbackFound, onError))
+            if(this.TryAddCallbacksToExisting(url, onAvatarReceived, onFallbackFound, onError))
             {
                 return;
             }
@@ -333,7 +333,7 @@ namespace ModIO.UI
             string url = Utility.GenerateYouTubeThumbnailURL(youTubeId);
 
             // check cache and existing callbacks
-            if(this.TryGetCacheOrSetCallbacks(url, onThumbnailReceived, null, onError))
+            if(this.TryAddCallbacksToExisting(url, onThumbnailReceived, null, onError))
             {
                 return;
             }
@@ -380,7 +380,7 @@ namespace ModIO.UI
             Debug.Assert(onSuccess != null);
 
             // check cache and existing callbacks
-            if(this.TryGetCacheOrSetCallbacks(url, onSuccess, null, onError))
+            if(this.TryAddCallbacksToExisting(url, onSuccess, null, onError))
             {
                 return;
             }
@@ -393,25 +393,12 @@ namespace ModIO.UI
         }
 
         /// <summary>Checks the cache and the callback map for a given url.</summary>
-        protected virtual bool TryGetCacheOrSetCallbacks(string url, Action<Texture2D> onSuccess,
+        protected virtual bool TryAddCallbacksToExisting(string url, Action<Texture2D> onSuccess,
                                                          Action<Texture2D> onFallbackFound,
                                                          Action<WebRequestError> onError)
         {
+            Debug.Assert(!string.IsNullOrEmpty(url));
             Debug.Assert(onSuccess != null);
-
-            // handle null url
-            if(string.IsNullOrEmpty(url))
-            {
-                onSuccess.Invoke(null);
-                return true;
-            }
-
-            // // check cache
-            // if(this.cache.ContainsKey(url))
-            // {
-            //     onSuccess.Invoke(this.cache[url]);
-            //     return true;
-            // }
 
             // check requests in progress
             Callbacks callbacks = null;
@@ -815,7 +802,7 @@ namespace ModIO.UI
             Action<Texture2D> onSuccess, Action<WebRequestError> onError)
         {
             // check cache and existing callbacks
-            if(this.TryGetCacheOrSetCallbacks(url, onSuccess, null, onError))
+            if(this.TryAddCallbacksToExisting(url, onSuccess, null, onError))
             {
                 return;
             }
@@ -853,7 +840,7 @@ namespace ModIO.UI
             string url = locator.GetSizeURL(size);
 
             // check cache and existing callbacks
-            if(this.TryGetCacheOrSetCallbacks(url, onSuccess, onFallback, onError))
+            if(this.TryAddCallbacksToExisting(url, onSuccess, onFallback, onError))
             {
                 return;
             }
