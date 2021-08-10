@@ -124,14 +124,6 @@ namespace ModIO.UI
             // - Start new request -
             Callbacks callbacks = this.CreateCallbacksEntry(url, onLogoReceived, onError);
 
-            // check for fallback
-            callbacks.fallback = this.FindFallbackTexture(locator);
-
-            if(onFallbackFound != null && callbacks.fallback != null)
-            {
-                onFallbackFound.Invoke(callbacks.fallback);
-            }
-
             // add save function to download callback
             if(this.storeIfSubscribed)
             {
@@ -205,14 +197,6 @@ namespace ModIO.UI
 
             // - Start new request -
             Callbacks callbacks = this.CreateCallbacksEntry(url, onImageReceived, onError);
-
-            // check for fallback
-            callbacks.fallback = this.FindFallbackTexture(locator);
-
-            if(onFallbackFound != null && callbacks.fallback != null)
-            {
-                onFallbackFound.Invoke(callbacks.fallback);
-            }
 
             // add save function to download callback
             if(this.storeIfSubscribed)
@@ -295,14 +279,6 @@ namespace ModIO.UI
 
             // - Start new request -
             Callbacks callbacks = this.CreateCallbacksEntry(url, onAvatarReceived, onError);
-
-            // check for fallback
-            callbacks.fallback = this.FindFallbackTexture(locator);
-
-            if(onFallbackFound != null && callbacks.fallback != null)
-            {
-                onFallbackFound.Invoke(callbacks.fallback);
-            }
 
             // start process by checking the cache
             CacheClient.LoadUserAvatar(userId, size, (texture) => {
@@ -442,28 +418,6 @@ namespace ModIO.UI
             this.m_callbackMap[url] = callbacks;
 
             return callbacks;
-        }
-
-        /// <summary>Finds a fallback texture for the given locator.</summary>
-        protected virtual Texture2D FindFallbackTexture<E>(IMultiSizeImageLocator<E> locator)
-        {
-            // Debug.Assert(locator != null);
-
-            // Texture2D fallbackTexture = null;
-            // foreach(var pair in locator.GetAllURLs())
-            // {
-            //     Texture2D cachedTexture = null;
-            //     E originalSize = locator.GetOriginalSize();
-            //     if(!pair.size.Equals(originalSize)
-            //        && this.cache.TryGetValue(pair.url, out cachedTexture))
-            //     {
-            //         fallbackTexture = cachedTexture;
-            //     }
-            // }
-
-            // return fallbackTexture;
-
-            return null;
         }
 
         /// <summary>Creates and sends an image download request for the given url.</summary>
@@ -854,14 +808,6 @@ namespace ModIO.UI
 
             // - Start new request -
             Callbacks callbacks = this.CreateCallbacksEntry(url, onSuccess, onError);
-
-            // check for fallback
-            callbacks.fallback = this.FindFallbackTexture(locator);
-
-            if(onFallback != null && callbacks.fallback != null)
-            {
-                onFallback.Invoke(callbacks.fallback);
-            }
 
             // add save function to download callback
             callbacks.onTextureDownloaded = saveToDisk;
