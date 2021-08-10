@@ -625,6 +625,14 @@ namespace ModIO.UI
             return result;
         }
 
+        /// <summary>Creates a WebRequestError for a missing locator.</summary>
+        protected WebRequestError GenerateErrorForMissingLocator()
+        {
+            var error = WebRequestError.GenerateLocal("Locator supplied was null.");
+            error.displayMessage = "There was an error downloading this image. Try again later.";
+            return error;
+        }
+
 #pragma warning disable 0618
 
         // ---------[ OBSOLETE ]---------
