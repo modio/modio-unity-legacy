@@ -423,6 +423,7 @@ namespace ModIO.UI
         /// <summary>Creates and sends an image download request for the given url.</summary>
         protected UnityWebRequestAsyncOperation DownloadImage(string url)
         {
+            // String should have been checked by this point
             Debug.Assert(!string.IsNullOrEmpty(url));
 
             // create new download
@@ -447,13 +448,17 @@ namespace ModIO.UI
         /// <summary>Handles the completion of an image download.</summary>
         protected virtual void OnDownloadCompleted(UnityWebRequest webRequest, string imageURL)
         {
-            // early out if destroyed
+            // - early outs -
             if(this == null)
             {
                 return;
             }
-
-            Debug.Assert(webRequest != null);
+            if(webRequest == null)
+            {
+                this.OnRequestFailed(imageURL,
+                                     WebRequestError.GenerateLocal("Error downloading image"));
+                return;
+            }
 
             // handle callbacks
             Callbacks callbacks;
@@ -468,10 +473,10 @@ namespace ModIO.UI
                 return;
             }
 
-            if(webRequest.isHttpError || webRequest.isNetworkError)
+            if(webRequest.isHttpError || webRequest.isNetworkError
+               || !(webRequest.downloadHandler is DownloadHandlerTexture))
             {
                 WebRequestError error = WebRequestError.GenerateFromWebRequest(webRequest);
-
                 this.OnRequestFailed(imageURL, error);
             }
             else
