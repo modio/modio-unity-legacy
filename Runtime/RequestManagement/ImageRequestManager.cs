@@ -304,9 +304,23 @@ namespace ModIO.UI
                                                     Action<Texture2D> onThumbnailReceived,
                                                     Action<WebRequestError> onError)
         {
-            Debug.Assert(onThumbnailReceived != null);
+            // - early outs -
+            if(onThumbnailReceived == null)
+            {
+                return;
+            }
 
             string url = Utility.GenerateYouTubeThumbnailURL(youTubeId);
+
+            // check url
+            if(string.IsNullOrEmpty(url))
+            {
+                if(onError != null)
+                {
+                    onError.Invoke(this.GenerateErrorForMissingURL());
+                }
+                return;
+            }
 
             // check cache and existing callbacks
             if(this.TryAddCallbacksToExisting(url, onThumbnailReceived, null, onError))
@@ -353,7 +367,19 @@ namespace ModIO.UI
         public virtual void RequestImage(string url, Action<Texture2D> onSuccess,
                                          Action<WebRequestError> onError)
         {
-            Debug.Assert(onSuccess != null);
+            // - early outs -
+            if(onSuccess == null)
+            {
+                return;
+            }
+            if(string.IsNullOrEmpty(url))
+            {
+                if(onError != null)
+                {
+                    onError.Invoke(this.GenerateErrorForMissingURL());
+                }
+                return;
+            }
 
             // check cache and existing callbacks
             if(this.TryAddCallbacksToExisting(url, onSuccess, null, onError))
