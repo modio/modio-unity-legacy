@@ -159,7 +159,7 @@ namespace ModIO
                 () =>
                 {
                     --responsesPending;
-                    unsubscribesPushed.Remove(modId);
+                    unsubscribesPushed.Add(modId);
 
                     onRequestCompleted();
                 },
@@ -170,13 +170,13 @@ namespace ModIO
                     if(e.webRequest != null
                        && e.webRequest.responseCode == 400)
                     {
-                        unsubscribesPushed.Remove(modId);
+                        unsubscribesPushed.Add(modId);
                     }
                     // Error for "Mod is unavailable"
                     else if(e.webRequest != null
                             && e.webRequest.responseCode == 404)
                     {
-                        unsubscribesPushed.Remove(modId);
+                        unsubscribesPushed.Add(modId);
                     }
                     // Error for real
                     else
