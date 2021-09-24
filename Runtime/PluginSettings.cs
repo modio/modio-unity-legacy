@@ -366,7 +366,7 @@ namespace ModIO
                          .Replace("$BUILD_GUID$", Application.buildGUID)
                          .Replace("$COMPANY_NAME$", Application.companyName)
                          .Replace("$PRODUCT_NAME$", Application.productName)
-                         .Replace("$APPLICATION_IDENTIFIER", Application.identifier)
+                         .Replace("$APPLICATION_IDENTIFIER$", Application.identifier)
                          .Replace("$GAME_ID$", gameId.ToString())
                          .Replace("$CURRENT_DIRECTORY$", System.IO.Directory.GetCurrentDirectory())
                          );
