@@ -111,6 +111,10 @@ namespace ModIO.UI
                     }
                 }
             }
+            else
+            {
+                this.UpdateSelectedTagsDisplay(null);
+            }
         }
 
         /// <summary>Updates the selected status using the tag collection.</summary>
