@@ -25,182 +25,85 @@ namespace ModIO
         }
 
         /// <summary>Mapping of tracked WebRequests with their sent data.</summary>
-        public static Dictionary<UnityWebRequest, RequestDebugData> webRequestDebugData = new Dictionary<UnityWebRequest, RequestDebugData>();
+        public static Dictionary<UnityWebRequest, RequestDebugData> webRequestDebugData =
+            new Dictionary<UnityWebRequest, RequestDebugData>();
 
         /// <summary>Tracks and logs a request upon it completing.</summary>
         public static void DebugWebRequest(UnityWebRequestAsyncOperation operation,
-                                           LocalUser userData,
-                                           int timeSent = -1)
+                                           LocalUser userData, int timeSent = -1)
         {
-            #if DEBUG
-                DebugUtilities.DebugDownload(operation, userData, null, timeSent);
-            #endif // DEBUG
+#if DEBUG
+            DebugUtilities.DebugDownload(operation, userData, null, timeSent);
+#endif // DEBUG
         }
 
         /// <summary>Tracks and logs a download upon it completing.</summary>
         public static void DebugDownload(UnityWebRequestAsyncOperation operation,
-                                         LocalUser userData,
-                                         string downloadLocation,
+                                         LocalUser userData, string downloadLocation,
                                          int timeSent = -1)
         {
-            #if DEBUG
+#if DEBUG
 
-                Debug.Assert(operation != null);
+            Debug.Assert(operation != null);
 
-                UnityWebRequest webRequest = operation.webRequest;
-                string userIdString = DebugUtilities.GenerateUserIdString(userData.profile);
+            UnityWebRequest webRequest = operation.webRequest;
+            string userIdString = DebugUtilities.GenerateUserIdString(userData.profile);
 
-                if(timeSent < 0)
-                {
-                    timeSent = ServerTimeStamp.Now;
-                }
-
-                RequestDebugData debugData;
-                if(DebugUtilities.webRequestDebugData.TryGetValue(webRequest, out debugData))
-                {
-                    var logString = new System.Text.StringBuilder();
-                    logString.AppendLine("[mod.io] Duplicate Web Request Sent");
-                    logString.Append("URL: ");
-                    logString.Append(webRequest.url);
-                    logString.Append(" (");
-                    logString.Append(webRequest.method.ToUpper());
-                    logString.AppendLine(")");
-
-                    if(!string.IsNullOrEmpty(downloadLocation))
-                    {
-                        logString.Append("Download Location: ");
-                        logString.AppendLine(downloadLocation);
-                    }
-
-                    if(debugData.timeSent >= 0)
-                    {
-                        logString.Append("Sent: ");
-                        logString.Append(ServerTimeStamp.ToLocalDateTime(debugData.timeSent).ToString());
-                        logString.Append(" [");
-                        logString.Append(debugData.timeSent.ToString());
-                        logString.AppendLine("]");
-                    }
-
-                    if(timeSent >= 0)
-                    {
-                        logString.Append("Re-sent: ");
-                        logString.Append(ServerTimeStamp.ToLocalDateTime(timeSent).ToString());
-                        logString.Append(" [");
-                        logString.Append(timeSent.ToString());
-                        logString.AppendLine("]");
-                    }
-
-                    Debug.Log(logString.ToString());
-                }
-                else
-                {
-                    debugData = new RequestDebugData()
-                    {
-                        userIdString = userIdString,
-                        timeSent = timeSent,
-                        downloadLocation = downloadLocation,
-                    };
-
-                    if(PluginSettings.REQUEST_LOGGING.logOnSend)
-                    {
-                        var logString = new System.Text.StringBuilder();
-                        logString.AppendLine("[mod.io] Web Request Sent");
-                        logString.Append("URL: ");
-                        logString.Append(webRequest.url);
-                        logString.Append(" (");
-                        logString.Append(webRequest.method.ToUpper());
-                        logString.AppendLine(")");
-
-                        if(!string.IsNullOrEmpty(debugData.downloadLocation))
-                        {
-                            logString.Append("Download Location: ");
-                            logString.AppendLine(debugData.downloadLocation);
-                        }
-
-                        if(debugData.timeSent >= 0)
-                        {
-                            logString.Append("Sent: ");
-                            logString.Append(ServerTimeStamp.ToLocalDateTime(debugData.timeSent).ToString());
-                            logString.Append(" [");
-                            logString.Append(debugData.timeSent.ToString());
-                            logString.AppendLine("]");
-                        }
-
-                        logString.AppendLine();
-
-                        string requestString = DebugUtilities.GetRequestInfo(webRequest,
-                                                                             debugData.userIdString);
-
-                        logString.AppendLine("------[ Request ]------");
-                        logString.AppendLine(requestString);
-
-                        Debug.Log(logString.ToString());
-                    }
-
-                    if(PluginSettings.REQUEST_LOGGING.logAllResponses
-                       || PluginSettings.REQUEST_LOGGING.errorsAsWarnings)
-                    {
-                        DebugUtilities.webRequestDebugData.Add(webRequest, debugData);
-
-                        // handle completion
-                        if(operation.isDone)
-                        {
-                            DebugUtilities.OnOperationCompleted(operation);
-                        }
-                        else
-                        {
-                            operation.completed += DebugUtilities.OnOperationCompleted;
-                        }
-                    }
-
-                }
-
-            #endif // DEBUG
-        }
-
-        #if DEBUG
-            /// <summary>Callback upon request operation completion.</summary>
-            private static void OnOperationCompleted(AsyncOperation operation)
+            if(timeSent < 0)
             {
-                if(operation == null) { return; }
+                timeSent = ServerTimeStamp.Now;
+            }
 
-                // get vars
-                UnityWebRequestAsyncOperation o = operation as UnityWebRequestAsyncOperation;
-                UnityWebRequest webRequest = o.webRequest;
-                var now = ServerTimeStamp.Now;
-                bool isError = (webRequest.isNetworkError || webRequest.isHttpError);
+            RequestDebugData debugData;
+            if(DebugUtilities.webRequestDebugData.TryGetValue(webRequest, out debugData))
+            {
+                var logString = new System.Text.StringBuilder();
+                logString.AppendLine("[mod.io] Duplicate Web Request Sent");
+                logString.Append("URL: ");
+                logString.Append(webRequest.url);
+                logString.Append(" (");
+                logString.Append(webRequest.method.ToUpper());
+                logString.AppendLine(")");
 
-                // should we log?
-                if(PluginSettings.REQUEST_LOGGING.logAllResponses || isError)
+                if(!string.IsNullOrEmpty(downloadLocation))
                 {
-                    RequestDebugData debugData;
-                    if(!DebugUtilities.webRequestDebugData.TryGetValue(webRequest, out debugData))
-                    {
-                        debugData = new RequestDebugData()
-                        {
-                            userIdString = "NONE_RECORDED",
-                            timeSent = -1,
-                            downloadLocation = null,
-                        };
-                    }
+                    logString.Append("Download Location: ");
+                    logString.AppendLine(downloadLocation);
+                }
 
-                    // generate strings
-                    string requestString = DebugUtilities.GetRequestInfo(webRequest,
-                                                                         debugData.userIdString);
+                if(debugData.timeSent >= 0)
+                {
+                    logString.Append("Sent: ");
+                    logString.Append(
+                        ServerTimeStamp.ToLocalDateTime(debugData.timeSent).ToString());
+                    logString.Append(" [");
+                    logString.Append(debugData.timeSent.ToString());
+                    logString.AppendLine("]");
+                }
 
-                    string responseString = DebugUtilities.GetResponseInfo(webRequest);
+                if(timeSent >= 0)
+                {
+                    logString.Append("Re-sent: ");
+                    logString.Append(ServerTimeStamp.ToLocalDateTime(timeSent).ToString());
+                    logString.Append(" [");
+                    logString.Append(timeSent.ToString());
+                    logString.AppendLine("]");
+                }
 
-                    // generate log string
+                Debug.Log(logString.ToString());
+            }
+            else
+            {
+                debugData = new RequestDebugData() {
+                    userIdString = userIdString,
+                    timeSent = timeSent,
+                    downloadLocation = downloadLocation,
+                };
+
+                if(PluginSettings.REQUEST_LOGGING.logOnSend)
+                {
                     var logString = new System.Text.StringBuilder();
-                    if(!isError)
-                    {
-                        logString.AppendLine("[mod.io] Web Request Succeeded");
-                    }
-                    else
-                    {
-                        logString.AppendLine("[mod.io] Web Request Failed");
-                    }
-
+                    logString.AppendLine("[mod.io] Web Request Sent");
                     logString.Append("URL: ");
                     logString.Append(webRequest.url);
                     logString.Append(" (");
@@ -216,45 +119,147 @@ namespace ModIO
                     if(debugData.timeSent >= 0)
                     {
                         logString.Append("Sent: ");
-                        logString.Append(ServerTimeStamp.ToLocalDateTime(debugData.timeSent).ToString());
+                        logString.Append(
+                            ServerTimeStamp.ToLocalDateTime(debugData.timeSent).ToString());
                         logString.Append(" [");
                         logString.Append(debugData.timeSent.ToString());
                         logString.AppendLine("]");
                     }
 
-                    logString.Append("Completed: ");
-                    logString.Append(ServerTimeStamp.ToLocalDateTime(now).ToString());
-                    logString.Append(" [");
-                    logString.Append(now.ToString());
-                    logString.AppendLine("]");
-
                     logString.AppendLine();
+
+                    string requestString =
+                        DebugUtilities.GetRequestInfo(webRequest, debugData.userIdString);
 
                     logString.AppendLine("------[ Request ]------");
                     logString.AppendLine(requestString);
 
-                    logString.AppendLine("------[ Response ]------");
-                    logString.AppendLine(responseString);
+                    Debug.Log(logString.ToString());
+                }
 
-                    // log
-                    if(isError && PluginSettings.REQUEST_LOGGING.errorsAsWarnings)
+                if(PluginSettings.REQUEST_LOGGING.logAllResponses
+                   || PluginSettings.REQUEST_LOGGING.errorsAsWarnings)
+                {
+                    DebugUtilities.webRequestDebugData.Add(webRequest, debugData);
+
+                    // handle completion
+                    if(operation.isDone)
                     {
-                        Debug.LogWarning(logString.ToString());
+                        DebugUtilities.OnOperationCompleted(operation);
                     }
                     else
                     {
-                        Debug.Log(logString.ToString());
+                        operation.completed += DebugUtilities.OnOperationCompleted;
                     }
                 }
-
-                DebugUtilities.webRequestDebugData.Remove(webRequest);
             }
-        #endif // DEBUG
+
+#endif // DEBUG
+        }
+
+#if DEBUG
+        /// <summary>Callback upon request operation completion.</summary>
+        private static void OnOperationCompleted(AsyncOperation operation)
+        {
+            if(operation == null)
+            {
+                return;
+            }
+
+            // get vars
+            UnityWebRequestAsyncOperation o = operation as UnityWebRequestAsyncOperation;
+            UnityWebRequest webRequest = o.webRequest;
+            var now = ServerTimeStamp.Now;
+            bool isError = (webRequest.isNetworkError || webRequest.isHttpError);
+
+            // should we log?
+            if(PluginSettings.REQUEST_LOGGING.logAllResponses || isError)
+            {
+                RequestDebugData debugData;
+                if(!DebugUtilities.webRequestDebugData.TryGetValue(webRequest, out debugData))
+                {
+                    debugData = new RequestDebugData() {
+                        userIdString = "NONE_RECORDED",
+                        timeSent = -1,
+                        downloadLocation = null,
+                    };
+                }
+
+                // generate strings
+                string requestString =
+                    DebugUtilities.GetRequestInfo(webRequest, debugData.userIdString);
+
+                string responseString = DebugUtilities.GetResponseInfo(webRequest);
+
+                // generate log string
+                var logString = new System.Text.StringBuilder();
+                if(!isError)
+                {
+                    logString.AppendLine("[mod.io] Web Request Succeeded");
+                }
+                else
+                {
+                    logString.AppendLine("[mod.io] Web Request Failed");
+                }
+
+                logString.Append("URL: ");
+                logString.Append(webRequest.url);
+                logString.Append(" (");
+                logString.Append(webRequest.method.ToUpper());
+                logString.AppendLine(")");
+
+                if(!string.IsNullOrEmpty(debugData.downloadLocation))
+                {
+                    logString.Append("Download Location: ");
+                    logString.AppendLine(debugData.downloadLocation);
+                }
+
+                if(debugData.timeSent >= 0)
+                {
+                    logString.Append("Sent: ");
+                    logString.Append(
+                        ServerTimeStamp.ToLocalDateTime(debugData.timeSent).ToString());
+                    logString.Append(" [");
+                    logString.Append(debugData.timeSent.ToString());
+                    logString.AppendLine("]");
+                }
+
+                logString.Append("Completed: ");
+                logString.Append(ServerTimeStamp.ToLocalDateTime(now).ToString());
+                logString.Append(" [");
+                logString.Append(now.ToString());
+                logString.AppendLine("]");
+
+                logString.AppendLine();
+
+                logString.AppendLine("------[ Request ]------");
+                logString.AppendLine(requestString);
+
+                logString.AppendLine("------[ Response ]------");
+                logString.AppendLine(responseString);
+
+                // log
+                if(isError && PluginSettings.REQUEST_LOGGING.errorsAsWarnings)
+                {
+                    Debug.LogWarning(logString.ToString());
+                }
+                else
+                {
+                    Debug.Log(logString.ToString());
+                }
+            }
+
+            DebugUtilities.webRequestDebugData.Remove(webRequest);
+        }
+#endif // DEBUG
 
         /// <summary>Generates a debug-friendly string of a web request.</summary>
         public static string GetRequestInfo(UnityWebRequest webRequest, string userIdString)
         {
-            if(webRequest == null) { return "NULL_WEB_REQUEST"; }
+            if(webRequest == null)
+            {
+                return "NULL_WEB_REQUEST";
+            }
 
             // check user string
             if(userIdString == null)
@@ -287,8 +292,7 @@ namespace ModIO
 
                     if(headerKey.ToUpper() == "AUTHORIZATION")
                     {
-                        if(headerValue != null
-                           && headerValue.StartsWith("Bearer ")
+                        if(headerValue != null && headerValue.StartsWith("Bearer ")
                            && headerValue.Length > 8)
                         {
                             requestString.Append("Bearer [OAUTH_TOKEN]");
@@ -317,13 +321,11 @@ namespace ModIO
                 string contentType = webRequest.GetRequestHeader("content-type");
                 if(contentType.ToLower() == "application/x-www-form-urlencoded")
                 {
-                    DebugUtilities.ParseURLEncodedFormData(uploadHandler.data,
-                                                           out stringFields);
+                    DebugUtilities.ParseURLEncodedFormData(uploadHandler.data, out stringFields);
                 }
                 else if(contentType.Contains("multipart/form-data"))
                 {
-                    DebugUtilities.ParseMultipartFormData(uploadHandler.data,
-                                                          out stringFields,
+                    DebugUtilities.ParseMultipartFormData(uploadHandler.data, out stringFields,
                                                           out binaryFields);
                 }
                 else
@@ -337,7 +339,7 @@ namespace ModIO
                 {
                     requestString.AppendLine("String Fields:");
 
-                    int countInsertIndex = requestString.Length-1;
+                    int countInsertIndex = requestString.Length - 1;
                     int count = 0;
 
                     foreach(var svp in stringFields)
@@ -358,7 +360,7 @@ namespace ModIO
                 {
                     requestString.AppendLine("Binary Fields:");
 
-                    int countInsertIndex = requestString.Length-1;
+                    int countInsertIndex = requestString.Length - 1;
                     int count = 0;
 
                     foreach(var bdp in binaryFields)
@@ -368,9 +370,9 @@ namespace ModIO
                         requestString.Append('=');
                         requestString.Append(bdp.fileName);
                         requestString.Append(" (");
-                        requestString.Append(bdp.contents == null
-                                             ? "NULL_DATA"
-                                             : ValueFormatting.ByteCount(bdp.contents.Length, null));
+                        requestString.Append(bdp.contents == null ? "NULL_DATA"
+                                                                  : ValueFormatting.ByteCount(
+                                                                      bdp.contents.Length, null));
                         requestString.Append(")");
                         requestString.AppendLine();
                         ++count;
@@ -386,7 +388,10 @@ namespace ModIO
         /// <summary>Generates a debug-friendly string of a web request response.</summary>
         public static string GetResponseInfo(UnityWebRequest webRequest)
         {
-            if(webRequest == null) { return "NULL_WEB_REQUEST"; }
+            if(webRequest == null)
+            {
+                return "NULL_WEB_REQUEST";
+            }
 
             // get info
             var responseString = new System.Text.StringBuilder();
@@ -414,8 +419,7 @@ namespace ModIO
             responseString.AppendLine("Headers:");
 
             var responseHeaders = webRequest.GetResponseHeaders();
-            if(responseHeaders == null
-               || responseHeaders.Count == 0)
+            if(responseHeaders == null || responseHeaders.Count == 0)
             {
                 responseString.AppendLine("  NONE");
             }
@@ -456,8 +460,7 @@ namespace ModIO
                     responseString.Append("[RequestUnresolvable]");
                 }
 
-                if(!error.isAuthenticationInvalid
-                   && !error.isServerUnreachable
+                if(!error.isAuthenticationInvalid && !error.isServerUnreachable
                    && !error.isRequestUnresolvable)
                 {
                     responseString.Append("[NONE]");
@@ -476,8 +479,7 @@ namespace ModIO
                 responseString.Append("  errorMessage=");
                 responseString.AppendLine(error.errorMessage);
 
-                if(error.fieldValidationMessages != null
-                   && error.fieldValidationMessages.Count > 0)
+                if(error.fieldValidationMessages != null && error.fieldValidationMessages.Count > 0)
                 {
                     responseString.AppendLine("  fieldValidation:");
 
@@ -519,21 +521,26 @@ namespace ModIO
             return responseString.ToString();
         }
 
-        /// <summary>Parses an UploadHandler's payload for content-type = "application/x-www-form-urlencoded".</summary>
+        /// <summary>Parses an UploadHandler's payload for content-type =
+        /// "application/x-www-form-urlencoded".</summary>
         public static void ParseURLEncodedFormData(byte[] data,
                                                    out List<API.StringValueParameter> stringFields)
         {
             stringFields = null;
 
             // early out
-            if(data == null || data.Length == 0) { return; }
+            if(data == null || data.Length == 0)
+            {
+                return;
+            }
 
             // parse
             stringFields = new List<API.StringValueParameter>();
 
             string dataString = System.Text.Encoding.UTF8.GetString(data);
 
-            string[] pairs = dataString.Split(new char[] { '&' }, System.StringSplitOptions.RemoveEmptyEntries);
+            string[] pairs =
+                dataString.Split(new char[] { '&' }, System.StringSplitOptions.RemoveEmptyEntries);
             foreach(string pairString in pairs)
             {
                 string[] elements = pairString.Split(new char[] { '=' });
@@ -544,7 +551,8 @@ namespace ModIO
                 }
                 else if(elements.Length != 2)
                 {
-                    stringFields.Add(API.StringValueParameter.Create(pairString, "BADLY_FORMATTED_FORMDATA"));
+                    stringFields.Add(
+                        API.StringValueParameter.Create(pairString, "BADLY_FORMATTED_FORMDATA"));
                 }
                 else
                 {
@@ -553,7 +561,8 @@ namespace ModIO
             }
         }
 
-        /// <summary>Parses an UploadHandler's payload for content-type = "multipart/form-data".</summary>
+        /// <summary>Parses an UploadHandler's payload for content-type =
+        /// "multipart/form-data".</summary>
         public static void ParseMultipartFormData(byte[] data,
                                                   out List<API.StringValueParameter> stringFields,
                                                   out List<API.BinaryDataParameter> binaryFields)
@@ -562,7 +571,10 @@ namespace ModIO
             binaryFields = null;
 
             // early out
-            if(data == null || data.Length == 0) { return; }
+            if(data == null || data.Length == 0)
+            {
+                return;
+            }
 
             // get dataString and delimiter
             string dataString = System.Text.Encoding.UTF8.GetString(data);
@@ -570,10 +582,14 @@ namespace ModIO
             int lineEndIndex = -1;
 
             lineEndIndex = dataString.IndexOf(lineEnd, 1);
-            if(lineEndIndex < 0) { return; }
+            if(lineEndIndex < 0)
+            {
+                return;
+            }
 
             string delimiter = dataString.Substring(0, lineEndIndex).Trim();
-            string[] sections = dataString.Split(new string[] { delimiter }, System.StringSplitOptions.RemoveEmptyEntries);
+            string[] sections = dataString.Split(new string[] { delimiter },
+                                                 System.StringSplitOptions.RemoveEmptyEntries);
             stringFields = new List<API.StringValueParameter>();
             binaryFields = new List<API.BinaryDataParameter>();
 
@@ -595,7 +611,8 @@ namespace ModIO
                 elementStartIndex = searchIndex + searchString.Length;
                 elementEndIndex = s.IndexOf(lineEnd, elementStartIndex);
 
-                string contentType = s.Substring(elementStartIndex, elementEndIndex - elementStartIndex);
+                string contentType =
+                    s.Substring(elementStartIndex, elementEndIndex - elementStartIndex);
 
                 // process text
                 if(contentType.Contains(@"text/plain"))
@@ -615,7 +632,8 @@ namespace ModIO
                         elementStartIndex = searchIndex + searchString.Length;
                         elementEndIndex = s.IndexOf("\"", elementStartIndex);
 
-                        newStringParam.key = s.Substring(elementStartIndex, elementEndIndex - elementStartIndex);
+                        newStringParam.key =
+                            s.Substring(elementStartIndex, elementEndIndex - elementStartIndex);
                     }
 
                     // get value
@@ -637,8 +655,7 @@ namespace ModIO
                 // process literally anything else
                 else
                 {
-                    var newBinaryParam = new API.BinaryDataParameter()
-                    {
+                    var newBinaryParam = new API.BinaryDataParameter() {
                         mimeType = contentType,
                     };
 
@@ -655,7 +672,8 @@ namespace ModIO
                         elementStartIndex = searchIndex + searchString.Length;
                         elementEndIndex = s.IndexOf("\"", elementStartIndex);
 
-                        newBinaryParam.key = s.Substring(elementStartIndex, elementEndIndex - elementStartIndex);
+                        newBinaryParam.key =
+                            s.Substring(elementStartIndex, elementEndIndex - elementStartIndex);
                     }
 
                     // get fileName
@@ -671,7 +689,8 @@ namespace ModIO
                         elementStartIndex = searchIndex + searchString.Length;
                         elementEndIndex = s.IndexOf("\"", elementStartIndex);
 
-                        newBinaryParam.fileName = s.Substring(elementStartIndex, elementEndIndex - elementStartIndex);
+                        newBinaryParam.fileName =
+                            s.Substring(elementStartIndex, elementEndIndex - elementStartIndex);
                     }
 
                     // get contents
@@ -687,7 +706,8 @@ namespace ModIO
                         elementStartIndex = searchIndex + searchString.Length;
 
                         int byteCount = (s.Length - elementStartIndex - lineEnd.Length);
-                        newBinaryParam.contents = System.Text.Encoding.UTF8.GetBytes(s.Substring(elementStartIndex, byteCount));
+                        newBinaryParam.contents = System.Text.Encoding.UTF8.GetBytes(
+                            s.Substring(elementStartIndex, byteCount));
                     }
 
                     binaryFields.Add(newBinaryParam);
