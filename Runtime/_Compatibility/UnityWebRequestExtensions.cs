@@ -11,8 +11,8 @@ namespace ModIO
 #if UNITY_2020_1_OR_NEWER
 
             return (webRequest.result == UnityWebRequest.Result.ConnectionError
-                    && webRequest.result == UnityWebRequest.Result.ProtocolError
-                    && webRequest.result == UnityWebRequest.Result.DataProcessingError);
+                    || webRequest.result == UnityWebRequest.Result.ProtocolError
+                    || webRequest.result == UnityWebRequest.Result.DataProcessingError);
 
 #endif // Unity Version Selector
         }
