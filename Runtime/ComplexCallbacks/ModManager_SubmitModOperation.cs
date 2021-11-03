@@ -173,12 +173,14 @@ namespace ModIO
                     parameters.metadataBlob = this.eModProfile.metadataBlob.value;
                 }
 
-                APIClient.EditMod(modId, parameters, this.SubmitModChanges_Internal, this.onError);
+                APIClient.EditMod(modId, parameters, this.SubmitModChanges_Internal,
+                                  this.SubmissionComplete_Error);
             }
             // - Get updated ModProfile -
             else
             {
-                ModManager.GetModProfile(modId, this.SubmitModChanges_Internal, this.onError);
+                ModManager.GetModProfile(modId, this.SubmitModChanges_Internal,
+                                         this.SubmissionComplete_Error);
             }
         }
 
@@ -321,7 +323,7 @@ namespace ModIO
             if(this != null && this.onError != null)
             {
                 WebRequestError error = WebRequestError.GenerateLocal(errorMessage);
-                this.onError.Invoke(error);
+                this.SubmissionComplete_Error(error);
             }
         }
 
@@ -338,12 +340,13 @@ namespace ModIO
 
                 if(this.eModProfile == null)
                 {
-                    APIClient.AddMod(this.addModParams, this.onSuccess, this.onError);
+                    APIClient.AddMod(this.addModParams, this.SubmissionComplete_Success,
+                                     this.SubmissionComplete_Error);
                 }
                 else
                 {
                     APIClient.AddMod(this.addModParams, this.SubmitModChanges_Internal,
-                                     this.onError);
+                                     this.SubmissionComplete_Error);
                 }
             }
         }
@@ -458,7 +461,7 @@ namespace ModIO
                 }
 
                 APIClient.DeleteModMedia(this.modId, parameters, this.SubmitNextParameter,
-                                         this.onError);
+                                         this.SubmissionComplete_Error);
 
                 this.removedImageFileNames = null;
                 this.removedSketchfabURLs = null;
@@ -490,7 +493,7 @@ namespace ModIO
                 }
 
                 APIClient.AddModMedia(this.modId, parameters, this.SubmitNextParameter,
-                                      this.onError);
+                                      this.SubmissionComplete_Error);
 
                 this.logoData = null;
                 this.imageArchiveData = null;
@@ -504,7 +507,7 @@ namespace ModIO
                 parameters.tagNames = this.removedTags.ToArray();
 
                 APIClient.DeleteModTags(this.modId, parameters, this.SubmitNextParameter,
-                                        this.onError);
+                                        this.SubmissionComplete_Error);
 
                 this.removedTags = null;
             }
@@ -514,7 +517,7 @@ namespace ModIO
                 parameters.tagNames = this.addedTags.ToArray();
 
                 APIClient.AddModTags(this.modId, parameters, this.SubmitNextParameter,
-                                     this.onError);
+                                     this.SubmissionComplete_Error);
 
                 this.addedTags = null;
             }
@@ -525,7 +528,7 @@ namespace ModIO
                 parameters.metadataKeys = this.removedKVPs.Keys.ToArray();
 
                 APIClient.DeleteModKVPMetadata(this.modId, parameters, this.SubmitNextParameter,
-                                               this.onError);
+                                               this.SubmissionComplete_Error);
                 this.removedKVPs = null;
             }
             else if(this.addedKVPs != null && this.addedKVPs.Count > 0)
@@ -538,21 +541,19 @@ namespace ModIO
                 parameters.metadata = addedKVPStrings;
 
                 APIClient.AddModKVPMetadata(this.modId, parameters, this.SubmitNextParameter,
-                                            this.onError);
+                                            this.SubmissionComplete_Error);
 
                 this.addedKVPs = null;
             }
             // - FINALIZE -
             else if(o != null && o is ModProfile && ((ModProfile)o).id == this.modId)
             {
-                if(this.onSuccess != null)
-                {
-                    this.onSuccess.Invoke((ModProfile)o);
-                }
+                this.SubmissionComplete_Success((ModProfile)o);
             }
             else
             {
-                APIClient.GetMod(this.modId, this.onSuccess, this.onError);
+                APIClient.GetMod(this.modId, this.SubmissionComplete_Success,
+                                 this.SubmissionComplete_Error);
             }
         }
     }
