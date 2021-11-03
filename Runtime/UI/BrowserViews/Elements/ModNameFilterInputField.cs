@@ -5,9 +5,12 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    /// <summary>A component that pairs an input field with the title filter of a ExplorerView or SubscriptionsView.</summary>
+    /// <summary>A component that pairs an input field with the title filter of a ExplorerView or
+    /// SubscriptionsView.</summary>
     [RequireComponent(typeof(InputField))]
-    public class ModNameFilterInputField : MonoBehaviour, IExplorerViewElement, ISubscriptionsViewElement
+    public class ModNameFilterInputField : MonoBehaviour,
+                                           IExplorerViewElement,
+                                           ISubscriptionsViewElement
     {
         // ---------[ FIELDS ]---------
         /// <summary>Parent ExplorerView.</summary>
@@ -21,7 +24,10 @@ namespace ModIO.UI
         public void SetExplorerView(ExplorerView view)
         {
             // early out
-            if(this.m_explorerView == view) { return; }
+            if(this.m_explorerView == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_explorerView != null)
@@ -34,7 +40,8 @@ namespace ModIO.UI
             {
                 this.m_subscriptionsView.onNameFieldFilterChanged.RemoveListener(UpdateInputField);
 
-                this.GetComponent<InputField>().onValueChanged.RemoveListener(SetSubscriptionsViewFilter);
+                this.GetComponent<InputField>().onValueChanged.RemoveListener(
+                    SetSubscriptionsViewFilter);
             }
 
             // assign
@@ -59,7 +66,10 @@ namespace ModIO.UI
         public void SetSubscriptionsView(SubscriptionsView view)
         {
             // early out
-            if(this.m_subscriptionsView == view) { return; }
+            if(this.m_subscriptionsView == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_explorerView != null)
@@ -72,7 +82,8 @@ namespace ModIO.UI
             {
                 this.m_subscriptionsView.onNameFieldFilterChanged.RemoveListener(UpdateInputField);
 
-                this.GetComponent<InputField>().onValueChanged.RemoveListener(SetSubscriptionsViewFilter);
+                this.GetComponent<InputField>().onValueChanged.RemoveListener(
+                    SetSubscriptionsViewFilter);
             }
 
             // assign
@@ -85,7 +96,8 @@ namespace ModIO.UI
                 this.m_subscriptionsView.onNameFieldFilterChanged.AddListener(UpdateInputField);
                 this.UpdateInputField(this.m_subscriptionsView.nameFieldFilter);
 
-                this.GetComponent<InputField>().onValueChanged.AddListener(SetSubscriptionsViewFilter);
+                this.GetComponent<InputField>().onValueChanged.AddListener(
+                    SetSubscriptionsViewFilter);
             }
             else
             {
@@ -94,15 +106,16 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        /// <summary>Sets the value of the input field based on the value in the RequestFilter.</summary>
+        /// <summary>Sets the value of the input field based on the value in the
+        /// RequestFilter.</summary>
         public virtual void UpdateInputField(RequestFilter requestFilter)
         {
             string filterValue = string.Empty;
             List<IRequestFieldFilter> fieldFilterList;
             if(requestFilter != null
-               && requestFilter.fieldFilterMap.TryGetValue(ModIO.API.GetAllModsFilterFields.fullTextSearch, out fieldFilterList)
-               && fieldFilterList != null
-               && fieldFilterList.Count > 0)
+               && requestFilter.fieldFilterMap.TryGetValue(
+                   ModIO.API.GetAllModsFilterFields.fullTextSearch, out fieldFilterList)
+               && fieldFilterList != null && fieldFilterList.Count > 0)
             {
                 IRequestFieldFilter fieldFilter = fieldFilterList[0];
 

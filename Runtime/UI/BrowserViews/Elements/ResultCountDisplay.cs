@@ -22,19 +22,20 @@ namespace ModIO.UI
         /// <summary>Collect text component.</summary>
         protected virtual void Awake()
         {
-            Component textDisplayComponent = GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
+            Component textDisplayComponent =
+                GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
             this.m_textComponent.SetTextDisplayComponent(textDisplayComponent);
 
-            #if DEBUG
+#if DEBUG
             if(textDisplayComponent == null)
             {
                 Debug.LogWarning("[mod.io] No compatible text components were found on this "
-                                 + "GameObject to set text for."
-                                 + "\nCompatible with any component that exposes a"
-                                 + " publicly settable \'.text\' property.",
+                                     + "GameObject to set text for."
+                                     + "\nCompatible with any component that exposes a"
+                                     + " publicly settable \'.text\' property.",
                                  this);
             }
-            #endif
+#endif
         }
 
         /// <summary>Assert display is current.</summary>
@@ -47,7 +48,10 @@ namespace ModIO.UI
         public void SetSubscriptionsView(SubscriptionsView view)
         {
             // early out
-            if(this.m_subsView == view) { return; }
+            if(this.m_subsView == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_subsView != null)
@@ -79,7 +83,10 @@ namespace ModIO.UI
         public void SetExplorerView(ExplorerView view)
         {
             // early out
-            if(this.m_explorerView == view) { return; }
+            if(this.m_explorerView == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_subsView != null)

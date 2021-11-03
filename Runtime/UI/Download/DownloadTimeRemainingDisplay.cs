@@ -32,19 +32,20 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
         {
-            Component textDisplayComponent = GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
+            Component textDisplayComponent =
+                GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
             this.m_textComponent.SetTextDisplayComponent(textDisplayComponent);
 
-            #if DEBUG
+#if DEBUG
             if(textDisplayComponent == null)
             {
                 Debug.LogWarning("[mod.io] No compatible text components were found on this "
-                                 + "GameObject to set text for."
-                                 + "\nCompatible with any component that exposes a"
-                                 + " publicly settable \'.text\' property.",
+                                     + "GameObject to set text for."
+                                     + "\nCompatible with any component that exposes a"
+                                     + " publicly settable \'.text\' property.",
                                  this);
             }
-            #endif
+#endif
         }
 
         protected virtual void OnEnable()
@@ -56,7 +57,10 @@ namespace ModIO.UI
         public void SetDownloadView(DownloadView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -89,8 +93,7 @@ namespace ModIO.UI
 
             if(download != null)
             {
-                if(download.request == null
-                   || download.request.downloadedBytes == 0)
+                if(download.request == null || download.request.downloadedBytes == 0)
                 {
                     displayText = this.m_unstartedText;
                 }
@@ -104,8 +107,9 @@ namespace ModIO.UI
                 }
                 else
                 {
-                    int secondsRemaining = (int)((download.fileSize - (Int64)download.request.downloadedBytes)
-                                                 / download.bytesPerSecond);
+                    int secondsRemaining =
+                        (int)((download.fileSize - (Int64)download.request.downloadedBytes)
+                              / download.bytesPerSecond);
 
                     displayText = ValueFormatting.SecondsAsTime(secondsRemaining);
                 }

@@ -30,8 +30,7 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear All User Data", false)]
         public static void ClearAllUserData()
         {
-            UserDataStorage.ClearActiveUserData((success) =>
-            {
+            UserDataStorage.ClearActiveUserData((success) => {
                 LocalUser.instance = new LocalUser();
                 LocalUser.isLoaded = true;
 
@@ -73,7 +72,8 @@ namespace ModIO.EditorCode
         public static void ForceColorSchemeUpdate()
         {
             Resources.LoadAll<GraphicColorApplicator>(string.Empty);
-            GraphicColorApplicator[] g_applicators = Resources.FindObjectsOfTypeAll<GraphicColorApplicator>();
+            GraphicColorApplicator[] g_applicators =
+                Resources.FindObjectsOfTypeAll<GraphicColorApplicator>();
             foreach(GraphicColorApplicator gca in g_applicators)
             {
                 gca.UpdateColorScheme_withUndo();
@@ -81,7 +81,8 @@ namespace ModIO.EditorCode
 
             // Apply to receivers
             Resources.LoadAll<SelectableColorApplicator>(string.Empty);
-            SelectableColorApplicator[] s_applicators = Resources.FindObjectsOfTypeAll<SelectableColorApplicator>();
+            SelectableColorApplicator[] s_applicators =
+                Resources.FindObjectsOfTypeAll<SelectableColorApplicator>();
             foreach(SelectableColorApplicator sca in s_applicators)
             {
                 sca.UpdateColorScheme_withUndo();

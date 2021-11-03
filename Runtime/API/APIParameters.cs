@@ -25,7 +25,8 @@ namespace ModIO.API
         public string mimeType = null;
         public byte[] contents = null;
 
-        public static BinaryDataParameter Create(string key, string fileName, string mimeType, byte[] contents)
+        public static BinaryDataParameter Create(string key, string fileName, string mimeType,
+                                                 byte[] contents)
         {
             Debug.Assert(!String.IsNullOrEmpty(key) && contents != null);
 

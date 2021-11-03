@@ -33,9 +33,15 @@ namespace ModIO
 
         // ---------[ INTERFACE IMPLEMENTATION ]---------
         /// <summary>Returns the FileName for the image.</summary>
-        public string GetFileName() { return this.fileName; }
+        public string GetFileName()
+        {
+            return this.fileName;
+        }
         /// <summary>Returns the URL for the original image.</summary>
-        public string GetURL()      { return this.original; }
+        public string GetURL()
+        {
+            return this.original;
+        }
         /// <summary>Returns the URL for the given size.</summary>
         public string GetSizeURL(UserAvatarSize size)
         {
@@ -63,20 +69,16 @@ namespace ModIO
         /// <summary>Returns all the URLs in the image locator.</summary>
         public SizeURLPair<UserAvatarSize>[] GetAllURLs()
         {
-            return new SizeURLPair<UserAvatarSize>[]
-            {
-                new SizeURLPair<UserAvatarSize>()
-                {
+            return new SizeURLPair<UserAvatarSize>[] {
+                new SizeURLPair<UserAvatarSize>() {
                     size = UserAvatarSize.Original,
                     url = this.original,
                 },
-                new SizeURLPair<UserAvatarSize>()
-                {
+                new SizeURLPair<UserAvatarSize>() {
                     size = UserAvatarSize.Thumbnail_50x50,
                     url = this.thumbnail_50x50,
                 },
-                new SizeURLPair<UserAvatarSize>()
-                {
+                new SizeURLPair<UserAvatarSize>() {
                     size = UserAvatarSize.Thumbnail_100x100,
                     url = this.thumbnail_100x100,
                 },

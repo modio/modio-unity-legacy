@@ -5,7 +5,9 @@ using UnityEngine;
 namespace ModIO.UI
 {
     /// <summary>Displays a collection of tags single text component.</summary>
-    public class TagCollectionTextDisplay : MonoBehaviour, IModViewElement, IGameProfileUpdateReceiver
+    public class TagCollectionTextDisplay : MonoBehaviour,
+                                            IModViewElement,
+                                            IGameProfileUpdateReceiver
     {
         // ---------[ FIELDS ]---------
         /// <summary>Should the category be included in the tag displays?</summary>
@@ -30,19 +32,20 @@ namespace ModIO.UI
         /// <summary>Initialize text component.</summary>
         protected virtual void Awake()
         {
-            Component textDisplayComponent = GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
+            Component textDisplayComponent =
+                GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
             this.m_textComponent.SetTextDisplayComponent(textDisplayComponent);
 
-            #if DEBUG
+#if DEBUG
             if(textDisplayComponent == null)
             {
                 Debug.LogWarning("[mod.io] No compatible text components were found on this "
-                                 + "GameObject to set text for."
-                                 + "\nCompatible with any component that exposes a"
-                                 + " publicly settable \'.text\' property.",
+                                     + "GameObject to set text for."
+                                     + "\nCompatible with any component that exposes a"
+                                     + " publicly settable \'.text\' property.",
                                  this);
             }
-            #endif
+#endif
         }
 
         /// <summary>Ensure the displays are accurate.</summary>
@@ -55,7 +58,10 @@ namespace ModIO.UI
         public void SetModView(ModView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -101,10 +107,7 @@ namespace ModIO.UI
 
             // copy tags
             List<string> newTagList = new List<string>();
-            foreach(string tagName in tags)
-            {
-                newTagList.Add(tagName);
-            }
+            foreach(string tagName in tags) { newTagList.Add(tagName); }
             this.m_tags = newTagList.ToArray();
 
             // display
@@ -118,8 +121,7 @@ namespace ModIO.UI
                     List<string> tagDisplayStrings = new List<string>(this.m_tags);
 
                     // append categories?
-                    if(this.includeCategory
-                       && this.m_tagCategoryMap.Count > 0)
+                    if(this.includeCategory && this.m_tagCategoryMap.Count > 0)
                     {
                         for(int i = 0; i < tagDisplayStrings.Count; ++i)
                         {
@@ -154,8 +156,7 @@ namespace ModIO.UI
         {
             // get length
             int categoryCount = 0;
-            if(gameProfile != null
-               && gameProfile.tagCategories != null)
+            if(gameProfile != null && gameProfile.tagCategories != null)
             {
                 categoryCount = gameProfile.tagCategories.Length;
             }

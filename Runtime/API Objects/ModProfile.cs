@@ -122,14 +122,10 @@ namespace ModIO
         [JsonIgnore]
         public IEnumerable<string> tagNames
         {
-            get
-            {
+            get {
                 if(tags != null)
                 {
-                    foreach(ModTag tag in tags)
-                    {
-                        yield return tag.name;
-                    }
+                    foreach(ModTag tag in tags) { yield return tag.name; }
                 }
             }
         }

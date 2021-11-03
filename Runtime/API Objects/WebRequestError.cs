@@ -53,16 +53,20 @@ namespace ModIO
         /// <summary>Indicates whether the provided authentication data was rejected.</summary>
         public bool isAuthenticationInvalid;
 
-        /// <summary>Indicates that the user attempts to authenticate has not yet accepted the mod.io terms.</summary>
+        /// <summary>Indicates that the user attempts to authenticate has not yet accepted the
+        /// mod.io terms.</summary>
         public bool isUserTermsAgreementRequired;
 
-        /// <summary>Indicates whether the mod.io servers a unreachable (for whatever reason).</summary>
+        /// <summary>Indicates whether the mod.io servers a unreachable (for whatever
+        /// reason).</summary>
         public bool isServerUnreachable;
 
-        /// <summary>Indicates whether this request will always fail for the provided data.</summary>
+        /// <summary>Indicates whether this request will always fail for the provided
+        /// data.</summary>
         public bool isRequestUnresolvable;
 
-        /// <summary>Indicates whether the request triggered the Rate Limiter and when to retry.</summary>
+        /// <summary>Indicates whether the request triggered the Rate Limiter and when to
+        /// retry.</summary>
         public int limitedUntilTimeStamp;
 
         /// <summary>A player/user-friendly message to display on the UI.</summary>
@@ -75,7 +79,8 @@ namespace ModIO
 
             if(webRequest == null)
             {
-                Debug.LogWarning("[mod.io] WebRequestError.GenerateFromWebRequest(webRequest) parameter was null.");
+                Debug.LogWarning(
+                    "[mod.io] WebRequestError.GenerateFromWebRequest(webRequest) parameter was null.");
                 return WebRequestError.GenerateLocal("An unknown error occurred.");
             }
             else
@@ -95,8 +100,7 @@ namespace ModIO
 
         public static WebRequestError GenerateLocal(string errorMessage)
         {
-            WebRequestError error = new WebRequestError()
-            {
+            WebRequestError error = new WebRequestError() {
                 webRequest = null,
                 timeStamp = ServerTimeStamp.Now,
                 errorReference = 0,
@@ -125,14 +129,15 @@ namespace ModIO
             DateTime time;
 
             if(!string.IsNullOrEmpty(dateHeaderValue)
-               && DateTime.TryParseExact(dateHeaderValue,
-                                         timeFormat,
-                                         System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat,
-                                         System.Globalization.DateTimeStyles.AssumeUniversal,
-                                         out time))
+               && DateTime.TryParseExact(
+                   dateHeaderValue, timeFormat,
+                   System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat,
+                   System.Globalization.DateTimeStyles.AssumeUniversal, out time))
             {
-                // NOTE(@jackson): For some reason, System.Globalization.DateTimeStyles.AssumeUniversal
-                //  is ignored(?) in TryParseExact, so it needs to be set as universal after the fact.
+                // NOTE(@jackson): For some reason,
+                // System.Globalization.DateTimeStyles.AssumeUniversal
+                //  is ignored(?) in TryParseExact, so it needs to be set as universal after the
+                //  fact.
                 time = DateTime.SpecifyKind(time, System.DateTimeKind.Utc);
 
                 return ServerTimeStamp.FromUTCDateTime(time);
@@ -166,8 +171,9 @@ namespace ModIO
                 }
                 catch(System.Exception e)
                 {
-                    Debug.LogWarning("[mod.io] Error reading webRequest.downloadHandler text body:\n"
-                                     + e.Message);
+                    Debug.LogWarning(
+                        "[mod.io] Error reading webRequest.downloadHandler text body:\n"
+                        + e.Message);
                 }
 
                 if(!string.IsNullOrEmpty(requestContent))
@@ -193,8 +199,9 @@ namespace ModIO
 
                         if(messageEnd > 0)
                         {
-                            this.errorMessage = ("A Cloudflare error has occurred: "
-                                                 + requestContent.Substring(readIndex, messageEnd - readIndex));
+                            this.errorMessage =
+                                ("A Cloudflare error has occurred: "
+                                 + requestContent.Substring(readIndex, messageEnd - readIndex));
                         }
                     }
                     else
@@ -202,17 +209,16 @@ namespace ModIO
                         try
                         {
                             // deserialize into an APIError
-                            errorWrapper = JsonConvert.DeserializeObject<APIWrapper>(requestContent);
+                            errorWrapper =
+                                JsonConvert.DeserializeObject<APIWrapper>(requestContent);
                         }
                         catch(System.Exception e)
                         {
                             Debug.LogWarning("[mod.io] Error parsing error object from response:\n"
                                              + e.Message);
-
                         }
 
-                        if(errorWrapper != null
-                           && errorWrapper.error != null)
+                        if(errorWrapper != null && errorWrapper.error != null)
                         {
                             // extract values
                             this.errorReference = errorWrapper.error.errorReference;
@@ -238,7 +244,10 @@ namespace ModIO
             this.limitedUntilTimeStamp = -1;
             this.displayMessage = string.Empty;
 
-            if(this.webRequest == null) { return; }
+            if(this.webRequest == null)
+            {
+                return;
+            }
 
             // Interpret code
             switch(this.webRequest.responseCode)
@@ -255,8 +264,9 @@ namespace ModIO
                 {
                     if(string.IsNullOrEmpty(this.errorMessage))
                     {
-                        this.displayMessage = ("Error synchronizing with the mod.io servers. [Error Code: "
-                                               + this.webRequest.responseCode + "]");
+                        this.displayMessage =
+                            ("Error synchronizing with the mod.io servers. [Error Code: "
+                             + this.webRequest.responseCode + "]");
                     }
 
                     this.isRequestUnresolvable = true;
@@ -284,11 +294,13 @@ namespace ModIO
                     {
                         this.isUserTermsAgreementRequired = true;
 
-                        this.displayMessage = ("You have not yet agreed to the mod.io terms of service.");
+                        this.displayMessage =
+                            ("You have not yet agreed to the mod.io terms of service.");
                     }
                     else if(string.IsNullOrEmpty(this.errorMessage))
                     {
-                        this.displayMessage = ("Your account does not have the required permissions.");
+                        this.displayMessage =
+                            ("Your account does not have the required permissions.");
                     }
 
                     this.isRequestUnresolvable = true;
@@ -318,7 +330,7 @@ namespace ModIO
                     if(string.IsNullOrEmpty(this.errorMessage))
                     {
                         this.displayMessage = ("The mod.io servers could not be reached."
-                                           + "\nPlease check your internet connection.");
+                                               + "\nPlease check your internet connection.");
                     }
 
                     this.isServerUnreachable = true;
@@ -342,8 +354,7 @@ namespace ModIO
                         }
                     }
 
-                    if(displayString.Length > 0
-                       && displayString[displayString.Length - 1] == '\n')
+                    if(displayString.Length > 0 && displayString[displayString.Length - 1] == '\n')
                     {
                         --displayString.Length;
                     }
@@ -366,18 +377,19 @@ namespace ModIO
                     {
                         retryAfterSeconds = 60;
 
-                        Debug.LogWarning("[mod.io] Too many APIRequests have been made, however"
-                                         + " no valid X-Ratelimit-RetryAfter header was detected."
-                                         + "\nPlease report this to jackson@mod.io with the following information:"
-                                         + "\n[" + this.webRequest.url
-                                         + ":" + this.webRequest.method
-                                         + "-" + this.errorMessage + "]");
+                        Debug.LogWarning(
+                            "[mod.io] Too many APIRequests have been made, however"
+                            + " no valid X-Ratelimit-RetryAfter header was detected."
+                            + "\nPlease report this to jackson@mod.io with the following information:"
+                            + "\n[" + this.webRequest.url + ":" + this.webRequest.method + "-"
+                            + this.errorMessage + "]");
                     }
 
                     if(string.IsNullOrEmpty(this.errorMessage))
                     {
-                        this.displayMessage = ("Too many requests have been made to the mod.io servers."
-                                             + "\nReconnecting in " + retryAfterSeconds.ToString() + " seconds.");
+                        this.displayMessage =
+                            ("Too many requests have been made to the mod.io servers."
+                             + "\nReconnecting in " + retryAfterSeconds.ToString() + " seconds.");
                     }
 
                     this.limitedUntilTimeStamp = this.timeStamp + retryAfterSeconds;
@@ -389,8 +401,9 @@ namespace ModIO
                 {
                     if(string.IsNullOrEmpty(this.errorMessage))
                     {
-                        this.displayMessage = ("There was an error with the mod.io servers. Staff have been"
-                                             + " notified, and will attempt to fix the issue as soon as possible.");
+                        this.displayMessage =
+                            ("There was an error with the mod.io servers. Staff have been"
+                             + " notified, and will attempt to fix the issue as soon as possible.");
                     }
 
                     this.isRequestUnresolvable = true;
@@ -421,8 +434,9 @@ namespace ModIO
                     }
                     else
                     {
-                        this.displayMessage = ("Error synchronizing with the mod.io servers. [Error Code: "
-                                               + this.webRequest.responseCode + "]");
+                        this.displayMessage =
+                            ("Error synchronizing with the mod.io servers. [Error Code: "
+                             + this.webRequest.responseCode + "]");
 
                         this.isRequestUnresolvable = true;
                     }
@@ -440,31 +454,35 @@ namespace ModIO
         [System.Obsolete("Use webRequest.responseCode instead")]
         public int responseCode
         {
-            get { return (webRequest != null ? (int)webRequest.responseCode : -1); }
+            get {
+                return (webRequest != null ? (int)webRequest.responseCode : -1);
+            }
         }
-        [System.Obsolete("Use webRequest.method instead")]
-        public string method
+        [System.Obsolete("Use webRequest.method instead")] public string method
         {
-            get { return (webRequest != null ? webRequest.method : "LOCAL"); }
+            get {
+                return (webRequest != null ? webRequest.method : "LOCAL");
+            }
         }
-        [System.Obsolete("Use webRequest.url instead")]
-        public string url
+        [System.Obsolete("Use webRequest.url instead")] public string url
         {
-            get { return (webRequest != null ? webRequest.url : string.Empty); }
+            get {
+                return (webRequest != null ? webRequest.url : string.Empty);
+            }
         }
-        [System.Obsolete("Use webRequest.GetResponseHeaders() instead")]
-        public Dictionary<string, string> responseHeaders
+        [System.Obsolete(
+            "Use webRequest.GetResponseHeaders() instead")] public Dictionary<string, string>
+            responseHeaders
         {
-            get { return (webRequest != null ? webRequest.GetResponseHeaders() : null); }
+            get {
+                return (webRequest != null ? webRequest.GetResponseHeaders() : null);
+            }
         }
 
-        [System.Obsolete("Use webRequest.downloadHandler.text instead")]
-        public string responseBody
+        [System.Obsolete("Use webRequest.downloadHandler.text instead")] public string responseBody
         {
-            get
-            {
-                if(webRequest != null
-                   && webRequest.downloadHandler != null
+            get {
+                if(webRequest != null && webRequest.downloadHandler != null
                    && !(webRequest.downloadHandler is DownloadHandlerFile))
                 {
                     return webRequest.downloadHandler.text;
@@ -474,18 +492,21 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] The message returned by the API explaining the error.</summary>
-        [System.Obsolete("Use WebRequestError.errorMessage instead")]
-        public string message
+        [System.Obsolete("Use WebRequestError.errorMessage instead")] public string message
         {
-            get { return this.errorMessage; }
-            set { this.errorMessage = value; }
+            get {
+                return this.errorMessage;
+            }
+            set {
+                this.errorMessage = value;
+            }
         }
 
-        [System.Obsolete("Set PluginSettings.requestLogging.errorsAsWarnings instead.")]
-        public static void LogAsWarning(WebRequestError error)
+        [System.Obsolete(
+            "Set PluginSettings.requestLogging.errorsAsWarnings instead.")] public static void
+        LogAsWarning(WebRequestError error)
         {
-            Debug.LogWarning("[mod.io] Web Request Failed\n"
-                             + error.ToUnityDebugString());
+            Debug.LogWarning("[mod.io] Web Request Failed\n" + error.ToUnityDebugString());
         }
 
         [System.Obsolete("Use DebugUtilities.GetResponseInfo() instead.")]
@@ -493,8 +514,7 @@ namespace ModIO
         {
             if(this.webRequest == null)
             {
-                return ("Request failed prior to being sent.\n"
-                        + this.errorMessage);
+                return ("Request failed prior to being sent.\n" + this.errorMessage);
             }
             else
             {

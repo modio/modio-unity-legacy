@@ -43,7 +43,8 @@ namespace ModIO
         public int dateAdded;
 
         /// <summary>
-        /// Id of the parent comment this comment is replying to (can be 0 if the comment is not a reply).
+        /// Id of the parent comment this comment is replying to (can be 0 if the comment is not a
+        /// reply).
         /// </summary>
         [JsonProperty("reply_id")]
         public int replyId;
@@ -82,7 +83,10 @@ namespace ModIO
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            if (string.IsNullOrEmpty(this._threadPositionString)) { return; }
+            if(string.IsNullOrEmpty(this._threadPositionString))
+            {
+                return;
+            }
 
             this.position = new ModCommentPosition();
 
@@ -94,15 +98,15 @@ namespace ModIO
             this.position.replyThread = -1;
             this.position.subReplyThread = -1;
 
-            if (positionElements.Length > 0)
+            if(positionElements.Length > 0)
             {
                 this.position.depth = 1;
-                if (int.TryParse(positionElements[0], out this.position.mainThread)
-                    && positionElements.Length > 1)
+                if(int.TryParse(positionElements[0], out this.position.mainThread)
+                   && positionElements.Length > 1)
                 {
                     this.position.depth = 2;
-                    if (int.TryParse(positionElements[1], out this.position.replyThread)
-                        && positionElements.Length > 2)
+                    if(int.TryParse(positionElements[1], out this.position.replyThread)
+                       && positionElements.Length > 2)
                     {
                         this.position.depth = 3;
                         int.TryParse(positionElements[2], out this.position.subReplyThread);

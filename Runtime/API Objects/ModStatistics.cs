@@ -40,10 +40,10 @@ namespace ModIO
 
         /// <summmary>An aggregrated rating beased on votes and number of votes</summary>
         /// <para>Overall rating of this item calculated using the
-        /// <a href="http://www.evanmiller.org/how-not-to-sort-by-average-rating.html">Wilson score confidence
-        /// interval</a>. This score is calculated through a combination of number of ratings submitted and
-        /// the percentage of positive ratings, placing items with many positive ratings above those with
-        /// a higher percentage but fewer ratings.</para>
+        /// <a href="http://www.evanmiller.org/how-not-to-sort-by-average-rating.html">Wilson score
+        /// confidence interval</a>. This score is calculated through a combination of number of
+        /// ratings submitted and the percentage of positive ratings, placing items with many
+        /// positive ratings above those with a higher percentage but fewer ratings.</para>
         [JsonProperty("ratings_weighted_aggregate")]
         public float ratingWeightedAggregate;
 
@@ -60,20 +60,19 @@ namespace ModIO
         [JsonIgnore]
         public float ratingPositivePercentage
         {
-            get
-            {
-                return (this.ratingCount == 0 ? 0f
-                        : (float)this.ratingPositiveCount/(float)this.ratingCount);
+            get {
+                return (this.ratingCount == 0
+                            ? 0f
+                            : (float)this.ratingPositiveCount / (float)this.ratingCount);
             }
         }
         /// <summary>Percentage of votes that are negative.</summary>
-        [JsonIgnore]
-        public float ratingNegativePercentage
+        [JsonIgnore] public float ratingNegativePercentage
         {
-            get
-            {
-                return (this.ratingCount == 0 ? 0f
-                        : (float)this.ratingNegativeCount/(float)this.ratingCount);
+            get {
+                return (this.ratingCount == 0
+                            ? 0f
+                            : (float)this.ratingNegativeCount / (float)this.ratingCount);
             }
         }
     }

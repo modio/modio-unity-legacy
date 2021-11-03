@@ -3,7 +3,8 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    [CreateAssetMenu(fileName = "Selectable Color Scheme.asset", menuName = "mod.io/Theming/Selectable Color Scheme")]
+    [CreateAssetMenu(fileName = "Selectable Color Scheme.asset",
+                     menuName = "mod.io/Theming/Selectable Color Scheme")]
     public class SelectableColorScheme : ScriptableObject
     {
         public Color imageColor = Color.white;

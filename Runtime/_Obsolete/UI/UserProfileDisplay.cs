@@ -21,7 +21,8 @@ namespace ModIO.UI
         public Text profileURLDisplay;
 
         [Header("Display Data")]
-        [SerializeField] private UserProfileDisplayData m_data = new UserProfileDisplayData();
+        [SerializeField]
+        private UserProfileDisplayData m_data = new UserProfileDisplayData();
         private List<TextLoadingOverlay> m_loadingOverlays = new List<TextLoadingOverlay>();
 
         private delegate string GetDisplayString(UserProfileDisplayData data);
@@ -30,9 +31,10 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         public override UserProfileDisplayData data
         {
-            get { return m_data; }
-            set
-            {
+            get {
+                return m_data;
+            }
+            set {
                 m_data = value;
                 PresentData();
             }
@@ -40,19 +42,19 @@ namespace ModIO.UI
 
         private void PresentData()
         {
-            #if UNITY_EDITOR
-            if(!Application.isPlaying && m_displayMapping == null) { return; }
-            #endif
+#if UNITY_EDITOR
+            if(!Application.isPlaying && m_displayMapping == null)
+            {
+                return;
+            }
+#endif
 
             if(this.m_displayMapping == null)
             {
                 this.Initialize();
             }
 
-            foreach(var kvp in m_displayMapping)
-            {
-                kvp.Key.text = kvp.Value(m_data);
-            }
+            foreach(var kvp in m_displayMapping) { kvp.Key.text = kvp.Value(m_data); }
 
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
@@ -87,7 +89,9 @@ namespace ModIO.UI
             }
             if(lastOnlineDisplay != null)
             {
-                m_displayMapping.Add(lastOnlineDisplay, (d) => ServerTimeStamp.ToLocalDateTime(d.lastOnline).ToString());
+                m_displayMapping.Add(lastOnlineDisplay,
+                                     (d) =>
+                                         ServerTimeStamp.ToLocalDateTime(d.lastOnline).ToString());
             }
             if(timezoneDisplay != null)
             {
@@ -105,7 +109,8 @@ namespace ModIO.UI
 
         private void CollectLoadingOverlays()
         {
-            TextLoadingOverlay[] childLoadingOverlays = this.gameObject.GetComponentsInChildren<TextLoadingOverlay>(true);
+            TextLoadingOverlay[] childLoadingOverlays =
+                this.gameObject.GetComponentsInChildren<TextLoadingOverlay>(true);
             List<Text> textDisplays = new List<Text>(m_displayMapping.Keys);
 
             m_loadingOverlays = new List<TextLoadingOverlay>();
@@ -150,7 +155,7 @@ namespace ModIO.UI
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void OnValidate()
         {
             UnityEditor.EditorApplication.delayCall += () =>
@@ -163,6 +168,6 @@ namespace ModIO.UI
                 }
             };
         }
-        #endif
+#endif
     }
 }

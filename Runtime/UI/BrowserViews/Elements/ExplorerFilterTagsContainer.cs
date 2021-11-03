@@ -16,7 +16,9 @@ namespace ModIO.UI
         /// <summary>Container that this component controls.</summary>
         public TagContainer container
         {
-            get { return this.gameObject.GetComponent<TagContainer>(); }
+            get {
+                return this.gameObject.GetComponent<TagContainer>();
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -24,7 +26,10 @@ namespace ModIO.UI
         public void SetExplorerView(ExplorerView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -54,16 +59,15 @@ namespace ModIO.UI
             List<IRequestFieldFilter> tagsFilterList = null;
             if(filter != null)
             {
-                filter.fieldFilterMap.TryGetValue(ModIO.API.GetAllModsFilterFields.tags, out tagsFilterList);
+                filter.fieldFilterMap.TryGetValue(ModIO.API.GetAllModsFilterFields.tags,
+                                                  out tagsFilterList);
             }
 
             string[] tags = null;
             if(tagsFilterList != null)
             {
                 MatchesArrayFilter<string> tagsFilter = null;
-                for(int i = 0;
-                    i < tagsFilterList.Count && tagsFilter == null;
-                    ++i)
+                for(int i = 0; i < tagsFilterList.Count && tagsFilter == null; ++i)
                 {
                     IRequestFieldFilter f = tagsFilterList[i];
                     if(f.filterMethod == FieldFilterMethod.EquivalentCollection)
@@ -84,8 +88,7 @@ namespace ModIO.UI
         /// <summary>Helper function for removing a tag from the RequestFilter.</summary>
         public void RemoveTagFromExplorerFilter(TagContainerItem tagItem)
         {
-            if(this.m_view != null
-               && tagItem != null)
+            if(this.m_view != null && tagItem != null)
             {
                 this.m_view.RemoveTagFromFilter(tagItem.tagName.text);
             }

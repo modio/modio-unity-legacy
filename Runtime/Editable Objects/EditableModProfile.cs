@@ -5,31 +5,38 @@ namespace ModIO
 {
     // ---------[ SERIALIZABLE EDITABLE CLASSES ]---------
     [Serializable]
-    public class EditableModStatusField : EditableField<ModStatus> {}
+    public class EditableModStatusField : EditableField<ModStatus>
+    {
+    }
     [Serializable]
-    public class EditableModVisibilityField : EditableField<ModVisibility> {}
+    public class EditableModVisibilityField : EditableField<ModVisibility>
+    {
+    }
     [Serializable]
-    public class EditableKVPArrayField : EditableArrayField<MetadataKVP> {}
+    public class EditableKVPArrayField : EditableArrayField<MetadataKVP>
+    {
+    }
 
     [Serializable]
     public class EditableModProfile
     {
         // ---------[ FIELDS ]---------
-        public ModIO.EditableModStatusField status =                new ModIO.EditableModStatusField();
-        public ModIO.EditableModVisibilityField visibility =        new ModIO.EditableModVisibilityField();
-        public EditableStringField name =                           new EditableStringField();
-        public EditableStringField nameId =                         new EditableStringField();
-        public EditableStringField summary =                        new EditableStringField();
-        public EditableStringField descriptionAsHTML =              new EditableStringField();
-        public EditableStringField homepageURL =                    new EditableStringField();
-        public EditableStringArrayField tags =                      new EditableStringArrayField();
-        public EditableStringField metadataBlob =                   new EditableStringField();
-        public ModIO.EditableKVPArrayField metadataKVPs =           new ModIO.EditableKVPArrayField();
+        public ModIO.EditableModStatusField status = new ModIO.EditableModStatusField();
+        public ModIO.EditableModVisibilityField visibility = new ModIO.EditableModVisibilityField();
+        public EditableStringField name = new EditableStringField();
+        public EditableStringField nameId = new EditableStringField();
+        public EditableStringField summary = new EditableStringField();
+        public EditableStringField descriptionAsHTML = new EditableStringField();
+        public EditableStringField homepageURL = new EditableStringField();
+        public EditableStringArrayField tags = new EditableStringArrayField();
+        public EditableStringField metadataBlob = new EditableStringField();
+        public ModIO.EditableKVPArrayField metadataKVPs = new ModIO.EditableKVPArrayField();
         // - Mod Media -
-        public EditableImageLocatorField logoLocator =              new EditableImageLocatorField();
-        public EditableStringArrayField youTubeURLs =               new EditableStringArrayField();
-        public EditableStringArrayField sketchfabURLs =             new EditableStringArrayField();
-        public EditableImageLocatorArrayField galleryImageLocators =new EditableImageLocatorArrayField();
+        public EditableImageLocatorField logoLocator = new EditableImageLocatorField();
+        public EditableStringArrayField youTubeURLs = new EditableStringArrayField();
+        public EditableStringArrayField sketchfabURLs = new EditableStringArrayField();
+        public EditableImageLocatorArrayField galleryImageLocators =
+            new EditableImageLocatorArrayField();
 
         // ---------[ VALUE DUPLICATION ]---------
         public static EditableModProfile CreateFromProfile(ModProfile profile)
@@ -98,9 +105,9 @@ namespace ModIO
             }
             if(!this.galleryImageLocators.isDirty)
             {
-                Utility.SafeMapArraysOrZero(profile.media.galleryImageLocators,
-                                            (l) => { return ImageLocatorData.CreateFromImageLocator(l); },
-                                            out this.galleryImageLocators.value);
+                Utility.SafeMapArraysOrZero(profile.media.galleryImageLocators, (l) => {
+                    return ImageLocatorData.CreateFromImageLocator(l);
+                }, out this.galleryImageLocators.value);
             }
         }
     }

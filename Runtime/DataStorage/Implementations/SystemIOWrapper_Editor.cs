@@ -10,11 +10,10 @@ namespace ModIO
     {
         // --- Initialization ---
         public SystemIOWrapper_Editor()
-        : base(PluginSettings.data.installationDirectoryEditor,
-               PluginSettings.data.cacheDirectoryEditor,
-               PluginSettings.data.userDirectoryEditor)
+            : base(PluginSettings.data.installationDirectoryEditor,
+                   PluginSettings.data.cacheDirectoryEditor,
+                   PluginSettings.data.userDirectoryEditor)
         {
-
         }
 
         /// <summary>Determines whether an AssetDatabase refresh is applicable.</summary>
@@ -29,8 +28,7 @@ namespace ModIO
         {
             bool success = base.WriteFile(path, data);
 
-            if(success
-               && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path)
+            if(success && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path)
                && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
@@ -45,8 +43,7 @@ namespace ModIO
         {
             bool success = base.DeleteFile(path);
 
-            if(success
-               && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path)
+            if(success && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path)
                && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
@@ -59,12 +56,11 @@ namespace ModIO
         public override bool MoveFile(string source, string destination)
         {
             bool success = base.MoveFile(source, destination);
-            bool isInDatabase = (SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(source)
-                                 || SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(destination));
+            bool isInDatabase =
+                (SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(source)
+                 || SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(destination));
 
-            if(success
-               && isInDatabase
-               && !Application.isPlaying)
+            if(success && isInDatabase && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
             }
@@ -78,8 +74,7 @@ namespace ModIO
         {
             bool success = base.CreateDirectory(path);
 
-            if(success
-               && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path)
+            if(success && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path)
                && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
@@ -93,8 +88,7 @@ namespace ModIO
         {
             bool success = base.DeleteDirectory(path);
 
-            if(success
-               && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path)
+            if(success && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path)
                && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
@@ -107,12 +101,11 @@ namespace ModIO
         public override bool MoveDirectory(string source, string destination)
         {
             bool success = base.MoveDirectory(source, destination);
-            bool isInDatabase = (SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(source)
-                                 || SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(destination));
+            bool isInDatabase =
+                (SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(source)
+                 || SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(destination));
 
-            if(success
-               && isInDatabase
-               && !Application.isPlaying)
+            if(success && isInDatabase && !Application.isPlaying)
             {
                 AssetDatabase.Refresh();
             }
@@ -121,7 +114,8 @@ namespace ModIO
         }
 
         /// <summary>Initializes the storage system for the given user.</summary>
-        public override void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
+        public override void SetActiveUser(
+            string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
         {
             base.SetActiveUser(platformUserId, callback);
 
@@ -133,7 +127,8 @@ namespace ModIO
         }
 
         /// <summary>Initializes the storage system for the given user.</summary>
-        public override void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback)
+        public override void SetActiveUser(int platformUserId,
+                                           UserDataIOCallbacks.SetActiveUserCallback<int> callback)
         {
             base.SetActiveUser(platformUserId, callback);
 

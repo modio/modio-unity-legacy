@@ -2,7 +2,8 @@ using Newtonsoft.Json;
 
 namespace ModIO
 {
-    [System.Serializable] [JsonObject]
+    [System.Serializable]
+    [JsonObject]
     public class RequestPage<T>
     {
         // ---------[ FIELDS ]---------

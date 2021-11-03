@@ -26,28 +26,23 @@ namespace ModIO.UI
 
         // ---------[ FIELDS ]---------
         /// <summary>Options for the controller to use.</summary>
-        public OptionData[] options = new OptionData[4]
-        {
-            new OptionData()
-            {
+        public OptionData[] options = new OptionData[4] {
+            new OptionData() {
                 displayText = "All-time",
                 filterPeriodSeconds = -1,
                 filterRoundingSeconds = 0,
             },
-            new OptionData()
-            {
+            new OptionData() {
                 displayText = "Today",
                 filterPeriodSeconds = 86400,
                 filterRoundingSeconds = 3600,
             },
-            new OptionData()
-            {
+            new OptionData() {
                 displayText = "This Week",
                 filterPeriodSeconds = 604800,
                 filterRoundingSeconds = 43200,
             },
-            new OptionData()
-            {
+            new OptionData() {
                 displayText = "This Month",
                 filterPeriodSeconds = 2592000,
                 filterRoundingSeconds = 86400,
@@ -61,7 +56,11 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         /// <summary>The Dropdown component to be controlled.</summary>
         public Dropdown dropdown
-        { get { return this.gameObject.GetComponent<Dropdown>(); }}
+        {
+            get {
+                return this.gameObject.GetComponent<Dropdown>();
+            }
+        }
 
         // ---------[ INITIALIZATION ]---------
         private void Start()
@@ -74,7 +73,10 @@ namespace ModIO.UI
         public void SetExplorerView(ExplorerView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -101,22 +103,24 @@ namespace ModIO.UI
         /// <summary>Displays the date live selection based on the RequestFilter data.</summary>
         public void DisplayDateLiveOption(RequestFilter filter)
         {
-            if(filter == null) { return; }
+            if(filter == null)
+            {
+                return;
+            }
 
             // get filter value
             List<IRequestFieldFilter> dateLiveFilterList = null;
             if(filter != null)
             {
-                filter.fieldFilterMap.TryGetValue(ModIO.API.GetAllModsFilterFields.dateLive, out dateLiveFilterList);
+                filter.fieldFilterMap.TryGetValue(ModIO.API.GetAllModsFilterFields.dateLive,
+                                                  out dateLiveFilterList);
             }
 
             int dateLiveUntil = -1;
             if(dateLiveFilterList != null)
             {
                 IRequestFieldFilter<int> dateLiveFilter = null;
-                for(int i = 0;
-                    i < dateLiveFilterList.Count && dateLiveFilter == null;
-                    ++i)
+                for(int i = 0; i < dateLiveFilterList.Count && dateLiveFilter == null; ++i)
                 {
                     IRequestFieldFilter f = dateLiveFilterList[i];
                     if(f.filterMethod == FieldFilterMethod.GreaterThan
@@ -154,13 +158,15 @@ namespace ModIO.UI
                 for(int i = 0; i < this.options.Length; ++i)
                 {
                     OptionData option = this.options[i];
-                    if(option.filterPeriodSeconds < 0) { continue; }
+                    if(option.filterPeriodSeconds < 0)
+                    {
+                        continue;
+                    }
 
                     int minOptionPeriod = option.filterPeriodSeconds - option.filterRoundingSeconds;
                     int filterDifference = filterPeriod - minOptionPeriod;
 
-                    if(filterDifference >= 0
-                       && filterDifference < optionDifference)
+                    if(filterDifference >= 0 && filterDifference < optionDifference)
                     {
                         optionIndex = i;
                         optionDifference = filterDifference;
@@ -174,7 +180,10 @@ namespace ModIO.UI
         /// <summary>Sets the filter value on the targetted view.</summary>
         public void SetExplorerViewDateLiveFilter()
         {
-            if(this.m_view == null) { return; }
+            if(this.m_view == null)
+            {
+                return;
+            }
 
             // get selected option
             OptionData option = GetSelectedOption();
@@ -197,8 +206,7 @@ namespace ModIO.UI
             MinimumFilter<int> fieldFilter = null;
             if(fromTimeStamp > 0)
             {
-                fieldFilter = new MinimumFilter<int>()
-                {
+                fieldFilter = new MinimumFilter<int>() {
                     minimum = fromTimeStamp,
                     isInclusive = false,
                 };
@@ -210,9 +218,7 @@ namespace ModIO.UI
         /// <summary>Returns that sort by data for the currently selected dropdown option.</summary>
         public OptionData GetSelectedOption()
         {
-            if(this.options != null
-               && this.options.Length > 0
-               && this.dropdown.options != null
+            if(this.options != null && this.options.Length > 0 && this.dropdown.options != null
                && this.dropdown.value < this.dropdown.options.Count)
             {
                 Dropdown.OptionData selection = this.dropdown.options[this.dropdown.value];
@@ -228,8 +234,8 @@ namespace ModIO.UI
             return null;
         }
 
-        // ---------[ EVENTS ]---------
-        #if UNITY_EDITOR
+// ---------[ EVENTS ]---------
+#if UNITY_EDITOR
         // BUG(@jackson): There's something that needs to be done here with serialization
         // potentially - the dropdown seems to load the option data late?
         /// <summary>Fills the Dropdown options with the supplied data.</summary>
@@ -237,23 +243,25 @@ namespace ModIO.UI
         {
             UnityEditor.EditorApplication.delayCall += () =>
             {
-                if(this == null || this.dropdown == null) { return; }
+                if(this == null || this.dropdown == null)
+                {
+                    return;
+                }
 
                 var so = new UnityEditor.SerializedObject(this.dropdown);
                 var optionsProperty = so.FindProperty("m_Options.m_Options");
 
                 optionsProperty.arraySize = this.options.Length;
-                for(int i = 0;
-                    i < this.options.Length;
-                    ++i)
+                for(int i = 0; i < this.options.Length; ++i)
                 {
-                    optionsProperty.GetArrayElementAtIndex(i).FindPropertyRelative("m_Text").stringValue
-                        = this.options[i].displayText;
+                    optionsProperty.GetArrayElementAtIndex(i)
+                        .FindPropertyRelative("m_Text")
+                        .stringValue = this.options[i].displayText;
                 }
 
                 so.ApplyModifiedProperties();
             };
         }
-        #endif
+#endif
     }
 }

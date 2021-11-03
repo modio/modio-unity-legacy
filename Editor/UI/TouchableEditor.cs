@@ -7,7 +7,7 @@ namespace ModIO.UI.EditorCode
     [CustomEditor(typeof(Touchable))]
     public class TouchableEditor : Editor
     {
-        public override void OnInspectorGUI(){}
+        public override void OnInspectorGUI() {}
     }
 }
 

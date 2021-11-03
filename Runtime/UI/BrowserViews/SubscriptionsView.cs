@@ -13,15 +13,21 @@ namespace ModIO.UI
         // ---------[ NESTED DATA-TYPES ]---------
         /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
         [Serializable]
-        public class ModPageChanged : UnityEngine.Events.UnityEvent<RequestPage<ModProfile>> {}
+        public class ModPageChanged : UnityEngine.Events.UnityEvent<RequestPage<ModProfile>>
+        {
+        }
 
         /// <summary>Event for notifying listeners of a change to title filter.</summary>
         [Serializable]
-        public class FilterChanged : UnityEngine.Events.UnityEvent<string> {}
+        public class FilterChanged : UnityEngine.Events.UnityEvent<string>
+        {
+        }
 
         /// <summary>Event for notifying listeners of a change to the sort delegate.</summary>
         [Serializable]
-        public class SortChanged : UnityEngine.Events.UnityEvent<Comparison<ModProfile>> {}
+        public class SortChanged : UnityEngine.Events.UnityEvent<Comparison<ModProfile>>
+        {
+        }
 
         // ---------[ FIELDS ]---------
         /// <summary>The priority to focus the selectables.</summary>
@@ -66,41 +72,67 @@ namespace ModIO.UI
         /// <summary>RequestPage being displayed.</summary>
         public RequestPage<ModProfile> modPage
         {
-            get { return this.m_modPage; }
+            get {
+                return this.m_modPage;
+            }
         }
 
         /// <summary>Name field filter currently applied to the SubscriptionsView.</summary>
         public string nameFieldFilter
         {
-            get { return this.m_nameFieldFilter; }
+            get {
+                return this.m_nameFieldFilter;
+            }
         }
 
         /// <summary>Sort method for displaying subscribed mods.</summary>
         public Comparison<ModProfile> sortDelegate
         {
-            get { return this.m_sortDelegate; }
+            get {
+                return this.m_sortDelegate;
+            }
         }
 
         // --- IBrowserView Implementation ---
         /// <summary>Canvas Group.</summary>
         public CanvasGroup canvasGroup
-        { get { return this.gameObject.GetComponent<CanvasGroup>(); } }
+        {
+            get {
+                return this.gameObject.GetComponent<CanvasGroup>();
+            }
+        }
 
         /// <summary>Reset selection on hide.</summary>
-        bool IBrowserView.resetSelectionOnHide { get { return true; } }
+        bool IBrowserView.resetSelectionOnHide
+        {
+            get {
+                return true;
+            }
+        }
 
         /// <summary>Is the view a root view or window view?</summary>
-        bool IBrowserView.isRootView { get { return true; } }
+        bool IBrowserView.isRootView
+        {
+            get {
+                return true;
+            }
+        }
 
         /// <summary>The priority to focus the selectables.</summary>
-        List<Selectable> IBrowserView.onFocusPriority { get { return this.onFocusPriority; } }
+        List<Selectable> IBrowserView.onFocusPriority
+        {
+            get {
+                return this.onFocusPriority;
+            }
+        }
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Collects and sets view on ISubscriptionsViewElements.</summary>
         protected virtual void Start()
         {
-            #if UNITY_EDITOR
-            SubscriptionsView[] nested = this.gameObject.GetComponentsInChildren<SubscriptionsView>(true);
+#if UNITY_EDITOR
+            SubscriptionsView[] nested =
+                this.gameObject.GetComponentsInChildren<SubscriptionsView>(true);
             if(nested.Length > 1)
             {
                 SubscriptionsView nestedView = nested[1];
@@ -109,18 +141,20 @@ namespace ModIO.UI
                     nestedView = nested[0];
                 }
 
-                Debug.LogError("[mod.io] Nesting SubscriptionsViews is currently not supported due to the"
-                               + " way ISubscriptionsViewElement component parenting works."
-                               + "\nThe nested SubscriptionsViews must be removed to allow SubscriptionsView functionality."
-                               + "\nthis=" + this.gameObject.name
-                               + "\nnested=" + nestedView.gameObject.name,
-                               this);
+                Debug.LogError(
+                    "[mod.io] Nesting SubscriptionsViews is currently not supported due to the"
+                        + " way ISubscriptionsViewElement component parenting works."
+                        + "\nThe nested SubscriptionsViews must be removed to allow SubscriptionsView functionality."
+                        + "\nthis=" + this.gameObject.name
+                        + "\nnested=" + nestedView.gameObject.name,
+                    this);
                 return;
             }
-            #endif
+#endif
 
             // assign view elements to this
-            var viewElementChildren = this.gameObject.GetComponentsInChildren<ISubscriptionsViewElement>(true);
+            var viewElementChildren =
+                this.gameObject.GetComponentsInChildren<ISubscriptionsViewElement>(true);
             foreach(ISubscriptionsViewElement viewElement in viewElementChildren)
             {
                 viewElement.SetSubscriptionsView(this);
@@ -166,27 +200,26 @@ namespace ModIO.UI
 
             IList<int> subscribedModIds = LocalUser.SubscribedModIds;
 
-            ModManager.GetModProfiles(subscribedModIds,
-            (ModProfile[] profiles) =>
-            {
-                Refresh_OnGetModProfiles(profiles, this.m_nameFieldFilter, this.m_sortDelegate);
-            },
-            (WebRequestError requestError) =>
-            {
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                           "Failed to get subscription data from mod.io servers.\n"
-                                           + requestError.displayMessage);
-            });
+            ModManager.GetModProfiles(
+                subscribedModIds,
+                (ModProfile[] profiles) => {
+                    Refresh_OnGetModProfiles(profiles, this.m_nameFieldFilter, this.m_sortDelegate);
+                },
+                (WebRequestError requestError) => {
+                    MessageSystem.QueueMessage(
+                        MessageDisplayData.Type.Warning,
+                        "Failed to get subscription data from mod.io servers.\n"
+                            + requestError.displayMessage);
+                });
         }
 
         /// <summary>Handle the mods returned by the refresh request.</summary>
-        protected virtual void Refresh_OnGetModProfiles(IList<ModProfile> modProfiles,
-                                                        string requestedTitleFilter,
-                                                        Comparison<ModProfile> requestedSortDelegate)
+        protected virtual void Refresh_OnGetModProfiles(
+            IList<ModProfile> modProfiles, string requestedTitleFilter,
+            Comparison<ModProfile> requestedSortDelegate)
         {
             // check for early outs
-            if(this == null
-               || this.m_nameFieldFilter != requestedTitleFilter
+            if(this == null || this.m_nameFieldFilter != requestedTitleFilter
                || this.m_sortDelegate != requestedSortDelegate)
             {
                 return;
@@ -195,8 +228,7 @@ namespace ModIO.UI
             List<ModProfile> filteredList = null;
 
             // check for null list
-            if(modProfiles == null
-               || modProfiles.Count == 0)
+            if(modProfiles == null || modProfiles.Count == 0)
             {
                 filteredList = new List<ModProfile>(0);
             }
@@ -209,9 +241,7 @@ namespace ModIO.UI
                     // set initial value
                     string filterString = requestedTitleFilter.ToUpper();
                     nameFieldFilterDelegate = (p) =>
-                    {
-                        return p.name.ToUpper().Contains(filterString);
-                    };
+                    { return p.name.ToUpper().Contains(filterString); };
                 }
 
                 filteredList = new List<ModProfile>(modProfiles.Count);
@@ -230,7 +260,6 @@ namespace ModIO.UI
                 }
 
                 filteredList.Sort(requestedSortDelegate);
-
             }
 
             // update displays
@@ -238,18 +267,17 @@ namespace ModIO.UI
 
             if(this.noSubscriptionsDisplay != null)
             {
-                this.noSubscriptionsDisplay.gameObject.SetActive(filteredList.Count == 0
-                                                                 && string.IsNullOrEmpty(this.m_nameFieldFilter));
+                this.noSubscriptionsDisplay.gameObject.SetActive(
+                    filteredList.Count == 0 && string.IsNullOrEmpty(this.m_nameFieldFilter));
             }
             if(this.noResultsDisplay != null)
             {
-                this.noResultsDisplay.gameObject.SetActive(filteredList.Count == 0
-                                                           && !string.IsNullOrEmpty(this.m_nameFieldFilter));
+                this.noResultsDisplay.gameObject.SetActive(
+                    filteredList.Count == 0 && !string.IsNullOrEmpty(this.m_nameFieldFilter));
             }
 
             // create request page
-            this.m_modPage = new RequestPage<ModProfile>()
-            {
+            this.m_modPage = new RequestPage<ModProfile>() {
                 size = filteredList.Count,
                 resultOffset = 0,
                 resultTotal = filteredList.Count,
@@ -278,9 +306,7 @@ namespace ModIO.UI
             ModStatistics[] displayStats = new ModStatistics[displayCount];
 
             // build arrays
-            for(int i = 0;
-                i < displayCount;
-                ++i)
+            for(int i = 0; i < displayCount; ++i)
             {
                 ModProfile profile = profiles[i];
                 ModStatistics stats = null;
@@ -301,7 +327,10 @@ namespace ModIO.UI
         /// <summary>Sets the title filter and refreshes the page.</summary>
         public void SetNameFieldFilter(string nameFieldFilter)
         {
-            if(nameFieldFilter == null) { nameFieldFilter = string.Empty; }
+            if(nameFieldFilter == null)
+            {
+                nameFieldFilter = string.Empty;
+            }
 
             if(this.m_nameFieldFilter.ToUpper() != nameFieldFilter.ToUpper())
             {
@@ -316,7 +345,10 @@ namespace ModIO.UI
         }
 
         /// <summary>Gets the title filter string.</summary>
-        public string GetTitleFilter() { return this.m_nameFieldFilter; }
+        public string GetTitleFilter()
+        {
+            return this.m_nameFieldFilter;
+        }
 
         /// <summary>Sets the sort delegate and refreshes the page.</summary>
         public void SetSortDelegate(Comparison<ModProfile> sortDelegate)
@@ -329,7 +361,10 @@ namespace ModIO.UI
         }
 
         /// <summary>Gets the sort delegate.</summary>
-        public Comparison<ModProfile> GetSortDelegate() { return this.m_sortDelegate; }
+        public Comparison<ModProfile> GetSortDelegate()
+        {
+            return this.m_sortDelegate;
+        }
 
         // ---------[ EVENTS ]---------
         public void OnModSubscriptionsUpdated(IList<int> addedSubscriptions,
@@ -342,28 +377,41 @@ namespace ModIO.UI
         /// <summary>Provides a default sorting function for the subscription view.</summary>
         protected virtual int DefaultSortFunction(ModProfile a, ModProfile b)
         {
-            if(a == null) { return 1; }
-            if(b == null) { return -1; }
+            if(a == null)
+            {
+                return 1;
+            }
+            if(b == null)
+            {
+                return -1;
+            }
             return (a.id - b.id);
         }
 
         // ---------[ OBSOLETE ]---------
-        [Obsolete("Use SubscriptionView.modContainer instead.")][HideInInspector]
+        [Obsolete("Use SubscriptionView.modContainer instead.")]
+        [HideInInspector]
         public GameObject itemPrefab = null;
-        [Obsolete][HideInInspector]
+        [Obsolete]
+        [HideInInspector]
         public ScrollRect scrollView;
 
-        [Obsolete("Use ResultCountDisplay instead.")][HideInInspector]
+        [Obsolete("Use ResultCountDisplay instead.")]
+        [HideInInspector]
         public Text resultCount;
 
         [Obsolete("No longer supported.")]
         public IEnumerable<ModView> modViews
         {
-            get { return null; }
+            get {
+                return null;
+            }
         }
 
-        [Obsolete("No longer necessary. Initialization occurs in Start().")]
-        public void Initialize() {}
+        [Obsolete(
+            "No longer necessary. Initialization occurs in Start().")] public void Initialize()
+        {
+        }
 
         [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
         public event Action<ModView> inspectRequested;

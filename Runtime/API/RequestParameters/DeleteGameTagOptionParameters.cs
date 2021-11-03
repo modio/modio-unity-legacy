@@ -6,8 +6,7 @@ namespace ModIO.API
         // Name of the tag group that you want to delete tags from.
         public string name
         {
-            set
-            {
+            set {
                 this.SetStringValue("name", value);
             }
         }
@@ -16,8 +15,7 @@ namespace ModIO.API
         // entire group.
         public string[] tags
         {
-            set
-            {
+            set {
                 this.SetStringArrayValue("tags[]", value);
             }
         }

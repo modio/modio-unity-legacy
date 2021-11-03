@@ -6,7 +6,8 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    /// <summary>Automates the navigation network for the selectable elements of a layouter.</summary>
+    /// <summary>Automates the navigation network for the selectable elements of a
+    /// layouter.</summary>
     [RequireComponent(typeof(LayoutGroup))]
     public class LayouterNavigationAutomator : UnityEngine.EventSystems.UIBehaviour
     {
@@ -39,14 +40,18 @@ namespace ModIO.UI
         public void UpdateNavigationForChildren()
         {
             LayoutGroup lg = this.GetComponent<LayoutGroup>();
-            if(lg == null) { return; }
+            if(lg == null)
+            {
+                return;
+            }
 
             int columnCount = 1;
             List<Selectable> selectables = null;
 
             if(this.selectableDepth < 0)
             {
-                selectables = new List<Selectable>(this.gameObject.GetComponentsInChildren<Selectable>());
+                selectables =
+                    new List<Selectable>(this.gameObject.GetComponentsInChildren<Selectable>());
             }
             else
             {
@@ -63,7 +68,10 @@ namespace ModIO.UI
                         }
                     }
 
-                    if(!t.gameObject.activeSelf) { return; }
+                    if(!t.gameObject.activeSelf)
+                    {
+                        return;
+                    }
 
                     if(depth == selectableDepth)
                     {
@@ -75,10 +83,7 @@ namespace ModIO.UI
                     }
                     else
                     {
-                        foreach(Transform child in t)
-                        {
-                            appendChildSelectables(child, depth+1);
-                        }
+                        foreach(Transform child in t) { appendChildSelectables(child, depth + 1); }
                     }
                 };
 
@@ -94,9 +99,8 @@ namespace ModIO.UI
                 columnCount = UIUtilities.CalculateGridColumnCount((GridLayoutGroup)lg);
             }
 
-            UIUtilities.SetExplicitGridNavigation(selectables, columnCount,
-                                                  this.horizontalNavigation,
-                                                  this.verticalNavigation);
+            UIUtilities.SetExplicitGridNavigation(
+                selectables, columnCount, this.horizontalNavigation, this.verticalNavigation);
         }
     }
 }

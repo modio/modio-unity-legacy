@@ -81,13 +81,28 @@ namespace ModIO.UI
 
         // --- Accessors ---
         /// <summary>Gets the canvas group attached to this gameObject.</summary>
-        CanvasGroup IBrowserView.canvasGroup { get { return this.gameObject.GetComponent<CanvasGroup>(); } }
+        CanvasGroup IBrowserView.canvasGroup
+        {
+            get {
+                return this.gameObject.GetComponent<CanvasGroup>();
+            }
+        }
 
         /// <summary>Reset selection on hide.</summary>
-        bool IBrowserView.resetSelectionOnHide { get { return true; } }
+        bool IBrowserView.resetSelectionOnHide
+        {
+            get {
+                return true;
+            }
+        }
 
         /// <summary>Is the view a root view or window view?</summary>
-        bool IBrowserView.isRootView { get { return false; } }
+        bool IBrowserView.isRootView
+        {
+            get {
+                return false;
+            }
+        }
 
         /// <summary>The priority to focus the selectables.</summary>
         private List<Selectable> m_buttonPriority = null;
@@ -95,8 +110,7 @@ namespace ModIO.UI
         /// <summary>The priority to focus the selectables.</summary>
         List<Selectable> IBrowserView.onFocusPriority
         {
-            get
-            {
+            get {
                 return this.m_buttonPriority;
             }
         }
@@ -105,8 +119,7 @@ namespace ModIO.UI
         /// <summary>Builds priority list.</summary>
         private void Awake()
         {
-            this.m_buttonPriority = new List<Selectable>()
-            {
+            this.m_buttonPriority = new List<Selectable>() {
                 this.highlightedButton,
                 this.standardButton,
                 this.warningButton,
@@ -118,8 +131,7 @@ namespace ModIO.UI
         {
             if(this.highlightedButton != null)
             {
-                this.highlightedButton.onClick.AddListener(() =>
-                {
+                this.highlightedButton.onClick.AddListener(() => {
                     if(this.highlightedButtonCallback != null)
                     {
                         this.highlightedButtonCallback();
@@ -128,8 +140,7 @@ namespace ModIO.UI
             }
             if(this.warningButton != null)
             {
-                this.warningButton.onClick.AddListener(() =>
-                {
+                this.warningButton.onClick.AddListener(() => {
                     if(this.warningButtonCallback != null)
                     {
                         this.warningButtonCallback();
@@ -138,8 +149,7 @@ namespace ModIO.UI
             }
             if(this.standardButton != null)
             {
-                this.standardButton.onClick.AddListener(() =>
-                {
+                this.standardButton.onClick.AddListener(() => {
                     if(this.standardButtonCallback != null)
                     {
                         this.standardButtonCallback();

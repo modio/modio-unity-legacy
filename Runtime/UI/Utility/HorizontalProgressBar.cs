@@ -17,9 +17,10 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         public float percentComplete
         {
-            get { return m_percentComplete; }
-            set
-            {
+            get {
+                return m_percentComplete;
+            }
+            set {
                 if(value < 0f)
                 {
                     value = 0f;
@@ -37,7 +38,9 @@ namespace ModIO.UI
 
         private RectTransform barParent
         {
-            get { return barTransform.parent as RectTransform; }
+            get {
+                return barTransform.parent as RectTransform;
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -60,25 +63,23 @@ namespace ModIO.UI
         // ---------[ EVENTS ]---------
         private void UpdateBarSize()
         {
-            #if UNITY_EDITOR
-            if(barTransform == null
-               || barParent == null)
+#if UNITY_EDITOR
+            if(barTransform == null || barParent == null)
             {
                 return;
             }
-            #endif
+#endif
 
             float barWidth = m_percentComplete * barParent.rect.width;
             barTransform.sizeDelta = new Vector2(barWidth, 0f);
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void OnValidate()
         {
             UnityEditor.EditorApplication.delayCall += () =>
             {
-                if(barTransform == null
-                   || barParent == null)
+                if(barTransform == null || barParent == null)
                 {
                     return;
                 }
@@ -87,6 +88,6 @@ namespace ModIO.UI
                 UpdateBarSize();
             };
         }
-        #endif
+#endif
     }
 }

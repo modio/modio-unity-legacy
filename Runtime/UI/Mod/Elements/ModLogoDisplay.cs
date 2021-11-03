@@ -9,7 +9,9 @@ namespace ModIO.UI
         // ---------[ NESTED DATA-TYPES ]---------
         /// <summary>Event for notifying that the texture has changed.</summary>
         [System.Serializable]
-        public class TextureChangedEvent : UnityEngine.Events.UnityEvent<Texture2D> {}
+        public class TextureChangedEvent : UnityEngine.Events.UnityEvent<Texture2D>
+        {
+        }
 
         // ---------[ FIELDS ]---------
         /// <summary>Image component used to display the logo.</summary>
@@ -33,11 +35,19 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         /// <summary>Current modId for the displayed logo.</summary>
         public int ModId
-        { get { return this.m_modId;    } }
+        {
+            get {
+                return this.m_modId;
+            }
+        }
 
         /// <summary>Locator for the displayed logo.</summary>
         public LogoImageLocator Locator
-        { get { return this.m_locator;  } }
+        {
+            get {
+                return this.m_locator;
+            }
+        }
 
         // ---------[ INITIALIZATION ]---------
         // --- IMODVIEWELEMENT INTERFACE ---
@@ -45,7 +55,10 @@ namespace ModIO.UI
         public void SetModView(ModView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -115,9 +128,7 @@ namespace ModIO.UI
         /// <summary>Internal function for applying the texture.</summary>
         protected virtual void ApplyTexture(LogoImageLocator locator, Texture2D texture)
         {
-            if(this != null
-               && this.m_locator == locator
-               && texture != null)
+            if(this != null && this.m_locator == locator && texture != null)
             {
                 this.image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
                 this.image.enabled = true;

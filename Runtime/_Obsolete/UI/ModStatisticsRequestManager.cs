@@ -5,7 +5,8 @@ using UnityEngine;
 namespace ModIO.UI
 {
     /// <summary>[Obsolete] A simple component for caching ModStatistics objects.</summary>
-    [Obsolete("No longer necessary. Access the staistics from ModProfile objects retrieved via the ModProfileRequestManager.")]
+    [Obsolete(
+        "No longer necessary. Access the staistics from ModProfile objects retrieved via the ModProfileRequestManager.")]
     public class ModStatisticsRequestManager : MonoBehaviour
     {
         // ---------[ SINGLETON ]---------
@@ -14,16 +15,17 @@ namespace ModIO.UI
         /// <summary>Singleton instance.</summary>
         public static ModStatisticsRequestManager instance
         {
-            get
-            {
+            get {
                 if(ModStatisticsRequestManager._instance == null)
                 {
-                    ModStatisticsRequestManager._instance = UIUtilities.FindComponentInAllScenes<ModStatisticsRequestManager>(true);
+                    ModStatisticsRequestManager._instance =
+                        UIUtilities.FindComponentInAllScenes<ModStatisticsRequestManager>(true);
 
                     if(ModStatisticsRequestManager._instance == null)
                     {
                         GameObject go = new GameObject("Mod Statistics Request Manager");
-                        ModStatisticsRequestManager._instance = go.AddComponent<ModStatisticsRequestManager>();
+                        ModStatisticsRequestManager._instance =
+                            go.AddComponent<ModStatisticsRequestManager>();
                     }
                 }
 
@@ -38,7 +40,7 @@ namespace ModIO.UI
             {
                 ModStatisticsRequestManager._instance = this;
             }
-            #if DEBUG
+#if DEBUG
             else if(ModStatisticsRequestManager._instance != this)
             {
                 Debug.LogWarning("[mod.io] Second instance of a ModStatisticsRequestManager"
@@ -47,18 +49,15 @@ namespace ModIO.UI
                                  + " component should be active at a time.");
                 this.enabled = false;
             }
-            #endif
+#endif
         }
 
         // ---------[ ACCESSOR FUNCTIONS ]---------
         /// <summary>Requests an individual ModStatistics by id.</summary>
-        public virtual void RequestModStatistics(int modId,
-                                                 Action<ModStatistics> onSuccess,
+        public virtual void RequestModStatistics(int modId, Action<ModStatistics> onSuccess,
                                                  Action<WebRequestError> onError)
         {
-            ModManager.GetModProfile(modId,
-            (profile) =>
-            {
+            ModManager.GetModProfile(modId, (profile) => {
                 if(onSuccess != null)
                 {
                     onSuccess.Invoke(profile.statistics);
@@ -71,12 +70,16 @@ namespace ModIO.UI
                                                  Action<ModStatistics[]> onSuccess,
                                                  Action<WebRequestError> onError)
         {
-            ModManager.GetModProfiles(orderedIdList,
-            (profiles) =>
-            {
+            ModManager.GetModProfiles(orderedIdList, (profiles) => {
                 // early outs
-                if(onSuccess == null) { return; }
-                if(profiles == null) { onSuccess.Invoke(null); }
+                if(onSuccess == null)
+                {
+                    return;
+                }
+                if(profiles == null)
+                {
+                    onSuccess.Invoke(null);
+                }
 
                 // collect stats objects
                 ModStatistics[] retVal = new ModStatistics[profiles.Length];
@@ -92,7 +95,6 @@ namespace ModIO.UI
                 }
 
                 onSuccess.Invoke(retVal);
-
             }, onError);
         }
     }

@@ -28,7 +28,10 @@ namespace ModIO.UI
         public void SetModView(ModView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)

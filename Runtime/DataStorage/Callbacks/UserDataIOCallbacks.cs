@@ -27,7 +27,8 @@ namespace ModIO.UserDataIOCallbacks
     public delegate void GetFileSizeCallback(string relativePath, Int64 byteCount);
 
     /// <summary>Delegate for GetFileSizeAndHash callback.</summary>
-    public delegate void GetFileSizeAndHashCallback(string relativePath, bool success, Int64 byteCount, string md5Hash);
+    public delegate void GetFileSizeAndHashCallback(string relativePath, bool success,
+                                                    Int64 byteCount, string md5Hash);
 
     /// <summary>Delegate for ClearActiveUserData callback.</summary>
     public delegate void ClearActiveUserDataCallback(bool success);

@@ -9,7 +9,9 @@ namespace ModIO.UI
         // ---------[ NESTED DATA-TYPES ]---------
         /// <summary>Event for notifying listeners of a change to the modfile.</summary>
         [System.Serializable]
-        public class ModfileChangedEvent : UnityEngine.Events.UnityEvent<Modfile> {}
+        public class ModfileChangedEvent : UnityEngine.Events.UnityEvent<Modfile>
+        {
+        }
 
         // ---------[ FIELDS ]---------
         /// <summary>Currently displayed modfile.</summary>
@@ -26,15 +28,15 @@ namespace ModIO.UI
         /// <summary>Currently displayed modfile.</summary>
         public Modfile modfile
         {
-            get { return this.m_modfile; }
-            set
-            {
+            get {
+                return this.m_modfile;
+            }
+            set {
                 if(this.m_modfile != value)
                 {
                     this.m_modfile = value;
 
-                    if(this.m_modfile != null
-                       && string.IsNullOrEmpty(this.m_modfile.changelog))
+                    if(this.m_modfile != null && string.IsNullOrEmpty(this.m_modfile.changelog))
                     {
                         this.m_modfile.changelog = this.emptyChangelogText;
                     }
@@ -50,22 +52,23 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
         {
-            #if DEBUG
+#if DEBUG
             ModfileView nested = this.gameObject.GetComponentInChildren<ModfileView>(true);
             if(nested != null && nested != this)
             {
-                Debug.LogError("[mod.io] Nesting ModfileViews is currently not supported due to the"
-                               + " way IModfileViewElement component parenting works."
-                               + "\nThe nested ModfileViews must be removed to allow ModfileView functionality."
-                               + "\nthis=" + this.gameObject.name
-                               + "\nnested=" + nested.gameObject.name,
-                               this);
+                Debug.LogError(
+                    "[mod.io] Nesting ModfileViews is currently not supported due to the"
+                        + " way IModfileViewElement component parenting works."
+                        + "\nThe nested ModfileViews must be removed to allow ModfileView functionality."
+                        + "\nthis=" + this.gameObject.name + "\nnested=" + nested.gameObject.name,
+                    this);
                 return;
             }
-            #endif
+#endif
 
             // assign modfile view elements to this
-            var modfileViewElements = this.gameObject.GetComponentsInChildren<IModfileViewElement>(true);
+            var modfileViewElements =
+                this.gameObject.GetComponentsInChildren<IModfileViewElement>(true);
             foreach(IModfileViewElement viewElement in modfileViewElements)
             {
                 viewElement.SetModfileView(this);

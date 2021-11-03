@@ -21,16 +21,23 @@ namespace ModIO.UI
         public GameObject loadingOverlay;
 
         [Header("Display Data")]
-        [SerializeField] private ModTagDisplayData[] m_data = new ModTagDisplayData[0];
+        [SerializeField]
+        private ModTagDisplayData[] m_data = new ModTagDisplayData[0];
 
         // --- ACCESSORS ---
-        public Text text { get { return this.gameObject.GetComponent<Text>(); } }
+        public Text text
+        {
+            get {
+                return this.gameObject.GetComponent<Text>();
+            }
+        }
 
         public override IEnumerable<ModTagDisplayData> data
         {
-            get { return m_data; }
-            set
-            {
+            get {
+                return m_data;
+            }
+            set {
                 if(value == null)
                 {
                     m_data = new ModTagDisplayData[0];
@@ -51,8 +58,7 @@ namespace ModIO.UI
             StringBuilder builder = new StringBuilder();
             foreach(ModTagDisplayData tag in displayData)
             {
-                if(includeCategory
-                   && !System.String.IsNullOrEmpty(tag.categoryName))
+                if(includeCategory && !System.String.IsNullOrEmpty(tag.categoryName))
                 {
                     builder.Append(tag.categoryName + ": ");
                 }
@@ -84,13 +90,15 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]--------
-        public override void DisplayTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
+        public override void DisplayTags(ModProfile profile,
+                                         IEnumerable<ModTagCategory> tagCategories)
         {
             Debug.Assert(profile != null);
             this.DisplayTags(profile.tagNames, tagCategories);
         }
 
-        public override void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
+        public override void DisplayTags(IEnumerable<string> tags,
+                                         IEnumerable<ModTagCategory> tagCategories)
         {
             if(tags == null)
             {
@@ -120,7 +128,7 @@ namespace ModIO.UI
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void OnValidate()
         {
             UnityEditor.EditorApplication.delayCall += () =>
@@ -131,6 +139,6 @@ namespace ModIO.UI
                 }
             };
         }
-        #endif
+#endif
     }
 }

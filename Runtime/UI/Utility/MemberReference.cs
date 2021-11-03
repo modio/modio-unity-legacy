@@ -20,8 +20,7 @@ namespace ModIO.UI
             public bool displayNested = false;
             public string[] membersToIgnore = null;
 
-            public DropdownDisplayAttribute(Type objectType,
-                                            bool displayEnumerables = false,
+            public DropdownDisplayAttribute(Type objectType, bool displayEnumerables = false,
                                             bool displayNested = false,
                                             string[] membersToIgnore = null)
             {
@@ -51,11 +50,15 @@ namespace ModIO.UI
         /// <summary>Returns the value stored at the given member path.</summary>
         public object GetValue(object objectInstance)
         {
-            if(objectInstance == null) { return null; }
+            if(objectInstance == null)
+            {
+                return null;
+            }
 
             if(this.m_delegateSequence == null)
             {
-                this.m_delegateSequence = MemberReference.BuildDelegateSequence(objectInstance.GetType(), this.m_memberPath);
+                this.m_delegateSequence = MemberReference.BuildDelegateSequence(
+                    objectInstance.GetType(), this.m_memberPath);
             }
 
             if(this.m_delegateSequence.Length > 0)
@@ -73,19 +76,24 @@ namespace ModIO.UI
         }
 
         // ---------[ UTILITY ]---------
-        /// <summary>Generates a sequence of delegates to fetch the value of the member at the given path.</summary>
-        private static Func<object, object>[] BuildDelegateSequence(Type objectType, string memberPath)
+        /// <summary>Generates a sequence of delegates to fetch the value of the member at the given
+        /// path.</summary>
+        private static Func<object, object>[] BuildDelegateSequence(Type objectType,
+                                                                    string memberPath)
         {
-            if(string.IsNullOrEmpty(memberPath)) { return new Func<object, object>[0]; }
+            if(string.IsNullOrEmpty(memberPath))
+            {
+                return new Func<object, object>[0];
+            }
 
             string[] memberPathElements = memberPath.Split('.');
-            Func<object, object>[] delegates = new Func<object,object>[memberPathElements.Length];
+            Func<object, object>[] delegates = new Func<object, object>[memberPathElements.Length];
             Type lastObjectType = objectType;
 
             for(int i = 0; i < delegates.Length && lastObjectType != null; ++i)
             {
-                MemberInfo[] nextInfo = lastObjectType.GetMember(memberPathElements[i],
-                                                                 BindingFlags.Instance | BindingFlags.Public);
+                MemberInfo[] nextInfo = lastObjectType.GetMember(
+                    memberPathElements[i], BindingFlags.Instance | BindingFlags.Public);
                 lastObjectType = null;
 
                 if(nextInfo.Length > 0 && nextInfo[0] != null)

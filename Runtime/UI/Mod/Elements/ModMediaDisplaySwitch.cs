@@ -2,7 +2,8 @@ using UnityEngine;
 
 namespace ModIO.UI
 {
-    /// <summary>Component used to display a mod media element by routing to various components.</summary>
+    /// <summary>Component used to display a mod media element by routing to various
+    /// components.</summary>
     public class ModMediaDisplaySwitch : MonoBehaviour, IModViewElement
     {
         // ---------[ FIELDS ]---------
@@ -48,7 +49,10 @@ namespace ModIO.UI
         public void SetModView(ModView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)

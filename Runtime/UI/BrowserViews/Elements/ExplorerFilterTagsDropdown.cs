@@ -5,10 +5,13 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    /// <summary>Displays and allows selection of the tags being filtered on in the ExplorerView.</summary>
+    /// <summary>Displays and allows selection of the tags being filtered on in the
+    /// ExplorerView.</summary>
     [RequireComponent(typeof(Button))]
     [RequireComponent(typeof(GameTagCategoryDisplay))]
-    public class ExplorerFilterTagsDropdown : MonoBehaviour, IExplorerViewElement, UnityEngine.EventSystems.ICancelHandler
+    public class ExplorerFilterTagsDropdown : MonoBehaviour,
+                                              IExplorerViewElement,
+                                              UnityEngine.EventSystems.ICancelHandler
     {
         // ---------[ FIELDS ]---------
         /// <summary>Popup view element</summary>
@@ -28,24 +31,27 @@ namespace ModIO.UI
         /// <summary>Display that this component controls.</summary>
         public GameTagCategoryDisplay categoryDisplay
         {
-            get { return this.gameObject.GetComponent<GameTagCategoryDisplay>(); }
+            get {
+                return this.gameObject.GetComponent<GameTagCategoryDisplay>();
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Set up the template.</summary>
         private void Awake()
         {
-            // check template
-            #if DEBUG
+// check template
+#if DEBUG
             string message;
             if(!ExplorerFilterTagsDropdown.HasValidTemplate(this, out message))
             {
                 Debug.LogError("[mod.io] " + message, this);
                 return;
             }
-            #endif
+#endif
 
-            this.categoryDisplay.onTagsChanged += (t) => this.UpdateSelectedTagsDisplay(this.m_selectedTags);
+            this.categoryDisplay.onTagsChanged += (t) =>
+                this.UpdateSelectedTagsDisplay(this.m_selectedTags);
         }
 
         /// <summary>Assert that the display is correct.</summary>
@@ -58,7 +64,10 @@ namespace ModIO.UI
         public void SetExplorerView(ExplorerView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -89,15 +98,15 @@ namespace ModIO.UI
             requestFilter.fieldFilterMap.TryGetValue(ModIO.API.GetAllModsFilterFields.tags,
                                                      out filters);
 
-            if(filters != null
-               && filters.Count > 0)
+            if(filters != null && filters.Count > 0)
             {
                 foreach(IRequestFieldFilter fieldFilter in filters)
                 {
                     if(fieldFilter != null
                        && fieldFilter.filterMethod == FieldFilterMethod.EquivalentCollection)
                     {
-                        this.UpdateSelectedTagsDisplay(fieldFilter.filterValue as IEnumerable<string>);
+                        this.UpdateSelectedTagsDisplay(
+                            fieldFilter.filterValue as IEnumerable<string>);
                         return;
                     }
                 }
@@ -171,7 +180,8 @@ namespace ModIO.UI
             if(this.m_view != null && !this.m_isUpdating)
             {
                 string tagName = tagItem.tagName.text;
-                StateToggleDisplay toggleComponent = tagItem.GetComponentInChildren<StateToggleDisplay>(true);
+                StateToggleDisplay toggleComponent =
+                    tagItem.GetComponentInChildren<StateToggleDisplay>(true);
 
                 if(toggleComponent.isOn)
                 {
@@ -186,13 +196,15 @@ namespace ModIO.UI
 
         // ---------[ UTILITY ]---------
         /// <summary>Checks a ModContainer's template structure.</summary>
-        public static bool HasValidTemplate(ExplorerFilterTagsDropdown selector, out string helpMessage)
+        public static bool HasValidTemplate(ExplorerFilterTagsDropdown selector,
+                                            out string helpMessage)
         {
             helpMessage = null;
 
             // - null checks -
             if(selector.categoryDisplay == null
-               || !GameTagCategoryDisplay.HasValidTemplate(selector.categoryDisplay, out helpMessage))
+               || !GameTagCategoryDisplay.HasValidTemplate(selector.categoryDisplay,
+                                                           out helpMessage))
             {
                 helpMessage = ("The required GameTagCategoryDisplay is missing or"
                                + " has an invalid template.");

@@ -4,21 +4,25 @@ namespace ModIO
 {
     // ---------[ SERIALIZABLE EDIT FIELDS ]------
     [Serializable]
-    public class EditableResourceTypeField : EditableField<ReportedResourceType> {}
+    public class EditableResourceTypeField : EditableField<ReportedResourceType>
+    {
+    }
 
     [Serializable]
-    public class EditableReportTypeField : EditableField<ReportType> {}
+    public class EditableReportTypeField : EditableField<ReportType>
+    {
+    }
 
     [Serializable]
     public class EditableReport
     {
         // ---------[ FIELDS ]---------
         public EditableResourceTypeField resourceType = new EditableResourceTypeField();
-        public EditableIntField resourceId =            new EditableIntField();
-        public EditableReportTypeField reportType =     new EditableReportTypeField();
-        public EditableStringField summary =            new EditableStringField();
-        public EditableStringField name =               new EditableStringField();
-        public EditableIntField contact =               new EditableIntField();
+        public EditableIntField resourceId = new EditableIntField();
+        public EditableReportTypeField reportType = new EditableReportTypeField();
+        public EditableStringField summary = new EditableStringField();
+        public EditableStringField name = new EditableStringField();
+        public EditableIntField contact = new EditableIntField();
 
         public static string ResourceTypeToAPIString(ReportedResourceType resourceType)
         {

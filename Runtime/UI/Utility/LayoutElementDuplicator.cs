@@ -9,15 +9,23 @@ namespace ModIO.UI
     public class LayoutElementDuplicator : UIBehaviour, ILayoutElement
     {
         // ---------[ FIELDS ]---------
-        [SerializeField] private RectTransform copySource   = null;
+        [SerializeField]
+        private RectTransform copySource = null;
 
-        [SerializeField] private int m_LayoutPriority       = 1;
-        [SerializeField] private bool m_CopyMinWidth        = false;
-        [SerializeField] private bool m_CopyMinHeight       = false;
-        [SerializeField] private bool m_CopyPreferredWidth  = false;
-        [SerializeField] private bool m_CopyPreferredHeight = false;
-        [SerializeField] private bool m_CopyFlexibleWidth   = false;
-        [SerializeField] private bool m_CopyFlexibleHeight  = false;
+        [SerializeField]
+        private int m_LayoutPriority = 1;
+        [SerializeField]
+        private bool m_CopyMinWidth = false;
+        [SerializeField]
+        private bool m_CopyMinHeight = false;
+        [SerializeField]
+        private bool m_CopyPreferredWidth = false;
+        [SerializeField]
+        private bool m_CopyPreferredHeight = false;
+        [SerializeField]
+        private bool m_CopyFlexibleWidth = false;
+        [SerializeField]
+        private bool m_CopyFlexibleHeight = false;
 
         private ILayoutElement[] m_layoutElementSources = new ILayoutElement[0];
 
@@ -31,37 +39,52 @@ namespace ModIO.UI
         // Layout horizontal inputs
         public float minWidth
         {
-            get { return m_minWidth; }
+            get {
+                return m_minWidth;
+            }
         }
         public float preferredWidth
         {
-            get { return m_preferredWidth; }
+            get {
+                return m_preferredWidth;
+            }
         }
         public float flexibleWidth
         {
-            get { return m_flexibleWidth; }
+            get {
+                return m_flexibleWidth;
+            }
         }
         // Layout vertical inputs
         public float minHeight
         {
-            get { return m_minHeight; }
+            get {
+                return m_minHeight;
+            }
         }
         public float preferredHeight
         {
-            get { return m_preferredHeight; }
+            get {
+                return m_preferredHeight;
+            }
         }
         public float flexibleHeight
         {
-            get { return m_flexibleHeight; }
+            get {
+                return m_flexibleHeight;
+            }
         }
 
         public int layoutPriority
         {
-            get { return m_LayoutPriority; }
+            get {
+                return m_LayoutPriority;
+            }
         }
 
-        // After this method is invoked, layout horizontal input properties should return up-to-date values.
-        // Children will already have up-to-date layout horizontal inputs when this methods is called.
+        // After this method is invoked, layout horizontal input properties should return up-to-date
+        // values. Children will already have up-to-date layout horizontal inputs when this methods
+        // is called.
         public void CalculateLayoutInputHorizontal()
         {
             CalcLayoutHorizontal_Internal();
@@ -86,8 +109,7 @@ namespace ModIO.UI
                 int highestPrio = -1;
                 foreach(ILayoutElement element in m_layoutElementSources)
                 {
-                    if(element.layoutPriority > highestPrio
-                       && element.preferredWidth >= 0f)
+                    if(element.layoutPriority > highestPrio && element.preferredWidth >= 0f)
                     {
                         newPreferredWidth = element.preferredWidth;
                     }
@@ -100,8 +122,7 @@ namespace ModIO.UI
                 int highestPrio = -1;
                 foreach(ILayoutElement element in m_layoutElementSources)
                 {
-                    if(element.layoutPriority > highestPrio
-                       && element.flexibleWidth >= 0f)
+                    if(element.layoutPriority > highestPrio && element.flexibleWidth >= 0f)
                     {
                         newFlexibleWidth = element.flexibleWidth;
                     }
@@ -120,8 +141,9 @@ namespace ModIO.UI
             return isDirty;
         }
 
-        // After this method is invoked, layout vertical input properties should return up-to-date values.
-        // Children will already have up-to-date layout vertical inputs when this methods is called.
+        // After this method is invoked, layout vertical input properties should return up-to-date
+        // values. Children will already have up-to-date layout vertical inputs when this methods is
+        // called.
         public void CalculateLayoutInputVertical()
         {
             CalcLayoutVertical_Internal();
@@ -146,8 +168,7 @@ namespace ModIO.UI
                 int highestPrio = -1;
                 foreach(ILayoutElement element in m_layoutElementSources)
                 {
-                    if(element.layoutPriority > highestPrio
-                       && element.preferredHeight >= 0f)
+                    if(element.layoutPriority > highestPrio && element.preferredHeight >= 0f)
                     {
                         newPreferredHeight = element.preferredHeight;
                     }
@@ -160,8 +181,7 @@ namespace ModIO.UI
                 int highestPrio = -1;
                 foreach(ILayoutElement element in m_layoutElementSources)
                 {
-                    if(element.layoutPriority > highestPrio
-                       && element.flexibleHeight >= 0f)
+                    if(element.layoutPriority > highestPrio && element.flexibleHeight >= 0f)
                     {
                         newFlexibleHeight = element.flexibleHeight;
                     }
@@ -235,12 +255,12 @@ namespace ModIO.UI
         private bool m_awaitingRebuild = false;
         protected void SetDirty()
         {
-            if (!IsActive() || m_awaitingRebuild)
+            if(!IsActive() || m_awaitingRebuild)
             {
                 return;
             }
 
-            if (!CanvasUpdateRegistry.IsRebuildingLayout())
+            if(!CanvasUpdateRegistry.IsRebuildingLayout())
             {
                 LayoutRebuilder.MarkLayoutForRebuild(transform as RectTransform);
             }
@@ -259,11 +279,11 @@ namespace ModIO.UI
             m_awaitingRebuild = false;
         }
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
         protected override void OnValidate()
         {
             SetDirty();
         }
-    #endif
+#endif
     }
 }

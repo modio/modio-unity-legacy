@@ -26,25 +26,24 @@ namespace ModIO.UI
         {
             UnityEngine.Debug.Assert(profile != null);
 
-            ModProfileDisplayData profileData = new ModProfileDisplayData()
-            {
-                modId               = profile.id,
-                gameId              = profile.gameId,
-                status              = profile.status,
-                visibility          = profile.visibility,
-                dateAdded           = profile.dateAdded,
-                dateUpdated         = profile.dateUpdated,
-                dateLive            = profile.dateLive,
-                contentWarnings     = profile.contentWarnings,
-                homepageURL         = profile.homepageURL,
-                name                = profile.name,
-                nameId              = profile.nameId,
-                summary             = profile.summary,
-                descriptionAsHTML   = profile.descriptionAsHTML,
-                descriptionAsText   = profile.descriptionAsText,
-                metadataBlob        = profile.metadataBlob,
-                profileURL          = profile.profileURL,
-                metadataKVPs        = profile.metadataKVPs,
+            ModProfileDisplayData profileData = new ModProfileDisplayData() {
+                modId = profile.id,
+                gameId = profile.gameId,
+                status = profile.status,
+                visibility = profile.visibility,
+                dateAdded = profile.dateAdded,
+                dateUpdated = profile.dateUpdated,
+                dateLive = profile.dateLive,
+                contentWarnings = profile.contentWarnings,
+                homepageURL = profile.homepageURL,
+                name = profile.name,
+                nameId = profile.nameId,
+                summary = profile.summary,
+                descriptionAsHTML = profile.descriptionAsHTML,
+                descriptionAsText = profile.descriptionAsText,
+                metadataBlob = profile.metadataBlob,
+                profileURL = profile.profileURL,
+                metadataKVPs = profile.metadataKVPs,
             };
 
             return profileData;

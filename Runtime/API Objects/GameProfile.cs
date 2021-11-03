@@ -62,7 +62,8 @@ namespace ModIO
         [JsonProperty("presentation_option")]
         public GameModGalleryPresentation modGalleryPresentation;
 
-        /// <summary>Permissable method of mod uploading for this game to the mod.io website.</summary>
+        /// <summary>Permissable method of mod uploading for this game to the mod.io
+        /// website.</summary>
         [JsonProperty("submission_option")]
         public GameModSubmissionPermission modSubmissionPermission;
 
@@ -105,6 +106,5 @@ namespace ModIO
         /// <summary>Tagging categories this game offers to mods.</summary>
         [JsonProperty("tag_options")]
         public ModTagCategory[] tagCategories;
-
     }
 }

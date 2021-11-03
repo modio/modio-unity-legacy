@@ -2,7 +2,8 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    /// <summary>Variant of the AspectRatioFitter that can match the ratio of a given texture.</summary>
+    /// <summary>Variant of the AspectRatioFitter that can match the ratio of a given
+    /// texture.</summary>
     public class TextureAspectRatioMatcher : AspectRatioFitter
     {
         protected override void OnEnable()
@@ -20,7 +21,7 @@ namespace ModIO.UI
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         /// <summary>Solves an issue where updates throw a warning in-editor.</summary>
         protected override void OnValidate()
         {
@@ -32,6 +33,6 @@ namespace ModIO.UI
                 }
             };
         }
-        #endif
+#endif
     }
 }

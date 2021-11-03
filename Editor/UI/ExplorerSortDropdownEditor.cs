@@ -29,8 +29,7 @@ namespace ModIO.UI.EditorCode
             List<FieldData> dataList = new List<FieldData>(props.Length);
             foreach(var filterFieldProperty in props)
             {
-                FieldData data = new FieldData()
-                {
+                FieldData data = new FieldData() {
                     fieldName = filterFieldProperty.Name,
                     fieldValue = (string)filterFieldProperty.GetValue(null),
                 };
@@ -43,8 +42,7 @@ namespace ModIO.UI.EditorCode
             GUIContent[] content = new GUIContent[dataList.Count];
             for(int i = 0; i < content.Length; ++i)
             {
-                content[i] = new GUIContent()
-                {
+                content[i] = new GUIContent() {
                     text = dataList[i].fieldName,
                 };
             }
@@ -62,9 +60,7 @@ namespace ModIO.UI.EditorCode
             string currentValue = property.stringValue;
             int currentSelectionIndex = -1;
 
-            for(int i = 0;
-                i < fieldData.Length && currentSelectionIndex < 0;
-                ++i)
+            for(int i = 0; i < fieldData.Length && currentSelectionIndex < 0; ++i)
             {
                 if(fieldData[i].fieldValue == currentValue)
                 {
@@ -77,7 +73,8 @@ namespace ModIO.UI.EditorCode
                 currentSelectionIndex = 0;
             }
 
-            int newSelectionIndex = EditorGUI.Popup(position, label, currentSelectionIndex, popupOptions);
+            int newSelectionIndex =
+                EditorGUI.Popup(position, label, currentSelectionIndex, popupOptions);
 
             if(newSelectionIndex != currentSelectionIndex)
             {

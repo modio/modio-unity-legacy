@@ -27,9 +27,10 @@ namespace ModIO
         [System.Obsolete("Use ExternalAuthenticationData.portal instead.")]
         public ExternalAuthenticationProvider provider
         {
-            get { return (ExternalAuthenticationProvider)this.portal; }
-            set
-            {
+            get {
+                return (ExternalAuthenticationProvider)this.portal;
+            }
+            set {
                 this.portal = ExternalAuthenticationProviderEnum.ToUserPortalEnum(value);
             }
         }

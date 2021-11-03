@@ -11,27 +11,31 @@ namespace ModIO.UI
         // ---------[ Nested Data-Types ]---------
         /// <summary>The Unity Event for buttons inputs.</summary>
         [System.Serializable]
-        public class ButtonEvent : UnityEvent {}
+        public class ButtonEvent : UnityEvent
+        {
+        }
 
-        /// <summary>Enum to indicate when the event should be triggered for a ButtonBinding.</summary>
+        /// <summary>Enum to indicate when the event should be triggered for a
+        /// ButtonBinding.</summary>
         [System.Flags]
         public enum ButtonTriggerCondition
         {
-            OnDown  = 0x01,
-            OnUp    = 0x02,
-            OnHeld  = 0x04,
+            OnDown = 0x01,
+            OnUp = 0x02,
+            OnHeld = 0x04,
         }
 
-        /// <summary>Enum to indicate when the event should be triggered for an AxisBinding.</summary>
+        /// <summary>Enum to indicate when the event should be triggered for an
+        /// AxisBinding.</summary>
         [System.Flags]
         public enum AxisTriggerCondition
         {
-            BecameGreaterThan   = 0x01,
-            BecameLessThan      = 0x02,
-            BecameEqualTo       = 0x04,
-            IsGreaterThan       = 0x08,
-            IsLessThan          = 0x10,
-            IsEqualTo           = 0x20,
+            BecameGreaterThan = 0x01,
+            BecameLessThan = 0x02,
+            BecameEqualTo = 0x04,
+            IsGreaterThan = 0x08,
+            IsLessThan = 0x10,
+            IsEqualTo = 0x20,
         }
 
         /// <summary>A pairing of the UnityEvent and the control that activates it.</summary>
@@ -64,7 +68,9 @@ namespace ModIO.UI
 
         /// <summary>The Unity Event for axis inputs.</summary>
         [System.Serializable]
-        public class AxisEvent : UnityEvent<float> {}
+        public class AxisEvent : UnityEvent<float>
+        {
+        }
 
         /// <summary>A pairing of the UnityEvent and the control that activates it.</summary>
         [System.Serializable]

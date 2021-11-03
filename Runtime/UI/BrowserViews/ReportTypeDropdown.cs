@@ -1,4 +1,6 @@
 namespace ModIO.UI
 {
-    public class ReportTypeDropdown : EnumDropdown<ReportType> {}
+    public class ReportTypeDropdown : EnumDropdown<ReportType>
+    {
+    }
 }

@@ -10,10 +10,12 @@ namespace ModIO.UI.EditorCode
         // ---------[ GUI FUNCTIONALITY ]---------
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            SerializedProperty nestedComponentProperty = property.FindPropertyRelative("m_textDisplayComponent");
+            SerializedProperty nestedComponentProperty =
+                property.FindPropertyRelative("m_textDisplayComponent");
 
             Object displayObject = nestedComponentProperty.objectReferenceValue;
-            Object assignedObject = EditorGUI.ObjectField(position, label, displayObject, typeof(GameObject), true);
+            Object assignedObject =
+                EditorGUI.ObjectField(position, label, displayObject, typeof(GameObject), true);
 
             if(assignedObject != displayObject)
             {
@@ -26,7 +28,8 @@ namespace ModIO.UI.EditorCode
                 }
                 else
                 {
-                    selectedComponent = GenericTextComponent.FindCompatibleTextComponent(assignedGameObject);
+                    selectedComponent =
+                        GenericTextComponent.FindCompatibleTextComponent(assignedGameObject);
 
                     if(selectedComponent != null)
                     {

@@ -34,18 +34,18 @@ namespace ModIO.EditorCode
         {
             EditorGUILayout.LabelField("LOG IN TO/REGISTER YOUR MOD.IO ACCOUNT");
 
-            using (new EditorGUI.DisabledScope(isAwaitingServerResponse || isLoggedIn))
+            using(new EditorGUI.DisabledScope(isAwaitingServerResponse || isLoggedIn))
             {
                 EditorGUILayout.BeginHorizontal();
                 {
-                    using (new EditorGUI.DisabledScope(isInputtingEmail))
+                    using(new EditorGUI.DisabledScope(isInputtingEmail))
                     {
                         if(GUILayout.Button("Email"))
                         {
                             isInputtingEmail = true;
                         }
                     }
-                    using (new EditorGUI.DisabledScope(!isInputtingEmail))
+                    using(new EditorGUI.DisabledScope(!isInputtingEmail))
                     {
                         if(GUILayout.Button("Security Code"))
                         {
@@ -57,11 +57,13 @@ namespace ModIO.EditorCode
 
                 if(isInputtingEmail)
                 {
-                    emailAddressInput = EditorGUILayout.TextField("Email Address", emailAddressInput);
+                    emailAddressInput =
+                        EditorGUILayout.TextField("Email Address", emailAddressInput);
                 }
                 else
                 {
-                    securityCodeInput = EditorGUILayout.TextField("Security Code", securityCodeInput);
+                    securityCodeInput =
+                        EditorGUILayout.TextField("Security Code", securityCodeInput);
                 }
 
                 EditorGUILayout.BeginHorizontal();
@@ -93,33 +95,34 @@ namespace ModIO.EditorCode
                         {
                             securityCodeInput = "";
 
-                            APIClient.SendSecurityCode(emailAddressInput,
-                                                       m => endRequestSendingAndInputCode(m.message, MessageType.Info),
-                                                       e => endRequestSendingAndInputEmail(ConvertErrorToHelpString(e), MessageType.Error));
+                            APIClient.SendSecurityCode(
+                                emailAddressInput,
+                                m => endRequestSendingAndInputCode(m.message, MessageType.Info),
+                                e => endRequestSendingAndInputEmail(ConvertErrorToHelpString(e),
+                                                                    MessageType.Error));
                         }
                         else
                         {
-                            UserAccountManagement.AuthenticateWithSecurityCode(securityCodeInput,
-                            (u) =>
-                            {
-                                helpMessage = ("Welcome " + u.username
-                                               + "! You have successfully logged in."
-                                               + " Feel free to close this window.");
-                                isLoggedIn = true;
+                            UserAccountManagement.AuthenticateWithSecurityCode(
+                                securityCodeInput,
+                                (u) => {
+                                    helpMessage = ("Welcome " + u.username
+                                                   + "! You have successfully logged in."
+                                                   + " Feel free to close this window.");
+                                    isLoggedIn = true;
 
-                                LoginWindow.isAwaitingServerResponse = false;
-                                Repaint();
+                                    LoginWindow.isAwaitingServerResponse = false;
+                                    Repaint();
 
-                                if(userLoggedIn != null)
-                                {
-                                    userLoggedIn(u);
-                                }
-                            },
-                            (e) =>
-                            {
-                                endRequestSendingAndInputCode(ConvertErrorToHelpString(e),
-                                                              MessageType.Error);
-                            });
+                                    if(userLoggedIn != null)
+                                    {
+                                        userLoggedIn(u);
+                                    }
+                                },
+                                (e) => {
+                                    endRequestSendingAndInputCode(ConvertErrorToHelpString(e),
+                                                                  MessageType.Error);
+                                });
                         }
                     }
                 }
@@ -128,15 +131,13 @@ namespace ModIO.EditorCode
 
             if(!String.IsNullOrEmpty(helpMessage))
             {
-                EditorGUILayout.HelpBox(helpMessage,
-                                        helpType);
+                EditorGUILayout.HelpBox(helpMessage, helpType);
             }
         }
 
         private string ConvertErrorToHelpString(WebRequestError error)
         {
-            if(error.fieldValidationMessages != null
-               && error.fieldValidationMessages.Count > 0)
+            if(error.fieldValidationMessages != null && error.fieldValidationMessages.Count > 0)
             {
                 var helpString = new System.Text.StringBuilder();
 
