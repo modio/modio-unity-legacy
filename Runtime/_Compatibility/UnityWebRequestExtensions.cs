@@ -14,6 +14,14 @@ namespace ModIO
                     || webRequest.result == UnityWebRequest.Result.ProtocolError
                     || webRequest.result == UnityWebRequest.Result.DataProcessingError);
 
+#elif UNITY_2017_1_OR_NEWER
+
+            return (webRequest.isHttpError || webRequest.isNetworkError);
+
+#else
+
+            return webRequest.isError;
+
 #endif // Unity Version Selector
         }
     }
