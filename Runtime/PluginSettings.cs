@@ -480,12 +480,21 @@ namespace ModIO
             string assetFolder = Path.GetDirectoryName(assetPath);
             System.IO.Directory.CreateDirectory(assetFolder);
 
-            // create asset
-            PluginSettings settings = ScriptableObject.CreateInstance<PluginSettings>();
+            // load/create asset
+            PluginSettings settings =
+                UnityEditor.AssetDatabase.LoadAssetAtPath<PluginSettings>(assetPath);
+
+            if(settings == null)
+            {
+                settings = ScriptableObject.CreateInstance<PluginSettings>();
+                UnityEditor.AssetDatabase.CreateAsset(settings, assetPath);
+            }
+
+            // update settings
             settings.m_data = data;
+            UnityEditor.EditorUtility.SetDirty(settings);
 
             // save
-            UnityEditor.AssetDatabase.CreateAsset(settings, assetPath);
             UnityEditor.AssetDatabase.SaveAssets();
             UnityEditor.AssetDatabase.Refresh();
 
