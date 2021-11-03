@@ -1832,6 +1832,16 @@ namespace ModIO
 
                 parameters.isActiveBuild = setActiveBuild;
 
+                Action<Modfile> onSuccessWrapper = (Modfile modfile) =>
+                {
+                    RequestCache.Clear();
+
+                    if(onSuccess != null)
+                    {
+                        onSuccess.Invoke(modfile);
+                    }
+                };
+
                 // - Generate Hash -
                 DataStorage.GetFileSizeAndHash(
                     binaryZipLocation, (fi_path, fi_success, fi_fileSize, fi_hash) => {
