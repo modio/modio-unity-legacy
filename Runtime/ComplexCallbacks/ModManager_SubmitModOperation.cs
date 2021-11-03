@@ -105,8 +105,7 @@ namespace ModIO
                 }
 
                 // - editable params -
-                if(newModProfile.youTubeURLs.isDirty
-                   || newModProfile.sketchfabURLs.isDirty
+                if(newModProfile.youTubeURLs.isDirty || newModProfile.sketchfabURLs.isDirty
                    || newModProfile.galleryImageLocators.isDirty)
                 {
                     // NOTE(@jackson): As add Mod takes more parameters than edit,
@@ -119,7 +118,8 @@ namespace ModIO
                 }
 
                 // - data params -
-                DataStorage.ReadFile(newModProfile.logoLocator.value.url, this.SubmitNewMod_OnReadLogo);
+                DataStorage.ReadFile(newModProfile.logoLocator.value.url,
+                                     this.SubmitNewMod_OnReadLogo);
             }
             else
             {
@@ -134,14 +134,10 @@ namespace ModIO
 
             this.eModProfile = modEdits;
 
-            if(this.eModProfile.status.isDirty
-               || this.eModProfile.visibility.isDirty
-               || this.eModProfile.name.isDirty
-               || this.eModProfile.nameId.isDirty
-               || this.eModProfile.summary.isDirty
-               || this.eModProfile.descriptionAsHTML.isDirty
-               || this.eModProfile.homepageURL.isDirty
-               || this.eModProfile.metadataBlob.isDirty)
+            if(this.eModProfile.status.isDirty || this.eModProfile.visibility.isDirty
+               || this.eModProfile.name.isDirty || this.eModProfile.nameId.isDirty
+               || this.eModProfile.summary.isDirty || this.eModProfile.descriptionAsHTML.isDirty
+               || this.eModProfile.homepageURL.isDirty || this.eModProfile.metadataBlob.isDirty)
             {
                 var parameters = new EditModParameters();
                 if(this.eModProfile.status.isDirty)
@@ -177,29 +173,34 @@ namespace ModIO
                     parameters.metadataBlob = this.eModProfile.metadataBlob.value;
                 }
 
-                APIClient.EditMod(modId, parameters, this.SubmitModChanges_Internal, this.onError);
+                APIClient.EditMod(modId, parameters, this.SubmitModChanges_Internal,
+                                  this.SubmissionComplete_Error);
             }
             // - Get updated ModProfile -
             else
             {
-                ModManager.GetModProfile(modId, this.SubmitModChanges_Internal, this.onError);
+                ModManager.GetModProfile(modId, this.SubmitModChanges_Internal,
+                                         this.SubmissionComplete_Error);
             }
         }
 
-        /// <summary>Calculates changes made to a mod profile and submits them to the servers.</summary>
+        /// <summary>Calculates changes made to a mod profile and submits them to the
+        /// servers.</summary>
         private void SubmitModChanges_Internal(ModProfile profile)
         {
             // early outs
             if(profile == null)
             {
-                this.SubmissionError_Local("Profile parameter passed to ModManager_SubmitModOperation.SubmitModChanges_Internal"
-                                           + " was null. This was an unexpected error, please try submitting the mod again.");
+                this.SubmissionError_Local(
+                    "Profile parameter passed to ModManager_SubmitModOperation.SubmitModChanges_Internal"
+                    + " was null. This was an unexpected error, please try submitting the mod again.");
                 return;
             }
             if(profile.id == ModProfile.NULL_ID)
             {
-                this.SubmissionError_Local("Profile parameter passed to ModManager_SubmitModOperation.SubmitModChanges_Internal"
-                                           + " has a NULL_ID. This was an unexpected error, please try submitting the mod again.");
+                this.SubmissionError_Local(
+                    "Profile parameter passed to ModManager_SubmitModOperation.SubmitModChanges_Internal"
+                    + " has a NULL_ID. This was an unexpected error, please try submitting the mod again.");
                 return;
             }
 
@@ -270,16 +271,10 @@ namespace ModIO
             if(this.eModProfile.tags.isDirty)
             {
                 this.removedTags = new List<string>(profile.tagNames);
-                foreach(string tag in this.eModProfile.tags.value)
-                {
-                    this.removedTags.Remove(tag);
-                }
+                foreach(string tag in this.eModProfile.tags.value) { this.removedTags.Remove(tag); }
 
                 this.addedTags = new List<string>(this.eModProfile.tags.value);
-                foreach(string tag in profile.tagNames)
-                {
-                    this.addedTags.Remove(tag);
-                }
+                foreach(string tag in profile.tagNames) { this.addedTags.Remove(tag); }
             }
 
             // - Metadata KVP -
@@ -292,7 +287,7 @@ namespace ModIO
 
                     // if edited kvp is exact match it's not removed
                     if(this.removedKVPs.TryGetValue(kvp.key, out profileValue)
-                        && profileValue == kvp.value)
+                       && profileValue == kvp.value)
                     {
                         this.removedKVPs.Remove(kvp.key);
                     }
@@ -304,8 +299,7 @@ namespace ModIO
                     string editValue;
 
                     // if profile kvp is exact match it's not new
-                    if(this.addedKVPs.TryGetValue(kvp.key, out editValue)
-                        && editValue == kvp.value)
+                    if(this.addedKVPs.TryGetValue(kvp.key, out editValue) && editValue == kvp.value)
                     {
                         this.addedKVPs.Remove(kvp.key);
                     }
@@ -329,7 +323,7 @@ namespace ModIO
             if(this != null && this.onError != null)
             {
                 WebRequestError error = WebRequestError.GenerateLocal(errorMessage);
-                this.onError.Invoke(error);
+                this.SubmissionComplete_Error(error);
             }
         }
 
@@ -346,15 +340,13 @@ namespace ModIO
 
                 if(this.eModProfile == null)
                 {
-                    APIClient.AddMod(this.addModParams,
-                                     this.onSuccess,
-                                     this.onError);
+                    APIClient.AddMod(this.addModParams, this.SubmissionComplete_Success,
+                                     this.SubmissionComplete_Error);
                 }
                 else
                 {
-                    APIClient.AddMod(this.addModParams,
-                                     this.SubmitModChanges_Internal,
-                                     this.onError);
+                    APIClient.AddMod(this.addModParams, this.SubmitModChanges_Internal,
+                                     this.SubmissionComplete_Error);
                 }
             }
         }
@@ -375,34 +367,36 @@ namespace ModIO
 
         private void SubmitModChanges_Internal_ZipImages()
         {
-            if(this.addedImageFilePaths != null
-               && this.addedImageFilePaths.Count > 0)
+            if(this.addedImageFilePaths != null && this.addedImageFilePaths.Count > 0)
             {
-                string imageArchivePath = IOUtilities.CombinePath(Application.temporaryCachePath,
-                                                                  "modio",
-                                                                  "imageGallery_" + DateTime.Now.ToFileTime() + ".zip");
+                string imageArchivePath =
+                    IOUtilities.CombinePath(Application.temporaryCachePath, "modio",
+                                            "imageGallery_" + DateTime.Now.ToFileTime() + ".zip");
 
-                DataStorage.CreateDirectory(Path.GetDirectoryName(imageArchivePath), (path, success) =>
-                {
+                DataStorage.CreateDirectory(Path.GetDirectoryName(imageArchivePath), (path,
+                                                                                      success) => {
                     if(success)
                     {
-                        bool didZip = CompressionModule.CompressFileCollection(null, this.addedImageFilePaths, imageArchivePath);
+                        bool didZip = CompressionModule.CompressFileCollection(
+                            null, this.addedImageFilePaths, imageArchivePath);
 
                         if(didZip)
                         {
-                            DataStorage.ReadFile(imageArchivePath, this.SubmitModChanges_Internal_OnReadImageArchive);
+                            DataStorage.ReadFile(imageArchivePath,
+                                                 this.SubmitModChanges_Internal_OnReadImageArchive);
                         }
                         else
                         {
-                            this.SubmissionError_Local("Unable to zip image gallery prior to uploading.");
+                            this.SubmissionError_Local(
+                                "Unable to zip image gallery prior to uploading.");
                         }
                     }
                     else
                     {
-                        this.SubmissionError_Local("Unable to create temp directory for image gallery prior to uploading.");
+                        this.SubmissionError_Local(
+                            "Unable to create temp directory for image gallery prior to uploading.");
                     }
                 });
-
             }
             else
             {
@@ -410,12 +404,31 @@ namespace ModIO
             }
         }
 
-        private void SubmitModChanges_Internal_OnReadImageArchive(string path, bool success, byte[] data)
+        private void SubmitModChanges_Internal_OnReadImageArchive(string path, bool success,
+                                                                  byte[] data)
         {
             if(success)
             {
                 this.imageArchiveData = data;
                 this.SubmitNextParameter();
+            }
+        }
+
+        private void SubmissionComplete_Success(ModProfile profile)
+        {
+            RequestCache.Clear();
+
+            if(this.onSuccess != null)
+            {
+                this.onSuccess.Invoke(profile);
+            }
+        }
+
+        private void SubmissionComplete_Error(WebRequestError error)
+        {
+            if(this.onError != null)
+            {
+                this.onError.Invoke(error);
             }
         }
 
@@ -447,28 +460,28 @@ namespace ModIO
                     parameters.youtube = this.removedYouTubeURLs.ToArray();
                 }
 
-                APIClient.DeleteModMedia(this.modId, parameters,
-                                         this.SubmitNextParameter,
-                                         this.onError);
+                APIClient.DeleteModMedia(this.modId, parameters, this.SubmitNextParameter,
+                                         this.SubmissionComplete_Error);
 
                 this.removedImageFileNames = null;
                 this.removedSketchfabURLs = null;
                 this.removedYouTubeURLs = null;
             }
-            else if((this.logoData != null)
-                    || (this.imageArchiveData != null)
+            else if((this.logoData != null) || (this.imageArchiveData != null)
                     || (this.addedSketchfabURLs != null && this.addedSketchfabURLs.Count > 0)
-                    || (this.addedYouTubeURLs != null && this.addedYouTubeURLs.Count > 0) )
+                    || (this.addedYouTubeURLs != null && this.addedYouTubeURLs.Count > 0))
             {
                 var parameters = new AddModMediaParameters();
 
                 if(this.logoData != null)
                 {
-                    parameters.logo = BinaryUpload.Create(Path.GetFileName(this.logoPath), this.logoData);
+                    parameters.logo =
+                        BinaryUpload.Create(Path.GetFileName(this.logoPath), this.logoData);
                 }
                 if(this.imageArchiveData != null)
                 {
-                    parameters.galleryImages = BinaryUpload.Create("images.zip", this.imageArchiveData);
+                    parameters.galleryImages =
+                        BinaryUpload.Create("images.zip", this.imageArchiveData);
                 }
                 if(this.addedSketchfabURLs != null && this.addedSketchfabURLs.Count > 0)
                 {
@@ -479,9 +492,8 @@ namespace ModIO
                     parameters.youtube = this.addedYouTubeURLs.ToArray();
                 }
 
-                APIClient.AddModMedia(this.modId, parameters,
-                                      this.SubmitNextParameter,
-                                      this.onError);
+                APIClient.AddModMedia(this.modId, parameters, this.SubmitNextParameter,
+                                      this.SubmissionComplete_Error);
 
                 this.logoData = null;
                 this.imageArchiveData = null;
@@ -494,9 +506,8 @@ namespace ModIO
                 var parameters = new DeleteModTagsParameters();
                 parameters.tagNames = this.removedTags.ToArray();
 
-                APIClient.DeleteModTags(this.modId, parameters,
-                                        this.SubmitNextParameter,
-                                        this.onError);
+                APIClient.DeleteModTags(this.modId, parameters, this.SubmitNextParameter,
+                                        this.SubmissionComplete_Error);
 
                 this.removedTags = null;
             }
@@ -505,9 +516,8 @@ namespace ModIO
                 var parameters = new AddModTagsParameters();
                 parameters.tagNames = this.addedTags.ToArray();
 
-                APIClient.AddModTags(this.modId, parameters,
-                                     this.SubmitNextParameter,
-                                     this.onError);
+                APIClient.AddModTags(this.modId, parameters, this.SubmitNextParameter,
+                                     this.SubmissionComplete_Error);
 
                 this.addedTags = null;
             }
@@ -517,35 +527,33 @@ namespace ModIO
                 var parameters = new DeleteModKVPMetadataParameters();
                 parameters.metadataKeys = this.removedKVPs.Keys.ToArray();
 
-                APIClient.DeleteModKVPMetadata(this.modId, parameters,
-                                               this.SubmitNextParameter,
-                                               this.onError);
+                APIClient.DeleteModKVPMetadata(this.modId, parameters, this.SubmitNextParameter,
+                                               this.SubmissionComplete_Error);
                 this.removedKVPs = null;
             }
             else if(this.addedKVPs != null && this.addedKVPs.Count > 0)
             {
-                string[] addedKVPStrings = AddModKVPMetadataParameters.ConvertMetadataKVPsToAPIStrings(MetadataKVP.DictionaryToArray(this.addedKVPs));
+                string[] addedKVPStrings =
+                    AddModKVPMetadataParameters.ConvertMetadataKVPsToAPIStrings(
+                        MetadataKVP.DictionaryToArray(this.addedKVPs));
 
                 var parameters = new AddModKVPMetadataParameters();
                 parameters.metadata = addedKVPStrings;
 
-                APIClient.AddModKVPMetadata(this.modId, parameters,
-                                            this.SubmitNextParameter,
-                                            this.onError);
+                APIClient.AddModKVPMetadata(this.modId, parameters, this.SubmitNextParameter,
+                                            this.SubmissionComplete_Error);
 
                 this.addedKVPs = null;
             }
             // - FINALIZE -
             else if(o != null && o is ModProfile && ((ModProfile)o).id == this.modId)
             {
-                if(this.onSuccess != null)
-                {
-                    this.onSuccess.Invoke((ModProfile)o);
-                }
+                this.SubmissionComplete_Success((ModProfile)o);
             }
             else
             {
-                APIClient.GetMod(this.modId, this.onSuccess, this.onError);
+                APIClient.GetMod(this.modId, this.SubmissionComplete_Success,
+                                 this.SubmissionComplete_Error);
             }
         }
     }
