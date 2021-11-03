@@ -411,6 +411,24 @@ namespace ModIO
             }
         }
 
+        private void SubmissionComplete_Success(ModProfile profile)
+        {
+            RequestCache.Clear();
+
+            if(this.onSuccess != null)
+            {
+                this.onSuccess.Invoke(profile);
+            }
+        }
+
+        private void SubmissionComplete_Error(WebRequestError error)
+        {
+            if(this.onError != null)
+            {
+                this.onError.Invoke(error);
+            }
+        }
+
         // ---------[ Submission Loop Functions ]---------
         private void SubmitNextParameter()
         {
