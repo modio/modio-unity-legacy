@@ -52,13 +52,13 @@ namespace ModIO
         }
 
         // TODO(@jackson): Take ModMediaCollection instead of profile
-        public static ImageRequest DownloadModGalleryImage(ModProfile profile,
-                                                           string imageFileName,
+        public static ImageRequest DownloadModGalleryImage(ModProfile profile, string imageFileName,
                                                            ModGalleryImageSize size)
         {
             Debug.Assert(profile != null, "[mod.io] Profile parameter cannot be null");
-            Debug.Assert(!String.IsNullOrEmpty(imageFileName),
-                         "[mod.io] imageFileName parameter needs to be not null or empty (used as identifier for gallery images)");
+            Debug.Assert(
+                !String.IsNullOrEmpty(imageFileName),
+                "[mod.io] imageFileName parameter needs to be not null or empty (used as identifier for gallery images)");
 
             ImageRequest request = null;
 
@@ -68,12 +68,14 @@ namespace ModIO
             }
             else
             {
-                GalleryImageLocator locator = profile.media.GetGalleryImageWithFileName(imageFileName);
+                GalleryImageLocator locator =
+                    profile.media.GetGalleryImageWithFileName(imageFileName);
                 if(locator == null)
                 {
-                    Debug.LogWarning("[mod.io] Unable to find mod gallery image with the file name \'"
-                                     + imageFileName + "\' for the mod profile \'" + profile.name +
-                                     "\'[" + profile.id + "]");
+                    Debug.LogWarning(
+                        "[mod.io] Unable to find mod gallery image with the file name \'"
+                        + imageFileName + "\' for the mod profile \'" + profile.name + "\'["
+                        + profile.id + "]");
                 }
                 else
                 {
@@ -88,15 +90,16 @@ namespace ModIO
                                                            ModGalleryImageSize size)
         {
             Debug.Assert(imageLocator != null, "[mod.io] imageLocator parameter cannot be null.");
-            Debug.Assert(!String.IsNullOrEmpty(imageLocator.fileName), "[mod.io] imageFileName parameter needs to be not null or empty (used as identifier for gallery images)");
+            Debug.Assert(
+                !String.IsNullOrEmpty(imageLocator.fileName),
+                "[mod.io] imageFileName parameter needs to be not null or empty (used as identifier for gallery images)");
 
             ImageRequest request = null;
             request = DownloadImage(imageLocator.GetSizeURL(size));
             return request;
         }
 
-        public static ImageRequest DownloadUserAvatar(UserProfile profile,
-                                                      UserAvatarSize size)
+        public static ImageRequest DownloadUserAvatar(UserProfile profile, UserAvatarSize size)
         {
             Debug.Assert(profile != null, "[mod.io] Profile parameter cannot be null");
 
@@ -138,12 +141,13 @@ namespace ModIO
             webRequest.downloadHandler = new DownloadHandlerTexture(true);
 
             var operation = webRequest.SendWebRequest();
-            operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(operation, request);
+            operation.completed += (o) =>
+                DownloadClient.OnImageDownloadCompleted(operation, request);
 
 
-            #if DEBUG
-                DebugUtilities.DebugDownload(operation, LocalUser.instance, null);
-            #endif
+#if DEBUG
+            DebugUtilities.DebugDownload(operation, LocalUser.instance, null);
+#endif
 
             return request;
         }
@@ -154,14 +158,15 @@ namespace ModIO
             UnityWebRequest webRequest = operation.webRequest;
             request.isDone = true;
 
-            if(webRequest.isNetworkError || webRequest.isHttpError)
+            if(webRequest.IsError())
             {
                 request.error = WebRequestError.GenerateFromWebRequest(webRequest);
                 request.NotifyFailed();
             }
             else
             {
-                request.imageTexture = (webRequest.downloadHandler as DownloadHandlerTexture).texture;
+                request.imageTexture =
+                    (webRequest.downloadHandler as DownloadHandlerTexture).texture;
                 request.NotifySucceeded();
             }
         }
@@ -170,14 +175,16 @@ namespace ModIO
         public static event Action<ModfileIdPair, FileDownloadInfo> modfileDownloadStarted;
         public static event Action<ModfileIdPair, FileDownloadInfo> modfileDownloadSucceeded;
         public static event Action<ModfileIdPair, WebRequestError> modfileDownloadFailed;
-        public static Dictionary<ModfileIdPair, FileDownloadInfo> modfileDownloadMap = new Dictionary<ModfileIdPair, FileDownloadInfo>();
+        public static Dictionary<ModfileIdPair, FileDownloadInfo> modfileDownloadMap =
+            new Dictionary<ModfileIdPair, FileDownloadInfo>();
 
-        private static Dictionary<ModfileIdPair, DownloadProgressMarkerCollection> modfileProgressMarkers = new Dictionary<ModfileIdPair, DownloadProgressMarkerCollection>();
+        private static Dictionary<ModfileIdPair, DownloadProgressMarkerCollection>
+            modfileProgressMarkers =
+                new Dictionary<ModfileIdPair, DownloadProgressMarkerCollection>();
 
         public static FileDownloadInfo GetActiveModBinaryDownload(int modId, int modfileId)
         {
-            ModfileIdPair idPair = new ModfileIdPair()
-            {
+            ModfileIdPair idPair = new ModfileIdPair() {
                 modId = modId,
                 modfileId = modfileId,
             };
@@ -194,68 +201,77 @@ namespace ModIO
         public static FileDownloadInfo StartModBinaryDownload(int modId, int modfileId,
                                                               string targetFilePath)
         {
-            ModfileIdPair idPair = new ModfileIdPair()
-            {
+            ModfileIdPair idPair = new ModfileIdPair() {
                 modId = modId,
                 modfileId = modfileId,
             };
 
             if(modfileDownloadMap.Keys.Contains(idPair))
             {
-                Debug.LogWarning("[mod.io] Mod Binary with matching ids already downloading. TargetFilePath was not updated.");
+                Debug.LogWarning(
+                    "[mod.io] Mod Binary with matching ids already downloading. TargetFilePath was not updated.");
             }
             else
             {
-                modfileDownloadMap[idPair] = new FileDownloadInfo()
-                {
+                modfileDownloadMap[idPair] = new FileDownloadInfo() {
                     target = targetFilePath,
                     fileSize = -1,
                     request = null,
                     isDone = false,
                 };
 
-                DownloadClient.modfileProgressMarkers[idPair] = new DownloadProgressMarkerCollection(DownloadClient.DOWNLOAD_SPEED_MARKER_COUNT);
+                DownloadClient.modfileProgressMarkers[idPair] =
+                    new DownloadProgressMarkerCollection(
+                        DownloadClient.DOWNLOAD_SPEED_MARKER_COUNT);
 
                 // - Acquire Download URL -
                 APIClient.GetModfile(modId, modfileId,
-                                     (mf) =>
-                                     {
-                                        // NOTE(@jackson): May have been cancelled
-                                        FileDownloadInfo downloadInfo = GetActiveModBinaryDownload(modId, modfileId);
-                                        if(downloadInfo != null)
-                                        {
-                                            modfileDownloadMap[idPair].fileSize = mf.fileSize;
-                                            DownloadModBinary_Internal(idPair, mf.downloadLocator.binaryURL);
-                                        }
+                                     (mf) => {
+                                         // NOTE(@jackson): May have been cancelled
+                                         FileDownloadInfo downloadInfo =
+                                             GetActiveModBinaryDownload(modId, modfileId);
+                                         if(downloadInfo != null)
+                                         {
+                                             modfileDownloadMap[idPair].fileSize = mf.fileSize;
+                                             DownloadModBinary_Internal(
+                                                 idPair, mf.downloadLocator.binaryURL);
+                                         }
                                      },
-                                     (e) => { if(modfileDownloadFailed != null) { modfileDownloadFailed(idPair, e); } });
+                                     (e) => {
+                                         if(modfileDownloadFailed != null)
+                                         {
+                                             modfileDownloadFailed(idPair, e);
+                                         }
+                                     });
             }
             return modfileDownloadMap[idPair];
         }
 
-        public static FileDownloadInfo StartModBinaryDownload(Modfile modfile, string targetFilePath)
+        public static FileDownloadInfo StartModBinaryDownload(Modfile modfile,
+                                                              string targetFilePath)
         {
-            ModfileIdPair idPair = new ModfileIdPair()
-            {
+            ModfileIdPair idPair = new ModfileIdPair() {
                 modId = modfile.modId,
                 modfileId = modfile.id,
             };
 
             if(modfileDownloadMap.Keys.Contains(idPair))
             {
-                Debug.LogWarning("[mod.io] Mod Binary for modfile is already downloading. TargetFilePath was not updated.");
+                Debug.LogWarning(
+                    "[mod.io] Mod Binary for modfile is already downloading. TargetFilePath was not updated.");
             }
             else
             {
-                modfileDownloadMap[idPair] = new FileDownloadInfo()
-                {
+                modfileDownloadMap[idPair] = new FileDownloadInfo() {
                     target = targetFilePath,
                     fileSize = modfile.fileSize,
                     request = null,
                     isDone = false,
                 };
 
-                DownloadClient.modfileProgressMarkers[idPair] = new DownloadProgressMarkerCollection(DownloadClient.DOWNLOAD_SPEED_MARKER_COUNT);
+                DownloadClient.modfileProgressMarkers[idPair] =
+                    new DownloadProgressMarkerCollection(
+                        DownloadClient.DOWNLOAD_SPEED_MARKER_COUNT);
 
                 DownloadModBinary_Internal(idPair, modfile.downloadLocator.binaryURL);
             }
@@ -270,26 +286,26 @@ namespace ModIO
 
             string tempFilePath = downloadInfo.target + ".download";
 
-            DataStorage.WriteFile(tempFilePath, new byte[0], (p, success) =>
-            {
+            DataStorage.WriteFile(tempFilePath, new byte[0], (p, success) => {
                 if(success)
                 {
                     downloadInfo.request.downloadHandler = new DownloadHandlerFile(tempFilePath);
 
-                    #if PLATFORM_PS4
+#if PLATFORM_PS4
                     // NOTE(@jackson): This workaround addresses an issue in UnityWebRequests on the
                     //  PS4 whereby redirects fail in specific cases. Special thanks to @Eamon of
                     //  Spiderling Studios (http://spiderlinggames.co.uk/)
                     downloadInfo.request.redirectLimit = 0;
-                    #endif
+#endif
 
                     var operation = downloadInfo.request.SendWebRequest();
 
-                    #if DEBUG
-                        DebugUtilities.DebugDownload(operation, LocalUser.instance, tempFilePath);
-                    #endif
+#if DEBUG
+                    DebugUtilities.DebugDownload(operation, LocalUser.instance, tempFilePath);
+#endif
 
-                    operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(idPair);
+                    operation.completed += (o) =>
+                        DownloadClient.OnModBinaryRequestCompleted(idPair);
 
                     DownloadClient.StartMonitoringSpeed();
 
@@ -301,9 +317,9 @@ namespace ModIO
                 }
                 else if(DownloadClient.modfileDownloadFailed != null)
                 {
-                    string warningInfo = ("Failed to create download file on disk."
-                                          + "\nSource: " + downloadURL
-                                          + "\nDestination: " + tempFilePath + "\n\n");
+                    string warningInfo =
+                        ("Failed to create download file on disk." + "\nSource: " + downloadURL
+                         + "\nDestination: " + tempFilePath + "\n\n");
 
                     modfileDownloadFailed(idPair, WebRequestError.GenerateLocal(warningInfo));
                 }
@@ -312,8 +328,7 @@ namespace ModIO
 
         public static void CancelModBinaryDownload(int modId, int modfileId)
         {
-            ModfileIdPair idPair = new ModfileIdPair()
-            {
+            ModfileIdPair idPair = new ModfileIdPair() {
                 modId = modId,
                 modfileId = modfileId,
             };
@@ -333,10 +348,7 @@ namespace ModIO
                 }
             }
 
-            foreach(var idPair in downloadsToCancel)
-            {
-                CancelModfileDownload_Internal(idPair);
-            }
+            foreach(var idPair in downloadsToCancel) { CancelModfileDownload_Internal(idPair); }
         }
 
         private static void CancelModfileDownload_Internal(ModfileIdPair idPair)
@@ -365,7 +377,7 @@ namespace ModIO
 
             downloadInfo.bytesPerSecond = 0;
 
-            if(request.isNetworkError || request.isHttpError)
+            if(request.IsError())
             {
                 if(request.error.ToUpper() == "USER ABORTED"
                    || request.error.ToUpper() == "REQUEST ABORTED")
@@ -375,19 +387,23 @@ namespace ModIO
                     DownloadClient.FinalizeDownload(idPair, downloadInfo);
                 }
 
-                // NOTE(@jackson): This workaround addresses an issue in UnityWebRequests on the
-                //  PS4 whereby redirects fail in specific cases. Special thanks to @Eamon of
-                //  Spiderling Studios (http://spiderlinggames.co.uk/)
-                #if UNITY_PS4 || MODIO_DEV
-                else if (downloadInfo.error.webRequest.responseCode == 302) // Redirect limit exceeded
+// NOTE(@jackson): This workaround addresses an issue in UnityWebRequests on the
+//  PS4 whereby redirects fail in specific cases. Special thanks to @Eamon of
+//  Spiderling Studios (http://spiderlinggames.co.uk/)
+#if UNITY_PS4 || MODIO_DEV
+                else if(downloadInfo.error.webRequest.responseCode
+                        == 302) // Redirect limit exceeded
                 {
                     string headerLocation = string.Empty;
-                    if (downloadInfo.error.webRequest.GetResponseHeaders().TryGetValue("location", out headerLocation)
-                        && !request.url.Equals(headerLocation))
+                    if(downloadInfo.error.webRequest.GetResponseHeaders().TryGetValue(
+                           "location", out headerLocation)
+                       && !request.url.Equals(headerLocation))
                     {
                         if(PluginSettings.REQUEST_LOGGING.logAllResponses)
                         {
-                            Debug.LogFormat("[mod.io] Caught PS4 redirection error. Reattempting.\nURL: {0}", headerLocation);
+                            Debug.LogFormat(
+                                "[mod.io] Caught PS4 redirection error. Reattempting.\nURL: {0}",
+                                headerLocation);
                         }
 
                         downloadInfo.error = null;
@@ -396,7 +412,7 @@ namespace ModIO
                         return;
                     }
                 }
-                #endif // UNITY_PS4
+#endif // UNITY_PS4
 
                 else
                 {
@@ -407,21 +423,20 @@ namespace ModIO
             }
             else
             {
-                DataStorage.MoveFile(downloadInfo.target + ".download", downloadInfo.target,
-                (src, dst, success) =>
-                {
-                    if(!success)
-                    {
-                        string errorMessage = ("Download succeeded but failed to rename from"
-                                               + " temporary file name."
-                                               + "\nTemporary file name: "
-                                               + downloadInfo.target + ".download");
+                DataStorage.MoveFile(
+                    downloadInfo.target + ".download", downloadInfo.target, (src, dst, success) => {
+                        if(!success)
+                        {
+                            string errorMessage =
+                                ("Download succeeded but failed to rename from"
+                                 + " temporary file name."
+                                 + "\nTemporary file name: " + downloadInfo.target + ".download");
 
-                        downloadInfo.error = WebRequestError.GenerateLocal(errorMessage);
-                    }
+                            downloadInfo.error = WebRequestError.GenerateLocal(errorMessage);
+                        }
 
-                    DownloadClient.FinalizeDownload(idPair, downloadInfo);
-                });
+                        DownloadClient.FinalizeDownload(idPair, downloadInfo);
+                    });
             }
         }
 
@@ -454,8 +469,8 @@ namespace ModIO
 
             if(DownloadClient.monitorBehaviour.coroutine == null)
             {
-                DownloadClient.monitorBehaviour.coroutine
-                 = DownloadClient.monitorBehaviour.StartCoroutine(SpeedMonitorCoroutine());
+                DownloadClient.monitorBehaviour.coroutine =
+                    DownloadClient.monitorBehaviour.StartCoroutine(SpeedMonitorCoroutine());
             }
         }
 
@@ -465,10 +480,9 @@ namespace ModIO
             {
                 int downloadCount = DownloadClient.modfileDownloadMap.Count;
                 int monitoredDownloadCount = 0;
-                FileDownloadInfo[] infos
-                    = new FileDownloadInfo[downloadCount];
-                DownloadProgressMarkerCollection[] markerCollections
-                    = new DownloadProgressMarkerCollection[downloadCount];
+                FileDownloadInfo[] infos = new FileDownloadInfo[downloadCount];
+                DownloadProgressMarkerCollection[] markerCollections =
+                    new DownloadProgressMarkerCollection[downloadCount];
 
                 // collect downloads to update
                 foreach(var kvp in DownloadClient.modfileDownloadMap)
@@ -486,21 +500,22 @@ namespace ModIO
                 }
 
                 // update progress
-                for(int i = 0;
-                    i < monitoredDownloadCount;
-                    ++i)
+                for(int i = 0; i < monitoredDownloadCount; ++i)
                 {
                     FileDownloadInfo downloadInfo = infos[i];
                     DownloadProgressMarkerCollection markers = markerCollections[i];
 
-                    Int64 bytesReceived = (downloadInfo.request == null ? 0
-                                           : (Int64)downloadInfo.request.downloadedBytes);
+                    Int64 bytesReceived = (downloadInfo.request == null
+                                               ? 0
+                                               : (Int64)downloadInfo.request.downloadedBytes);
 
                     DownloadClient.AddDownloadProgressMarker(markers, bytesReceived);
-                    downloadInfo.bytesPerSecond = DownloadClient.CalculateAverageDownloadSpeed(markers);
+                    downloadInfo.bytesPerSecond =
+                        DownloadClient.CalculateAverageDownloadSpeed(markers);
                 }
 
-                yield return new WaitForSecondsRealtime(DownloadClient.DOWNLOAD_SPEED_UPDATE_INTERVAL);
+                yield return new WaitForSecondsRealtime(
+                    DownloadClient.DOWNLOAD_SPEED_UPDATE_INTERVAL);
             }
 
             DownloadClient.monitorBehaviour.coroutine = null;
@@ -525,22 +540,22 @@ namespace ModIO
             float finalTimeStamp = markers.timeStamps[markers.lastIndex];
             Int64 finalByteCount = markers.byteCounts[markers.lastIndex];
 
-            return (Int64)((finalByteCount - initialByteCount)/(finalTimeStamp - initialTimeStamp));
+            return (Int64)((finalByteCount - initialByteCount)
+                           / (finalTimeStamp - initialTimeStamp));
         }
 
-        private static void AddDownloadProgressMarker(DownloadProgressMarkerCollection markers, Int64 bytesReceived)
+        private static void AddDownloadProgressMarker(DownloadProgressMarkerCollection markers,
+                                                      Int64 bytesReceived)
         {
             float now = Time.unscaledTime;
 
             // ignore if not newer timeStamp
-            if(markers.lastIndex >= 0
-               && (now - markers.timeStamps[markers.lastIndex] <= 0f))
+            if(markers.lastIndex >= 0 && (now - markers.timeStamps[markers.lastIndex] <= 0f))
             {
                 return;
             }
 
-            if(markers.recordedCount <= 1
-               && bytesReceived == 0)
+            if(markers.recordedCount <= 1 && bytesReceived == 0)
             {
                 // overwrite if unstarted
                 markers.lastIndex = 0;
@@ -566,7 +581,9 @@ namespace ModIO
         [Obsolete("Use PluginSettings.REQUEST_LOGGING instead.")]
         public static bool logAllRequests
         {
-            get { return PluginSettings.REQUEST_LOGGING.logAllResponses; }
+            get {
+                return PluginSettings.REQUEST_LOGGING.logAllResponses;
+            }
         }
     }
 }
