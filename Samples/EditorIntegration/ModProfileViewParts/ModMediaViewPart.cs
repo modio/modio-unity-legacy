@@ -16,8 +16,11 @@ namespace ModIO.EditorCode
     public class ModMediaViewPart : IModProfileViewPart
     {
         // ------[ CONSTANTS ]------
-        private const ModGalleryImageSize IMAGE_PREVIEW_SIZE = ModGalleryImageSize.Thumbnail_320x180;
-        private static readonly string[] IMAGE_FILE_FILTER = new string[] { "JPEG Image Format", "jpeg,jpg", "PNG Image Format", "png", "GIF Image Format", "gif" };
+        private const ModGalleryImageSize IMAGE_PREVIEW_SIZE =
+            ModGalleryImageSize.Thumbnail_320x180;
+        private static readonly string[] IMAGE_FILE_FILTER =
+            new string[] { "JPEG Image Format", "jpeg,jpg", "PNG Image Format", "png",
+                           "GIF Image Format",  "gif" };
 
         // ------[ EDITOR CACHING ]------
         private bool isRepaintRequired = false;
@@ -30,20 +33,18 @@ namespace ModIO.EditorCode
 
         private string GetGalleryImageFileName(int index)
         {
-            return (galleryImagesProp
-                    .FindPropertyRelative("value")
-                    .GetArrayElementAtIndex(index)
-                    .FindPropertyRelative("fileName")
-                    .stringValue);
+            return (galleryImagesProp.FindPropertyRelative("value")
+                        .GetArrayElementAtIndex(index)
+                        .FindPropertyRelative("fileName")
+                        .stringValue);
         }
 
         private string GetGalleryImageSource(int index)
         {
-            return (galleryImagesProp
-                    .FindPropertyRelative("value")
-                    .GetArrayElementAtIndex(index)
-                    .FindPropertyRelative("url")
-                    .stringValue);
+            return (galleryImagesProp.FindPropertyRelative("value")
+                        .GetArrayElementAtIndex(index)
+                        .FindPropertyRelative("url")
+                        .stringValue);
         }
 
         private string GenerateUniqueFileName(string path)
@@ -53,13 +54,15 @@ namespace ModIO.EditorCode
             int numberToAppend = 0;
             string regexPattern = fileNameNoExtension + "\\d*\\" + fileExtension;
 
-            foreach(SerializedProperty elementProperty in galleryImagesProp.FindPropertyRelative("value"))
+            foreach(SerializedProperty elementProperty in galleryImagesProp.FindPropertyRelative(
+                        "value"))
             {
                 var elementFileName = elementProperty.FindPropertyRelative("fileName").stringValue;
                 if(System.Text.RegularExpressions.Regex.IsMatch(elementFileName, regexPattern))
                 {
                     string numberString = elementFileName.Substring(fileNameNoExtension.Length);
-                    numberString = numberString.Substring(0, numberString.Length - fileExtension.Length);
+                    numberString =
+                        numberString.Substring(0, numberString.Length - fileExtension.Length);
                     int number;
                     if(!Int32.TryParse(numberString, out number))
                     {
@@ -90,12 +93,15 @@ namespace ModIO.EditorCode
 
 
         // ------[ INITIALIZATION ]------
-        public void OnEnable(SerializedProperty serializedEditableModProfile, ModProfile baseProfile, UserProfile user)
+        public void OnEnable(SerializedProperty serializedEditableModProfile,
+                             ModProfile baseProfile, UserProfile user)
         {
             this.profile = baseProfile;
             this.youTubeURLsProp = serializedEditableModProfile.FindPropertyRelative("youTubeURLs");
-            this.sketchfabURLsProp = serializedEditableModProfile.FindPropertyRelative("sketchfabURLs");
-            this.galleryImagesProp = serializedEditableModProfile.FindPropertyRelative("galleryImageLocators");
+            this.sketchfabURLsProp =
+                serializedEditableModProfile.FindPropertyRelative("sketchfabURLs");
+            this.galleryImagesProp =
+                serializedEditableModProfile.FindPropertyRelative("galleryImageLocators");
 
             this.isYouTubeExpanded = false;
             this.isSketchFabExpanded = false;
@@ -105,26 +111,24 @@ namespace ModIO.EditorCode
             int arraySize = galleryImagesProp.FindPropertyRelative("value").arraySize;
 
             this.textureCache = new Dictionary<string, Texture2D>(arraySize);
-            for (int i = 0;
-                 i < arraySize;
-                 ++i)
+            for(int i = 0; i < arraySize; ++i)
             {
                 string imageFileName = GetGalleryImageFileName(i);
                 string imageURL = GetGalleryImageSource(i);
 
-                if(!String.IsNullOrEmpty(imageFileName)
-                   && !String.IsNullOrEmpty(imageURL))
+                if(!String.IsNullOrEmpty(imageFileName) && !String.IsNullOrEmpty(imageURL))
                 {
-                    GalleryImageLocator imageLocator = baseProfile.media.GetGalleryImageWithFileName(imageFileName);
+                    GalleryImageLocator imageLocator =
+                        baseProfile.media.GetGalleryImageWithFileName(imageFileName);
                     this.textureCache[imageFileName] = EditorImages.LoadingPlaceholder;
 
                     if(imageLocator != null)
                     {
-                        ModManager.GetModGalleryImage(baseProfile.id,
-                                                      imageLocator,
-                                                      IMAGE_PREVIEW_SIZE,
-                                                      (t) => { this.textureCache[imageFileName] = t; isRepaintRequired = true; },
-                                                      null);
+                        ModManager.GetModGalleryImage(baseProfile.id, imageLocator,
+                                                      IMAGE_PREVIEW_SIZE, (t) => {
+                                                          this.textureCache[imageFileName] = t;
+                                                          isRepaintRequired = true;
+                                                      }, null);
                     }
                     else
                     {
@@ -140,21 +144,15 @@ namespace ModIO.EditorCode
             }
         }
 
-        public void OnDisable()
-        {
-        }
+        public void OnDisable() {}
 
         // ------[ UPDATES ]------
         public void OnUpdate() {}
 
-        protected virtual void OnModGalleryImageUpdated(int modId,
-                                                        string imageFileName,
-                                                        ModGalleryImageSize size,
-                                                        Texture2D texture)
+        protected virtual void OnModGalleryImageUpdated(int modId, string imageFileName,
+                                                        ModGalleryImageSize size, Texture2D texture)
         {
-            if(profile != null
-               && profile.id == modId
-               && size == IMAGE_PREVIEW_SIZE
+            if(profile != null && profile.id == modId && size == IMAGE_PREVIEW_SIZE
                && textureCache.ContainsKey(imageFileName))
             {
                 textureCache[imageFileName] = texture;
@@ -168,36 +166,40 @@ namespace ModIO.EditorCode
             isRepaintRequired = false;
 
             EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel("Media");
-                GUILayout.FlexibleSpace();
-                using (new EditorGUI.DisabledScope(profile == null))
+            EditorGUILayout.PrefixLabel("Media");
+            GUILayout.FlexibleSpace();
+            using(new EditorGUI.DisabledScope(profile == null))
+            {
+                if(EditorGUILayoutExtensions.UndoButton())
                 {
-                    if(EditorGUILayoutExtensions.UndoButton())
-                    {
-                        ResetModMedia();
-                    }
+                    ResetModMedia();
                 }
+            }
             EditorGUILayout.EndHorizontal();
 
-            using (new EditorGUI.IndentLevelScope())
+            using(new EditorGUI.IndentLevelScope())
             {
                 // - YouTube -
                 EditorGUI.BeginChangeCheck();
-                EditorGUILayoutExtensions.ArrayPropertyField(youTubeURLsProp.FindPropertyRelative("value"),
-                                                             "YouTube Links", ref isYouTubeExpanded);
-                youTubeURLsProp.FindPropertyRelative("isDirty").boolValue |= EditorGUI.EndChangeCheck();
+                EditorGUILayoutExtensions.ArrayPropertyField(
+                    youTubeURLsProp.FindPropertyRelative("value"), "YouTube Links",
+                    ref isYouTubeExpanded);
+                youTubeURLsProp.FindPropertyRelative("isDirty").boolValue |=
+                    EditorGUI.EndChangeCheck();
                 // - SketchFab -
                 EditorGUI.BeginChangeCheck();
-                EditorGUILayoutExtensions.ArrayPropertyField(sketchfabURLsProp.FindPropertyRelative("value"),
-                                                             "SketchFab Links", ref isSketchFabExpanded);
-                sketchfabURLsProp.FindPropertyRelative("isDirty").boolValue |= EditorGUI.EndChangeCheck();
+                EditorGUILayoutExtensions.ArrayPropertyField(
+                    sketchfabURLsProp.FindPropertyRelative("value"), "SketchFab Links",
+                    ref isSketchFabExpanded);
+                sketchfabURLsProp.FindPropertyRelative("isDirty").boolValue |=
+                    EditorGUI.EndChangeCheck();
                 // - Gallery Images -
                 EditorGUI.BeginChangeCheck();
-                EditorGUILayoutExtensions.CustomLayoutArrayPropertyField(galleryImagesProp.FindPropertyRelative("value"),
-                                                                         "Gallery Images Links",
-                                                                         ref isImagesExpanded,
-                                                                         LayoutGalleryImageProperty);
-                galleryImagesProp.FindPropertyRelative("isDirty").boolValue |= EditorGUI.EndChangeCheck();
+                EditorGUILayoutExtensions.CustomLayoutArrayPropertyField(
+                    galleryImagesProp.FindPropertyRelative("value"), "Gallery Images Links",
+                    ref isImagesExpanded, LayoutGalleryImageProperty);
+                galleryImagesProp.FindPropertyRelative("isDirty").boolValue |=
+                    EditorGUI.EndChangeCheck();
             }
         }
 
@@ -217,9 +219,9 @@ namespace ModIO.EditorCode
 
             // - Browse Field -
             EditorGUILayout.BeginHorizontal();
-                doBrowse |= EditorGUILayoutExtensions.BrowseButton(imageSource,
-                                                                   new GUIContent("Image " + elementIndex));
-                doClear = EditorGUILayoutExtensions.ClearButton();
+            doBrowse |= EditorGUILayoutExtensions.BrowseButton(
+                imageSource, new GUIContent("Image " + elementIndex));
+            doClear = EditorGUILayoutExtensions.ClearButton();
             EditorGUILayout.EndHorizontal();
 
             // - Draw Texture -
@@ -231,11 +233,9 @@ namespace ModIO.EditorCode
                 EditorGUILayout.LabelField("File Name", imageFileName);
                 Rect imageRect = EditorGUILayout.GetControlRect(false, 180.0f);
                 imageRect = EditorGUI.IndentedRect(imageRect);
-                EditorGUI.DrawPreviewTexture(new Rect(imageRect.x,
-                                                      imageRect.y,
-                                                      320.0f,
-                                                      imageRect.height),
-                                             imageTexture, null, ScaleMode.ScaleAndCrop);
+                EditorGUI.DrawPreviewTexture(
+                    new Rect(imageRect.x, imageRect.y, 320.0f, imageRect.height), imageTexture,
+                    null, ScaleMode.ScaleAndCrop);
                 doBrowse |= GUI.Button(imageRect, "", GUI.skin.label);
                 EditorGUI.indentLevel -= 2;
             }
@@ -244,15 +244,17 @@ namespace ModIO.EditorCode
             {
                 EditorApplication.delayCall += () =>
                 {
-                    string path = EditorUtility.OpenFilePanelWithFilters("Select Gallery Image",
-                                                                         "",
-                                                                         ModMediaViewPart.IMAGE_FILE_FILTER);
+                    string path = EditorUtility.OpenFilePanelWithFilters(
+                        "Select Gallery Image", "", ModMediaViewPart.IMAGE_FILE_FILTER);
 
                     byte[] data = null;
                     data = File.ReadAllBytes(path);
 
                     Texture2D newTexture = null;
-                    if(data != null) { newTexture = IOUtilities.ParseImageData(data); }
+                    if(data != null)
+                    {
+                        newTexture = IOUtilities.ParseImageData(data);
+                    }
 
                     if(newTexture != null)
                     {
@@ -283,8 +285,7 @@ namespace ModIO.EditorCode
             string imageFileName = GetGalleryImageFileName(index);
             GalleryImageLocator imageLocator = null;
 
-            if(this.profile != null
-               && this.profile.media != null)
+            if(this.profile != null && this.profile.media != null)
             {
                 imageLocator = this.profile.media.GetGalleryImageWithFileName(imageFileName);
             }
@@ -304,11 +305,11 @@ namespace ModIO.EditorCode
             {
                 this.textureCache.Add(imageFileName, EditorImages.LoadingPlaceholder);
 
-                ModManager.GetModGalleryImage(this.profile.id,
-                                              imageLocator,
-                                              IMAGE_PREVIEW_SIZE,
-                                              (t) => { this.textureCache[imageFileName] = t; isRepaintRequired = true; },
-                                              null);
+                ModManager.GetModGalleryImage(this.profile.id, imageLocator,
+                                              IMAGE_PREVIEW_SIZE, (t) => {
+                                                  this.textureCache[imageFileName] = t;
+                                                  isRepaintRequired = true;
+                                              }, null);
 
                 return this.textureCache[imageFileName];
             }
@@ -335,12 +336,12 @@ namespace ModIO.EditorCode
         // - Misc Functionality -
         private void ResetModMedia()
         {
-            EditorUtilityExtensions.SetSerializedPropertyStringArray(youTubeURLsProp.FindPropertyRelative("value"),
-                                                                     profile.media.youTubeURLs);
+            EditorUtilityExtensions.SetSerializedPropertyStringArray(
+                youTubeURLsProp.FindPropertyRelative("value"), profile.media.youTubeURLs);
             youTubeURLsProp.FindPropertyRelative("isDirty").boolValue = false;
 
-            EditorUtilityExtensions.SetSerializedPropertyStringArray(sketchfabURLsProp.FindPropertyRelative("value"),
-                                                                     profile.media.sketchfabURLs);
+            EditorUtilityExtensions.SetSerializedPropertyStringArray(
+                sketchfabURLsProp.FindPropertyRelative("value"), profile.media.sketchfabURLs);
             sketchfabURLsProp.FindPropertyRelative("isDirty").boolValue = false;
 
             // - Images -
@@ -349,8 +350,12 @@ namespace ModIO.EditorCode
             galleryImagesArray.arraySize = profile.media.galleryImageLocators.Length;
             for(int i = 0; i < profile.media.galleryImageLocators.Length; ++i)
             {
-                galleryImagesArray.GetArrayElementAtIndex(i).FindPropertyRelative("fileName").stringValue = profile.media.galleryImageLocators[i].GetFileName();
-                galleryImagesArray.GetArrayElementAtIndex(i).FindPropertyRelative("url").stringValue = profile.media.galleryImageLocators[i].GetURL();
+                galleryImagesArray.GetArrayElementAtIndex(i)
+                    .FindPropertyRelative("fileName")
+                    .stringValue = profile.media.galleryImageLocators[i].GetFileName();
+                galleryImagesArray.GetArrayElementAtIndex(i)
+                    .FindPropertyRelative("url")
+                    .stringValue = profile.media.galleryImageLocators[i].GetURL();
             }
 
             galleryImagesProp.FindPropertyRelative("isDirty").boolValue = false;

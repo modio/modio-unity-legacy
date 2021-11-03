@@ -25,15 +25,18 @@ namespace ModIO.UI.EditorCode
             Dropdown dropdown = enumDropdown.gameObject.GetComponent<Dropdown>();
 
             // Early out
-            if(dropdown == null) { return; }
+            if(dropdown == null)
+            {
+                return;
+            }
 
             // Build popup options
-            string[] popupOptions = new string[dropdown.options.Count+1];
+            string[] popupOptions = new string[dropdown.options.Count + 1];
             popupOptions[0] = "[Not Assigned]";
 
             for(int i = 0; i < dropdown.options.Count; ++i)
             {
-                popupOptions[i+1] = dropdown.options[i].text;
+                popupOptions[i + 1] = dropdown.options[i].text;
             }
 
             // - Begin rendering -
@@ -56,8 +59,7 @@ namespace ModIO.UI.EditorCode
                 // get stored data
                 if(!enumDropdown.TryGetPairForEnum(enumValues[i], out pair))
                 {
-                    pair = new EnumDropdownBase.EnumSelectionPair()
-                    {
+                    pair = new EnumDropdownBase.EnumSelectionPair() {
                         selectionIndex = -1,
                         enumValue = enumValues[i],
                     };
@@ -67,9 +69,8 @@ namespace ModIO.UI.EditorCode
                 int oldSelection = pair.selectionIndex;
 
                 ++pair.selectionIndex;
-                pair.selectionIndex = EditorGUILayout.Popup(enumNames[i],
-                                                            pair.selectionIndex,
-                                                            popupOptions);
+                pair.selectionIndex =
+                    EditorGUILayout.Popup(enumNames[i], pair.selectionIndex, popupOptions);
                 --pair.selectionIndex;
 
                 // assign to array & check changed
@@ -84,8 +85,10 @@ namespace ModIO.UI.EditorCode
                 for(int i = 0; i < pairAssignments.Length; ++i)
                 {
                     var arrayElement = this.pairingArrayProperty.GetArrayElementAtIndex(i);
-                    arrayElement.FindPropertyRelative("selectionIndex").intValue = pairAssignments[i].selectionIndex;
-                    arrayElement.FindPropertyRelative("enumValue").intValue = pairAssignments[i].enumValue;
+                    arrayElement.FindPropertyRelative("selectionIndex").intValue =
+                        pairAssignments[i].selectionIndex;
+                    arrayElement.FindPropertyRelative("enumValue").intValue =
+                        pairAssignments[i].enumValue;
                 }
 
                 this.serializedObject.ApplyModifiedProperties();

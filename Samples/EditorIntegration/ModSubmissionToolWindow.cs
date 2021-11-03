@@ -22,10 +22,10 @@ namespace ModIO.EditorCode
             GetWindow<ModSubmissionToolWindow>("Submit Mod");
         }
 
-        // ---------[ CONSTANTS ]---------
-        #if !UPLOAD_MOD_BINARY_AS_DIRECTORY
+// ---------[ CONSTANTS ]---------
+#if !UPLOAD_MOD_BINARY_AS_DIRECTORY
         private readonly string[] modBinaryFileExtensionFilters = { "All Files", "" };
-        #endif
+#endif
 
         // ---------[ WINDOW FIELDS ]---------
         private static bool isAwaitingServerResponse = false;
@@ -48,12 +48,10 @@ namespace ModIO.EditorCode
 
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
-                ModManager.GetAuthenticatedUserProfile((userProfile) =>
-                {
+                ModManager.GetAuthenticatedUserProfile((userProfile) => {
                     this.user = userProfile;
                     Repaint();
-                },
-                null);
+                }, null);
             }
 
             LoginWindow.userLoggedIn += OnUserLogin;
@@ -73,8 +71,7 @@ namespace ModIO.EditorCode
         // ---------[ GUI ]---------
         protected virtual void Update()
         {
-            if(this.user != null
-               && this.user.id != LocalUser.Profile.id)
+            if(this.user != null && this.user.id != LocalUser.Profile.id)
             {
                 this.user = null;
                 Repaint();
@@ -133,13 +130,11 @@ namespace ModIO.EditorCode
                 // - Submission Section -
                 if(!String.IsNullOrEmpty(uploadSucceededMessage))
                 {
-                    EditorGUILayout.HelpBox(uploadSucceededMessage,
-                                            MessageType.Info);
+                    EditorGUILayout.HelpBox(uploadSucceededMessage, MessageType.Info);
                 }
                 else if(!String.IsNullOrEmpty(uploadFailedMessage))
                 {
-                    EditorGUILayout.HelpBox(uploadFailedMessage,
-                                            MessageType.Error);
+                    EditorGUILayout.HelpBox(uploadFailedMessage, MessageType.Error);
                 }
                 else if(profile == null)
                 {
@@ -148,82 +143,85 @@ namespace ModIO.EditorCode
                 }
                 else if(profile.modId > 0)
                 {
-                    EditorGUILayout.HelpBox(profile.editableModProfile.name.value
-                                            + " will be updated as used as the upload target on the server.",
-                                            MessageType.Info);
+                    EditorGUILayout.HelpBox(
+                        profile.editableModProfile.name.value
+                            + " will be updated as used as the upload target on the server.",
+                        MessageType.Info);
                 }
                 else
                 {
-                    EditorGUILayout.HelpBox(profile.editableModProfile.name.value
-                                            + " will be created as a new profile on the server.",
-                                            MessageType.Info);
+                    EditorGUILayout.HelpBox(
+                        profile.editableModProfile.name.value
+                            + " will be created as a new profile on the server.",
+                        MessageType.Info);
                 }
                 EditorGUILayout.Space();
 
 
                 // TODO(@jackson): Support mods that haven't been downloaded?
-                profile = EditorGUILayout.ObjectField("Mod Profile",
-                                                      profile,
-                                                      typeof(ScriptableModProfile),
-                                                      false) as ScriptableModProfile;
+                profile = EditorGUILayout.ObjectField("Mod Profile", profile,
+                                                      typeof(ScriptableModProfile), false)
+                              as ScriptableModProfile;
 
                 // - Build Profile -
                 using(new EditorGUI.DisabledScope(profile == null))
                 {
                     EditorGUILayout.BeginHorizontal();
-                        if(EditorGUILayoutExtensions.BrowseButton(buildFilePath, new GUIContent("Modfile")))
+                    if(EditorGUILayoutExtensions.BrowseButton(buildFilePath,
+                                                              new GUIContent("Modfile")))
+                    {
+                        EditorApplication.delayCall += () =>
                         {
-                            EditorApplication.delayCall += () =>
-                            {
-                                #if UPLOAD_MOD_BINARY_AS_DIRECTORY
-                                string path = EditorUtility.OpenFolderPanel("Set Build Location",
-                                                                            "",
-                                                                            "ModBinary");
-                                #else
-                                string path = EditorUtility.OpenFilePanelWithFilters("Set Build Location",
-                                                                                     "",
-                                                                                     modBinaryFileExtensionFilters);
-                                #endif
+#if UPLOAD_MOD_BINARY_AS_DIRECTORY
+                            string path = EditorUtility.OpenFolderPanel("Set Build Location", "",
+                                                                        "ModBinary");
+#else
+                            string path = EditorUtility.OpenFilePanelWithFilters(
+                                "Set Build Location", "", modBinaryFileExtensionFilters);
+#endif
 
-                                if (path.Length != 0)
-                                {
-                                    buildFilePath = path;
-                                }
-                            };
-                        }
-                        if(EditorGUILayoutExtensions.ClearButton())
-                        {
-                            buildFilePath = string.Empty;
-                        }
+                            if(path.Length != 0)
+                            {
+                                buildFilePath = path;
+                            }
+                        };
+                    }
+                    if(EditorGUILayoutExtensions.ClearButton())
+                    {
+                        buildFilePath = string.Empty;
+                    }
                     EditorGUILayout.EndHorizontal();
 
-                    // - Build Profile -
-                    #if UPLOAD_MOD_BINARY_AS_DIRECTORY
+// - Build Profile -
+#if UPLOAD_MOD_BINARY_AS_DIRECTORY
                     using(new EditorGUI.DisabledScope(!Directory.Exists(buildFilePath)))
-                    #else
+#else
                     using(new EditorGUI.DisabledScope(!File.Exists(buildFilePath)))
-                    #endif
+#endif
                     {
                         // - Version -
                         EditorGUI.BeginChangeCheck();
-                            buildProfile.version.value = EditorGUILayout.TextField("Version",
-                                                                                   buildProfile.version.value);
+                        buildProfile.version.value =
+                            EditorGUILayout.TextField("Version", buildProfile.version.value);
                         if(EditorGUI.EndChangeCheck())
                         {
                             buildProfile.version.isDirty = true;
                         }
                         // - Changelog -
                         EditorGUI.BeginChangeCheck();
-                            EditorGUILayout.PrefixLabel("Changelog");
-                            buildProfile.changelog.value = EditorGUILayoutExtensions.MultilineTextField(buildProfile.changelog.value);
+                        EditorGUILayout.PrefixLabel("Changelog");
+                        buildProfile.changelog.value = EditorGUILayoutExtensions.MultilineTextField(
+                            buildProfile.changelog.value);
                         if(EditorGUI.EndChangeCheck())
                         {
                             buildProfile.changelog.isDirty = true;
                         }
                         // - Metadata -
                         EditorGUI.BeginChangeCheck();
-                            EditorGUILayout.PrefixLabel("Metadata");
-                            buildProfile.metadataBlob.value = EditorGUILayoutExtensions.MultilineTextField(buildProfile.metadataBlob.value);
+                        EditorGUILayout.PrefixLabel("Metadata");
+                        buildProfile.metadataBlob.value =
+                            EditorGUILayoutExtensions.MultilineTextField(
+                                buildProfile.metadataBlob.value);
                         if(EditorGUI.EndChangeCheck())
                         {
                             buildProfile.metadataBlob.isDirty = true;
@@ -233,12 +231,12 @@ namespace ModIO.EditorCode
                     // TODO(@jackson): if(profile) -> show build list?
                     EditorGUILayout.Space();
                     EditorGUILayout.BeginHorizontal();
-                        GUILayout.FlexibleSpace();
-                        if(GUILayout.Button("Upload to Server"))
-                        {
-                            UploadToServer();
-                        }
-                        GUILayout.FlexibleSpace();
+                    GUILayout.FlexibleSpace();
+                    if(GUILayout.Button("Upload to Server"))
+                    {
+                        UploadToServer();
+                    }
+                    GUILayout.FlexibleSpace();
                     EditorGUILayout.EndHorizontal();
                 }
             }
@@ -254,12 +252,11 @@ namespace ModIO.EditorCode
             {
                 EditorUtility.DisplayDialog("Upload Failed",
                                             "Failed to update the mod profile on the server.\n"
-                                            + e.displayMessage,
+                                                + e.displayMessage,
                                             "Close");
 
                 uploadFailedMessage = e.displayMessage;
-                if(e.fieldValidationMessages != null
-                   && e.fieldValidationMessages.Count > 0)
+                if(e.fieldValidationMessages != null && e.fieldValidationMessages.Count > 0)
                 {
                     foreach(var kvp in e.fieldValidationMessages)
                     {
@@ -273,10 +270,9 @@ namespace ModIO.EditorCode
 
             if(profile.modId > 0)
             {
-                ModManager.SubmitModChanges(profile.modId,
-                                            profile.editableModProfile,
-                                            (m) => ModProfileSubmissionSucceeded(m, profileFilePath),
-                                            onSubmissionFailed);
+                ModManager.SubmitModChanges(
+                    profile.modId, profile.editableModProfile,
+                    (m) => ModProfileSubmissionSucceeded(m, profileFilePath), onSubmissionFailed);
             }
             else
             {
@@ -304,23 +300,22 @@ namespace ModIO.EditorCode
             EditorUtility.SetDirty(profile);
             AssetDatabase.SaveAssets();
 
-            // Upload Build
-            #if UPLOAD_MOD_BINARY_AS_DIRECTORY
+// Upload Build
+#if UPLOAD_MOD_BINARY_AS_DIRECTORY
             if(Directory.Exists(buildFilePath))
-            #else
+#else
             if(File.Exists(buildFilePath))
-            #endif
+#endif
             {
                 Action<WebRequestError> onSubmissionFailed = (e) =>
                 {
                     EditorUtility.DisplayDialog("Upload Failed",
                                                 "Failed to upload the mod build to the server.\n"
-                                                + e.displayMessage,
+                                                    + e.displayMessage,
                                                 "Close");
 
                     uploadFailedMessage = e.displayMessage;
-                    if(e.fieldValidationMessages != null
-                       && e.fieldValidationMessages.Count > 0)
+                    if(e.fieldValidationMessages != null && e.fieldValidationMessages.Count > 0)
                     {
                         foreach(var kvp in e.fieldValidationMessages)
                         {
@@ -330,26 +325,19 @@ namespace ModIO.EditorCode
 
                     isAwaitingServerResponse = false;
                     Repaint();
-
                 };
 
-                #if UPLOAD_MOD_BINARY_AS_DIRECTORY
-                ModManager.UploadModBinaryDirectory(profile.modId,
-                                                    buildProfile,
-                                                    buildFilePath,
-                                                    true,
-                                                    mf => NotifySubmissionSucceeded(updatedProfile.name,
-                                                                                    updatedProfile.profileURL),
-                                                    onSubmissionFailed);
-                #else
-                ModManager.UploadModBinary_Unzipped(profile.modId,
-                                                    buildProfile,
-                                                    buildFilePath,
-                                                    true,
-                                                    mf => NotifySubmissionSucceeded(updatedProfile.name,
-                                                                                    updatedProfile.profileURL),
-                                                    onSubmissionFailed);
-                #endif
+#if UPLOAD_MOD_BINARY_AS_DIRECTORY
+                ModManager.UploadModBinaryDirectory(
+                    profile.modId, buildProfile, buildFilePath, true,
+                    mf => NotifySubmissionSucceeded(updatedProfile.name, updatedProfile.profileURL),
+                    onSubmissionFailed);
+#else
+                ModManager.UploadModBinary_Unzipped(
+                    profile.modId, buildProfile, buildFilePath, true,
+                    mf => NotifySubmissionSucceeded(updatedProfile.name, updatedProfile.profileURL),
+                    onSubmissionFailed);
+#endif
             }
             else
             {
@@ -361,7 +349,7 @@ namespace ModIO.EditorCode
         {
             EditorUtility.DisplayDialog("Submission Successful",
                                         modName + " was successfully updated on the server."
-                                        + "\nView the changes here: " + modProfileURL,
+                                            + "\nView the changes here: " + modProfileURL,
                                         "Close");
             isAwaitingServerResponse = false;
             Repaint();

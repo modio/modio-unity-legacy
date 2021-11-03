@@ -93,7 +93,8 @@ namespace ModIO.UI.EditorCode
                         string assetDir = dir.Substring(Application.dataPath.Length);
                         assetDir = "Assets" + assetDir;
 
-                        var folderObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(assetDir);
+                        var folderObject =
+                            AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(assetDir);
                         int folderId = folderObject.GetInstanceID();
 
                         EditorGUIUtility.PingObject(folderId);

@@ -19,15 +19,20 @@ namespace ModIO.EditorCode
         // ------[ NESTED CLASSES ]------
         protected class LoadingProfileViewPart : IModProfileViewPart
         {
-            public void OnEnable(SerializedProperty editableProfileProperty, ModProfile baseProfile, UserProfile user) {}
-            public void OnDisable(){}
-            public void OnUpdate(){}
-            public bool IsRepaintRequired() { return false; }
+            public void OnEnable(SerializedProperty editableProfileProperty, ModProfile baseProfile,
+                                 UserProfile user)
+            {
+            }
+            public void OnDisable() {}
+            public void OnUpdate() {}
+            public bool IsRepaintRequired()
+            {
+                return false;
+            }
 
             public void OnGUI()
             {
-                EditorGUILayout.HelpBox("Loading Mod Profile. Please wait...",
-                                        MessageType.Info);
+                EditorGUILayout.HelpBox("Loading Mod Profile. Please wait...", MessageType.Info);
             }
         }
 
@@ -64,10 +69,7 @@ namespace ModIO.EditorCode
             initializedProfileId = modIdProperty.intValue;
             editableModProfileProperty = serializedObject.FindProperty("editableModProfile");
             isModListLoading = false;
-            profileViewParts = new IModProfileViewPart[]
-            {
-                new LoadingProfileViewPart()
-            };
+            profileViewParts = new IModProfileViewPart[] { new LoadingProfileViewPart() };
 
             // Profile Initialization
             if(modIdProperty.intValue == ScriptableModProfile.UNINITIALIZED_MOD_ID)
@@ -77,15 +79,12 @@ namespace ModIO.EditorCode
                 if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
                 {
                     this.isModListLoading = true;
-                    this.modOptions = new string[]{ "Loading..." };
+                    this.modOptions = new string[] { "Loading..." };
 
                     Action<WebRequestError> onError = (e) =>
-                    {
-                        isModListLoading = false;
-                    };
+                    { isModListLoading = false; };
 
-                    ModManager.GetAuthenticatedUserProfile((userProfile) =>
-                    {
+                    ModManager.GetAuthenticatedUserProfile((userProfile) => {
                         this.user = userProfile;
 
                         // - Find User Mods -
@@ -104,8 +103,7 @@ namespace ModIO.EditorCode
                         };
 
                         ModManager.FetchAuthenticatedUserMods(onGetUserMods, onError);
-                    },
-                    onError);
+                    }, onError);
                 }
                 else
                 {
@@ -157,16 +155,14 @@ namespace ModIO.EditorCode
                             viewPart.OnEnable(editableModProfileProperty, null, this.user);
                         };
 
-                        profileGetErrorMessage = ("Unable to fetch the mod profile data on the server.\n"
-                                                  + e.displayMessage);
+                        profileGetErrorMessage =
+                            ("Unable to fetch the mod profile data on the server.\n"
+                             + e.displayMessage);
                     };
 
-                    ModManager.GetModProfile(modIdProperty.intValue,
-                                             onGetProfile,
+                    ModManager.GetModProfile(modIdProperty.intValue, onGetProfile,
                                              onGetProfileError);
-
                 }
-
             }
 
             scrollPos = Vector2.zero;
@@ -179,10 +175,7 @@ namespace ModIO.EditorCode
 
         protected virtual void OnDisable()
         {
-            foreach(IModProfileViewPart viewPart in profileViewParts)
-            {
-                viewPart.OnDisable();
-            }
+            foreach(IModProfileViewPart viewPart in profileViewParts) { viewPart.OnDisable(); }
 
             EditorApplication.update -= OnUpdate;
             LoginWindow.userLoggedIn -= OnUserLogin;
@@ -197,8 +190,7 @@ namespace ModIO.EditorCode
 
         protected virtual IModProfileViewPart[] CreateProfileViewParts()
         {
-            return new IModProfileViewPart[]
-            {
+            return new IModProfileViewPart[] {
                 new ModProfileInfoViewPart(),
                 new ModMediaViewPart(),
             };
@@ -207,7 +199,8 @@ namespace ModIO.EditorCode
         // ------[ GUI ]------
         public override void OnInspectorGUI()
         {
-            if(serializedObject.FindProperty("modId").intValue == ScriptableModProfile.UNINITIALIZED_MOD_ID)
+            if(serializedObject.FindProperty("modId").intValue
+               == ScriptableModProfile.UNINITIALIZED_MOD_ID)
             {
                 LayoutProfileInitialization();
             }
@@ -224,8 +217,7 @@ namespace ModIO.EditorCode
 
                 using(new EditorGUI.DisabledScope(isProfileSyncing))
                 {
-                    if(profileViewParts != null
-                       && profileViewParts.Length > 0)
+                    if(profileViewParts != null && profileViewParts.Length > 0)
                     {
                         using(new EditorGUI.DisabledScope(modIdProperty.intValue == 0))
                         {
@@ -243,38 +235,35 @@ namespace ModIO.EditorCode
                         }
                     }
 
-                    foreach(IModProfileViewPart viewPart in profileViewParts)
-                    {
-                        viewPart.OnGUI();
-                    }
+                    foreach(IModProfileViewPart viewPart in profileViewParts) { viewPart.OnGUI(); }
                     serializedObject.ApplyModifiedProperties();
                 }
 
                 if(isProfileSyncRequested)
                 {
                     isProfileSyncing = true;
-                    APIClient.GetMod(modIdProperty.intValue,
-                    (modProfile) =>
-                    {
-                        CacheClient.SaveModProfile(modProfile, null);
-                        this.profile = modProfile;
+                    APIClient.GetMod(
+                        modIdProperty.intValue,
+                        (modProfile) => {
+                            CacheClient.SaveModProfile(modProfile, null);
+                            this.profile = modProfile;
 
-                        ScriptableModProfile smp = this.target as ScriptableModProfile;
-                        Undo.RecordObject(smp, "Update Mod Profile");
-                        smp.editableModProfile.ApplyBaseProfileChanges(profile);
+                            ScriptableModProfile smp = this.target as ScriptableModProfile;
+                            Undo.RecordObject(smp, "Update Mod Profile");
+                            smp.editableModProfile.ApplyBaseProfileChanges(profile);
 
-                        isProfileSyncing = false;
-                        profileGetErrorMessage = null;
+                            isProfileSyncing = false;
+                            profileGetErrorMessage = null;
 
-                        this.OnDisable();
-                        this.OnEnable();
-                    },
-                    (e) =>
-                    {
-                        isProfileSyncing = false;
-                        profileGetErrorMessage = ("Unable to fetch the mod profile data on the server.\n"
-                                                  + e.displayMessage);
-                    });
+                            this.OnDisable();
+                            this.OnEnable();
+                        },
+                        (e) => {
+                            isProfileSyncing = false;
+                            profileGetErrorMessage =
+                                ("Unable to fetch the mod profile data on the server.\n"
+                                 + e.displayMessage);
+                        });
                 }
             }
 
@@ -307,7 +296,7 @@ namespace ModIO.EditorCode
             EditorGUILayout.Space();
 
             EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField("---- OR ----");
+            EditorGUILayout.LabelField("---- OR ----");
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space();
@@ -316,8 +305,7 @@ namespace ModIO.EditorCode
 
             if(user == null)
             {
-                EditorGUILayout.HelpBox("Log in required to load existing mods",
-                                        MessageType.Info);
+                EditorGUILayout.HelpBox("Log in required to load existing mods", MessageType.Info);
                 if(GUILayout.Button("Log In to mod.io"))
                 {
                     LoginWindow.GetWindow<LoginWindow>("Login to mod.io");
@@ -327,7 +315,8 @@ namespace ModIO.EditorCode
             {
                 using(new EditorGUI.DisabledScope(isModListLoading))
                 {
-                    modInitializationOptionIndex = EditorGUILayout.Popup("Select Mod", modInitializationOptionIndex, modOptions);
+                    modInitializationOptionIndex = EditorGUILayout.Popup(
+                        "Select Mod", modInitializationOptionIndex, modOptions);
                     if(GUILayout.Button("Load"))
                     {
                         ModProfile profile = modList[modInitializationOptionIndex];
@@ -342,14 +331,17 @@ namespace ModIO.EditorCode
                             string smpFilePath = AssetDatabase.GetAssetPath(smp);
                             string smpDir = Path.GetDirectoryName(smpFilePath);
 
-                            int profileCount
-                            = Directory.GetFiles(smpDir, profile.name + "*.asset", System.IO.SearchOption.TopDirectoryOnly).Length;
+                            int profileCount =
+                                Directory
+                                    .GetFiles(smpDir, profile.name + "*.asset",
+                                              System.IO.SearchOption.TopDirectoryOnly)
+                                    .Length;
 
-                            string fileNameAddition = (profileCount > 0
-                                                       ? " (" + profileCount.ToString() + ")"
-                                                       : "");
+                            string fileNameAddition =
+                                (profileCount > 0 ? " (" + profileCount.ToString() + ")" : "");
 
-                            AssetDatabase.RenameAsset(smpFilePath, profile.name + fileNameAddition + ".asset");
+                            AssetDatabase.RenameAsset(smpFilePath,
+                                                      profile.name + fileNameAddition + ".asset");
 
                             OnDisable();
                             OnEnable();
@@ -360,8 +352,7 @@ namespace ModIO.EditorCode
             }
             else
             {
-                EditorGUILayout.HelpBox("No loadable mod profiles detected.",
-                                        MessageType.Info);
+                EditorGUILayout.HelpBox("No loadable mod profiles detected.", MessageType.Info);
             }
         }
 

@@ -15,7 +15,8 @@ namespace ModIO.UI.EditorCode
         {
             var oldValue = (ViewControlBindings.ButtonTriggerCondition)property.intValue;
             Enum enumNew = EditorGUI.EnumFlagsField(position, label, oldValue);
-            property.intValue = (int)Convert.ChangeType(enumNew, typeof(ViewControlBindings.ButtonTriggerCondition));
+            property.intValue = (int)Convert.ChangeType(
+                enumNew, typeof(ViewControlBindings.ButtonTriggerCondition));
         }
     }
 
@@ -27,7 +28,8 @@ namespace ModIO.UI.EditorCode
         {
             var oldValue = (ViewControlBindings.AxisTriggerCondition)property.intValue;
             Enum enumNew = EditorGUI.EnumFlagsField(position, label, oldValue);
-            property.intValue = (int)Convert.ChangeType(enumNew, typeof(ViewControlBindings.AxisTriggerCondition));
+            property.intValue =
+                (int)Convert.ChangeType(enumNew, typeof(ViewControlBindings.AxisTriggerCondition));
         }
     }
 }

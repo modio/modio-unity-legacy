@@ -19,7 +19,8 @@ namespace ModIO.UI.EditorCode
             if(apply)
             {
                 // Apply to receivers
-                SelectableColorApplicator[] applicators = Object.FindObjectsOfType<SelectableColorApplicator>();
+                SelectableColorApplicator[] applicators =
+                    Object.FindObjectsOfType<SelectableColorApplicator>();
                 foreach(SelectableColorApplicator sca in applicators)
                 {
                     sca.UpdateColorScheme_withUndo();
