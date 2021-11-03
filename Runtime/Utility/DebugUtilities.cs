@@ -170,10 +170,9 @@ namespace ModIO
             UnityWebRequestAsyncOperation o = operation as UnityWebRequestAsyncOperation;
             UnityWebRequest webRequest = o.webRequest;
             var now = ServerTimeStamp.Now;
-            bool isError = (webRequest.isNetworkError || webRequest.isHttpError);
 
             // should we log?
-            if(PluginSettings.REQUEST_LOGGING.logAllResponses || isError)
+            if(PluginSettings.REQUEST_LOGGING.logAllResponses || webRequest.IsError())
             {
                 RequestDebugData debugData;
                 if(!DebugUtilities.webRequestDebugData.TryGetValue(webRequest, out debugData))
@@ -193,7 +192,7 @@ namespace ModIO
 
                 // generate log string
                 var logString = new System.Text.StringBuilder();
-                if(!isError)
+                if(!webRequest.IsError())
                 {
                     logString.AppendLine("[mod.io] Web Request Succeeded");
                 }
@@ -239,7 +238,7 @@ namespace ModIO
                 logString.AppendLine(responseString);
 
                 // log
-                if(isError && PluginSettings.REQUEST_LOGGING.errorsAsWarnings)
+                if(webRequest.IsError() && PluginSettings.REQUEST_LOGGING.errorsAsWarnings)
                 {
                     Debug.LogWarning(logString.ToString());
                 }
@@ -436,7 +435,7 @@ namespace ModIO
             }
 
             // add error information
-            if(webRequest.isNetworkError || webRequest.isHttpError)
+            if(webRequest.IsError())
             {
                 var error = WebRequestError.GenerateFromWebRequest(webRequest);
 

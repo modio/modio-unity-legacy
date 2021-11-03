@@ -499,8 +499,7 @@ namespace ModIO.UI
                 return;
             }
 
-            if(webRequest.isHttpError || webRequest.isNetworkError
-               || !(webRequest.downloadHandler is DownloadHandlerTexture))
+            if(webRequest.IsError() || !(webRequest.downloadHandler is DownloadHandlerTexture))
             {
                 WebRequestError error = WebRequestError.GenerateFromWebRequest(webRequest);
                 this.OnRequestFailed(imageURL, error);

@@ -489,7 +489,7 @@ namespace ModIO
                 error = WebRequestError.GenerateLocal(
                     "User token changed while waiting for the request to complete.");
             }
-            else if(webRequest.isNetworkError || webRequest.isHttpError)
+            else if(webRequest.IsError())
             {
                 error = WebRequestError.GenerateFromWebRequest(webRequest);
 
