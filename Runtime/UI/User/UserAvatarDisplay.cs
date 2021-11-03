@@ -9,7 +9,9 @@ namespace ModIO.UI
         // ---------[ NESTED DATA-TYPES ]---------
         /// <summary>Event for notifying that the texture has changed.</summary>
         [System.Serializable]
-        public class TextureChangedEvent : UnityEngine.Events.UnityEvent<Texture2D> {}
+        public class TextureChangedEvent : UnityEngine.Events.UnityEvent<Texture2D>
+        {
+        }
 
         // ---------[ FIELDS ]---------
         /// <summary>Image component used to display the avatar.</summary>
@@ -33,18 +35,29 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         /// <summary>Current userId for the displayed avatar.</summary>
         public int UserId
-        { get { return this.m_userId;   } }
+        {
+            get {
+                return this.m_userId;
+            }
+        }
 
         /// <summary>Locator for the displayed avatar.</summary>
         public AvatarImageLocator Locator
-        { get { return this.m_locator;  } }
+        {
+            get {
+                return this.m_locator;
+            }
+        }
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>IUserViewElement interface.</summary>
         public void SetUserView(UserView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -114,9 +127,7 @@ namespace ModIO.UI
         /// <summary>Internal function for applying the texture.</summary>
         protected virtual void ApplyTexture(AvatarImageLocator locator, Texture2D texture)
         {
-            if(this != null
-               && this.m_locator == locator
-               && texture != null)
+            if(this != null && this.m_locator == locator && texture != null)
             {
                 this.image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
                 this.image.enabled = true;

@@ -12,7 +12,8 @@ namespace ModIO.UI
         public override event Action<ModProfileDisplayComponent> onClick;
 
         [Header("Settings")]
-        [Tooltip("If the profile has no description, the description display element(s) can be filled with the summary instead.")]
+        [Tooltip(
+            "If the profile has no description, the description display element(s) can be filled with the summary instead.")]
         public bool replaceMissingDescriptionWithSummary;
 
         [Header("UI Components")]
@@ -34,7 +35,8 @@ namespace ModIO.UI
         public Text metadataBlobDisplay;
 
         [Header("Display Data")]
-        [SerializeField] private ModProfileDisplayData m_data = new ModProfileDisplayData();
+        [SerializeField]
+        private ModProfileDisplayData m_data = new ModProfileDisplayData();
         private List<TextLoadingOverlay> m_loadingOverlays = new List<TextLoadingOverlay>();
 
         private delegate string GetDisplayString(ModProfileDisplayData data);
@@ -43,9 +45,10 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         public override ModProfileDisplayData data
         {
-            get { return m_data; }
-            set
-            {
+            get {
+                return m_data;
+            }
+            set {
                 m_data = value;
                 PresentData();
             }
@@ -53,23 +56,22 @@ namespace ModIO.UI
 
         private void PresentData()
         {
-            #if UNITY_EDITOR
-            if(!Application.isPlaying && this.m_displayMapping == null) { return; }
-            #endif
+#if UNITY_EDITOR
+            if(!Application.isPlaying && this.m_displayMapping == null)
+            {
+                return;
+            }
+#endif
 
             if(this.m_displayMapping == null)
             {
                 this.Initialize();
             }
 
-            foreach(var kvp in m_displayMapping)
-            {
-                kvp.Key.text = kvp.Value(m_data);
-            }
+            foreach(var kvp in m_displayMapping) { kvp.Key.text = kvp.Value(m_data); }
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
-                if(loadingOverlay != null
-                   && loadingOverlay.gameObject != null)
+                if(loadingOverlay != null && loadingOverlay.gameObject != null)
                 {
                     loadingOverlay.gameObject.SetActive(false);
                 }
@@ -108,15 +110,20 @@ namespace ModIO.UI
             }
             if(dateAddedDisplay != null)
             {
-                m_displayMapping.Add(dateAddedDisplay, (d) => ServerTimeStamp.ToLocalDateTime(d.dateAdded).ToString());
+                m_displayMapping.Add(dateAddedDisplay,
+                                     (d) =>
+                                         ServerTimeStamp.ToLocalDateTime(d.dateAdded).ToString());
             }
             if(dateUpdatedDisplay != null)
             {
-                m_displayMapping.Add(dateUpdatedDisplay, (d) => ServerTimeStamp.ToLocalDateTime(d.dateUpdated).ToString());
+                m_displayMapping.Add(dateUpdatedDisplay,
+                                     (d) =>
+                                         ServerTimeStamp.ToLocalDateTime(d.dateUpdated).ToString());
             }
             if(dateLiveDisplay != null)
             {
-                m_displayMapping.Add(dateLiveDisplay, (d) => ServerTimeStamp.ToLocalDateTime(d.dateLive).ToString());
+                m_displayMapping.Add(dateLiveDisplay,
+                                     (d) => ServerTimeStamp.ToLocalDateTime(d.dateLive).ToString());
             }
             if(contentWarningsDisplay != null)
             {
@@ -124,7 +131,8 @@ namespace ModIO.UI
             }
             if(homepageURLDisplay != null)
             {
-                m_displayMapping.Add(homepageURLDisplay, (d) => Utility.SafeTrimString(d.homepageURL));
+                m_displayMapping.Add(homepageURLDisplay,
+                                     (d) => Utility.SafeTrimString(d.homepageURL));
             }
             if(nameDisplay != null)
             {
@@ -140,12 +148,10 @@ namespace ModIO.UI
             }
             if(descriptionAsHTMLDisplay != null)
             {
-                m_displayMapping.Add(descriptionAsHTMLDisplay, (d) =>
-                {
+                m_displayMapping.Add(descriptionAsHTMLDisplay, (d) => {
                     string description = d.descriptionAsHTML;
 
-                    if(replaceMissingDescriptionWithSummary
-                       && String.IsNullOrEmpty(description))
+                    if(replaceMissingDescriptionWithSummary && String.IsNullOrEmpty(description))
                     {
                         description = d.summary;
                     }
@@ -155,12 +161,10 @@ namespace ModIO.UI
             }
             if(descriptionAsTextDisplay != null)
             {
-                m_displayMapping.Add(descriptionAsTextDisplay, (d) =>
-                {
+                m_displayMapping.Add(descriptionAsTextDisplay, (d) => {
                     string description = d.descriptionAsText;
 
-                    if(replaceMissingDescriptionWithSummary
-                       && String.IsNullOrEmpty(description))
+                    if(replaceMissingDescriptionWithSummary && String.IsNullOrEmpty(description))
                     {
                         description = d.summary;
                     }
@@ -174,13 +178,15 @@ namespace ModIO.UI
             }
             if(profileURLDisplay != null)
             {
-                m_displayMapping.Add(profileURLDisplay, (d) => Utility.SafeTrimString(d.profileURL.Trim()));
+                m_displayMapping.Add(profileURLDisplay,
+                                     (d) => Utility.SafeTrimString(d.profileURL.Trim()));
             }
         }
 
         private void CollectLoadingOverlays()
         {
-            TextLoadingOverlay[] childLoadingOverlays = this.gameObject.GetComponentsInChildren<TextLoadingOverlay>(true);
+            TextLoadingOverlay[] childLoadingOverlays =
+                this.gameObject.GetComponentsInChildren<TextLoadingOverlay>(true);
             List<Text> textDisplays = new List<Text>(m_displayMapping.Keys);
 
             m_loadingOverlays = new List<TextLoadingOverlay>();
@@ -222,7 +228,7 @@ namespace ModIO.UI
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void OnValidate()
         {
             UnityEditor.EditorApplication.delayCall += () =>
@@ -235,6 +241,6 @@ namespace ModIO.UI
                 }
             };
         }
-        #endif
+#endif
     }
 }

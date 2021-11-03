@@ -4,7 +4,8 @@ namespace ModIO.API
     {
         // (integer) Unique id of the game.
         public const string id = "id";
-        // (integer) Status of the game (only admins can filter by this field, see status and visibility for details)
+        // (integer) Status of the game (only admins can filter by this field, see status and
+        // visibility for details)
         public const string status = "status";
         // (integer) Unique id of the user who has ownership of the game.
         public const string submittedByUserId = "submitted_by";
@@ -20,7 +21,8 @@ namespace ModIO.API
         public const string nameId = "name_id";
         // (string)  Summary of the game.
         public const string summary = "summary";
-        // (string)  Link to a mod.io guide, modding wiki or a page where modders can learn how to make and submit mods.
+        // (string)  Link to a mod.io guide, modding wiki or a page where modders can learn how to
+        // make and submit mods.
         public const string instructionsURL = "instructions_url";
         // (string)  Word used to describe user-generated content (mods, items, addons etc).
         public const string ugcName = "ugc_name";

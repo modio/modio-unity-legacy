@@ -13,7 +13,7 @@ namespace ModIO.UI
         public float duration = 0.5f;
     }
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
     [CustomEditor(typeof(ToastAnimationSettings))]
     [CanEditMultipleObjects]
     public class ToastAnimationEditor : UnityEditor.Editor
@@ -54,10 +54,9 @@ namespace ModIO.UI
                 Handles.DrawDottedLine(pivot, pivot + t.offset, 10f);
 
                 Handles.DrawWireDisc(pivot + t.offset, Vector3.forward, 9f);
-
             }
             // Handles.EndGUI();
         }
     }
-    #endif
+#endif
 }

@@ -8,7 +8,8 @@ namespace ModIO.UI
     public class YouTubeThumbnailContainer : MonoBehaviour, IModViewElement
     {
         // ---------[ FIELDS ]---------
-        /// <summary>Template to duplicate for the purpose of displaying the YouTube thumbs.</summary>
+        /// <summary>Template to duplicate for the purpose of displaying the YouTube
+        /// thumbs.</summary>
         public RectTransform containerTemplate = null;
 
         /// <summary>Should the template be disabled if empty?</summary>
@@ -45,29 +46,33 @@ namespace ModIO.UI
         /// <summary>Initialize template.</summary>
         protected virtual void Start()
         {
-            // check template
-            #if DEBUG
+// check template
+#if DEBUG
             string message;
             if(!YouTubeThumbnailContainer.HasValidTemplate(this, out message))
             {
                 Debug.LogError("[mod.io] " + message, this);
                 return;
             }
-            #endif
+#endif
 
             // get template vars
             Transform templateParent = this.containerTemplate.parent;
             string templateInstance_name = this.containerTemplate.gameObject.name + " (Instance)";
             int templateInstance_index = this.containerTemplate.GetSiblingIndex() + 1;
-            this.m_itemTemplate = this.containerTemplate.GetComponentInChildren<YouTubeThumbnailDisplay>(true);
+            this.m_itemTemplate =
+                this.containerTemplate.GetComponentInChildren<YouTubeThumbnailDisplay>(true);
 
             // duplication protection
-            bool isInstantiated = (templateParent.childCount > templateInstance_index
-                                   && templateParent.GetChild(templateInstance_index).gameObject.name == templateInstance_name);
+            bool isInstantiated =
+                (templateParent.childCount > templateInstance_index
+                 && templateParent.GetChild(templateInstance_index).gameObject.name
+                        == templateInstance_name);
             if(isInstantiated)
             {
                 this.m_templateClone = templateParent.GetChild(templateInstance_index).gameObject;
-                YouTubeThumbnailDisplay[] itemInstances = this.m_templateClone.GetComponentsInChildren<YouTubeThumbnailDisplay>(true);
+                YouTubeThumbnailDisplay[] itemInstances =
+                    this.m_templateClone.GetComponentsInChildren<YouTubeThumbnailDisplay>(true);
 
                 if(itemInstances == null || itemInstances.Length == 0)
                 {
@@ -87,11 +92,13 @@ namespace ModIO.UI
 
             if(!isInstantiated)
             {
-                this.m_templateClone = GameObject.Instantiate(this.containerTemplate.gameObject, templateParent);
+                this.m_templateClone =
+                    GameObject.Instantiate(this.containerTemplate.gameObject, templateParent);
                 this.m_templateClone.transform.SetSiblingIndex(templateInstance_index);
                 this.m_templateClone.name = templateInstance_name;
 
-                YouTubeThumbnailDisplay itemInstance = this.m_templateClone.GetComponentInChildren<YouTubeThumbnailDisplay>(true);
+                YouTubeThumbnailDisplay itemInstance =
+                    this.m_templateClone.GetComponentInChildren<YouTubeThumbnailDisplay>(true);
                 this.m_container = (RectTransform)itemInstance.transform.parent;
                 GameObject.Destroy(itemInstance.gameObject);
 
@@ -111,7 +118,10 @@ namespace ModIO.UI
         public virtual void SetModView(ModView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -141,9 +151,7 @@ namespace ModIO.UI
             int modId = ModProfile.NULL_ID;
             string[] youTubeIds = null;
 
-            if(profile != null
-               && profile.media != null
-               && profile.media.youTubeURLs != null)
+            if(profile != null && profile.media != null && profile.media.youTubeURLs != null)
             {
                 modId = profile.id;
 
@@ -174,10 +182,7 @@ namespace ModIO.UI
                 }
 
                 this.m_youTubeIds = new string[thumbCount];
-                for(int i = 0; i < thumbCount; ++i)
-                {
-                    this.m_youTubeIds[i] = youTubeIds[i];
-                }
+                for(int i = 0; i < thumbCount; ++i) { this.m_youTubeIds[i] = youTubeIds[i]; }
             }
 
             // display
@@ -189,9 +194,7 @@ namespace ModIO.UI
                                              ref this.m_displays);
 
                 // display data
-                for(int i = 0;
-                    i < this.m_youTubeIds.Length;
-                    ++i)
+                for(int i = 0; i < this.m_youTubeIds.Length; ++i)
                 {
                     this.m_displays[i].DisplayThumbnail(this.m_modId, this.m_youTubeIds[i]);
                 }
@@ -203,7 +206,8 @@ namespace ModIO.UI
 
         // ---------[ UTILITY ]---------
         /// <summary>Checks a YouTubeThumbnailContainer's template structure.</summary>
-        public static bool HasValidTemplate(YouTubeThumbnailContainer container, out string helpMessage)
+        public static bool HasValidTemplate(YouTubeThumbnailContainer container,
+                                            out string helpMessage)
         {
             helpMessage = null;
             bool isValid = true;
@@ -213,8 +217,7 @@ namespace ModIO.UI
             // null check
             if(container.containerTemplate == null)
             {
-                helpMessage = ("Invalid template:"
-                               + " The container template is unassigned.");
+                helpMessage = ("Invalid template:" + " The container template is unassigned.");
                 isValid = false;
             }
             // containerTemplate is child of Component
@@ -226,17 +229,21 @@ namespace ModIO.UI
                 isValid = false;
             }
             // YouTubeThumbnailDisplay is found under containerTemplate
-            else if((itemTemplate = container.containerTemplate.gameObject.GetComponentInChildren<YouTubeThumbnailDisplay>()) == null)
+            else if((itemTemplate = container.containerTemplate.gameObject
+                                        .GetComponentInChildren<YouTubeThumbnailDisplay>())
+                    == null)
             {
-                helpMessage = ("Invalid template:"
-                               + " No YouTubeThumbnailDisplay component found in the children of the container template.");
+                helpMessage =
+                    ("Invalid template:"
+                     + " No YouTubeThumbnailDisplay component found in the children of the container template.");
                 isValid = false;
             }
             // YouTubeThumbnailDisplay is on same gameObject as containerTemplate
             else if(itemTemplate.transform == container.containerTemplate)
             {
-                helpMessage = ("Invalid template:"
-                               + " The YouTubeThumbnailDisplay component cannot share a GameObject with the container template.");
+                helpMessage =
+                    ("Invalid template:"
+                     + " The YouTubeThumbnailDisplay component cannot share a GameObject with the container template.");
                 isValid = false;
             }
 

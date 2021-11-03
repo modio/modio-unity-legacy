@@ -12,7 +12,8 @@ namespace ModIO.UI
         public RectTransform dropdown = null;
         /// <summary>Display for the logged in user.</summary>
         public UserView loggedUser = null;
-        /// <summary>The menu option for viewing the player's profile on the mod.io website.</summary>
+        /// <summary>The menu option for viewing the player's profile on the mod.io
+        /// website.</summary>
         public Button viewProfileButton = null;
         /// <summary>The menu option that lets the player log out.</summary>
         public Button logoutButton = null;

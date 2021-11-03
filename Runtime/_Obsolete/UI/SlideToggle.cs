@@ -14,17 +14,23 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         [Header("Settings")]
         [Tooltip("Should the slide button untoggle when the user moves the mouse away?")]
-        [SerializeField] private bool m_untoggleOnMouseExit = false;
-        [SerializeField] private SlideAxis m_slideAxis = SlideAxis.Horizontal;
-        [SerializeField] private float m_slideDuration = 0.15f;
+        [SerializeField]
+        private bool m_untoggleOnMouseExit = false;
+        [SerializeField]
+        private SlideAxis m_slideAxis = SlideAxis.Horizontal;
+        [SerializeField]
+        private float m_slideDuration = 0.15f;
         [Tooltip("Set duration to block clicks for after the slide animation")]
-        [SerializeField] private float m_reactivateDelay = 0.05f;
+        [SerializeField]
+        private float m_reactivateDelay = 0.05f;
 
         [Header("UI Components")]
-        [SerializeField] private RectTransform content = null;
+        [SerializeField]
+        private RectTransform content = null;
 
         [Header("Display Data")]
-        [SerializeField] private bool m_isOn = false;
+        [SerializeField]
+        private bool m_isOn = false;
 
         // --- RUNTIME DATA ---
         private GameObject m_clickBlocker = null;
@@ -33,9 +39,10 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         public override bool isOn
         {
-            get { return m_isOn; }
-            set
-            {
+            get {
+                return m_isOn;
+            }
+            set {
                 if(m_isOn != value)
                 {
                     m_isOn = value;
@@ -46,9 +53,10 @@ namespace ModIO.UI
 
         public SlideAxis slideAxis
         {
-            get { return m_slideAxis; }
-            set
-            {
+            get {
+                return m_slideAxis;
+            }
+            set {
                 if(m_slideAxis != value)
                 {
                     m_slideAxis = value;
@@ -59,7 +67,9 @@ namespace ModIO.UI
 
         public bool isAnimating
         {
-            get { return m_animation != null; }
+            get {
+                return m_animation != null;
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -101,7 +111,10 @@ namespace ModIO.UI
         // ---------[ UI FUNCTIONALITY ]---------
         private void UpdateScroll(bool animate)
         {
-            if(content == null) { return; }
+            if(content == null)
+            {
+                return;
+            }
 
             Vector2 startPos;
             Vector2 targetPos;
@@ -155,7 +168,8 @@ namespace ModIO.UI
 
             float elapsed = 0f;
             float distance = Vector2.Distance(startPos, targetPos);
-            float factoredDuration = (Vector2.Distance(currentPos, targetPos) / distance) * m_slideDuration;
+            float factoredDuration =
+                (Vector2.Distance(currentPos, targetPos) / distance) * m_slideDuration;
 
             m_clickBlocker.SetActive(true);
 
@@ -197,7 +211,7 @@ namespace ModIO.UI
             Rect pDim = content.parent.GetComponent<RectTransform>().rect;
 
             // placement of offsetMax.x to right-align
-            float offsetPos = (1f-content.anchorMax.x) * pDim.width;
+            float offsetPos = (1f - content.anchorMax.x) * pDim.width;
 
             // offset -> pivot
             float pivotDiff = content.anchoredPosition.x - content.offsetMax.x;
@@ -224,7 +238,7 @@ namespace ModIO.UI
             Rect pDim = content.parent.GetComponent<RectTransform>().rect;
 
             // placement of offsetMax.y to top-align
-            float offsetPos = (1f-content.anchorMax.y) * pDim.height;
+            float offsetPos = (1f - content.anchorMax.y) * pDim.height;
 
             // offset -> pivot
             float pivotDiff = content.anchoredPosition.y - content.offsetMax.y;
@@ -234,7 +248,7 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENTS ]---------
-        //Detect when Cursor leaves the GameObject
+        // Detect when Cursor leaves the GameObject
         public void OnPointerExit(UnityEngine.EventSystems.PointerEventData pointerEventData)
         {
             if(m_untoggleOnMouseExit)
@@ -243,7 +257,7 @@ namespace ModIO.UI
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void OnValidate()
         {
             UnityEditor.EditorApplication.delayCall += () =>
@@ -254,6 +268,6 @@ namespace ModIO.UI
                 }
             };
         }
-        #endif
+#endif
     }
 }

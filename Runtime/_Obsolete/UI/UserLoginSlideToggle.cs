@@ -7,14 +7,26 @@ namespace ModIO.UI
     [RequireComponent(typeof(SlideToggle))]
     public class UserLoginSlideToggle : MonoBehaviour
     {
-        private UserView view { get { return this.gameObject.GetComponent<UserView>(); } }
+        private UserView view
+        {
+            get {
+                return this.gameObject.GetComponent<UserView>();
+            }
+        }
         private SlideToggle slider
-        { get { return this.gameObject.GetComponent<SlideToggle>(); } }
+        {
+            get {
+                return this.gameObject.GetComponent<SlideToggle>();
+            }
+        }
 
         // ---------[ EVENTS ]---------
         public void OnUserClicked()
         {
-            if(slider.isAnimating) { return; }
+            if(slider.isAnimating)
+            {
+                return;
+            }
 
             if(view.profile.id != UserProfile.NULL_ID)
             {
@@ -28,7 +40,10 @@ namespace ModIO.UI
 
         public void OnLogoutClicked()
         {
-            if(slider.isAnimating) { return; }
+            if(slider.isAnimating)
+            {
+                return;
+            }
 
             view.NotifyClicked();
             slider.isOn = false;

@@ -19,7 +19,11 @@ namespace ModIO.UI
 
         // ---------[ ACCESSORS ]---------
         public ModTagCollectionDisplayComponent tagDisplay
-        { get { return this.gameObject.GetComponent<ModTagCollectionDisplayComponent>(); } }
+        {
+            get {
+                return this.gameObject.GetComponent<ModTagCollectionDisplayComponent>();
+            }
+        }
 
         // ---------[ INITIALIZATION ]---------
         public void Initialize()
@@ -36,8 +40,7 @@ namespace ModIO.UI
             Debug.Assert(categoryName != null);
             Debug.Assert(tags != null);
 
-            ModTagCategory category = new ModTagCategory()
-            {
+            ModTagCategory category = new ModTagCategory() {
                 name = categoryName,
                 tags = tags.ToArray(),
             };
@@ -48,7 +51,7 @@ namespace ModIO.UI
             Debug.Assert(category != null);
 
             nameDisplay.text = (capitalizeCategory ? category.name.ToUpper() : category.name);
-            tagDisplay.DisplayTags(category.tags, new ModTagCategory[]{ category });
+            tagDisplay.DisplayTags(category.tags, new ModTagCategory[] { category });
         }
     }
 }

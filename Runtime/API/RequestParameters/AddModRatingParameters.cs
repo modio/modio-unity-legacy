@@ -6,16 +6,15 @@ namespace ModIO.API
         /// <summary>The authenticated users mod rating.</summary>
         public ModRatingValue ratingValue
         {
-            set
-            {
-                #if DEBUG
+            set {
+#if DEBUG
                 if(value == ModRatingValue.None)
                 {
                     UnityEngine.Debug.LogError("[mod.io] Submitting a rating value of \'None\' is"
                                                + " currently not supported by the mod.io API.");
                     return;
                 }
-                #endif
+#endif
 
                 int intValue = AddModRatingParameters.ConvertEnumToInt(value);
                 this.SetStringValue("rating", intValue.ToString());
@@ -72,7 +71,9 @@ namespace ModIO.API
         [System.Obsolete("Use ratingValue instead.")]
         public int rating
         {
-            set { this.SetStringValue("rating", value.ToString()); }
+            set {
+                this.SetStringValue("rating", value.ToString());
+            }
         }
     }
 }

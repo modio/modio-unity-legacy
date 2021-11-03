@@ -9,7 +9,9 @@ namespace ModIO.UI
         // ---------[ NESTED DATA-TYPES ]---------
         /// <summary>Event for notifying listeners of a change to the mod profile.</summary>
         [System.Serializable]
-        public class ProfileChangedEvent : UnityEngine.Events.UnityEvent<UserProfile> {}
+        public class ProfileChangedEvent : UnityEngine.Events.UnityEvent<UserProfile>
+        {
+        }
 
         // ---------[ FIELDS ]---------
         public event System.Action<UserView> onClick;
@@ -25,9 +27,10 @@ namespace ModIO.UI
         /// <summary>Currently displayed user profile.</summary>
         public UserProfile profile
         {
-            get { return this.m_profile; }
-            set
-            {
+            get {
+                return this.m_profile;
+            }
+            set {
                 if(this.m_profile != value)
                 {
                     this.m_profile = value;
@@ -43,19 +46,19 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
         {
-            #if DEBUG
+#if DEBUG
             UserView nested = this.gameObject.GetComponentInChildren<UserView>(true);
             if(nested != null && nested != this)
             {
-                Debug.LogError("[mod.io] Nesting UserViews is currently not supported due to the"
-                               + " way IUserViewElement component parenting works."
-                               + "\nThe nested UserViews must be removed to allow UserView functionality."
-                               + "\nthis=" + this.gameObject.name
-                               + "\nnested=" + nested.gameObject.name,
-                               this);
+                Debug.LogError(
+                    "[mod.io] Nesting UserViews is currently not supported due to the"
+                        + " way IUserViewElement component parenting works."
+                        + "\nThe nested UserViews must be removed to allow UserView functionality."
+                        + "\nthis=" + this.gameObject.name + "\nnested=" + nested.gameObject.name,
+                    this);
                 return;
             }
-            #endif
+#endif
 
             // assign user view elements to this
             var userViewElements = this.gameObject.GetComponentsInChildren<IUserViewElement>(true);
@@ -75,17 +78,18 @@ namespace ModIO.UI
         }
 
         // ---------[ OBSOLETE ]---------
-        [System.Obsolete("Use UserAvatarDisplay component instead.")][HideInInspector]
+        [System.Obsolete("Use UserAvatarDisplay component instead.")]
+        [HideInInspector]
         public ImageDisplay avatarDisplay;
 
-        [System.Obsolete("Use UserProfileFieldDisplay components instead.")][HideInInspector]
-        public UserProfileDisplayComponent  profileDisplay;
+        [System.Obsolete("Use UserProfileFieldDisplay components instead.")]
+        [HideInInspector]
+        public UserProfileDisplayComponent profileDisplay;
 
         [System.Obsolete]
         public UserDisplayData data
         {
-            get
-            {
+            get {
                 if(this.m_profile == null)
                 {
                     return new UserDisplayData();
@@ -94,18 +98,17 @@ namespace ModIO.UI
                 {
                     UserDisplayData data = new UserDisplayData();
                     data.profile = UserProfileDisplayData.CreateFromProfile(profile);
-                    data.avatar = ImageDisplayData.CreateForUserAvatar(profile.id, profile.avatarLocator);
+                    data.avatar =
+                        ImageDisplayData.CreateForUserAvatar(profile.id, profile.avatarLocator);
                     return data;
                 }
             }
-            set
-            {
+            set {
                 throw new System.NotImplementedException();
             }
         }
 
-        [System.Obsolete("No longer necessary.")]
-        public void Initialize() {}
+        [System.Obsolete("No longer necessary.")] public void Initialize() {}
 
         [System.Obsolete("Use UserView.profile instead.")]
         public void DisplayUser(UserProfile userProfile)

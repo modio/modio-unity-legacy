@@ -4,7 +4,8 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    [Obsolete("Use ModLogoDisplay, GalleryImageDisplay, YouTubeThumbnailDisplay, and UserAvatarDisplay instead.")]
+    [Obsolete(
+        "Use ModLogoDisplay, GalleryImageDisplay, YouTubeThumbnailDisplay, and UserAvatarDisplay instead.")]
     public class ImageDisplay : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
@@ -29,19 +30,21 @@ namespace ModIO.UI
         public GameObject youTubeOverlay;
 
         [Header("Display Data")]
-        [SerializeField] private ImageDisplayData m_data = new ImageDisplayData();
+        [SerializeField]
+        private ImageDisplayData m_data = new ImageDisplayData();
 
         // --- ACCESSORS ---
         public ImageDisplayData data
         {
-            get { return m_data; }
-            set
-            {
+            get {
+                return m_data;
+            }
+            set {
                 m_data = value;
 
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
                 if(Application.isPlaying)
-                #endif
+#endif
                 {
                     PresentData();
                 }
@@ -58,21 +61,19 @@ namespace ModIO.UI
             if(!string.IsNullOrEmpty(imageURL))
             {
                 ImageDisplayData iData = this.m_data;
-                ImageRequestManager.instance.RequestImageForData(this.m_data, this.useOriginal,
-                (t) =>
-                {
-                    if(this != null && iData.Equals(this.m_data))
-                    {
-                        if(loadingOverlay != null)
+                ImageRequestManager.instance.RequestImageForData(
+                    this.m_data, this.useOriginal, (t) => {
+                        if(this != null && iData.Equals(this.m_data))
                         {
-                            loadingOverlay.SetActive(false);
-                        }
+                            if(loadingOverlay != null)
+                            {
+                                loadingOverlay.SetActive(false);
+                            }
 
-                        DisplayTexture(t);
-                        SetOverlayVisibility(true);
-                    }
-                },
-                null);
+                            DisplayTexture(t);
+                            SetOverlayVisibility(true);
+                        }
+                    }, null);
             }
         }
 
@@ -97,18 +98,17 @@ namespace ModIO.UI
         {
             if(avatarOverlay != null)
             {
-                avatarOverlay.SetActive(isVisible &&
-                                        m_data.descriptor == ImageDescriptor.UserAvatar);
+                avatarOverlay.SetActive(isVisible
+                                        && m_data.descriptor == ImageDescriptor.UserAvatar);
             }
             if(logoOverlay != null)
             {
-                logoOverlay.SetActive(isVisible
-                                      && m_data.descriptor == ImageDescriptor.ModLogo);
+                logoOverlay.SetActive(isVisible && m_data.descriptor == ImageDescriptor.ModLogo);
             }
             if(galleryImageOverlay != null)
             {
-                galleryImageOverlay.SetActive(isVisible
-                                              && m_data.descriptor == ImageDescriptor.ModGalleryImage);
+                galleryImageOverlay.SetActive(
+                    isVisible && m_data.descriptor == ImageDescriptor.ModGalleryImage);
             }
             if(youTubeOverlay != null)
             {
@@ -171,7 +171,8 @@ namespace ModIO.UI
         {
             Debug.Assert(locator != null);
 
-            ImageDisplayData displayData = ImageDisplayData.CreateForModGalleryImage(modId, locator);
+            ImageDisplayData displayData =
+                ImageDisplayData.CreateForModGalleryImage(modId, locator);
             m_data = displayData;
 
             PresentData();
@@ -182,7 +183,8 @@ namespace ModIO.UI
             Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
                          "[mod.io] youTubeVideoId needs to be set to a valid YouTube video id.");
 
-            ImageDisplayData displayData = ImageDisplayData.CreateForYouTubeThumbnail(modId, youTubeVideoId);
+            ImageDisplayData displayData =
+                ImageDisplayData.CreateForYouTubeThumbnail(modId, youTubeVideoId);
             m_data = displayData;
 
             PresentData();

@@ -28,7 +28,10 @@ namespace ModIO
             var dictionary = new Dictionary<string, string>(kvpArray.Length);
             foreach(MetadataKVP kvp in kvpArray)
             {
-                if(string.IsNullOrEmpty(kvp.key)) { continue; }
+                if(string.IsNullOrEmpty(kvp.key))
+                {
+                    continue;
+                }
 
                 dictionary.Add(kvp.key, kvp.value);
             }
@@ -45,11 +48,7 @@ namespace ModIO
 
             foreach(var kvp in dictionary)
             {
-                MetadataKVP newKVP = new MetadataKVP()
-                {
-                    key = kvp.Key,
-                    value = kvp.Value
-                };
+                MetadataKVP newKVP = new MetadataKVP() { key = kvp.Key, value = kvp.Value };
 
                 array[index++] = newKVP;
             }
@@ -58,7 +57,8 @@ namespace ModIO
         }
 
         /// <summary>Converts an array of MetadataKVP to a Dictionary.</summary>
-        public static Dictionary<string, List<string>> ArrayToDictionary_DuplicateKeys(MetadataKVP[] kvpArray)
+        public static Dictionary<string, List<string>> ArrayToDictionary_DuplicateKeys(
+            MetadataKVP[] kvpArray)
         {
             Debug.Assert(kvpArray != null);
 
@@ -67,7 +67,10 @@ namespace ModIO
 
             foreach(MetadataKVP kvp in kvpArray)
             {
-                if(string.IsNullOrEmpty(kvp.key)) { continue; }
+                if(string.IsNullOrEmpty(kvp.key))
+                {
+                    continue;
+                }
 
                 if(!dictionary.TryGetValue(kvp.key, out stringList))
                 {
@@ -82,7 +85,8 @@ namespace ModIO
         }
 
         /// <summary>Converts a dictionary to a MetadataKVP array.</summary>
-        public static IList<MetadataKVP> DictionaryToArray(Dictionary<string, List<string>> dictionary)
+        public static IList<MetadataKVP> DictionaryToArray(
+            Dictionary<string, List<string>> dictionary)
         {
             Debug.Assert(dictionary != null);
 
@@ -92,8 +96,7 @@ namespace ModIO
             {
                 if(kvp.Value == null)
                 {
-                    MetadataKVP newKVP = new MetadataKVP()
-                    {
+                    MetadataKVP newKVP = new MetadataKVP() {
                         key = kvp.Key,
                         value = null,
                     };
@@ -104,8 +107,7 @@ namespace ModIO
                 {
                     foreach(var stringValue in kvp.Value)
                     {
-                        MetadataKVP newKVP = new MetadataKVP()
-                        {
+                        MetadataKVP newKVP = new MetadataKVP() {
                             key = kvp.Key,
                             value = stringValue,
                         };

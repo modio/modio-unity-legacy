@@ -2,12 +2,14 @@
 
 namespace ModIO.UI
 {
-    /// <summary>Provides compatibility fixes for functionality missing from earlier versions of Unity.</summary>
+    /// <summary>Provides compatibility fixes for functionality missing from earlier versions of
+    /// Unity.</summary>
     public static class UIComponentExtensions
     {
-        #if !UNITY_2019_1_OR_NEWER
+#if !UNITY_2019_1_OR_NEWER
 
-        /// <summary>Allows a Toggle value to be set without triggering the onValueChanged event.</summary>
+        /// <summary>Allows a Toggle value to be set without triggering the onValueChanged
+        /// event.</summary>
         public static void SetIsOnWithoutNotify(this Toggle toggle, bool value)
         {
             Toggle.ToggleEvent oldEvent = toggle.onValueChanged;
@@ -18,6 +20,6 @@ namespace ModIO.UI
             toggle.onValueChanged = oldEvent;
         }
 
-        #endif
+#endif
     }
 }

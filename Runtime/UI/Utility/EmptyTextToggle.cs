@@ -2,7 +2,8 @@ using UnityEngine;
 
 namespace ModIO.UI
 {
-    /// <summary>Controls a StateToggleDisplay component based on whether a field display value is empty.</summary>
+    /// <summary>Controls a StateToggleDisplay component based on whether a field display value is
+    /// empty.</summary>
     public class EmptyTextToggle : MonoBehaviour
     {
         // ---------[ Nested Data ]---------
@@ -11,7 +12,7 @@ namespace ModIO.UI
         {
             OffIfNullOrEmpty,
             OnIfNullOrEmpty,
-        };
+        }
 
         // ---------[ Fields ]---------
         /// <summary>StateToggleDisplay to control.</summary>
@@ -29,13 +30,14 @@ namespace ModIO.UI
         {
             Debug.Assert(this.textComponent.displayComponent != null,
                          "[mod.io] EmptyTextToggle component requires an assigned text component"
-                         + " in order to function correctly.",
+                             + " in order to function correctly.",
                          this);
 
-            Debug.Assert(this.targetToggle != null,
-                         "[mod.io] EmptyTextToggle component requires an StateToggleDisplay component"
-                         + " in order to function correctly.",
-                         this);
+            Debug.Assert(
+                this.targetToggle != null,
+                "[mod.io] EmptyTextToggle component requires an StateToggleDisplay component"
+                    + " in order to function correctly.",
+                this);
         }
 
         /// <summary>summary</summary>

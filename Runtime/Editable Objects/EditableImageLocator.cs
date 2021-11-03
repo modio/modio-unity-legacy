@@ -8,8 +8,7 @@ namespace ModIO
 
         public static ImageLocatorData CreateFromImageLocator(IImageLocator locator)
         {
-            ImageLocatorData retVal = new ImageLocatorData()
-            {
+            ImageLocatorData retVal = new ImageLocatorData() {
                 fileName = locator.GetFileName(),
                 url = locator.GetURL(),
             };
@@ -21,10 +20,18 @@ namespace ModIO
     public class EditableImageLocatorField : EditableField<ImageLocatorData>, IImageLocator
     {
         // ---------[ IIMAGELOCATOR INTERFACE ]---------
-        public string GetFileName() { return this.value.fileName; }
-        public string GetURL()      { return this.value.url; }
+        public string GetFileName()
+        {
+            return this.value.fileName;
+        }
+        public string GetURL()
+        {
+            return this.value.url;
+        }
     }
 
     [System.Serializable]
-    public class EditableImageLocatorArrayField : EditableArrayField<ImageLocatorData>{}
+    public class EditableImageLocatorArrayField : EditableArrayField<ImageLocatorData>
+    {
+    }
 }

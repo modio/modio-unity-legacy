@@ -6,7 +6,9 @@ namespace ModIO.UI
 {
     /// <summary>Component used to display the subscribed state of a mod.</summary>
     [RequireComponent(typeof(StateToggleDisplay))]
-    public class ModSubscribedDisplay : MonoBehaviour, IModViewElement, IModSubscriptionsUpdateReceiver
+    public class ModSubscribedDisplay : MonoBehaviour,
+                                        IModViewElement,
+                                        IModSubscriptionsUpdateReceiver
     {
         // ---------[ FIELDS ]---------
         /// <summary>Parent ModView.</summary>
@@ -20,7 +22,10 @@ namespace ModIO.UI
         public void SetModView(ModView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -68,7 +73,8 @@ namespace ModIO.UI
         {
             this.m_modId = modId;
 
-            foreach(StateToggleDisplay display in this.gameObject.GetComponents<StateToggleDisplay>())
+            foreach(StateToggleDisplay display in this.gameObject
+                        .GetComponents<StateToggleDisplay>())
             {
                 display.isOn = isSubscribed;
             }

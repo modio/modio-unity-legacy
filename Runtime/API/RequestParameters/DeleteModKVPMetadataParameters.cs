@@ -9,8 +9,7 @@ namespace ModIO.API
         /// </summary>
         public string[] metadataKeys
         {
-            set
-            {
+            set {
                 this.SetStringArrayValue("metadata[]", value);
             }
         }

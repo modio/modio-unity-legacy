@@ -9,27 +9,35 @@ namespace ModIO.API
         // make three thumbnails for the dimensions 320x180, 640x360 and 1280x720.
         public BinaryUpload logo
         {
-            set { this.SetBinaryData("logo", value.fileName, value.data); }
+            set {
+                this.SetBinaryData("logo", value.fileName, value.data);
+            }
         }
 
         // [Required] Name of your mod.
         public string name
         {
-            set { this.SetStringValue("name", value); }
+            set {
+                this.SetStringValue("name", value);
+            }
         }
 
         // [Required] Summary for your mod, giving a brief overview of what it's about. Cannot
         // exceed 250 characters.
         public string summary
         {
-            set { this.SetStringValue("summary", value); }
+            set {
+                this.SetStringValue("summary", value);
+            }
         }
 
         // Visibility of the mod (best if this field is controlled by mod admins, see status and
         // visibility for details):
         public ModVisibility visibility
         {
-            set { this.SetStringValue("visible", (int)value); }
+            set {
+                this.SetStringValue("visible", (int)value);
+            }
         }
 
         // Path for the mod on mod.io. For example: https://gamename.mod.io/mod-name-id-here. If no
@@ -37,20 +45,26 @@ namespace ModIO.API
         // become 'stellaris-shader-mod'. Cannot exceed 80 characters.
         public string nameId
         {
-            set { this.SetStringValue("name_id", value); }
+            set {
+                this.SetStringValue("name_id", value);
+            }
         }
 
         // Detailed description for your mod, which can include details such as 'About', 'Features',
         // 'Install Instructions', 'FAQ', etc. HTML supported and encouraged.
         public string descriptionAsHTML
         {
-            set { this.SetStringValue("description", value); }
+            set {
+                this.SetStringValue("description", value);
+            }
         }
 
         // Official homepage for your mod. Must be a valid URL.
         public string homepageURL
         {
-            set { this.SetStringValue("homepage_url", value); }
+            set {
+                this.SetStringValue("homepage_url", value);
+            }
         }
 
         // Choose if this mod contains any of the following mature content. Note: The value of this
@@ -58,7 +72,9 @@ namespace ModIO.API
         // maturity_options field in Game Object).
         public ModContentWarnings contentWarnings
         {
-            set { this.SetStringValue("maturity_option", (int)value); }
+            set {
+                this.SetStringValue("maturity_option", (int)value);
+            }
         }
 
         // Metadata stored by the game developer which may include properties as to how the item
@@ -66,7 +82,9 @@ namespace ModIO.API
         // searchable key value pairs, and to individual mod files.
         public string metadataBlob
         {
-            set { this.SetStringValue("metadata_blob", value); }
+            set {
+                this.SetStringValue("metadata_blob", value);
+            }
         }
 
         // An array of strings that represent what the mod has been tagged as. Only tags that are
@@ -74,7 +92,9 @@ namespace ModIO.API
         // tags values within tag_options column on the parent Game Object.
         public string[] tags
         {
-            set { this.SetStringArrayValue("tags[]", value); }
+            set {
+                this.SetStringArrayValue("tags[]", value);
+            }
         }
     }
 }

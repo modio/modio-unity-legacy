@@ -28,7 +28,8 @@ namespace ModIO
                                                   IEnumerable<string> filePathCollection,
                                                   string targetFilePath)
         {
-            return CompressionModule.IMPLEMENTATION.CompressFileCollection(rootDirectory, filePathCollection, targetFilePath);
+            return CompressionModule.IMPLEMENTATION.CompressFileCollection(
+                rootDirectory, filePathCollection, targetFilePath);
         }
 
         /// <summary>Compresses a single file into an output archive.</summary>

@@ -17,7 +17,9 @@ namespace ModIO.UI
     {
         // ---------[ NESTED DATA ]---------
         /// <summary>Attribute for facilitating inspector display.</summary>
-        public class FieldSelectAttribute : PropertyAttribute {}
+        public class FieldSelectAttribute : PropertyAttribute
+        {
+        }
 
         /// <summary>The data that the controller uses to create dropdown options.</summary>
         [System.Serializable]
@@ -36,115 +38,141 @@ namespace ModIO.UI
 
         // ---------[ STATICS ]---------
         /// <summary>Options for sorting the subcriptions view</summary>
-        public static readonly Dictionary<string, Comparison<ModProfile>> subscriptionSortOptions = new Dictionary<string, Comparison<ModProfile>>()
-        {
-            {
-                "Name", (a,b) =>
-                {
-                    // null check
-                    if(a == null || b == null)
-                    {
-                        if(a == null && b == null) { return 0; }
-                        else if(a == null) { return 1; }
-                        else { return -1; }
-                    }
+        public static readonly Dictionary<string, Comparison<ModProfile>> subscriptionSortOptions =
+            new Dictionary<string, Comparison<ModProfile>>() {
+                { "Name",
+                  (a, b) => {
+                      // null check
+                      if(a == null || b == null)
+                      {
+                          if(a == null && b == null)
+                          {
+                              return 0;
+                          }
+                          else if(a == null)
+                          {
+                              return 1;
+                          }
+                          else
+                          {
+                              return -1;
+                          }
+                      }
 
-                    // compare
-                    int compareResult = String.Compare(a.name, b.name);
-                    if(compareResult == 0)
-                    {
-                        compareResult = a.id - b.id;
-                    }
-                    return compareResult;
-                }
-            },
-            {
-                "File Size", (a,b) =>
-                {
-                    // null check
-                    bool nullBuildA = (a == null || a.currentBuild == null);
-                    bool nullBuildB = (b == null || b.currentBuild == null);
+                      // compare
+                      int compareResult = String.Compare(a.name, b.name);
+                      if(compareResult == 0)
+                      {
+                          compareResult = a.id - b.id;
+                      }
+                      return compareResult;
+                  } },
+                { "File Size",
+                  (a, b) => {
+                      // null check
+                      bool nullBuildA = (a == null || a.currentBuild == null);
+                      bool nullBuildB = (b == null || b.currentBuild == null);
 
-                    if(nullBuildA || nullBuildB)
-                    {
-                        if(nullBuildA && nullBuildB) { return 0; }
-                        else if(nullBuildA) { return 1; }
-                        else { return -1; }
-                    }
+                      if(nullBuildA || nullBuildB)
+                      {
+                          if(nullBuildA && nullBuildB)
+                          {
+                              return 0;
+                          }
+                          else if(nullBuildA)
+                          {
+                              return 1;
+                          }
+                          else
+                          {
+                              return -1;
+                          }
+                      }
 
-                    // compare
-                    int compareResult = (int)(a.currentBuild.fileSize - b.currentBuild.fileSize);
-                    if(compareResult == 0)
-                    {
-                        compareResult = String.Compare(a.name, b.name);
-                        if(compareResult == 0)
-                        {
-                            compareResult = a.id - b.id;
-                        }
-                    }
-                    return compareResult;
-                }
-            },
-            {
-                "Date Updated", (a,b) =>
-                {
-                    // null check
-                    if(a == null || b == null)
-                    {
-                        if(a == null && b == null) { return 0; }
-                        else if(a == null) { return 1; }
-                        else { return -1; }
-                    }
+                      // compare
+                      int compareResult = (int)(a.currentBuild.fileSize - b.currentBuild.fileSize);
+                      if(compareResult == 0)
+                      {
+                          compareResult = String.Compare(a.name, b.name);
+                          if(compareResult == 0)
+                          {
+                              compareResult = a.id - b.id;
+                          }
+                      }
+                      return compareResult;
+                  } },
+                { "Date Updated",
+                  (a, b) => {
+                      // null check
+                      if(a == null || b == null)
+                      {
+                          if(a == null && b == null)
+                          {
+                              return 0;
+                          }
+                          else if(a == null)
+                          {
+                              return 1;
+                          }
+                          else
+                          {
+                              return -1;
+                          }
+                      }
 
-                    // compare
-                    int compareResult = a.dateUpdated - b.dateUpdated;
-                    if(compareResult == 0)
-                    {
-                        compareResult = String.Compare(a.name, b.name);
-                        if(compareResult == 0)
-                        {
-                            compareResult = a.id - b.id;
-                        }
-                    }
-                    return compareResult;
-                }
-            },
-            {
-                "Enabled", (a,b) =>
-                {
-                    // null check
-                    if(a == null || b == null)
-                    {
-                        if(a == null && b == null) { return 0; }
-                        else if(a == null) { return 1; }
-                        else { return -1; }
-                    }
+                      // compare
+                      int compareResult = a.dateUpdated - b.dateUpdated;
+                      if(compareResult == 0)
+                      {
+                          compareResult = String.Compare(a.name, b.name);
+                          if(compareResult == 0)
+                          {
+                              compareResult = a.id - b.id;
+                          }
+                      }
+                      return compareResult;
+                  } },
+                { "Enabled",
+                  (a, b) => {
+                      // null check
+                      if(a == null || b == null)
+                      {
+                          if(a == null && b == null)
+                          {
+                              return 0;
+                          }
+                          else if(a == null)
+                          {
+                              return 1;
+                          }
+                          else
+                          {
+                              return -1;
+                          }
+                      }
 
-                    // compare
-                    int compareResult = 0;
-                    compareResult += (LocalUser.EnabledModIds.Contains(a.id) ? -1 : 0);
-                    compareResult += (LocalUser.EnabledModIds.Contains(b.id) ? 1 : 0);
+                      // compare
+                      int compareResult = 0;
+                      compareResult += (LocalUser.EnabledModIds.Contains(a.id) ? -1 : 0);
+                      compareResult += (LocalUser.EnabledModIds.Contains(b.id) ? 1 : 0);
 
-                    if(compareResult == 0)
-                    {
-                        compareResult = String.Compare(a.name, b.name);
-                        if(compareResult == 0)
-                        {
-                            compareResult = a.id - b.id;
-                        }
-                    }
+                      if(compareResult == 0)
+                      {
+                          compareResult = String.Compare(a.name, b.name);
+                          if(compareResult == 0)
+                          {
+                              compareResult = a.id - b.id;
+                          }
+                      }
 
-                    return compareResult;
-                }
-            },
-        };
+                      return compareResult;
+                  } },
+            };
 
         // ---------[ FIELDS ]---------
         /// <summary>Options for the controller to use.</summary>
-        public OptionData[] options = new OptionData[]
-        {
-            new OptionData()
-            {
+        public OptionData[] options = new OptionData[] {
+            new OptionData() {
                 displayText = "A-Z",
                 fieldName = "Name",
                 isAscending = true,
@@ -157,7 +185,11 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         /// <summary>The Dropdown component to be controlled.</summary>
         public Dropdown dropdown
-        { get { return this.gameObject.GetComponent<Dropdown>(); }}
+        {
+            get {
+                return this.gameObject.GetComponent<Dropdown>();
+            }
+        }
 
 
         // ---------[ INITIALIZATION ]---------
@@ -171,7 +203,10 @@ namespace ModIO.UI
         public void SetSubscriptionsView(SubscriptionsView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // assign
             this.m_view = view;
@@ -183,7 +218,10 @@ namespace ModIO.UI
         /// <summary>Sets the sort delegate on the targetted view.</summary>
         public void SetSubscriptionsViewSortMethod()
         {
-            if(this.m_view == null) { return; }
+            if(this.m_view == null)
+            {
+                return;
+            }
 
             Comparison<ModProfile> sortFunc = GetSelectedSortFunction();
             if(sortFunc != null)
@@ -195,9 +233,7 @@ namespace ModIO.UI
         /// <summary>Returns the sort function for the currently selected dropdown option.</summary>
         public Comparison<ModProfile> GetSelectedSortFunction()
         {
-            if(this.options != null
-               && this.options.Length > 0
-               && this.dropdown.options != null
+            if(this.options != null && this.options.Length > 0 && this.dropdown.options != null
                && this.dropdown.value < this.dropdown.options.Count)
             {
                 Dropdown.OptionData selection = this.dropdown.options[this.dropdown.value];
@@ -209,11 +245,14 @@ namespace ModIO.UI
                         Comparison<ModProfile> sortFunc;
                         if(option.isAscending)
                         {
-                            sortFunc = SubscriptionSortDropdownController.subscriptionSortOptions[option.fieldName];
+                            sortFunc = SubscriptionSortDropdownController
+                                           .subscriptionSortOptions[option.fieldName];
                         }
                         else
                         {
-                            sortFunc = (a,b) => SubscriptionSortDropdownController.subscriptionSortOptions[option.fieldName](b,a);
+                            sortFunc = (a, b) =>
+                                SubscriptionSortDropdownController
+                                    .subscriptionSortOptions[option.fieldName](b, a);
                         }
 
                         return sortFunc;
@@ -223,8 +262,8 @@ namespace ModIO.UI
             return null;
         }
 
-        // ---------[ EVENTS ]---------
-        #if UNITY_EDITOR
+// ---------[ EVENTS ]---------
+#if UNITY_EDITOR
         // BUG(@jackson): There's something that needs to be done here with serialization
         // potentially - the dropdown seems to load the option data late?
         /// <summary>Fills the Dropdown options with the supplied data.</summary>
@@ -232,10 +271,16 @@ namespace ModIO.UI
         {
             UnityEditor.EditorApplication.delayCall += () =>
             {
-                if(this == null) { return; }
+                if(this == null)
+                {
+                    return;
+                }
 
                 Dropdown d = this.dropdown;
-                if(d == null) { return; }
+                if(d == null)
+                {
+                    return;
+                }
 
                 d.ClearOptions();
 
@@ -247,6 +292,6 @@ namespace ModIO.UI
                 d.AddOptions(displayTextList);
             };
         }
-        #endif
+#endif
     }
 }

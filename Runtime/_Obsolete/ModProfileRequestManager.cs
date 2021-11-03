@@ -14,16 +14,17 @@ namespace ModIO.UI
         /// <summary>Singleton instance.</summary>
         public static ModProfileRequestManager instance
         {
-            get
-            {
+            get {
                 if(ModProfileRequestManager._instance == null)
                 {
-                    ModProfileRequestManager._instance = UIUtilities.FindComponentInAllScenes<ModProfileRequestManager>(true);
+                    ModProfileRequestManager._instance =
+                        UIUtilities.FindComponentInAllScenes<ModProfileRequestManager>(true);
 
                     if(ModProfileRequestManager._instance == null)
                     {
                         GameObject go = new GameObject("Mod Profile Request Manager");
-                        ModProfileRequestManager._instance = go.AddComponent<ModProfileRequestManager>();
+                        ModProfileRequestManager._instance =
+                            go.AddComponent<ModProfileRequestManager>();
                     }
                 }
 
@@ -42,7 +43,7 @@ namespace ModIO.UI
             {
                 ModProfileRequestManager._instance = this;
             }
-            #if DEBUG
+#if DEBUG
             else if(ModProfileRequestManager._instance != this)
             {
                 Debug.LogWarning("[mod.io] Second instance of a ModProfileRequestManager"
@@ -51,19 +52,23 @@ namespace ModIO.UI
                                  + " component should be active at a time.");
                 this.enabled = false;
             }
-            #endif
+#endif
         }
 
         // ---------[ FUNCTIONALITY ]---------
         /// <summary>Fetches page of ModProfiles grabbing from the cache where possible.</summary>
-        public virtual void FetchModProfilePage(RequestFilter filter, int resultOffset, int profileCount,
+        public virtual void FetchModProfilePage(RequestFilter filter, int resultOffset,
+                                                int profileCount,
                                                 Action<RequestPage<ModProfile>> onSuccess,
                                                 Action<WebRequestError> onError)
         {
             Debug.Assert(this.minimumFetchSize <= APIPaginationParameters.LIMIT_MAX);
 
             // early out if onSuccess == null
-            if(onSuccess == null && onError == null) { return; }
+            if(onSuccess == null && onError == null)
+            {
+                return;
+            }
 
             if(profileCount > APIPaginationParameters.LIMIT_MAX)
             {
@@ -75,8 +80,14 @@ namespace ModIO.UI
             }
 
             // ensure indicies are positive
-            if(resultOffset < 0) { resultOffset = 0; }
-            if(profileCount < 0) { profileCount = 0; }
+            if(resultOffset < 0)
+            {
+                resultOffset = 0;
+            }
+            if(profileCount < 0)
+            {
+                profileCount = 0;
+            }
 
             // setup request structures
             List<ModProfile> results = new List<ModProfile>(profileCount);
@@ -88,41 +99,30 @@ namespace ModIO.UI
             pagination.offset = pageIndex * this.minimumFetchSize;
             pagination.limit = this.minimumFetchSize;
 
-            APIClient.GetAllMods(filter, pagination,
-            (r01) =>
-            {
+            APIClient.GetAllMods(filter, pagination, (r01) => {
                 int pageOffset = resultOffset % this.minimumFetchSize;
 
-                for(int i = pageOffset;
-                    i < r01.items.Length
-                    && i < pageOffset + profileCount;
-                    ++i)
+                for(int i = pageOffset; i < r01.items.Length && i < pageOffset + profileCount; ++i)
                 {
                     results.Add(r01.items[i]);
                 }
 
-                if(pageOffset + profileCount > r01.size
-                   && r01.items.Length == r01.size)
+                if(pageOffset + profileCount > r01.size && r01.items.Length == r01.size)
                 {
                     pagination.offset += pagination.limit;
-                    APIClient.GetAllMods(filter, pagination,
-                    (r02) =>
-                    {
+                    APIClient.GetAllMods(filter, pagination, (r02) => {
                         for(int i = 0;
-                            i < r02.items.Length
-                            && i < pageOffset + profileCount - r02.size;
-                            ++i)
+                            i < r02.items.Length && i < pageOffset + profileCount - r02.size; ++i)
                         {
                             results.Add(r02.items[i]);
-                            OnModsReceived(resultOffset, profileCount, r02.resultTotal,
-                                           results, onSuccess);
+                            OnModsReceived(resultOffset, profileCount, r02.resultTotal, results,
+                                           onSuccess);
                         }
                     }, onError);
                 }
                 else
                 {
-                    OnModsReceived(resultOffset, profileCount, r01.resultTotal,
-                                   results, onSuccess);
+                    OnModsReceived(resultOffset, profileCount, r01.resultTotal, results, onSuccess);
                 }
             }, onError);
         }
@@ -132,10 +132,12 @@ namespace ModIO.UI
                                     List<ModProfile> results,
                                     Action<RequestPage<ModProfile>> onSuccess)
         {
-            if(onSuccess == null) { return; }
-
-            RequestPage<ModProfile> page = new RequestPage<ModProfile>()
+            if(onSuccess == null)
             {
+                return;
+            }
+
+            RequestPage<ModProfile> page = new RequestPage<ModProfile>() {
                 size = pageSize,
                 resultOffset = resultOffset,
                 resultTotal = resultTotal,
@@ -146,8 +148,7 @@ namespace ModIO.UI
         }
 
         /// <summary>Requests an individual ModProfile by id.</summary>
-        public virtual void RequestModProfile(int id,
-                                              Action<ModProfile> onSuccess,
+        public virtual void RequestModProfile(int id, Action<ModProfile> onSuccess,
                                               Action<WebRequestError> onError)
         {
             ModManager.GetModProfile(id, onSuccess, onError);

@@ -17,8 +17,7 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         /// <summary>Display data for an unauthenticated user.</summary>
         [SerializeField]
-        private UserProfileData m_unauthenticatedUser = new UserProfileData()
-        {
+        private UserProfileData m_unauthenticatedUser = new UserProfileData() {
             profile = new UserProfile(),
             avatar = null,
         };
@@ -27,15 +26,16 @@ namespace ModIO.UI
         /// <summary>The UserView this component controls.</summary>
         public UserView view
         {
-            get { return this.gameObject.GetComponent<UserView>(); }
+            get {
+                return this.gameObject.GetComponent<UserView>();
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
         protected virtual void Start()
         {
             // cache the guest avatar
-            this.m_unauthenticatedUser.profile.avatarLocator = new AvatarImageLocator()
-            {
+            this.m_unauthenticatedUser.profile.avatarLocator = new AvatarImageLocator() {
                 fileName = "_AVATAR_",
                 original = ImageRequestManager.GUEST_AVATAR_URL,
                 thumbnail_50x50 = ImageRequestManager.GUEST_AVATAR_URL,
@@ -47,19 +47,18 @@ namespace ModIO.UI
             this.view.profile = this.m_unauthenticatedUser.profile;
 
             ModManager.GetAuthenticatedUserProfile(
-            (p) =>
-            {
-                if(this != null)
-                {
-                    this.view.profile = p;
-                }
-            },
-            (e) =>
-            {
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                           "Unable to fetch your profile from the mod.io servers.\n"
-                                           + e.displayMessage);
-            });
+                (p) => {
+                    if(this != null)
+                    {
+                        this.view.profile = p;
+                    }
+                },
+                (e) => {
+                    MessageSystem.QueueMessage(
+                        MessageDisplayData.Type.Error,
+                        "Unable to fetch your profile from the mod.io servers.\n"
+                            + e.displayMessage);
+                });
         }
 
         // ---------[ EVENTS ]---------
@@ -82,7 +81,9 @@ namespace ModIO.UI
         }
 
         // ---------[ OBSOLETE ]---------
-        [System.Obsolete][SerializeField][HideInInspector]
+        [System.Obsolete]
+        [SerializeField]
+        [HideInInspector]
         private UserDisplayData m_guestData;
     }
 }

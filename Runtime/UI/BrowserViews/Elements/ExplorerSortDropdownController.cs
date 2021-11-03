@@ -11,7 +11,9 @@ namespace ModIO.UI
     {
         // ---------[ NESTED DATA ]---------
         /// <summary>Attribute for facilitating inspector display.</summary>
-        public class FieldSelectAttribute : PropertyAttribute {}
+        public class FieldSelectAttribute : PropertyAttribute
+        {
+        }
 
         /// <summary>The data that the controller uses to create dropdown options.</summary>
         [System.Serializable]
@@ -30,10 +32,8 @@ namespace ModIO.UI
 
         // ---------[ FIELDS ]---------
         /// <summary>Options for the controller to use.</summary>
-        public OptionData[] options = new OptionData[]
-        {
-            new OptionData()
-            {
+        public OptionData[] options = new OptionData[] {
+            new OptionData() {
                 displayText = "Newest",
                 fieldName = API.GetAllModsFilterFields.dateLive,
                 isAscending = false,
@@ -47,7 +47,11 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         /// <summary>The Dropdown component to be controlled.</summary>
         public Dropdown dropdown
-        { get { return this.gameObject.GetComponent<Dropdown>(); }}
+        {
+            get {
+                return this.gameObject.GetComponent<Dropdown>();
+            }
+        }
 
         // ---------[ INITIALIZATION ]---------
         private void Start()
@@ -60,7 +64,10 @@ namespace ModIO.UI
         public void SetExplorerView(ExplorerView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -98,8 +105,7 @@ namespace ModIO.UI
         {
             // early out
             OptionData selectedOption = this.GetSelectedOption();
-            if(selectedOption != null
-               && selectedOption.fieldName == fieldName
+            if(selectedOption != null && selectedOption.fieldName == fieldName
                && selectedOption.isAscending == isAscending)
             {
                 return;
@@ -110,8 +116,7 @@ namespace ModIO.UI
             for(int i = 0; i < this.options.Length && optionIndex < 0; ++i)
             {
                 OptionData data = this.options[i];
-                if(data.fieldName == fieldName
-                   && data.isAscending == isAscending)
+                if(data.fieldName == fieldName && data.isAscending == isAscending)
                 {
                     optionIndex = i;
                 }
@@ -129,7 +134,10 @@ namespace ModIO.UI
         /// <summary>Sets the sort value on the targetted view.</summary>
         public void SetExplorerViewSortMethod()
         {
-            if(this.m_view == null) { return; }
+            if(this.m_view == null)
+            {
+                return;
+            }
 
             OptionData option = GetSelectedOption();
             if(option != null)
@@ -141,9 +149,7 @@ namespace ModIO.UI
         /// <summary>Returns that sort by data for the currently selected dropdown option.</summary>
         public OptionData GetSelectedOption()
         {
-            if(this.options != null
-               && this.options.Length > 0
-               && this.dropdown.options != null
+            if(this.options != null && this.options.Length > 0 && this.dropdown.options != null
                && this.dropdown.value < this.dropdown.options.Count)
             {
                 Dropdown.OptionData selection = this.dropdown.options[this.dropdown.value];
@@ -159,8 +165,8 @@ namespace ModIO.UI
             return null;
         }
 
-        // ---------[ EVENTS ]---------
-        #if UNITY_EDITOR
+// ---------[ EVENTS ]---------
+#if UNITY_EDITOR
         // BUG(@jackson): There's something that needs to be done here with serialization
         // potentially - the dropdown seems to load the option data late?
         /// <summary>Fills the Dropdown options with the supplied data.</summary>
@@ -168,11 +174,17 @@ namespace ModIO.UI
         {
             UnityEditor.EditorApplication.delayCall += () =>
             {
-                if(this == null || Application.isPlaying) { return; }
+                if(this == null || Application.isPlaying)
+                {
+                    return;
+                }
 
                 // sync dropdown
                 Dropdown d = this.dropdown;
-                if(d == null) { return; }
+                if(d == null)
+                {
+                    return;
+                }
 
                 d.ClearOptions();
 
@@ -203,6 +215,6 @@ namespace ModIO.UI
                 }
             };
         }
-        #endif
+#endif
     }
 }

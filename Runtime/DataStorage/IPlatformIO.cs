@@ -33,7 +33,8 @@ namespace ModIO
         void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback callback);
 
         /// <summary>Gets the files at a location.</summary>
-        void GetFiles(string path, string nameFilter, bool recurseSubdirectories, GetFilesCallback callback);
+        void GetFiles(string path, string nameFilter, bool recurseSubdirectories,
+                      GetFilesCallback callback);
 
         // --- Directory Management ---
         /// <summary>Creates a directory.</summary>

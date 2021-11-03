@@ -8,7 +8,8 @@ namespace ModIO.UI
     public class GalleryImageContainer : MonoBehaviour, IModViewElement
     {
         // ---------[ FIELDS ]---------
-        /// <summary>Template to duplicate for the purpose of displaying the gallery images.</summary>
+        /// <summary>Template to duplicate for the purpose of displaying the gallery
+        /// images.</summary>
         public RectTransform containerTemplate = null;
 
         /// <summary>Should the template be disabled if empty?</summary>
@@ -45,29 +46,33 @@ namespace ModIO.UI
         /// <summary>Initialize template.</summary>
         protected virtual void Start()
         {
-            // check template
-            #if DEBUG
+// check template
+#if DEBUG
             string message;
             if(!GalleryImageContainer.HasValidTemplate(this, out message))
             {
                 Debug.LogError("[mod.io] " + message, this);
                 return;
             }
-            #endif
+#endif
 
             // get template vars
             Transform templateParent = this.containerTemplate.parent;
             string templateInstance_name = this.containerTemplate.gameObject.name + " (Instance)";
             int templateInstance_index = this.containerTemplate.GetSiblingIndex() + 1;
-            this.m_itemTemplate = this.containerTemplate.GetComponentInChildren<GalleryImageDisplay>(true);
+            this.m_itemTemplate =
+                this.containerTemplate.GetComponentInChildren<GalleryImageDisplay>(true);
 
             // duplication protection
-            bool isInstantiated = (templateParent.childCount > templateInstance_index
-                                   && templateParent.GetChild(templateInstance_index).gameObject.name == templateInstance_name);
+            bool isInstantiated =
+                (templateParent.childCount > templateInstance_index
+                 && templateParent.GetChild(templateInstance_index).gameObject.name
+                        == templateInstance_name);
             if(isInstantiated)
             {
                 this.m_templateClone = templateParent.GetChild(templateInstance_index).gameObject;
-                GalleryImageDisplay[] itemInstances = this.m_templateClone.GetComponentsInChildren<GalleryImageDisplay>(true);
+                GalleryImageDisplay[] itemInstances =
+                    this.m_templateClone.GetComponentsInChildren<GalleryImageDisplay>(true);
 
                 if(itemInstances == null || itemInstances.Length == 0)
                 {
@@ -87,11 +92,13 @@ namespace ModIO.UI
 
             if(!isInstantiated)
             {
-                this.m_templateClone = GameObject.Instantiate(this.containerTemplate.gameObject, templateParent);
+                this.m_templateClone =
+                    GameObject.Instantiate(this.containerTemplate.gameObject, templateParent);
                 this.m_templateClone.transform.SetSiblingIndex(templateInstance_index);
                 this.m_templateClone.name = templateInstance_name;
 
-                GalleryImageDisplay itemInstance = this.m_templateClone.GetComponentInChildren<GalleryImageDisplay>(true);
+                GalleryImageDisplay itemInstance =
+                    this.m_templateClone.GetComponentInChildren<GalleryImageDisplay>(true);
                 this.m_container = (RectTransform)itemInstance.transform.parent;
                 GameObject.Destroy(itemInstance.gameObject);
 
@@ -111,7 +118,10 @@ namespace ModIO.UI
         public virtual void SetModView(ModView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -141,8 +151,7 @@ namespace ModIO.UI
             int modId = ModProfile.NULL_ID;
             GalleryImageLocator[] locators = null;
 
-            if(profile != null
-               && profile.media != null)
+            if(profile != null && profile.media != null)
             {
                 modId = profile.id;
                 locators = profile.media.galleryImageLocators;
@@ -166,19 +175,15 @@ namespace ModIO.UI
                 }
 
                 this.m_locators = new GalleryImageLocator[imageCount];
-                for(int i = 0; i < imageCount; ++i)
-                {
-                    this.m_locators[i] = locators[i];
-                }
+                for(int i = 0; i < imageCount; ++i) { this.m_locators[i] = locators[i]; }
             }
 
             // display
             if(this.m_itemTemplate != null)
             {
                 // set view count
-                UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate,
-                                             "Gallery Image", this.m_locators.Length,
-                                             ref this.m_displays);
+                UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate, "Gallery Image",
+                                             this.m_locators.Length, ref this.m_displays);
 
                 // display data
                 for(int i = 0; i < this.m_locators.Length; ++i)
@@ -203,8 +208,7 @@ namespace ModIO.UI
             // null check
             if(container.containerTemplate == null)
             {
-                helpMessage = ("Invalid template:"
-                               + " The container template is unassigned.");
+                helpMessage = ("Invalid template:" + " The container template is unassigned.");
                 isValid = false;
             }
             // containerTemplate is child of Component
@@ -216,17 +220,21 @@ namespace ModIO.UI
                 isValid = false;
             }
             // GalleryImageDisplay is found under containerTemplate
-            else if((itemTemplate = container.containerTemplate.gameObject.GetComponentInChildren<GalleryImageDisplay>()) == null)
+            else if((itemTemplate = container.containerTemplate.gameObject
+                                        .GetComponentInChildren<GalleryImageDisplay>())
+                    == null)
             {
-                helpMessage = ("Invalid template:"
-                               + " No GalleryImageDisplay component found in the children of the container template.");
+                helpMessage =
+                    ("Invalid template:"
+                     + " No GalleryImageDisplay component found in the children of the container template.");
                 isValid = false;
             }
             // GalleryImageDisplay is on same gameObject as containerTemplate
             else if(itemTemplate.transform == container.containerTemplate)
             {
-                helpMessage = ("Invalid template:"
-                               + " The GalleryImageDisplay component cannot share a GameObject with the container template.");
+                helpMessage =
+                    ("Invalid template:"
+                     + " The GalleryImageDisplay component cannot share a GameObject with the container template.");
                 isValid = false;
             }
 

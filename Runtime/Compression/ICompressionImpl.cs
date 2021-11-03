@@ -10,8 +10,7 @@ namespace ModIO
         bool ExtractAll(string archivePath, string targetDirectory);
 
         /// <summary>Compresses the contents of a file collection into an output archive.</summary>
-        bool CompressFileCollection(string rootDirectory,
-                                    IEnumerable<string> filePathCollection,
+        bool CompressFileCollection(string rootDirectory, IEnumerable<string> filePathCollection,
                                     string targetFilePath);
 
         /// <summary>Compresses a single file into an output archive.</summary>

@@ -7,8 +7,7 @@ namespace ModIO.UI
     {
         // ---------[ FIELDS ]---------
         /// <summary>DownloadInfo field to display.</summary>
-        [MemberReference.DropdownDisplay(typeof(FileDownloadInfo),
-                                         displayEnumerables = false,
+        [MemberReference.DropdownDisplay(typeof(FileDownloadInfo), displayEnumerables = false,
                                          displayNested = true,
                                          membersToIgnore = new string[] { "error.webRequest" })]
         public MemberReference reference = new MemberReference("bytesPerSecond");
@@ -28,19 +27,20 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
         {
-            Component textDisplayComponent = GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
+            Component textDisplayComponent =
+                GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
             this.m_textComponent.SetTextDisplayComponent(textDisplayComponent);
 
-            #if DEBUG
+#if DEBUG
             if(textDisplayComponent == null)
             {
                 Debug.LogWarning("[mod.io] No compatible text components were found on this "
-                                 + "GameObject to set text for."
-                                 + "\nCompatible with any component that exposes a"
-                                 + " publicly settable \'.text\' property.",
+                                     + "GameObject to set text for."
+                                     + "\nCompatible with any component that exposes a"
+                                     + " publicly settable \'.text\' property.",
                                  this);
             }
-            #endif
+#endif
         }
 
         protected virtual void OnEnable()
@@ -52,7 +52,10 @@ namespace ModIO.UI
         public void SetDownloadView(DownloadView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -83,8 +86,7 @@ namespace ModIO.UI
 
             // display
             object fieldValue = this.reference.GetValue(this.m_downloadInfo);
-            string displayString = ValueFormatting.FormatValue(fieldValue,
-                                                               this.formatting.method,
+            string displayString = ValueFormatting.FormatValue(fieldValue, this.formatting.method,
                                                                this.formatting.toStringParameter);
 
             this.m_textComponent.text = displayString;

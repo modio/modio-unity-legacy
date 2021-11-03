@@ -15,9 +15,12 @@ namespace ModIO
         /// <summary>Parse data as image.</summary>
         public static Texture2D ParseImageData(byte[] data)
         {
-            if(data == null || data.Length == 0) { return null; }
+            if(data == null || data.Length == 0)
+            {
+                return null;
+            }
 
-            Texture2D texture = new Texture2D(0,0);
+            Texture2D texture = new Texture2D(0, 0);
             texture.LoadImage(data);
             return texture;
         }
@@ -101,7 +104,10 @@ namespace ModIO
                 path = path.Remove(path.Length - 1);
             }
 
-            if(path.Length == 0) { return string.Empty; }
+            if(path.Length == 0)
+            {
+                return string.Empty;
+            }
 
             // get parent directory and remove
             string folderName = path;
@@ -114,12 +120,16 @@ namespace ModIO
             return folderName;
         }
 
-        /// <summary>Determines if the final character of the string is a directory separator.</summary>
+        /// <summary>Determines if the final character of the string is a directory
+        /// separator.</summary>
         public static bool PathEndsWithDirectorySeparator(string path)
         {
             Debug.Assert(path != null);
 
-            if(path.Length == 0) { return false; }
+            if(path.Length == 0)
+            {
+                return false;
+            }
 
             char lastCharacter = path[path.Length - 1];
             return (lastCharacter == Path.DirectorySeparatorChar
@@ -127,43 +137,25 @@ namespace ModIO
         }
 
         /// <summary>Collection of invalid Windows file names.</summary>
-        public static readonly string[] INVALID_FILENAMES_WIN = new string[]
-        {
-            "AUX",
-            "COM1",
-            "COM2",
-            "COM3",
-            "COM4",
-            "COM5",
-            "COM6",
-            "COM7",
-            "COM8",
-            "COM9",
-            "CON",
-            "LPT1",
-            "LPT2",
-            "LPT3",
-            "LPT4",
-            "LPT5",
-            "LPT6",
-            "LPT7",
-            "LPT8",
-            "LPT9",
-            "NUL",
-            "PRN",
+        public static readonly string[] INVALID_FILENAMES_WIN = new string[] {
+            "AUX",  "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "CON",
+            "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9", "NUL",  "PRN",
         };
 
         /// <summary>Max file name length.</summary>
         public const int MAX_FILENAME_LENGTH = 255;
 
         /// <summary>Illegal character regex.</summary>
-        public static readonly string ILLEGAL_CHAR_REGEX = string.Format("[{0}]", Regex.Escape("\\/?\"<>|:*%.\0" + new string(Path.GetInvalidFileNameChars())));
+        public static readonly string ILLEGAL_CHAR_REGEX = string.Format(
+            "[{0}]", Regex.Escape("\\/?\"<>|:*%.\0" + new string(Path.GetInvalidFileNameChars())));
 
-        /// <summary>Replaces any illegal filename characters to create an OS safe file name.</summary>
+        /// <summary>Replaces any illegal filename characters to create an OS safe file
+        /// name.</summary>
         public static string MakeValidFileName(string input, string extension = null)
         {
             Debug.Assert(input != null);
-            Debug.Assert(extension == null || extension.Length < IOUtilities.MAX_FILENAME_LENGTH - 2);
+            Debug.Assert(extension == null
+                         || extension.Length < IOUtilities.MAX_FILENAME_LENGTH - 2);
 
             // format extension
             if(extension == null)
@@ -179,8 +171,7 @@ namespace ModIO
                     extension = string.Empty;
                 }
             }
-            else if(extension.Length > 0
-                    && extension[0] != '.')
+            else if(extension.Length > 0 && extension[0] != '.')
             {
                 extension = "." + extension;
             }
@@ -231,8 +222,7 @@ namespace ModIO
             bool success = false;
             byte[] data = null;
 
-            DataStorage.ReadFile(filePath, (p,s,d) =>
-            {
+            DataStorage.ReadFile(filePath, (p, s, d) => {
                 success = s;
                 data = d;
             });
@@ -248,10 +238,7 @@ namespace ModIO
         {
             byte[] data = null;
 
-            DataStorage.ReadFile(filePath, (p,s,d) =>
-            {
-                data = d;
-            });
+            DataStorage.ReadFile(filePath, (p, s, d) => { data = d; });
 
             return data;
         }
@@ -290,7 +277,8 @@ namespace ModIO
             return success;
         }
 
-        /// <summary>[Obsolete] Reads an entire file and parses the JSON Object it contains.</summary>
+        /// <summary>[Obsolete] Reads an entire file and parses the JSON Object it
+        /// contains.</summary>
         [Obsolete("Use DataStorage.ReadJSONFile() instead.")]
         public static T ReadJsonObjectFile<T>(string path)
         {
@@ -301,15 +289,15 @@ namespace ModIO
             return result;
         }
 
-        /// <summary>[Obsolete] Reads an entire file and parses the JSON Object it contains.</summary>
+        /// <summary>[Obsolete] Reads an entire file and parses the JSON Object it
+        /// contains.</summary>
         [Obsolete("Use DataStorage.ReadJSONFile() instead.")]
         public static bool TryReadJsonObjectFile<T>(string path, out T jsonObject)
         {
             T result = default(T);
             bool success = false;
 
-            DataStorage.ReadJSONFile<T>(path, (p, s, r) =>
-            {
+            DataStorage.ReadJSONFile<T>(path, (p, s, r) => {
                 success = s;
                 result = r;
             });
@@ -323,7 +311,7 @@ namespace ModIO
         public static bool WriteBinaryFile(string path, byte[] data)
         {
             bool result = false;
-            DataStorage.WriteFile(path, data, (p,s) => result = s);
+            DataStorage.WriteFile(path, data, (p, s) => result = s);
             return result;
         }
 
@@ -340,7 +328,7 @@ namespace ModIO
 
                 if(data != null)
                 {
-                    DataStorage.WriteFile(path, data, (p,s) => result = s);
+                    DataStorage.WriteFile(path, data, (p, s) => result = s);
                 }
             }
 
@@ -349,11 +337,10 @@ namespace ModIO
 
         /// <summary>[Obsolete] Writes an object to a file in the JSON Object format.</summary>
         [Obsolete("Use DataStorage.WriteJSONFile() instead.")]
-        public static bool WriteJsonObjectFile<T>(string filePath,
-                                                  T jsonObject)
+        public static bool WriteJsonObjectFile<T>(string filePath, T jsonObject)
         {
             bool result = false;
-            DataStorage.WriteJSONFile<T>(filePath, jsonObject, (p,s) => result = s);
+            DataStorage.WriteJSONFile<T>(filePath, jsonObject, (p, s) => result = s);
             return result;
         }
 
@@ -362,7 +349,7 @@ namespace ModIO
         public static bool DeleteFile(string filePath)
         {
             bool result = false;
-            DataStorage.DeleteFile(filePath, (p,s) => result = s);
+            DataStorage.DeleteFile(filePath, (p, s) => result = s);
             return result;
         }
 
@@ -371,7 +358,7 @@ namespace ModIO
         public static bool CreateDirectory(string directoryPath)
         {
             bool result = false;
-            DataStorage.CreateDirectory(directoryPath, (p,s) => result = s);
+            DataStorage.CreateDirectory(directoryPath, (p, s) => result = s);
             return result;
         }
 
@@ -380,7 +367,7 @@ namespace ModIO
         public static bool DeleteDirectory(string directoryPath)
         {
             bool result = false;
-            DataStorage.DeleteDirectory(directoryPath, (p,s) => result = s);
+            DataStorage.DeleteDirectory(directoryPath, (p, s) => result = s);
             return result;
         }
 
@@ -390,10 +377,8 @@ namespace ModIO
         {
             Int64 byteCount = -1;
 
-            DataStorage.GetFileSizeAndHash(filePath, (path, success, fileSize, fileHash) =>
-            {
-                byteCount = fileSize;
-            });
+            DataStorage.GetFileSizeAndHash(
+                filePath, (path, success, fileSize, fileHash) => { byteCount = fileSize; });
 
             return byteCount;
         }
@@ -404,10 +389,8 @@ namespace ModIO
         {
             string hash = string.Empty;
 
-            DataStorage.GetFileSizeAndHash(filePath, (path, success, fileSize, fileHash) =>
-            {
-                hash = fileHash;
-            });
+            DataStorage.GetFileSizeAndHash(
+                filePath, (path, success, fileSize, fileHash) => { hash = fileHash; });
 
             return hash;
         }

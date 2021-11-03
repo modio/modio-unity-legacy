@@ -45,7 +45,10 @@ namespace ModIO.API
             string endpointURL = null;
 
             // try to remove the apiURL
-            if(!RequestCache.TryTrimAPIURLAndKey(url, out endpointURL)) { return false; }
+            if(!RequestCache.TryTrimAPIURLAndKey(url, out endpointURL))
+            {
+                return false;
+            }
 
             bool success = false;
             Entry entry;
@@ -84,8 +87,9 @@ namespace ModIO.API
             // try to remove the apiURL
             if(!RequestCache.TryTrimAPIURLAndKey(url, out endpointURL))
             {
-                Debug.LogWarning("[mod.io] Attempted to cache response for url that does not contain the api URL."
-                                 + "\nRequest URL: " + (url == null ? "NULL" : url));
+                Debug.LogWarning(
+                    "[mod.io] Attempted to cache response for url that does not contain the api URL."
+                    + "\nRequest URL: " + (url == null ? "NULL" : url));
                 return;
             }
 
@@ -94,7 +98,8 @@ namespace ModIO.API
             Entry oldValue;
             if(RequestCache.TryGetEntry(endpointURL, out oldIndex, out oldValue))
             {
-                Debug.LogWarning("[mod.io] Stale cached request found. Removing all older entries.");
+                Debug.LogWarning(
+                    "[mod.io] Stale cached request found. Removing all older entries.");
                 RequestCache.RemoveOldestEntries(oldIndex + 1);
             }
 
@@ -108,10 +113,12 @@ namespace ModIO.API
             // trim cache if necessary
             if(size > RequestCache.MAX_CACHE_SIZE)
             {
-                Debug.Log("[mod.io] Could not cache entry as the response body is larger than MAX_CACHE_SIZE."
-                          + "\nMAX_CACHE_SIZE=" + ValueFormatting.ByteCount(RequestCache.MAX_CACHE_SIZE, "0.0")
-                          + "\nendpointURL=" + endpointURL
-                          + "\nResponseBody Size=" + ValueFormatting.ByteCount(size, "0.0"));
+                Debug.Log(
+                    "[mod.io] Could not cache entry as the response body is larger than MAX_CACHE_SIZE."
+                    + "\nMAX_CACHE_SIZE="
+                    + ValueFormatting.ByteCount(RequestCache.MAX_CACHE_SIZE, "0.0")
+                    + "\nendpointURL=" + endpointURL
+                    + "\nResponseBody Size=" + ValueFormatting.ByteCount(size, "0.0"));
                 return;
             }
 
@@ -121,8 +128,7 @@ namespace ModIO.API
             }
 
             // add new entry
-            Entry newValue = new Entry()
-            {
+            Entry newValue = new Entry() {
                 timeStamp = ServerTimeStamp.Now,
                 responseBody = responseBody,
                 size = size,
@@ -137,7 +143,10 @@ namespace ModIO.API
         /// <summary>Stores a collection of mods in the response cache.</summary>
         public static void StoreMods(int gameId, IEnumerable<ModProfile> mods)
         {
-            if(mods == null) { return; }
+            if(mods == null)
+            {
+                return;
+            }
 
             List<string> endpointList = new List<string>();
             List<Entry> entryList = new List<Entry>();
@@ -167,8 +176,7 @@ namespace ModIO.API
                     else
                     {
                         endpointList.Add(endpointURL);
-                        entryList.Add(new Entry()
-                        {
+                        entryList.Add(new Entry() {
                             timeStamp = now,
                             size = size,
                             responseBody = modJSON,
@@ -240,14 +248,14 @@ namespace ModIO.API
             RequestCache.currentCacheSize = 0;
         }
 
-        /// <summary>Removes entries from the cache until the total cache size is below the given value.</summary>
+        /// <summary>Removes entries from the cache until the total cache size is below the given
+        /// value.</summary>
         private static void TrimCacheToMaxSize(uint maxSize)
         {
             uint trimmedSize = RequestCache.currentCacheSize;
             int lastIndex;
 
-            for(lastIndex = 0;
-                lastIndex < RequestCache.responses.Count && trimmedSize > maxSize;
+            for(lastIndex = 0; lastIndex < RequestCache.responses.Count && trimmedSize > maxSize;
                 ++lastIndex)
             {
                 trimmedSize -= RequestCache.responses[lastIndex].size;
@@ -290,10 +298,7 @@ namespace ModIO.API
 
             // update cache size
             uint sizeToRemove = 0;
-            for(int i = 0; i < count; ++i)
-            {
-                sizeToRemove += RequestCache.responses[i].size;
-            }
+            for(int i = 0; i < count; ++i) { sizeToRemove += RequestCache.responses[i].size; }
             RequestCache.currentCacheSize -= sizeToRemove;
 
             // remove responses
@@ -304,8 +309,7 @@ namespace ModIO.API
         /// <summary>Gets the index and entry for a URL.</summary>
         private static bool TryGetEntry(string endpointURL, out int index, out Entry entry)
         {
-            if(!RequestCache.urlResponseIndexMap.TryGetValue(endpointURL, out index)
-               || index < 0
+            if(!RequestCache.urlResponseIndexMap.TryGetValue(endpointURL, out index) || index < 0
                || index >= RequestCache.responses.Count)
             {
                 index = -1;
@@ -322,19 +326,19 @@ namespace ModIO.API
         /// <summary>Trims the API URL and API Key from the request URL.</summary>
         private static bool TryTrimAPIURLAndKey(string requestURL, out string endpointURL)
         {
-            if(string.IsNullOrEmpty(requestURL)
-               || !requestURL.StartsWith(PluginSettings.API_URL)
+            if(string.IsNullOrEmpty(requestURL) || !requestURL.StartsWith(PluginSettings.API_URL)
                || requestURL.Length == PluginSettings.API_URL.Length)
             {
                 endpointURL = null;
                 return false;
             }
 
-            endpointURL = requestURL.Substring(PluginSettings.API_URL.Length+1).Replace("&api_key=" + PluginSettings.GAME_API_KEY, string.Empty);
+            endpointURL = requestURL.Substring(PluginSettings.API_URL.Length + 1)
+                              .Replace("&api_key=" + PluginSettings.GAME_API_KEY, string.Empty);
             return true;
         }
 
-        #if DEBUG
+#if DEBUG
 
         /// <summary>Generates the string for debugging the data in the request cache.</summary>
         public static string GenerateDebugInfo(int responseBodyCharacterLimit)
@@ -342,8 +346,7 @@ namespace ModIO.API
             var s = new System.Text.StringBuilder();
 
             s.AppendLine("currentCacheSize="
-                         + ValueFormatting.ByteCount(RequestCache.currentCacheSize, "0.0")
-                         + "/"
+                         + ValueFormatting.ByteCount(RequestCache.currentCacheSize, "0.0") + "/"
                          + ValueFormatting.ByteCount(RequestCache.MAX_CACHE_SIZE, "0.0"));
 
             s.AppendLine("constructedCache=");
@@ -356,8 +359,7 @@ namespace ModIO.API
                 {
                     Entry e = RequestCache.responses[kvp.Value];
 
-                    s.AppendLine("> "
-                                 + ServerTimeStamp.ToLocalDateTime(e.timeStamp).ToString()
+                    s.AppendLine("> " + ServerTimeStamp.ToLocalDateTime(e.timeStamp).ToString()
                                  + " [+" + (ServerTimeStamp.Now - e.timeStamp).ToString() + "s] -- "
                                  + ValueFormatting.ByteCount(e.size, "0.00"));
 
@@ -368,7 +370,8 @@ namespace ModIO.API
                     }
                     else
                     {
-                        r = r.Substring(0, UnityEngine.Mathf.Min(responseBodyCharacterLimit, r.Length));
+                        r = r.Substring(
+                            0, UnityEngine.Mathf.Min(responseBodyCharacterLimit, r.Length));
                     }
 
                     s.AppendLine("> " + r);
@@ -382,6 +385,6 @@ namespace ModIO.API
             return s.ToString();
         }
 
-        #endif // DEBUG
+#endif // DEBUG
     }
 }

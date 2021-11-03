@@ -24,20 +24,23 @@ namespace ModIO.UI
                 float boxWidth = this.GetComponent<RectTransform>().rect.width;
 
                 if(visibleChars < newText.Length
-                   || boxWidth < m_text.preferredWidth)//cachedTextGeneratorForLayout.GetPreferredWidth(newText))
+                   || boxWidth
+                          < m_text
+                                .preferredWidth) // cachedTextGeneratorForLayout.GetPreferredWidth(newText))
                 {
                     Font font = m_text.font;
                     CharacterInfo charInfo;
 
                     // ellipses
                     font.GetCharacterInfo('.', out charInfo, m_text.fontSize, m_text.fontStyle);
-                    int ellipsesWidth = 3*charInfo.advance;
+                    int ellipsesWidth = 3 * charInfo.advance;
 
                     // calc width
                     int culmativeWidth = ellipsesWidth;
                     for(int i = 0; i < newText.Length; ++i)
                     {
-                        font.GetCharacterInfo(newText[i], out charInfo, m_text.fontSize, m_text.fontStyle);
+                        font.GetCharacterInfo(newText[i], out charInfo, m_text.fontSize,
+                                              m_text.fontStyle);
 
                         int charWidth = charInfo.advance;
                         if(culmativeWidth + charWidth > boxWidth)

@@ -17,7 +17,7 @@ namespace ModIO.UI
             DoNothing,
             AutoDisable,
             AutoHide,
-        };
+        }
 
         // ---------[ CONSTANTS ]---------
         /// <summary>Amount to allow for float errors in jump calculations.</summary>
@@ -25,11 +25,15 @@ namespace ModIO.UI
 
         // ---------[ FIELDS ]---------
         [Header("Settings")]
-        [SerializeField] private ButtonInteractivity m_buttonInteractivity = ButtonInteractivity.AutoHide;
-        [SerializeField] private Button m_jumpLeftButton    = null;
-        [SerializeField] private Button m_jumpRightButton   = null;
+        [SerializeField]
+        private ButtonInteractivity m_buttonInteractivity = ButtonInteractivity.AutoHide;
+        [SerializeField]
+        private Button m_jumpLeftButton = null;
+        [SerializeField]
+        private Button m_jumpRightButton = null;
         [Tooltip("If at first/last anchor, set the jump target this amount beyond the anchor")]
-        [SerializeField] private float m_overshootAmount    = 0f;
+        [SerializeField]
+        private float m_overshootAmount = 0f;
 
         [Header("UI Components")]
         public RectTransform viewport;
@@ -86,8 +90,7 @@ namespace ModIO.UI
 
         private void JumpInternal(bool horizontal, bool positiveDir)
         {
-            if(content == null
-               || viewport == null)
+            if(content == null || viewport == null)
             {
                 return;
             }
@@ -176,16 +179,16 @@ namespace ModIO.UI
             newContentPos[axis] -= jumpVector[axis];
 
             content.anchoredPosition = newContentPos;
-
         }
 
         // ---------[ CALCULATIONS ]---------
         // NOTE(@jackson): These positions are rootTransform.bottomLeft -> JSA.pivot
-        private static List<Vector2> CalcRelativePositions(RectTransform rootTransform,
-                                                           IEnumerable<JumpScrollAnchor> jumpAnchors)
+        private static List<Vector2> CalcRelativePositions(
+            RectTransform rootTransform, IEnumerable<JumpScrollAnchor> jumpAnchors)
         {
             // NOTE(@jackson): Could potentially be optimised with dictionary
-            // Dictionary<RectTransform, Vector2> botLeftOffsetMap = new Dictionary<RectTransform, Vector2>();
+            // Dictionary<RectTransform, Vector2> botLeftOffsetMap = new Dictionary<RectTransform,
+            // Vector2>();
 
             List<Vector2> jumpAnchorPositionList = new List<Vector2>();
 
@@ -195,8 +198,7 @@ namespace ModIO.UI
                 RectTransform t = jumpAnchor.transform as RectTransform;
 
                 // create stack with anchor @ 0
-                while(t != null
-                      && t != rootTransform)
+                while(t != null && t != rootTransform)
                 {
                     transformStack.Add(t);
                     t = t.parent as RectTransform;
@@ -204,8 +206,10 @@ namespace ModIO.UI
 
                 if(t != rootTransform)
                 {
-                    Debug.LogWarning("[mod.io] Attempted to calculate offset of non-child JumpScrollAnchor: "
-                                     + jumpAnchor.name, rootTransform);
+                    Debug.LogWarning(
+                        "[mod.io] Attempted to calculate offset of non-child JumpScrollAnchor: "
+                            + jumpAnchor.name,
+                        rootTransform);
                     continue;
                 }
 
@@ -213,9 +217,7 @@ namespace ModIO.UI
                 RectTransform tParent = rootTransform;
 
                 // NOTE(@jackson): rootTransform is NOT included
-                for(int i = transformStack.Count - 1;
-                    i >= 0;
-                    --i)
+                for(int i = transformStack.Count - 1; i >= 0; --i)
                 {
                     t = transformStack[i];
 
@@ -250,13 +252,13 @@ namespace ModIO.UI
             {
                 yield return null;
 
-                if(viewport != null
-                   && content != null)
+                if(viewport != null && content != null)
                 {
                     bool horizontalMovement = viewport.rect.width < content.rect.width;
                     // bool verticalMovement   = viewport.rect.height < content.rect.height;
-                    bool hInteractable = (horizontalMovement
-                                          || m_buttonInteractivity != ButtonInteractivity.AutoDisable);
+                    bool hInteractable =
+                        (horizontalMovement
+                         || m_buttonInteractivity != ButtonInteractivity.AutoDisable);
                     bool hActive = (horizontalMovement
                                     || m_buttonInteractivity != ButtonInteractivity.AutoHide);
 

@@ -19,7 +19,8 @@ namespace ModIO.UI
         public HorizontalProgressBar progressBar;
 
         [Header("Display Data")]
-        [SerializeField] private DownloadDisplayData m_data;
+        [SerializeField]
+        private DownloadDisplayData m_data;
 
         // --- RUNTIME DATA ---
         private FileDownloadInfo m_downloadInfo;
@@ -28,9 +29,10 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         public override DownloadDisplayData data
         {
-            get { return m_data; }
-            set
-            {
+            get {
+                return m_data;
+            }
+            set {
                 m_data = value;
                 PresentData();
             }
@@ -65,7 +67,8 @@ namespace ModIO.UI
 
             if(bytesPerSecondText != null)
             {
-                bytesPerSecondText.text = ValueFormatting.ByteCount(data.bytesPerSecond, "0.0") + "/s";
+                bytesPerSecondText.text =
+                    ValueFormatting.ByteCount(data.bytesPerSecond, "0.0") + "/s";
             }
 
             if(timeRemainingText != null)
@@ -73,18 +76,15 @@ namespace ModIO.UI
                 // TODO(@jackson): Localize?
                 TimeSpan remaining = TimeSpan.FromSeconds(0f);
 
-                timeRemainingText.text = (remaining.TotalHours + ":"
-                                          + remaining.Minutes + ":"
-                                          + remaining.Seconds);
+                timeRemainingText.text =
+                    (remaining.TotalHours + ":" + remaining.Minutes + ":" + remaining.Seconds);
             }
         }
 
         // ---------[ INITIALIZATION ]---------
         private void OnEnable()
         {
-            if(Application.isPlaying
-               && m_downloadInfo != null
-               && m_updateCoroutine == null)
+            if(Application.isPlaying && m_downloadInfo != null && m_updateCoroutine == null)
             {
                 m_updateCoroutine = this.StartCoroutine(UpdateCoroutine());
             }
@@ -104,12 +104,10 @@ namespace ModIO.UI
 
             m_downloadInfo = downloadInfo;
 
-            Int64 bytesReceived = (downloadInfo.request == null
-                                   ? 0
-                                   : (Int64)downloadInfo.request.downloadedBytes);
+            Int64 bytesReceived =
+                (downloadInfo.request == null ? 0 : (Int64)downloadInfo.request.downloadedBytes);
 
-            m_data = new DownloadDisplayData()
-            {
+            m_data = new DownloadDisplayData() {
                 bytesReceived = bytesReceived,
                 bytesPerSecond = 0,
                 bytesTotal = downloadInfo.fileSize,
@@ -125,12 +123,11 @@ namespace ModIO.UI
         private System.Collections.IEnumerator UpdateCoroutine()
         {
             float timeStepElapsed = 0f;
-            Int64 timeStepStartByteCount = (m_downloadInfo.request == null
-                                            ? 0
-                                            : (Int64)m_downloadInfo.request.downloadedBytes);
+            Int64 timeStepStartByteCount =
+                (m_downloadInfo.request == null ? 0
+                                                : (Int64)m_downloadInfo.request.downloadedBytes);
 
-            while(m_downloadInfo != null
-                  && !m_downloadInfo.isDone)
+            while(m_downloadInfo != null && !m_downloadInfo.isDone)
             {
                 if(m_data.bytesTotal <= 0)
                 {
@@ -144,8 +141,8 @@ namespace ModIO.UI
 
                 if(timeStepElapsed >= 1f)
                 {
-                    m_data.bytesPerSecond = (Int64)((m_data.bytesReceived - timeStepStartByteCount)
-                                                    / timeStepElapsed);
+                    m_data.bytesPerSecond =
+                        (Int64)((m_data.bytesReceived - timeStepStartByteCount) / timeStepElapsed);
 
                     timeStepElapsed = 0f;
                     timeStepStartByteCount = m_data.bytesReceived;
@@ -176,14 +173,12 @@ namespace ModIO.UI
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void OnValidate()
         {
             UnityEditor.EditorApplication.delayCall += () =>
-            {
-                PresentData();
-            };
+            { PresentData(); };
         }
-        #endif
+#endif
     }
 }

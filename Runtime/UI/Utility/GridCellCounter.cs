@@ -10,7 +10,9 @@ namespace ModIO.UI
         // ---------[ NESTED DATA-TYPES ]---------
         /// <summary>Event fired when the number of visible cells changes.</summary>
         [System.Serializable]
-        public class CellCountChanged : UnityEngine.Events.UnityEvent<int> {}
+        public class CellCountChanged : UnityEngine.Events.UnityEvent<int>
+        {
+        }
 
         // ---------[ FIELDS ]---------
         /// <summary>Event fired when the number of visible cells changes.</summary>
@@ -26,13 +28,17 @@ namespace ModIO.UI
         /// <summary>Grid Layout component being referenced.</summary>
         public GridLayoutGroup grid
         {
-            get { return this.GetComponent<GridLayoutGroup>(); }
+            get {
+                return this.GetComponent<GridLayoutGroup>();
+            }
         }
 
         /// <summary>RectTransform component attached to the game object.</summary>
         private RectTransform rectTransform
         {
-            get { return (RectTransform)this.transform; }
+            get {
+                return (RectTransform)this.transform;
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -51,8 +57,7 @@ namespace ModIO.UI
             if(this.m_lastDimensions != this.rectTransform.rect)
             {
                 int newCount = UIUtilities.CalculateGridCellCount(this.grid);
-                if(newCount != this.m_lastCellCount
-                   && this.onCellCountChanged != null)
+                if(newCount != this.m_lastCellCount && this.onCellCountChanged != null)
                 {
                     this.onCellCountChanged.Invoke(newCount);
                 }

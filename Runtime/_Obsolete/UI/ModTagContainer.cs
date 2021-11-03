@@ -18,17 +18,24 @@ namespace ModIO.UI
         public GameObject loadingOverlay;
 
         [Header("Display Data")]
-        [SerializeField] private ModTagDisplayData[] m_data = new ModTagDisplayData[0];
+        [SerializeField]
+        private ModTagDisplayData[] m_data = new ModTagDisplayData[0];
         private List<ModTagDisplayComponent> m_tagDisplays = new List<ModTagDisplayComponent>();
 
         // --- ACCESSORS ---
-        public IEnumerable<ModTagDisplayComponent> tagDisplays { get { return m_tagDisplays; } }
+        public IEnumerable<ModTagDisplayComponent> tagDisplays
+        {
+            get {
+                return m_tagDisplays;
+            }
+        }
 
         public override IEnumerable<ModTagDisplayData> data
         {
-            get { return m_data; }
-            set
-            {
+            get {
+                return m_data;
+            }
+            set {
                 if(value == null)
                 {
                     m_data = new ModTagDisplayData[0];
@@ -38,13 +45,13 @@ namespace ModIO.UI
                     m_data = value.ToArray();
                 }
 
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
                 if(!Application.isPlaying)
                 {
                     PresentData_Editor(m_data);
                 }
                 else
-                #endif
+#endif
                 {
                     PresentData(m_data);
                 }
@@ -85,10 +92,7 @@ namespace ModIO.UI
             }
 
             // assign data
-            for(int i = 0; i < newCount; ++i)
-            {
-                this.m_tagDisplays[i].data = displayData[i];
-            }
+            for(int i = 0; i < newCount; ++i) { this.m_tagDisplays[i].data = displayData[i]; }
 
             // fix layouting
             if(this.isActiveAndEnabled)
@@ -97,7 +101,7 @@ namespace ModIO.UI
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void PresentData_Editor(IEnumerable<ModTagDisplayData> displayData)
         {
             Debug.Assert(!Application.isPlaying);
@@ -113,10 +117,8 @@ namespace ModIO.UI
                 foreach(ModTagDisplayComponent display in m_tagDisplays)
                 {
                     GameObject displayGO = display.gameObject;
-                    UnityEditor.EditorApplication.delayCall+= () =>
-                    {
-                        DestroyImmediate(displayGO);
-                    };
+                    UnityEditor.EditorApplication.delayCall += () =>
+                    { DestroyImmediate(displayGO); };
                 }
                 m_tagDisplays.Clear();
             }
@@ -133,11 +135,11 @@ namespace ModIO.UI
 
                 UnityEditor.EditorApplication.delayCall += () =>
                 {
-                    GameObject displayGO = GameObject.Instantiate(tagDisplayPrefab,
-                                                                  container);
+                    GameObject displayGO = GameObject.Instantiate(tagDisplayPrefab, container);
                     displayGO.hideFlags = HideFlags.HideAndDontSave | HideFlags.HideInInspector;
 
-                    ModTagDisplayComponent display = displayGO.GetComponent<ModTagDisplayComponent>();
+                    ModTagDisplayComponent display =
+                        displayGO.GetComponent<ModTagDisplayComponent>();
                     display.data = tdata;
 
                     m_tagDisplays.Add(display);
@@ -146,7 +148,7 @@ namespace ModIO.UI
 
             // TODO: fix layouting?
         }
-        #endif
+#endif
 
         // ---------[ INITIALIZATION ]---------
         public override void Initialize()
@@ -166,10 +168,10 @@ namespace ModIO.UI
         {
             m_tagDisplays = new List<ModTagDisplayComponent>();
 
-            // TODO(@jackson): Why check isPlaying?
-            #if UNITY_EDITOR
+// TODO(@jackson): Why check isPlaying?
+#if UNITY_EDITOR
             if(Application.isPlaying || container != null)
-            #endif
+#endif
             {
                 foreach(Transform t in container)
                 {
@@ -194,12 +196,14 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        public override void DisplayTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
+        public override void DisplayTags(ModProfile profile,
+                                         IEnumerable<ModTagCategory> tagCategories)
         {
             Debug.Assert(profile != null);
             DisplayTags(profile.tagNames, tagCategories);
         }
-        public override void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
+        public override void DisplayTags(IEnumerable<string> tags,
+                                         IEnumerable<ModTagCategory> tagCategories)
         {
             if(tags == null)
             {
@@ -234,7 +238,7 @@ namespace ModIO.UI
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void OnValidate()
         {
             UnityEditor.EditorApplication.delayCall += () =>
@@ -253,6 +257,6 @@ namespace ModIO.UI
                 }
             };
         }
-        #endif
+#endif
     }
 }

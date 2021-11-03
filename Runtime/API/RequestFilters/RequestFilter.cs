@@ -10,7 +10,8 @@ namespace ModIO
 
         public string sortFieldName = string.Empty;
         public bool isSortAscending = true;
-        public Dictionary<string, List<IRequestFieldFilter>> fieldFilterMap = new Dictionary<string, List<IRequestFieldFilter>>();
+        public Dictionary<string, List<IRequestFieldFilter>> fieldFilterMap =
+            new Dictionary<string, List<IRequestFieldFilter>>();
 
         public string GenerateFilterString()
         {
@@ -18,7 +19,8 @@ namespace ModIO
 
             if(!System.String.IsNullOrEmpty(sortFieldName))
             {
-                filterStringBuilder.Append("_sort=" + (isSortAscending ? "" : "-") + sortFieldName + "&");
+                filterStringBuilder.Append("_sort=" + (isSortAscending ? "" : "-") + sortFieldName
+                                           + "&");
             }
 
             foreach(KeyValuePair<string, List<IRequestFieldFilter>> kvp in this.fieldFilterMap)
@@ -29,7 +31,8 @@ namespace ModIO
                     {
                         if(fieldFilter != null)
                         {
-                            filterStringBuilder.Append(fieldFilter.GenerateFilterString(kvp.Key) + "&");
+                            filterStringBuilder.Append(fieldFilter.GenerateFilterString(kvp.Key)
+                                                       + "&");
                         }
                     }
                 }
@@ -49,17 +52,17 @@ namespace ModIO
             Debug.Assert(this.fieldFilterMap != null);
 
             // early out
-            if(string.IsNullOrEmpty(fieldName)
-               || filter == null
-               || filter.filterValue == null)
+            if(string.IsNullOrEmpty(fieldName) || filter == null || filter.filterValue == null)
             {
-                Debug.LogWarning("[mod.io] Attempted to add an invalid field filter to the request filter."
-                                 + "\nfieldName=\"" + (fieldName == null ? "NULL" : fieldName) + "\""
-                                 + "\nfilter=" + (filter == null ? "NULL" : filter.GetType().ToString())
-                                 + (filter == null
-                                    ? string.Empty
-                                    : "\nfilterValue=" + (filter.filterValue == null ? "NULL" : filter.filterValue.ToString()))
-                                 );
+                Debug.LogWarning(
+                    "[mod.io] Attempted to add an invalid field filter to the request filter."
+                    + "\nfieldName=\"" + (fieldName == null ? "NULL" : fieldName) + "\""
+                    + "\nfilter=" + (filter == null ? "NULL" : filter.GetType().ToString())
+                    + (filter == null
+                           ? string.Empty
+                           : "\nfilterValue="
+                                 + (filter.filterValue == null ? "NULL"
+                                                               : filter.filterValue.ToString())));
 
                 return;
             }
@@ -76,8 +79,7 @@ namespace ModIO
             // remove duplicate from list
             for(int i = 0; i < list.Count; ++i)
             {
-                if(list[i] != null
-                   && list[i].filterMethod == filter.filterMethod)
+                if(list[i] != null && list[i].filterMethod == filter.filterMethod)
                 {
                     list.RemoveAt(i);
                     break;
@@ -87,19 +89,17 @@ namespace ModIO
             list.Add(filter);
         }
 
-        #pragma warning disable 0618
+#pragma warning disable 0618
         public void AddFieldFilter<T>(string fieldName, RangeFilter<T> filter)
             where T : System.IComparable<T>
         {
             if(filter != null)
             {
-                MinimumFilter<T> minFilter = new MinimumFilter<T>()
-                {
+                MinimumFilter<T> minFilter = new MinimumFilter<T>() {
                     minimum = filter.min,
                     isInclusive = filter.isMinInclusive,
                 };
-                MaximumFilter<T> maxFilter = new MaximumFilter<T>()
-                {
+                MaximumFilter<T> maxFilter = new MaximumFilter<T>() {
                     maximum = filter.max,
                     isInclusive = filter.isMaxInclusive,
                 };
@@ -108,7 +108,7 @@ namespace ModIO
                 this.AddFieldFilter(fieldName, maxFilter);
             }
         }
-        #pragma warning restore 0618
+#pragma warning restore 0618
 
         // ---------[ OBSOLETE ]---------
         [System.Obsolete("Use RequestFilter.fieldFilterMap instead.", true)]

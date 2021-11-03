@@ -9,7 +9,9 @@ namespace ModIO.UI
         // ---------[ NESTED DATA-TYPES ]---------
         /// <summary>Event for notifying that the texture has changed.</summary>
         [System.Serializable]
-        public class TextureChangedEvent : UnityEngine.Events.UnityEvent<Texture2D> {}
+        public class TextureChangedEvent : UnityEngine.Events.UnityEvent<Texture2D>
+        {
+        }
 
         // ---------[ FIELDS ]---------
         /// <summary>Image component used to display the YouTube thumbnail.</summary>
@@ -27,11 +29,19 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         /// <summary>Current modId for the displayed thumbnail.</summary>
         public int ModId
-        { get { return this.m_modId;    } }
+        {
+            get {
+                return this.m_modId;
+            }
+        }
 
         /// <summary>YouTube id for the displayed thumbnail.</summary>
         public string YouTubeId
-        { get { return this.m_youTubeId;  } }
+        {
+            get {
+                return this.m_youTubeId;
+            }
+        }
 
         // ---------[ UI FUNCTIONALITY ]---------
         /// <summary>Displays a YouTube thumbnail.</summary>
@@ -56,8 +66,7 @@ namespace ModIO.UI
                     System.Action<Texture2D> displayDelegate = (t) => ApplyTexture(youTubeId, t);
 
                     ImageRequestManager.instance.RequestYouTubeThumbnail(modId, youTubeId,
-                                                                         displayDelegate,
-                                                                         null);
+                                                                         displayDelegate, null);
                 }
             }
         }
@@ -65,9 +74,7 @@ namespace ModIO.UI
         /// <summary>Internal function for applying the texture.</summary>
         protected virtual void ApplyTexture(string youTubeId, Texture2D texture)
         {
-            if(this != null
-               && texture != null
-               && this.m_youTubeId == youTubeId)
+            if(this != null && texture != null && this.m_youTubeId == youTubeId)
             {
                 this.image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
                 this.image.enabled = true;

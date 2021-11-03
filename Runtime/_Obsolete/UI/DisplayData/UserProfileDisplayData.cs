@@ -4,25 +4,24 @@ namespace ModIO.UI
     [System.Serializable]
     public struct UserProfileDisplayData
     {
-        public int      userId;
-        public string   nameId;
-        public string   username;
-        public int      lastOnline;
-        public string   timezone;
-        public string   language;
-        public string   profileURL;
+        public int userId;
+        public string nameId;
+        public string username;
+        public int lastOnline;
+        public string timezone;
+        public string language;
+        public string profileURL;
 
         public static UserProfileDisplayData CreateFromProfile(UserProfile profile)
         {
-            UserProfileDisplayData userData = new UserProfileDisplayData()
-            {
-                userId      = profile.id,
-                nameId      = profile.nameId,
-                username    = profile.username,
-                lastOnline  = profile.lastOnline,
-                timezone    = profile.timezone,
-                language    = profile.language,
-                profileURL  = profile.profileURL,
+            UserProfileDisplayData userData = new UserProfileDisplayData() {
+                userId = profile.id,
+                nameId = profile.nameId,
+                username = profile.username,
+                lastOnline = profile.lastOnline,
+                timezone = profile.timezone,
+                language = profile.language,
+                profileURL = profile.profileURL,
             };
             return userData;
         }

@@ -33,16 +33,17 @@ namespace ModIO
         public int dateAdded;
 
         /// <summary>
-        /// Type of event was 'USER_TEAM_JOIN', 'USER_TEAM_LEAVE', 'USER_SUBSCRIBE', 'USER_UNSUBSCRIBE'.
+        /// Type of event was 'USER_TEAM_JOIN', 'USER_TEAM_LEAVE', 'USER_SUBSCRIBE',
+        /// 'USER_UNSUBSCRIBE'.
         /// </summary>
         [JsonProperty("user_event_type")]
         public UserEventType eventType;
 
         // ---------[ API DESERIALIZATION ]---------
-        private const string APIOBJECT_VALUESTRING_TEAMJOINED       = "USER_TEAM_JOIN";
-        private const string APIOBJECT_VALUESTRING_TEAMLEFT         = "USER_TEAM_LEAVE";
-        private const string APIOBJECT_VALUESTRING_MODSUBSCRIBED    = "USER_SUBSCRIBE";
-        private const string APIOBJECT_VALUESTRING_MODUNSUBSCRIBED  = "USER_UNSUBSCRIBE";
+        private const string APIOBJECT_VALUESTRING_TEAMJOINED = "USER_TEAM_JOIN";
+        private const string APIOBJECT_VALUESTRING_TEAMLEFT = "USER_TEAM_LEAVE";
+        private const string APIOBJECT_VALUESTRING_MODSUBSCRIBED = "USER_SUBSCRIBE";
+        private const string APIOBJECT_VALUESTRING_MODUNSUBSCRIBED = "USER_UNSUBSCRIBE";
 
         /// <summary>
         /// An optional event_type field, which is only deserialized from API responses
@@ -53,7 +54,10 @@ namespace ModIO
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            if (string.IsNullOrEmpty(this._eventTypeString)) { return; }
+            if(string.IsNullOrEmpty(this._eventTypeString))
+            {
+                return;
+            }
 
             switch(this._eventTypeString.ToUpper())
             {

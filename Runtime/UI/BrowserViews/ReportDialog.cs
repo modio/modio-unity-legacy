@@ -9,7 +9,8 @@ namespace ModIO.UI
     public class ReportDialog : MonoBehaviour, IBrowserView
     {
         // ---------[ Constants ]---------
-        /// <summary>This component is designed for the reporting of mods and no other resource type.</summary>
+        /// <summary>This component is designed for the reporting of mods and no other resource
+        /// type.</summary>
         public const ReportedResourceType RESOURCE_TYPE = ReportedResourceType.Mod;
 
         // ---------[ Fields ]---------
@@ -30,26 +31,45 @@ namespace ModIO.UI
 
         // --- Accessors ---
         /// <summary>Gets the canvas group attached to this gameObject.</summary>
-        CanvasGroup IBrowserView.canvasGroup { get { return this.gameObject.GetComponent<CanvasGroup>(); } }
+        CanvasGroup IBrowserView.canvasGroup
+        {
+            get {
+                return this.gameObject.GetComponent<CanvasGroup>();
+            }
+        }
 
         /// <summary>Reset selection on hide.</summary>
-        bool IBrowserView.resetSelectionOnHide { get { return true; } }
+        bool IBrowserView.resetSelectionOnHide
+        {
+            get {
+                return true;
+            }
+        }
 
         /// <summary>Is the view a root view or window view?</summary>
-        bool IBrowserView.isRootView { get { return false; } }
+        bool IBrowserView.isRootView
+        {
+            get {
+                return false;
+            }
+        }
 
         /// <summary>The priority to focus the selectables.</summary>
         private List<Selectable> m_onFocusPriority = null;
 
         /// <summary>The priority to focus the selectables.</summary>
-        List<Selectable> IBrowserView.onFocusPriority { get { return this.m_onFocusPriority; } }
+        List<Selectable> IBrowserView.onFocusPriority
+        {
+            get {
+                return this.m_onFocusPriority;
+            }
+        }
 
         // ---------[ Initialization ]---------
         /// <summary>Build the prioritization list.</summary>
         private void Awake()
         {
-            this.m_onFocusPriority = new List<Selectable>()
-            {
+            this.m_onFocusPriority = new List<Selectable>() {
                 this.dropdown.GetComponent<Dropdown>(),
                 this.detailsField,
             };
@@ -69,7 +89,8 @@ namespace ModIO.UI
                 }
                 else
                 {
-                    ModManager.GetModProfile(modId, this.SetModProfile, (e) => this.m_modId = ModProfile.NULL_ID);
+                    ModManager.GetModProfile(modId, this.SetModProfile,
+                                             (e) => this.m_modId = ModProfile.NULL_ID);
                 }
             }
         }
@@ -105,13 +126,15 @@ namespace ModIO.UI
             var reportParams = new ModIO.API.SubmitReportParameters();
             var messageData = new MessageDialog.Data();
 
-            reportParams.resource = EditableReport.ResourceTypeToAPIString(ReportDialog.RESOURCE_TYPE);
+            reportParams.resource =
+                EditableReport.ResourceTypeToAPIString(ReportDialog.RESOURCE_TYPE);
 
             // check mod id
             if(this.m_modId <= 0)
             {
                 messageData.header = "Error Submitting Report";
-                messageData.message = "The submission process encountered an error.\n[Error: Invalid mod id]";
+                messageData.message =
+                    "The submission process encountered an error.\n[Error: Invalid mod id]";
                 messageData.standardButtonCallback = () =>
                 {
                     ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
@@ -133,8 +156,10 @@ namespace ModIO.UI
             if(!this.dropdown.TryGetSelectedValue(out type))
             {
                 messageData.header = "Error Submitting Report";
-                messageData.message = "A report type needs to be selected from the dropdown options.";
-                messageData.standardButtonCallback = () => ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                messageData.message =
+                    "A report type needs to be selected from the dropdown options.";
+                messageData.standardButtonCallback = () =>
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
                 messageData.standardButtonText = "Back";
 
                 ViewManager.instance.ShowMessageDialog(messageData);
@@ -145,12 +170,13 @@ namespace ModIO.UI
 
             // check email
             string email = this.contactEmailField.text;
-            if(!string.IsNullOrEmpty(email)
-               && !Utility.IsEmail(email))
+            if(!string.IsNullOrEmpty(email) && !Utility.IsEmail(email))
             {
                 messageData.header = "Error Submitting Report";
-                messageData.message = "Please enter a valid email address or leave the field empty.";
-                messageData.standardButtonCallback = () => ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                messageData.message =
+                    "Please enter a valid email address or leave the field empty.";
+                messageData.standardButtonCallback = () =>
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
                 messageData.standardButtonText = "Back";
 
                 ViewManager.instance.ShowMessageDialog(messageData);
@@ -175,29 +201,26 @@ namespace ModIO.UI
             ViewManager.instance.ShowMessageDialog(messageData);
 
             // Submit
-            APIClient.SubmitReport(reportParams,
-                                   this.OnReportSuccessful,
-                                   this.OnReportFailed);
+            APIClient.SubmitReport(reportParams, this.OnReportSuccessful, this.OnReportFailed);
         }
 
         /// <summary>Callback for a successful report submission.</summary>
         private void OnReportSuccessful(APIMessage response)
         {
-            var messageData = new MessageDialog.Data()
-            {
+            var messageData = new MessageDialog.Data() {
                 header = "Report Submission Status",
                 message = "Report submission successful.\n" + response.message,
-                standardButtonCallback = () =>
-                {
-                    ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
-                    ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
-                },
+                standardButtonCallback =
+                    () => {
+                        ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
+                        ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                    },
                 standardButtonText = "Done",
-                onClose = () =>
-                {
-                    ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
-                    ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
-                },
+                onClose =
+                    () => {
+                        ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
+                        ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                    },
             };
 
             ViewManager.instance.ShowMessageDialog(messageData);
@@ -206,27 +229,24 @@ namespace ModIO.UI
         /// <summary>Callback for a failed report submission.</summary>
         private void OnReportFailed(WebRequestError error)
         {
-            var messageData = new MessageDialog.Data()
-            {
+            var messageData = new MessageDialog.Data() {
                 header = "Report Submission Status",
-                message = ("Report submission failed.\n"
-                           + error.displayMessage
+                message = ("Report submission failed.\n" + error.displayMessage
                            + "\n[Error Code: " + error.webRequest.responseCode.ToString() + "]"),
-                standardButtonCallback = () =>
-                {
-                    ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
-                    ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
-                },
+                standardButtonCallback =
+                    () => {
+                        ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
+                        ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                    },
                 standardButtonText = "Done",
-                onClose = () =>
-                {
-                    ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
-                    ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
-                },
+                onClose =
+                    () => {
+                        ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
+                        ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                    },
             };
 
             ViewManager.instance.ShowMessageDialog(messageData);
         }
-
     }
 }

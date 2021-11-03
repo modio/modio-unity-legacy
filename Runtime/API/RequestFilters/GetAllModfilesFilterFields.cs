@@ -10,7 +10,8 @@ namespace ModIO.API
         public const string dateAdded = "date_added";
         // (integer) Unix timestamp of date file was virus scanned.
         public const string dateScanned = "date_scanned";
-        // (integer) Current virus scan status of the file. For newly added files that have yet to be scanned this field will change frequently until a scan is complete:
+        // (integer) Current virus scan status of the file. For newly added files that have yet to
+        // be scanned this field will change frequently until a scan is complete:
         public const string virusStatus = "virus_status";
         // (integer) Was a virus detected:
         public const string virusPositive = "virus_positive";

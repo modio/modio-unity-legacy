@@ -9,8 +9,7 @@ namespace ModIO.API
         // thumbnails with the dimensions of 320x180, 640x360 and 1280x720.
         public BinaryUpload logo
         {
-            set
-            {
+            set {
                 this.SetBinaryData("logo", value.fileName, value.data);
             }
         }
@@ -20,8 +19,7 @@ namespace ModIO.API
         // ignored.
         public BinaryUpload galleryImages
         {
-            set
-            {
+            set {
                 this.SetBinaryData("images", "images.zip", value.data);
             }
         }
@@ -30,8 +28,7 @@ namespace ModIO.API
         // For example 'https://www.youtube.com/watch?v=IGVZOLV9SPo'
         public string[] youtube
         {
-            set
-            {
+            set {
                 this.SetStringArrayValue("youtube[]", value);
             }
         }
@@ -40,8 +37,7 @@ namespace ModIO.API
         // For example 'https://sketchfab.com/models/71f04e390ff54e5f8d9a51b4e1caab7e'
         public string[] sketchfab
         {
-            set
-            {
+            set {
                 this.SetStringArrayValue("sketchfab[]", value);
             }
         }

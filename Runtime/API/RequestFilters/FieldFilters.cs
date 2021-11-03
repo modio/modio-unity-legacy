@@ -38,8 +38,12 @@ namespace ModIO
         // Accessor
         public T filterValue
         {
-            get { return this.data.filterValue; }
-            set { this.data.filterValue = value; }
+            get {
+                return this.data.filterValue;
+            }
+            set {
+                this.data.filterValue = value;
+            }
         }
 
         // --- Initialization ---
@@ -52,17 +56,23 @@ namespace ModIO
         // ---- Interfaces ---
         object IRequestFieldFilter.filterValue
         {
-            get { return this.data.filterValue; }
+            get {
+                return this.data.filterValue;
+            }
         }
 
         T IRequestFieldFilter<T>.filterValue
         {
-            get { return this.data.filterValue; }
+            get {
+                return this.data.filterValue;
+            }
         }
 
         public virtual FieldFilterMethod filterMethod
         {
-            get { return this.data.filterMethod; }
+            get {
+                return this.data.filterMethod;
+            }
         }
 
         public virtual string GenerateFilterString(string fieldName)
@@ -70,9 +80,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(fieldName));
             Debug.Assert(this.filterValue != null);
 
-            return (fieldName
-                    + this.apiStringOperator
-                    + this.filterValue.ToString());
+            return (fieldName + this.apiStringOperator + this.filterValue.ToString());
         }
     }
 
@@ -80,12 +88,18 @@ namespace ModIO
     {
         public T[] filterArray
         {
-            get { return this.filterValue; }
-            set { this.filterValue = value; }
+            get {
+                return this.filterValue;
+            }
+            set {
+                this.filterValue = value;
+            }
         }
 
         public ArrayFieldFilterBase(FieldFilterMethod filterMethod, string apiStringOperator)
-        : base(filterMethod, apiStringOperator) {}
+            : base(filterMethod, apiStringOperator)
+        {
+        }
 
         public override string GenerateFilterString(string fieldName)
         {
@@ -118,8 +132,7 @@ namespace ModIO
     // ------[ GENERIC FILTERS ]------
     public class EqualToFilter<T> : AFieldFilterBase<T>
     {
-        public EqualToFilter(T filterValue = default(T))
-        : base(FieldFilterMethod.Equal, "=")
+        public EqualToFilter(T filterValue = default(T)) : base(FieldFilterMethod.Equal, "=")
         {
             this.filterValue = filterValue;
         }
@@ -128,7 +141,7 @@ namespace ModIO
     public class NotEqualToFilter<T> : AFieldFilterBase<T>
     {
         public NotEqualToFilter(T filterValue = default(T))
-        : base(FieldFilterMethod.NotEqual, "-not=")
+            : base(FieldFilterMethod.NotEqual, "-not=")
         {
             this.filterValue = filterValue;
         }
@@ -137,7 +150,7 @@ namespace ModIO
     public class MatchesArrayFilter<T> : ArrayFieldFilterBase<T>
     {
         public MatchesArrayFilter(T[] filterArray = null)
-        : base(FieldFilterMethod.EquivalentCollection, "=")
+            : base(FieldFilterMethod.EquivalentCollection, "=")
         {
             this.filterArray = filterArray;
         }
@@ -145,8 +158,7 @@ namespace ModIO
 
     public class InArrayFilter<T> : ArrayFieldFilterBase<T>
     {
-        public InArrayFilter(T[] filterArray = null)
-        : base(FieldFilterMethod.InCollection, "-in=")
+        public InArrayFilter(T[] filterArray = null) : base(FieldFilterMethod.InCollection, "-in=")
         {
             this.filterArray = filterArray;
         }
@@ -155,7 +167,7 @@ namespace ModIO
     public class NotInArrayFilter<T> : ArrayFieldFilterBase<T>
     {
         public NotInArrayFilter(T[] filterArray = null)
-        : base(FieldFilterMethod.NotInCollection, "-not-in=")
+            : base(FieldFilterMethod.NotInCollection, "-not-in=")
         {
             this.filterArray = filterArray;
         }
@@ -167,15 +179,19 @@ namespace ModIO
     {
         public T minimum
         {
-            get { return this.filterValue; }
-            set { this.filterValue = value; }
+            get {
+                return this.filterValue;
+            }
+            set {
+                this.filterValue = value;
+            }
         }
 
         public bool isInclusive = true;
 
         // --- Initialization ---
         public MinimumFilter(T filterValue = default(T), bool isInclusive = true)
-        : base(FieldFilterMethod.Minimum, "-min=")
+            : base(FieldFilterMethod.Minimum, "-min=")
         {
             this.minimum = filterValue;
             this.isInclusive = isInclusive;
@@ -183,11 +199,9 @@ namespace ModIO
 
         public override FieldFilterMethod filterMethod
         {
-            get
-            {
-                this.data.filterMethod = (this.isInclusive
-                                          ? FieldFilterMethod.Minimum
-                                          : FieldFilterMethod.GreaterThan);
+            get {
+                this.data.filterMethod =
+                    (this.isInclusive ? FieldFilterMethod.Minimum : FieldFilterMethod.GreaterThan);
 
                 return base.filterMethod;
             }
@@ -205,15 +219,19 @@ namespace ModIO
     {
         public T maximum
         {
-            get { return this.filterValue; }
-            set { this.filterValue = value; }
+            get {
+                return this.filterValue;
+            }
+            set {
+                this.filterValue = value;
+            }
         }
 
         public bool isInclusive = true;
 
         // --- Initialization ---
         public MaximumFilter(T filterValue = default(T), bool isInclusive = true)
-        : base(FieldFilterMethod.Maximum, "-max=")
+            : base(FieldFilterMethod.Maximum, "-max=")
         {
             this.maximum = filterValue;
             this.isInclusive = isInclusive;
@@ -221,11 +239,9 @@ namespace ModIO
 
         public override FieldFilterMethod filterMethod
         {
-            get
-            {
-                this.data.filterMethod = (this.isInclusive
-                                          ? FieldFilterMethod.Maximum
-                                          : FieldFilterMethod.LessThan);
+            get {
+                this.data.filterMethod =
+                    (this.isInclusive ? FieldFilterMethod.Maximum : FieldFilterMethod.LessThan);
 
                 return base.filterMethod;
             }
@@ -242,7 +258,7 @@ namespace ModIO
     public class BitwiseAndFilter : AFieldFilterBase<int>
     {
         public BitwiseAndFilter(int filterValue = -1)
-        : base(FieldFilterMethod.BitwiseAnd, "-bitwise-and=")
+            : base(FieldFilterMethod.BitwiseAnd, "-bitwise-and=")
         {
             this.filterValue = filterValue;
         }
@@ -253,13 +269,17 @@ namespace ModIO
     {
         public string likeValue
         {
-            get { return this.filterValue; }
-            set { this.filterValue = value; }
+            get {
+                return this.filterValue;
+            }
+            set {
+                this.filterValue = value;
+            }
         }
 
 
         public StringLikeFilter(string filterValue = null)
-        : base(FieldFilterMethod.LikeString, "-lk=")
+            : base(FieldFilterMethod.LikeString, "-lk=")
         {
             this.filterValue = filterValue;
         }
@@ -268,12 +288,16 @@ namespace ModIO
     {
         public string notLikeValue
         {
-            get { return this.filterValue; }
-            set { this.filterValue = value; }
+            get {
+                return this.filterValue;
+            }
+            set {
+                this.filterValue = value;
+            }
         }
 
         public StringNotLikeFilter(string filterValue = null)
-        : base(FieldFilterMethod.NotLikeString, "-not-lk=")
+            : base(FieldFilterMethod.NotLikeString, "-not-lk=")
         {
             this.filterValue = filterValue;
         }
@@ -295,19 +319,28 @@ namespace ModIO
             Debug.Assert(this.min != null);
             Debug.Assert(this.max != null);
 
-            return (fieldName + (isMinInclusive ? "-min=" : "-gt=") + min
-                    + "&" + fieldName + (isMaxInclusive ? "-max=" : "-st=") + max);
+            return (fieldName + (isMinInclusive ? "-min=" : "-gt=") + min + "&" + fieldName
+                    + (isMaxInclusive ? "-max=" : "-st=") + max);
         }
 
-        public FieldFilterMethod filterMethod { get { throw new System.NotImplementedException(); } }
+        public FieldFilterMethod filterMethod
+        {
+            get {
+                throw new System.NotImplementedException();
+            }
+        }
         object IRequestFieldFilter.filterValue
         {
-            get { throw new System.NotImplementedException(); }
+            get {
+                throw new System.NotImplementedException();
+            }
         }
 
         T IRequestFieldFilter<T>.filterValue
         {
-            get { throw new System.NotImplementedException(); }
+            get {
+                throw new System.NotImplementedException();
+            }
         }
     }
 

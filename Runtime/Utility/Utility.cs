@@ -11,7 +11,14 @@ namespace ModIO
         // URL: https://stackoverflow.com/a/5419544
         public static bool Like(this string toSearch, string toFind)
         {
-            return new Regex(@"\A" + new Regex(@"\.|\$|\^|\{|\[|\(|\||\)|\*|\+|\?|\\").Replace(toFind, ch => @"\" + ch).Replace('_', '.').Replace("%", ".*") + @"\z", RegexOptions.Singleline).IsMatch(toSearch);
+            return new Regex(@"\A"
+                                 + new Regex(@"\.|\$|\^|\{|\[|\(|\||\)|\*|\+|\?|\\")
+                                       .Replace(toFind, ch => @"\" + ch)
+                                       .Replace('_', '.')
+                                       .Replace("%", ".*")
+                                 + @"\z",
+                             RegexOptions.Singleline)
+                .IsMatch(toSearch);
         }
 
         public static bool IsURL(string toCheck)
@@ -26,7 +33,8 @@ namespace ModIO
 
         public static bool IsEmail(string toCheck)
         {
-            string scottsEmailRegex = @"^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,63}$";
+            string scottsEmailRegex =
+                @"^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,63}$";
             Regex regex = new Regex(scottsEmailRegex, RegexOptions.IgnoreCase);
 
             return regex.IsMatch(toCheck);
@@ -44,13 +52,14 @@ namespace ModIO
                                                        Func<T1, T2> mapElementDelegate,
                                                        out T2[] destinationArray)
         {
-            if(sourceArray == null) { destinationArray = new T2[0]; }
+            if(sourceArray == null)
+            {
+                destinationArray = new T2[0];
+            }
             else
             {
                 destinationArray = new T2[sourceArray.Length];
-                for(int i = 0;
-                    i < sourceArray.Length;
-                    ++i)
+                for(int i = 0; i < sourceArray.Length; ++i)
                 {
                     destinationArray[i] = mapElementDelegate(sourceArray[i]);
                 }
@@ -79,14 +88,13 @@ namespace ModIO
                 var method = stackFrame.GetMethod();
                 if(method != null)
                 {
-                    debugString.Append(method.ReflectedType
-                                       + "." + method.Name + "(");
+                    debugString.Append(method.ReflectedType + "." + method.Name + "(");
 
                     var methodsParameters = method.GetParameters();
                     foreach(var parameter in methodsParameters)
                     {
-                        debugString.Append(parameter.ParameterType.Name + " "
-                                           + parameter.Name + ", ");
+                        debugString.Append(parameter.ParameterType.Name + " " + parameter.Name
+                                           + ", ");
                     }
                     if(methodsParameters.Length > 0)
                     {
@@ -100,8 +108,8 @@ namespace ModIO
                     debugString.Append("[NULL METHOD REFERENCE]");
                 }
 
-                debugString.AppendLine(" @ " + stackFrame.GetFileName()
-                                       + ":" + stackFrame.GetFileLineNumber());
+                debugString.AppendLine(" @ " + stackFrame.GetFileName() + ":"
+                                       + stackFrame.GetFileLineNumber());
             }
 
             return debugString.ToString();
@@ -114,7 +122,8 @@ namespace ModIO
         public static string ExtractYouTubeIdFromURL(string youTubeURL)
         {
             string yt_id = null;
-            string pattern = (@"(?:https?:\/\/|\/\/)?(?:www\.|m\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})(?![\w-])");
+            string pattern =
+                (@"(?:https?:\/\/|\/\/)?(?:www\.|m\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})(?![\w-])");
 
             var idMatch = Regex.Match(youTubeURL, pattern);
             if(idMatch != null)
@@ -136,7 +145,8 @@ namespace ModIO
         public static string EncodeEncryptedAppTicket(byte[] ticketData, uint ticketSize)
         {
             Debug.Assert(ticketData != null);
-            Debug.Assert(ticketData.Length > 0 && ticketData.Length <= 1024, "Invalid ticketData length");
+            Debug.Assert(ticketData.Length > 0 && ticketData.Length <= 1024,
+                         "Invalid ticketData length");
             Debug.Assert(ticketSize > 0 && ticketSize <= ticketData.Length, "Invalid ticketSize");
 
             byte[] trimmedTicket = new byte[ticketSize];
@@ -147,7 +157,9 @@ namespace ModIO
             {
                 retVal = Convert.ToBase64String(trimmedTicket);
             }
-            catch {}
+            catch
+            {
+            }
 
             return retVal;
         }
@@ -168,22 +180,24 @@ namespace ModIO
         /// <summary>Map ModProfiles to id array.</summary>
         public static int[] MapProfileIds(IList<ModProfile> profiles)
         {
-            if(profiles == null) { return null; }
+            if(profiles == null)
+            {
+                return null;
+            }
 
             int[] retVal = new int[profiles.Count];
             for(int i = 0; i < profiles.Count; ++i)
             {
                 ModProfile profile = profiles[i];
-                retVal[i] = (profile != null
-                             ? profile.id
-                             : ModProfile.NULL_ID);
+                retVal[i] = (profile != null ? profile.id : ModProfile.NULL_ID);
             }
 
             return retVal;
         }
 
 
-        /// <summary>[Obsolete] Converts a byte array representing a Steam Ticket to a base64 string.</summary>
+        /// <summary>[Obsolete] Converts a byte array representing a Steam Ticket to a base64
+        /// string.</summary>
         [Obsolete("Use EncodeEncryptedAppTicket() instead")]
         public static string ConvertSteamEncryptedAppTicket(byte[] pTicket, uint pcbTicket)
         {

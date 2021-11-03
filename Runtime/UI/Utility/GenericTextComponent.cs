@@ -21,13 +21,11 @@ namespace ModIO.UI
                 foreach(Component component in objectComponents)
                 {
                     var componentType = component.GetType();
-                    var propertyInfo = componentType.GetProperty("text",
-                                                                 BindingFlags.IgnoreCase
-                                                                 | BindingFlags.Public
-                                                                 | BindingFlags.Instance);
+                    var propertyInfo = componentType.GetProperty(
+                        "text",
+                        BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
-                    if(propertyInfo != null
-                       && propertyInfo.PropertyType == typeof(string)
+                    if(propertyInfo != null && propertyInfo.PropertyType == typeof(string)
                        && propertyInfo.GetGetMethod() != null
                        && propertyInfo.GetSetMethod() != null)
                     {
@@ -55,14 +53,15 @@ namespace ModIO.UI
         /// <summary>The component the this structure uses to display text.</summary>
         public Component displayComponent
         {
-            get { return this.m_textDisplayComponent; }
+            get {
+                return this.m_textDisplayComponent;
+            }
         }
 
         /// <summary>The text to display on the UI component.</summary>
         public string text
         {
-            get
-            {
+            get {
                 if(this.m_getTextDelegate == null)
                 {
                     GenerateDelegates();
@@ -71,8 +70,7 @@ namespace ModIO.UI
                 return this.m_getTextDelegate(this.m_textDisplayComponent);
             }
 
-            set
-            {
+            set {
                 if(this.m_setTextDelegate == null)
                 {
                     GenerateDelegates();
@@ -101,30 +99,23 @@ namespace ModIO.UI
             if(this.m_textDisplayComponent != null)
             {
                 var componentType = this.m_textDisplayComponent.GetType();
-                propertyInfo = componentType.GetProperty("text",
-                                                         BindingFlags.IgnoreCase
-                                                         | BindingFlags.Public
-                                                         | BindingFlags.Instance);
+                propertyInfo = componentType.GetProperty(
+                    "text", BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
             }
 
-            if(propertyInfo != null
-               && propertyInfo.PropertyType == typeof(string)
-               && propertyInfo.GetGetMethod() != null
-               && propertyInfo.GetSetMethod() != null)
+            if(propertyInfo != null && propertyInfo.PropertyType == typeof(string)
+               && propertyInfo.GetGetMethod() != null && propertyInfo.GetSetMethod() != null)
             {
                 this.m_getTextDelegate = (component) =>
-                {
-                    return propertyInfo.GetValue(component, null) as string;
-                };
+                { return propertyInfo.GetValue(component, null) as string; };
                 this.m_setTextDelegate = (component, s) =>
-                {
-                    propertyInfo.SetValue(component, s, null);
-                };
+                { propertyInfo.SetValue(component, s, null); };
             }
             else
             {
                 this.m_getTextDelegate = (component) => null;
-                this.m_setTextDelegate = (component, s) => {};
+                this.m_setTextDelegate = (component, s) =>
+                {};
             }
         }
     }

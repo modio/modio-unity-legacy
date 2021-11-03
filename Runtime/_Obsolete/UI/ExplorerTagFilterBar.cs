@@ -18,7 +18,9 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         public TagContainer container
         {
-            get { return this.gameObject.GetComponent<TagContainer>(); }
+            get {
+                return this.gameObject.GetComponent<TagContainer>();
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -41,7 +43,8 @@ namespace ModIO.UI
         }
 
         // ---------[ OBSOLETE ]---------
-        [System.Obsolete("Use TagContainer.hideIfEmpty instead.")][HideInInspector]
+        [System.Obsolete("Use TagContainer.hideIfEmpty instead.")]
+        [HideInInspector]
         public bool hideIfEmpty;
     }
 }

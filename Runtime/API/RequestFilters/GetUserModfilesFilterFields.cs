@@ -1,7 +1,7 @@
 namespace ModIO
 {
-	public static class GetUserModfilesFilterFields
-	{
+    public static class GetUserModfilesFilterFields
+    {
         // (integer) Unique id of the file.
         public const string id = "id";
         // (integer) Unique id of the mod.
@@ -10,7 +10,8 @@ namespace ModIO
         public const string dateAdded = "date_added";
         // (integer) Unix timestamp of date file was virus scanned.
         public const string dateScanned = "date_scanned";
-        // (integer) Current virus scan status of the file. For newly added files that have yet to be scanned this field will change frequently until a scan is complete:
+        // (integer) Current virus scan status of the file. For newly added files that have yet to
+        // be scanned this field will change frequently until a scan is complete:
         public const string virusStatus = "virus_status";
         // (integer) Was a virus detected:
         public const string virusPositive = "virus_positive";
@@ -26,5 +27,5 @@ namespace ModIO
         public const string changelog = "changelog";
         // (string) Metadata stored by the game developer for this file.
         public const string metadataBlob = "metadata_blob";
-	}
+    }
 }

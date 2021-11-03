@@ -12,8 +12,7 @@ namespace ModIO.UI
         private static ModBrowser _instance = null;
         public static ModBrowser instance
         {
-            get
-            {
+            get {
                 if(ModBrowser._instance == null)
                 {
                     ModBrowser._instance = UIUtilities.FindComponentInAllScenes<ModBrowser>(true);
@@ -31,8 +30,7 @@ namespace ModIO.UI
 
         // ---------[ Nested Data-Types ]---------
         /// <summary>Information pertaining to the browser state.</summary>
-        [Serializable]
-        private struct BrowserState
+        [Serializable] private struct BrowserState
         {
             public int lastSync_timestamp;
             public int lastSync_userId;
@@ -43,8 +41,7 @@ namespace ModIO.UI
 
         // ---------[ CONST & STATIC ]---------
         /// <summary>State that persists across initializations.</summary>
-        private static BrowserState _state = new BrowserState()
-        {
+        private static BrowserState _state = new BrowserState() {
             lastSync_timestamp = 0,
             lastSync_userId = UserProfile.NULL_ID,
             modEventId = -1,
@@ -59,7 +56,9 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         public GameProfile gameProfile
         {
-            get { return this.m_gameProfile; }
+            get {
+                return this.m_gameProfile;
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -69,7 +68,7 @@ namespace ModIO.UI
             {
                 ModBrowser._instance = this;
             }
-            #if DEBUG
+#if DEBUG
             else if(ModBrowser._instance != this)
             {
                 Debug.LogWarning("[mod.io] Second instance of a ModBrowser"
@@ -78,7 +77,7 @@ namespace ModIO.UI
                                  + " component should be active at a time.");
                 this.enabled = false;
             }
-            #endif
+#endif
         }
 
         private void OnEnable()
@@ -102,8 +101,7 @@ namespace ModIO.UI
             bool isDone = false;
 
             // - Load Stored Data -
-            CacheClient.LoadGameProfile((p) =>
-            {
+            CacheClient.LoadGameProfile((p) => {
                 if(p == null)
                 {
                     this.m_gameProfile = new GameProfile();
@@ -121,32 +119,35 @@ namespace ModIO.UI
             isDone = false;
 
             // load user
-            LocalUser.Load(() =>
-            {
-                isDone = true;
-            });
+            LocalUser.Load(() => { isDone = true; });
 
             while(!isDone) { yield return null; }
             isDone = false;
 
             // check if still active
-            if(this == null || !this.isActiveAndEnabled) { yield break; }
+            if(this == null || !this.isActiveAndEnabled)
+            {
+                yield break;
+            }
 
             // - Initial notifications -
-            IEnumerable<IGameProfileUpdateReceiver> gameUpdateReceivers = GetComponentsInChildren<IGameProfileUpdateReceiver>(true);
+            IEnumerable<IGameProfileUpdateReceiver> gameUpdateReceivers =
+                GetComponentsInChildren<IGameProfileUpdateReceiver>(true);
             foreach(var receiver in gameUpdateReceivers)
             {
                 receiver.OnGameProfileUpdated(m_gameProfile);
             }
 
-            IEnumerable<IAuthenticatedUserUpdateReceiver> userUpdateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
+            IEnumerable<IAuthenticatedUserUpdateReceiver> userUpdateReceivers =
+                GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
             foreach(var receiver in userUpdateReceivers)
             {
                 receiver.OnUserProfileUpdated(LocalUser.Profile);
             }
 
             // - Fetch remote data -
-            if(ServerTimeStamp.Now - ModBrowser._state.lastSync_timestamp > REFETCH_PROTECTION_TIMEOUT
+            if(ServerTimeStamp.Now - ModBrowser._state.lastSync_timestamp
+                   > REFETCH_PROTECTION_TIMEOUT
                || LocalUser.UserId != ModBrowser._state.lastSync_userId)
             {
                 this.StartCoroutine(FetchGameProfile());
@@ -164,30 +165,34 @@ namespace ModIO.UI
             {
                 bool isAttemptingReauth = true;
 
-                UserAccountManagement.ReauthenticateWithStoredExternalAuthData(false,
-                (u) =>
-                {
-                    IEnumerable<IAuthenticatedUserUpdateReceiver> userUpdateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
-                    foreach(var receiver in userUpdateReceivers)
-                    {
-                        receiver.OnUserProfileUpdated(u);
-                    }
+                UserAccountManagement.ReauthenticateWithStoredExternalAuthData(
+                    false,
+                    (u) => {
+                        IEnumerable<IAuthenticatedUserUpdateReceiver> userUpdateReceivers =
+                            GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
+                        foreach(var receiver in userUpdateReceivers)
+                        {
+                            receiver.OnUserProfileUpdated(u);
+                        }
 
-                    isAttemptingReauth = false;
-                },
-                (e) =>
-                {
-                    Debug.Log("[mod.io] Failed to reauthenticate using stored external authentication data.\n"
-                              + e.errorMessage);
+                        isAttemptingReauth = false;
+                    },
+                    (e) => {
+                        Debug.Log(
+                            "[mod.io] Failed to reauthenticate using stored external authentication data.\n"
+                            + e.errorMessage);
 
-                    isAttemptingReauth = false;
-                });
+                        isAttemptingReauth = false;
+                    });
 
                 while(isAttemptingReauth) { yield return null; }
             }
 
             // check if still active
-            if(this == null || !this.isActiveAndEnabled) { yield break; }
+            if(this == null || !this.isActiveAndEnabled)
+            {
+                yield break;
+            }
 
             yield return this.StartCoroutine(this.UpdateSubscriptions());
         }
@@ -203,27 +208,29 @@ namespace ModIO.UI
 
                 // --- GameProfile ---
                 APIClient.GetGame(
-                (g) =>
-                {
-                    if(this == null) { return; }
+                    (g) => {
+                        if(this == null)
+                        {
+                            return;
+                        }
 
-                    m_gameProfile = g;
-                    CacheClient.SaveGameProfile(g, null);
+                        m_gameProfile = g;
+                        CacheClient.SaveGameProfile(g, null);
 
-                    IEnumerable<IGameProfileUpdateReceiver> updateReceivers = GetComponentsInChildren<IGameProfileUpdateReceiver>(true);
-                    foreach(var receiver in updateReceivers)
-                    {
-                        receiver.OnGameProfileUpdated(g);
-                    }
+                        IEnumerable<IGameProfileUpdateReceiver> updateReceivers =
+                            GetComponentsInChildren<IGameProfileUpdateReceiver>(true);
+                        foreach(var receiver in updateReceivers)
+                        {
+                            receiver.OnGameProfileUpdated(g);
+                        }
 
-                    succeeded = true;
-                    isRequestDone = true;
-                },
-                (e) =>
-                {
-                    requestError = e;
-                    isRequestDone = true;
-                });
+                        succeeded = true;
+                        isRequestDone = true;
+                    },
+                    (e) => {
+                        requestError = e;
+                        isRequestDone = true;
+                    });
 
                 while(!isRequestDone) { yield return null; }
 
@@ -234,13 +241,14 @@ namespace ModIO.UI
                     {
                         if(LocalUser.AuthenticationState == AuthenticationState.NoToken)
                         {
-                            Debug.LogWarning("[mod.io] Unable to retrieve the game profile from the mod.io"
-                                             + " servers. Please check you Game Id and APIKey in the"
-                                             + " PluginSettings. [Resources/modio_settings]");
+                            Debug.LogWarning(
+                                "[mod.io] Unable to retrieve the game profile from the mod.io"
+                                + " servers. Please check you Game Id and APIKey in the"
+                                + " PluginSettings. [Resources/modio_settings]");
 
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        "Failed to collect game data from mod.io.\n"
-                                                       + requestError.displayMessage);
+                                                           + requestError.displayMessage);
                         }
                         else
                         {
@@ -250,25 +258,24 @@ namespace ModIO.UI
 
                         yield break;
                     }
-                    else if(requestError.isRequestUnresolvable
-                            || reattemptDelay < 0)
+                    else if(requestError.isRequestUnresolvable || reattemptDelay < 0)
                     {
-                        Debug.LogWarning("[mod.io] Fetching Game Profile failed.\n---[ Response Info ]---\n"
-                                         + DebugUtilities.GetResponseInfo(requestError.webRequest));
+                        Debug.LogWarning(
+                            "[mod.io] Fetching Game Profile failed.\n---[ Response Info ]---\n"
+                            + DebugUtilities.GetResponseInfo(requestError.webRequest));
 
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    "Failed to collect game data from mod.io.\n"
-                                                   + requestError.displayMessage);
+                                                       + requestError.displayMessage);
                         yield break;
                     }
                     else
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    "Failed to collect game data from mod.io.\n"
-                                                   + requestError.displayMessage
-                                                   + "\nRetrying in "
-                                                   + reattemptDelay.ToString()
-                                                   + " seconds");
+                                                       + requestError.displayMessage
+                                                       + "\nRetrying in "
+                                                       + reattemptDelay.ToString() + " seconds");
 
                         yield return new WaitForSecondsRealtime(reattemptDelay);
                         continue;
@@ -291,22 +298,21 @@ namespace ModIO.UI
 
                 // requests
                 UserAccountManagement.UpdateUserProfile(
-                (u) =>
-                {
-                    IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
-                    foreach(var receiver in updateReceivers)
-                    {
-                        receiver.OnUserProfileUpdated(u);
-                    }
+                    (u) => {
+                        IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers =
+                            GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
+                        foreach(var receiver in updateReceivers)
+                        {
+                            receiver.OnUserProfileUpdated(u);
+                        }
 
-                    succeeded = true;
-                    isRequestDone = true;
-                },
-                (e) =>
-                {
-                    requestError = e;
-                    isRequestDone = true;
-                });
+                        succeeded = true;
+                        isRequestDone = true;
+                    },
+                    (e) => {
+                        requestError = e;
+                        isRequestDone = true;
+                    });
 
                 while(!isRequestDone) { yield return null; }
 
@@ -319,25 +325,25 @@ namespace ModIO.UI
                                                    requestError.displayMessage);
                         yield break;
                     }
-                    else if(requestError.isRequestUnresolvable
-                            || reattemptDelay < 0)
+                    else if(requestError.isRequestUnresolvable || reattemptDelay < 0)
                     {
-                        Debug.LogWarning("[mod.io] Fetching User Profile failed.\n---[ Response Info ]---\n"
-                                         + DebugUtilities.GetResponseInfo(requestError.webRequest));
+                        Debug.LogWarning(
+                            "[mod.io] Fetching User Profile failed.\n---[ Response Info ]---\n"
+                            + DebugUtilities.GetResponseInfo(requestError.webRequest));
 
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Failed to collect user profile data from mod.io.\n"
-                                                   + requestError.displayMessage);
+                        MessageSystem.QueueMessage(
+                            MessageDisplayData.Type.Warning,
+                            "Failed to collect user profile data from mod.io.\n"
+                                + requestError.displayMessage);
                         yield break;
                     }
                     else
                     {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Failed to collect user profile data from mod.io.\n"
-                                                   + requestError.displayMessage
-                                                   + "\nRetrying in "
-                                                   + reattemptDelay.ToString()
-                                                   + " seconds");
+                        MessageSystem.QueueMessage(
+                            MessageDisplayData.Type.Warning,
+                            "Failed to collect user profile data from mod.io.\n"
+                                + requestError.displayMessage + "\nRetrying in "
+                                + reattemptDelay.ToString() + " seconds");
 
                         yield return new WaitForSecondsRealtime(reattemptDelay);
                         continue;
@@ -354,9 +360,7 @@ namespace ModIO.UI
             int userId = LocalUser.UserId;
 
             Func<bool> hasUserChanged = () =>
-            {
-                return userId != LocalUser.UserId;
-            };
+            { return userId != LocalUser.UserId; };
 
             // - push any changes -
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
@@ -384,12 +388,17 @@ namespace ModIO.UI
             {
                 RequestFilter userSubFilter = new RequestFilter();
                 userSubFilter.AddFieldFilter(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
-                                          new EqualToFilter<int>(PluginSettings.GAME_ID));
+                                             new EqualToFilter<int>(PluginSettings.GAME_ID));
 
-                requestDelegate
-                    = (p) => APIClient.GetUserSubscriptions(userSubFilter, p,
-                                                            (r) => { request_isDone = true; request_page = r; },
-                                                            (e) => { request_isDone = true; request_error = e; });
+                requestDelegate = (p) => APIClient.GetUserSubscriptions(userSubFilter, p,
+                                                                        (r) => {
+                                                                            request_isDone = true;
+                                                                            request_page = r;
+                                                                        },
+                                                                        (e) => {
+                                                                            request_isDone = true;
+                                                                            request_error = e;
+                                                                        });
             }
             else
             {
@@ -406,8 +415,14 @@ namespace ModIO.UI
                                          new InArrayFilter<int>(modIdArray));
 
                 requestDelegate = (p) => APIClient.GetAllMods(modFilter, p,
-                                                              (r) => { request_isDone = true; request_page = r; },
-                                                              (e) => { request_isDone = true; request_error = e; });
+                                                              (r) => {
+                                                                  request_isDone = true;
+                                                                  request_page = r;
+                                                              },
+                                                              (e) => {
+                                                                  request_isDone = true;
+                                                                  request_error = e;
+                                                              });
             }
 
             // - set up fetch loop data -
@@ -416,8 +431,7 @@ namespace ModIO.UI
             List<int> queuedUnsubscribes = LocalUser.QueuedUnsubscribes;
             List<int> subsAdded = new List<int>();
 
-            APIPaginationParameters pagination = new APIPaginationParameters()
-            {
+            APIPaginationParameters pagination = new APIPaginationParameters() {
                 limit = APIPaginationParameters.LIMIT_MAX,
                 offset = 0,
             };
@@ -442,22 +456,21 @@ namespace ModIO.UI
                                                    request_error.displayMessage);
                         yield break;
                     }
-                    else if(request_error.isRequestUnresolvable
-                            || reattemptDelay < 0)
+                    else if(request_error.isRequestUnresolvable || reattemptDelay < 0)
                     {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Failed to retrieve subscription data from mod.io servers.\n"
-                                                   + request_error.displayMessage);
+                        MessageSystem.QueueMessage(
+                            MessageDisplayData.Type.Warning,
+                            "Failed to retrieve subscription data from mod.io servers.\n"
+                                + request_error.displayMessage);
                         yield break;
                     }
                     else
                     {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Failed to retrieve subscription data from mod.io servers.\n"
-                                                   + request_error.displayMessage
-                                                   + "\nRetrying in "
-                                                   + reattemptDelay.ToString()
-                                                   + " seconds");
+                        MessageSystem.QueueMessage(
+                            MessageDisplayData.Type.Warning,
+                            "Failed to retrieve subscription data from mod.io servers.\n"
+                                + request_error.displayMessage + "\nRetrying in "
+                                + reattemptDelay.ToString() + " seconds");
 
                         yield return new WaitForSecondsRealtime(reattemptDelay);
                         continue;
@@ -530,28 +543,23 @@ namespace ModIO.UI
 
             Action handleResponse = () =>
             {
-                if(userEventId_isDone
-                   && modEventId_isDone
-                   && onComplete != null)
+                if(userEventId_isDone && modEventId_isDone && onComplete != null)
                 {
                     onComplete.Invoke();
                 }
             };
 
             // Create filters
-            RequestFilter idFetchFilter = new RequestFilter()
-            {
+            RequestFilter idFetchFilter = new RequestFilter() {
                 sortFieldName = API.GetUserEventsFilterFields.id,
                 isSortAscending = false,
             };
 
-            idFetchFilter.AddFieldFilter("game_id", new EqualToFilter<int>()
-            {
+            idFetchFilter.AddFieldFilter("game_id", new EqualToFilter<int>() {
                 filterValue = PluginSettings.GAME_ID,
             });
 
-            APIPaginationParameters pagination = new APIPaginationParameters()
-            {
+            APIPaginationParameters pagination = new APIPaginationParameters() {
                 offset = 0,
                 limit = 1,
             };
@@ -560,22 +568,20 @@ namespace ModIO.UI
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 APIClient.GetUserEvents(idFetchFilter, pagination,
-                (r) =>
-                {
-                    if(r.items.Length > 0)
-                    {
-                        ModBrowser._state.userEventId = r.items[0].id;
-                    }
-                    userEventId_isDone = true;
+                                        (r) => {
+                                            if(r.items.Length > 0)
+                                            {
+                                                ModBrowser._state.userEventId = r.items[0].id;
+                                            }
+                                            userEventId_isDone = true;
 
-                    handleResponse.Invoke();
-                },
-                (e) =>
-                {
-                    userEventId_isDone = true;
+                                            handleResponse.Invoke();
+                                        },
+                                        (e) => {
+                                            userEventId_isDone = true;
 
-                    handleResponse.Invoke();
-                });
+                                            handleResponse.Invoke();
+                                        });
             }
             else
             {
@@ -585,22 +591,20 @@ namespace ModIO.UI
 
             // fetch mod event id
             APIClient.GetAllModEvents(idFetchFilter, pagination,
-            (r) =>
-            {
-                if(r.items.Length > 0)
-                {
-                    ModBrowser._state.modEventId = r.items[0].id;
-                }
-                modEventId_isDone = true;
+                                      (r) => {
+                                          if(r.items.Length > 0)
+                                          {
+                                              ModBrowser._state.modEventId = r.items[0].id;
+                                          }
+                                          modEventId_isDone = true;
 
-                handleResponse.Invoke();
-            },
-            (e) =>
-            {
-                modEventId_isDone = true;
+                                          handleResponse.Invoke();
+                                      },
+                                      (e) => {
+                                          modEventId_isDone = true;
 
-                handleResponse.Invoke();
-            });
+                                          handleResponse.Invoke();
+                                      });
         }
 
         private System.Collections.IEnumerator FetchUserRatings()
@@ -614,22 +618,19 @@ namespace ModIO.UI
             List<ModRating> retrievedRatings = new List<ModRating>();
 
             // @FIXME(@jackson): This needs to be paired with mod fetching rather than just one-pass
-            if(LocalUser.AuthenticationState == AuthenticationState.ValidToken
-                  && !isRequestDone)
+            if(LocalUser.AuthenticationState == AuthenticationState.ValidToken && !isRequestDone)
             {
                 RequestPage<ModRating> response = null;
                 WebRequestError requestError = null;
 
                 APIClient.GetUserRatings(filter, pagination,
-                                         (r) =>
-                                         {
-                                            response = r;
-                                            isRequestDone = true;
+                                         (r) => {
+                                             response = r;
+                                             isRequestDone = true;
                                          },
-                                         (e) =>
-                                         {
-                                            requestError = e;
-                                            isRequestDone = true;
+                                         (e) => {
+                                             requestError = e;
+                                             isRequestDone = true;
                                          });
 
                 while(!isRequestDone) { yield return null; }
@@ -643,8 +644,7 @@ namespace ModIO.UI
                                                    requestError.displayMessage);
                         yield break;
                     }
-                    else if(requestError.isRequestUnresolvable
-                            || reattemptDelay < 0)
+                    else if(requestError.isRequestUnresolvable || reattemptDelay < 0)
                     {
                         yield break;
                     }
@@ -674,17 +674,12 @@ namespace ModIO.UI
             Dictionary<int, List<int>> groupedIds = new Dictionary<int, List<int>>();
 
             // create map
-            foreach(int modId in subscribedModIds)
-            {
-                groupedIds.Add(modId, new List<int>());
-            }
+            foreach(int modId in subscribedModIds) { groupedIds.Add(modId, new List<int>()); }
 
             // get installed versions
             bool gotModVersions = false;
             IList<ModfileIdPair> installedModVersions = null;
-            ModManager.QueryInstalledModVersions(false,
-            (r) =>
-            {
+            ModManager.QueryInstalledModVersions(false, (r) => {
                 installedModVersions = r;
                 gotModVersions = true;
             });
@@ -712,48 +707,46 @@ namespace ModIO.UI
             List<Modfile> modfilesToAssert = new List<Modfile>(subscribedModIds.Count);
             bool isRequestDone = false;
 
-            ModManager.GetModProfiles(subscribedModIds,
-            (ModProfile[] modProfiles) =>
-            {
-                foreach(ModProfile profile in modProfiles)
-                {
-                    if(profile != null
-                       && profile.currentBuild != null
-                       && LocalUser.SubscribedModIds.Contains(profile.id))
+            ModManager.GetModProfiles(
+                subscribedModIds,
+                (ModProfile[] modProfiles) => {
+                    foreach(ModProfile profile in modProfiles)
                     {
-                        if(profile.currentBuild.modId != profile.id)
+                        if(profile != null && profile.currentBuild != null
+                           && LocalUser.SubscribedModIds.Contains(profile.id))
                         {
-                            Debug.LogWarning("[mod.io] Profile \'" + profile.name + "("
-                                             + profile.id.ToString() + ") has a bad modfile."
-                                             + "\nThe modfile.modId is mismatched ("
-                                             + profile.currentBuild.modId.ToString() + ").");
-                        }
-                        else
-                        {
-                            modfilesToAssert.Add(profile.currentBuild);
+                            if(profile.currentBuild.modId != profile.id)
+                            {
+                                Debug.LogWarning("[mod.io] Profile \'" + profile.name + "("
+                                                 + profile.id.ToString() + ") has a bad modfile."
+                                                 + "\nThe modfile.modId is mismatched ("
+                                                 + profile.currentBuild.modId.ToString() + ").");
+                            }
+                            else
+                            {
+                                modfilesToAssert.Add(profile.currentBuild);
+                            }
                         }
                     }
-                }
 
-                isRequestDone = true;
-            },
-            (WebRequestError error) =>
-            {
-                modfilesToAssert = null;
-                isRequestDone = true;
-            });
+                    isRequestDone = true;
+                },
+                (WebRequestError error) => {
+                    modfilesToAssert = null;
+                    isRequestDone = true;
+                });
 
             while(!isRequestDone) { yield return null; }
 
             if(modfilesToAssert != null)
             {
-                yield return this.StartCoroutine(ModManager.AssertDownloadedAndInstalled_Coroutine(modfilesToAssert));
+                yield return this.StartCoroutine(
+                    ModManager.AssertDownloadedAndInstalled_Coroutine(modfilesToAssert));
             }
         }
 
-        private System.Collections.IEnumerator FetchAllModProfiles(int[] modIds,
-                                                                   Action<List<ModProfile>> onSuccess,
-                                                                   Action<WebRequestError> onError)
+        private System.Collections.IEnumerator FetchAllModProfiles(
+            int[] modIds, Action<List<ModProfile>> onSuccess, Action<WebRequestError> onError)
         {
             // early out for no profiles
             if(modIds == null || modIds.Length == 0)
@@ -764,14 +757,14 @@ namespace ModIO.UI
 
             List<ModProfile> modProfiles = new List<ModProfile>();
 
-            APIPaginationParameters pagination = new APIPaginationParameters()
-            {
+            APIPaginationParameters pagination = new APIPaginationParameters() {
                 limit = APIPaginationParameters.LIMIT_MAX,
                 offset = 0,
             };
             RequestFilter filter = new RequestFilter();
-            filter.AddFieldFilter(API.GetAllModsFilterFields.id,
-                new InArrayFilter<int>() { filterArray = modIds, });
+            filter.AddFieldFilter(API.GetAllModsFilterFields.id, new InArrayFilter<int>() {
+                filterArray = modIds,
+            });
 
             bool isDone = false;
 
@@ -780,11 +773,9 @@ namespace ModIO.UI
                 RequestPage<ModProfile> page = null;
                 WebRequestError error = null;
 
-                APIClient.GetAllMods(filter, pagination,
-                                     (r) => page = r,
-                                     (e) => error = e);
+                APIClient.GetAllMods(filter, pagination, (r) => page = r, (e) => error = e);
 
-                while(page == null && error == null) { yield return null;}
+                while(page == null && error == null) { yield return null; }
 
                 if(error != null)
                 {
@@ -828,8 +819,7 @@ namespace ModIO.UI
             }
             else if(!requestError.isRequestUnresolvable)
             {
-                if(requestError.isServerUnreachable
-                   && requestError.webRequest.responseCode > 0)
+                if(requestError.isServerUnreachable && requestError.webRequest.responseCode > 0)
                 {
                     return 60;
                 }
@@ -850,22 +840,22 @@ namespace ModIO.UI
             const int MIN_COMPLETE_TIME = 2;
             const int REFETCH_PROTECTION_TIMEOUT = 30;
 
-            bool isFetchRequired = ((ServerTimeStamp.Now - ModBrowser._state.lastSync_timestamp > REFETCH_PROTECTION_TIMEOUT)
+            bool isFetchRequired = ((ServerTimeStamp.Now - ModBrowser._state.lastSync_timestamp
+                                     > REFETCH_PROTECTION_TIMEOUT)
                                     || (LocalUser.UserId != ModBrowser._state.lastSync_userId));
 
-            if(!this.m_isSyncInProgress
-               && isFetchRequired)
+            if(!this.m_isSyncInProgress && isFetchRequired)
             {
                 this.m_isSyncInProgress = true;
 
                 int sync_userId = LocalUser.UserId;
                 int timestamp = ServerTimeStamp.Now;
-                bool invalidUserEvent = (LocalUser.AuthenticationState != AuthenticationState.NoToken
-                                         && ModBrowser._state.userEventId <= 0);
+                bool invalidUserEvent =
+                    (LocalUser.AuthenticationState != AuthenticationState.NoToken
+                     && ModBrowser._state.userEventId <= 0);
 
                 // perform initial sync
-                if(ModBrowser._state.modEventId <= 0
-                   || invalidUserEvent
+                if(ModBrowser._state.modEventId <= 0 || invalidUserEvent
                    || ModBrowser._state.lastSync_userId != sync_userId)
                 {
                     yield return this.StartCoroutine(this.PerformInitialSubscriptionSync());
@@ -913,16 +903,14 @@ namespace ModIO.UI
                 List<UserEvent> userEventReponse = null;
 
                 ModManager.FetchUserEventsAfterId(ModBrowser._state.userEventId,
-                (ue) =>
-                {
-                    userEventReponse = ue;
-                    isRequestDone = true;
-                },
-                (e) =>
-                {
-                    requestError = e;
-                    isRequestDone = true;
-                });
+                                                  (ue) => {
+                                                      userEventReponse = ue;
+                                                      isRequestDone = true;
+                                                  },
+                                                  (e) => {
+                                                      requestError = e;
+                                                      isRequestDone = true;
+                                                  });
 
                 while(!isRequestDone) { yield return null; }
 
@@ -934,9 +922,10 @@ namespace ModIO.UI
                                                    requestError.displayMessage);
                     }
 
-                    MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                               "Failed to synchronize subscriptions with mod.io servers.\n"
-                                               + requestError.displayMessage);
+                    MessageSystem.QueueMessage(
+                        MessageDisplayData.Type.Warning,
+                        "Failed to synchronize subscriptions with mod.io servers.\n"
+                            + requestError.displayMessage);
 
                     yield break;
                 }
@@ -946,7 +935,8 @@ namespace ModIO.UI
                 {
                     if(userEventReponse.Count > 0)
                     {
-                        ModBrowser._state.userEventId = userEventReponse[userEventReponse.Count-1].id;
+                        ModBrowser._state.userEventId =
+                            userEventReponse[userEventReponse.Count - 1].id;
                         this.ProcessUserUpdates(userEventReponse);
                     }
 
@@ -964,22 +954,19 @@ namespace ModIO.UI
             requestError = null;
 
             var subbedMods = LocalUser.SubscribedModIds;
-            if(subbedMods != null
-               && subbedMods.Count > 0)
+            if(subbedMods != null && subbedMods.Count > 0)
             {
                 List<ModEvent> modEventResponse = null;
 
                 ModManager.FetchModEventsAfterId(ModBrowser._state.modEventId,
                                                  LocalUser.SubscribedModIds,
-                                                 (me) =>
-                                                 {
-                                                    modEventResponse = me;
-                                                    isRequestDone = true;
+                                                 (me) => {
+                                                     modEventResponse = me;
+                                                     isRequestDone = true;
                                                  },
-                                                 (e) =>
-                                                 {
-                                                    requestError = e;
-                                                    isRequestDone = true;
+                                                 (e) => {
+                                                     requestError = e;
+                                                     isRequestDone = true;
                                                  });
 
                 while(!isRequestDone) { yield return null; }
@@ -992,16 +979,17 @@ namespace ModIO.UI
                                                    requestError.displayMessage);
                     }
 
-                    MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                               "Failed to synchronize subscriptions with mod.io servers.\n"
-                                               + requestError.displayMessage);
+                    MessageSystem.QueueMessage(
+                        MessageDisplayData.Type.Warning,
+                        "Failed to synchronize subscriptions with mod.io servers.\n"
+                            + requestError.displayMessage);
 
                     yield break;
                 }
 
                 if(modEventResponse.Count > 0)
                 {
-                    ModBrowser._state.modEventId = modEventResponse[modEventResponse.Count-1].id;
+                    ModBrowser._state.modEventId = modEventResponse[modEventResponse.Count - 1].id;
                     this.StartCoroutine(this.ProcessModUpdates(modEventResponse));
                 }
             }
@@ -1056,9 +1044,9 @@ namespace ModIO.UI
 
                 if(newSubs.Count > 0)
                 {
-                    string message = (newSubs.Count.ToString() + " subscription"
-                                      + (newSubs.Count > 1 ? "s" : "")
-                                      + " retrieved from the server");
+                    string message =
+                        (newSubs.Count.ToString() + " subscription" + (newSubs.Count > 1 ? "s" : "")
+                         + " retrieved from the server");
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
                 }
             }
@@ -1066,8 +1054,7 @@ namespace ModIO.UI
 
         protected System.Collections.IEnumerator ProcessModUpdates(List<ModEvent> modEvents)
         {
-            if(modEvents != null
-               && modEvents.Count > 0)
+            if(modEvents != null && modEvents.Count > 0)
             {
                 List<int> modfileChanged = new List<int>();
                 List<int> deletedMods = new List<int>();
@@ -1094,10 +1081,7 @@ namespace ModIO.UI
                 {
                     var subscribedModIds = LocalUser.SubscribedModIds;
 
-                    foreach(int modId in deletedMods)
-                    {
-                        subscribedModIds.Remove(modId);
-                    }
+                    foreach(int modId in deletedMods) { subscribedModIds.Remove(modId); }
 
                     OnSubscriptionsChanged(null, deletedMods);
 
@@ -1105,11 +1089,14 @@ namespace ModIO.UI
                     string message;
                     if(deletedModCount == 1)
                     {
-                        message = "One of your subscribed mods is now unavailable and was removed from your subscriptions.";
+                        message =
+                            "One of your subscribed mods is now unavailable and was removed from your subscriptions.";
                     }
                     else
                     {
-                        message = deletedModCount.ToString() + " subscribed mods have become unavailable and have been removed from your subscriptions.";
+                        message =
+                            deletedModCount.ToString()
+                            + " subscribed mods have become unavailable and have been removed from your subscriptions.";
                     }
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
                 }
@@ -1118,18 +1105,16 @@ namespace ModIO.UI
                 if(modfileChanged.Count > 0)
                 {
                     // setup request data
-                    var pagination = new APIPaginationParameters()
-                    {
+                    var pagination = new APIPaginationParameters() {
                         limit = APIPaginationParameters.LIMIT_MAX,
                         offset = 0,
                     };
 
                     RequestFilter modFilter = new RequestFilter();
                     modFilter.sortFieldName = API.GetAllModsFilterFields.id;
-                    modFilter.AddFieldFilter(API.GetAllModsFilterFields.id, new InArrayFilter<int>()
-                    {
-                        filterArray = modfileChanged.ToArray()
-                    });
+                    modFilter.AddFieldFilter(
+                        API.GetAllModsFilterFields.id,
+                        new InArrayFilter<int>() { filterArray = modfileChanged.ToArray() });
 
                     bool isRequestDone = false;
                     RequestPage<ModProfile> response = null;
@@ -1137,16 +1122,14 @@ namespace ModIO.UI
 
                     // send request
                     APIClient.GetAllMods(modFilter, pagination,
-                    (r) =>
-                    {
-                        isRequestDone = true;
-                        response = r;
-                    },
-                    (e) =>
-                    {
-                        isRequestDone = true;
-                        requestError = e;
-                    });
+                                         (r) => {
+                                             isRequestDone = true;
+                                             response = r;
+                                         },
+                                         (e) => {
+                                             isRequestDone = true;
+                                             requestError = e;
+                                         });
 
                     while(!isRequestDone) { yield return null; }
 
@@ -1162,7 +1145,7 @@ namespace ModIO.UI
                         {
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                        "Failed to update installed mods.\n"
-                                                       + requestError.displayMessage);
+                                                           + requestError.displayMessage);
                         }
                         yield break;
                     }
@@ -1173,15 +1156,15 @@ namespace ModIO.UI
                         List<int> subscribedModIds = LocalUser.SubscribedModIds;
                         foreach(ModProfile profile in response.items)
                         {
-                            if(profile != null
-                               && profile.currentBuild != null
+                            if(profile != null && profile.currentBuild != null
                                && subscribedModIds.Contains(profile.id))
                             {
                                 latestBuilds.Add(profile.currentBuild);
                             }
                         }
 
-                        yield return this.StartCoroutine(ModManager.AssertDownloadedAndInstalled_Coroutine(latestBuilds));
+                        yield return this.StartCoroutine(
+                            ModManager.AssertDownloadedAndInstalled_Coroutine(latestBuilds));
                     }
                 }
             }
@@ -1204,8 +1187,7 @@ namespace ModIO.UI
             // - clear current user -
             LocalUser oldUser = LocalUser.instance;
 
-            LocalUser.instance = new LocalUser()
-            {
+            LocalUser.instance = new LocalUser() {
                 subscribedModIds = oldUser.subscribedModIds,
                 enabledModIds = oldUser.enabledModIds,
             };
@@ -1214,15 +1196,12 @@ namespace ModIO.UI
             LocalUser.Save();
 
             // - notify receivers -
-            IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
-            foreach(var receiver in updateReceivers)
-            {
-                receiver.OnUserLoggedOut();
-            }
+            IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers =
+                GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
+            foreach(var receiver in updateReceivers) { receiver.OnUserLoggedOut(); }
 
             // - notify -
-            MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
-                                       "Successfully logged out");
+            MessageSystem.QueueMessage(MessageDisplayData.Type.Success, "Successfully logged out");
         }
 
         // ---------[ ENABLE/SUBSCRIBE MODS ]---------
@@ -1243,30 +1222,30 @@ namespace ModIO.UI
             EnableMod(modId);
             UpdateSubscriptionReceivers(new int[] { modId }, null);
 
-            ModManager.GetModProfile(modId,
-            (p) =>
-            {
-                if(this != null && this.isActiveAndEnabled
-                   && p != null && p.currentBuild != null
-                   && LocalUser.SubscribedModIds.Contains(p.id))
-                {
-                    this.StartCoroutine(ModManager.AssertDownloadedAndInstalled_Coroutine(new Modfile[] { p.currentBuild }));
-                }
-            },
-            (requestError) =>
-            {
-                if(requestError.isAuthenticationInvalid)
-                {
-                    MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                               requestError.displayMessage);
-                }
-                else
-                {
-                    MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                               "Failed to start mod download. It will be retried shortly.\n"
-                                               + requestError.displayMessage);
-                }
-            });
+            ModManager.GetModProfile(
+                modId,
+                (p) => {
+                    if(this != null && this.isActiveAndEnabled && p != null
+                       && p.currentBuild != null && LocalUser.SubscribedModIds.Contains(p.id))
+                    {
+                        this.StartCoroutine(ModManager.AssertDownloadedAndInstalled_Coroutine(
+                            new Modfile[] { p.currentBuild }));
+                    }
+                },
+                (requestError) => {
+                    if(requestError.isAuthenticationInvalid)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                   requestError.displayMessage);
+                    }
+                    else
+                    {
+                        MessageSystem.QueueMessage(
+                            MessageDisplayData.Type.Warning,
+                            "Failed to start mod download. It will be retried shortly.\n"
+                                + requestError.displayMessage);
+                    }
+                });
         }
 
         public void OnUnsubscribedFromMod(int modId)
@@ -1287,8 +1266,7 @@ namespace ModIO.UI
                                            IList<int> removedSubscriptions)
         {
             // handle new subscriptions
-            if(addedSubscriptions != null
-               && addedSubscriptions.Count > 0)
+            if(addedSubscriptions != null && addedSubscriptions.Count > 0)
             {
                 // enable mods
                 foreach(int modId in addedSubscriptions)
@@ -1300,46 +1278,44 @@ namespace ModIO.UI
                 }
 
                 // start downloads
-                ModManager.GetModProfiles(addedSubscriptions,
-                (ModProfile[] modProfiles) =>
-                {
-                    if(this != null && this.isActiveAndEnabled)
-                    {
-                        var subbedMods = LocalUser.SubscribedModIds;
-
-                        List<Modfile> modfiles = new List<Modfile>(modProfiles.Length);
-
-                        foreach(ModProfile p in modProfiles)
+                ModManager.GetModProfiles(
+                    addedSubscriptions,
+                    (ModProfile[] modProfiles) => {
+                        if(this != null && this.isActiveAndEnabled)
                         {
-                            if(p != null
-                               && p.currentBuild != null
-                               && subbedMods.Contains(p.id))
-                            {
-                                modfiles.Add(p.currentBuild);
-                            }
-                        }
+                            var subbedMods = LocalUser.SubscribedModIds;
 
-                        this.StartCoroutine(ModManager.AssertDownloadedAndInstalled_Coroutine(modfiles));
-                    }
-                },
-                (WebRequestError requestError) =>
-                {
-                    if(requestError.isAuthenticationInvalid)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                   requestError.displayMessage);
-                    }
-                    else
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Failed to start mod downloads. They will be retried shortly.\n"
-                                                   + requestError.displayMessage);
-                    }
-                });
+                            List<Modfile> modfiles = new List<Modfile>(modProfiles.Length);
+
+                            foreach(ModProfile p in modProfiles)
+                            {
+                                if(p != null && p.currentBuild != null && subbedMods.Contains(p.id))
+                                {
+                                    modfiles.Add(p.currentBuild);
+                                }
+                            }
+
+                            this.StartCoroutine(
+                                ModManager.AssertDownloadedAndInstalled_Coroutine(modfiles));
+                        }
+                    },
+                    (WebRequestError requestError) => {
+                        if(requestError.isAuthenticationInvalid)
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                       requestError.displayMessage);
+                        }
+                        else
+                        {
+                            MessageSystem.QueueMessage(
+                                MessageDisplayData.Type.Warning,
+                                "Failed to start mod downloads. They will be retried shortly.\n"
+                                    + requestError.displayMessage);
+                        }
+                    });
             }
 
-            if(removedSubscriptions != null
-               && removedSubscriptions.Count > 0)
+            if(removedSubscriptions != null && removedSubscriptions.Count > 0)
             {
                 foreach(int modId in removedSubscriptions)
                 {
@@ -1361,14 +1337,20 @@ namespace ModIO.UI
         private void UpdateSubscriptionReceivers(IList<int> addedSubscriptions,
                                                  IList<int> removedSubscriptions)
         {
-            if(addedSubscriptions == null)  { addedSubscriptions = new int[0]; }
-            if(removedSubscriptions == null){ removedSubscriptions = new int[0]; }
+            if(addedSubscriptions == null)
+            {
+                addedSubscriptions = new int[0];
+            }
+            if(removedSubscriptions == null)
+            {
+                removedSubscriptions = new int[0];
+            }
 
-            IEnumerable<IModSubscriptionsUpdateReceiver> updateReceivers = GetComponentsInChildren<IModSubscriptionsUpdateReceiver>(true);
+            IEnumerable<IModSubscriptionsUpdateReceiver> updateReceivers =
+                GetComponentsInChildren<IModSubscriptionsUpdateReceiver>(true);
             foreach(var receiver in updateReceivers)
             {
-                receiver.OnModSubscriptionsUpdated(addedSubscriptions,
-                                                   removedSubscriptions);
+                receiver.OnModSubscriptionsUpdated(addedSubscriptions, removedSubscriptions);
             }
         }
 
@@ -1380,11 +1362,9 @@ namespace ModIO.UI
                 LocalUser.Save();
             }
 
-            IEnumerable<IModEnabledReceiver> updateReceivers = GetComponentsInChildren<IModEnabledReceiver>(true);
-            foreach(var receiver in updateReceivers)
-            {
-                receiver.OnModEnabled(modId);
-            }
+            IEnumerable<IModEnabledReceiver> updateReceivers =
+                GetComponentsInChildren<IModEnabledReceiver>(true);
+            foreach(var receiver in updateReceivers) { receiver.OnModEnabled(modId); }
         }
 
         public void DisableMod(int modId)
@@ -1395,11 +1375,9 @@ namespace ModIO.UI
                 LocalUser.Save();
             }
 
-            IEnumerable<IModDisabledReceiver> updateReceivers = GetComponentsInChildren<IModDisabledReceiver>(true);
-            foreach(var receiver in updateReceivers)
-            {
-                receiver.OnModDisabled(modId);
-            }
+            IEnumerable<IModDisabledReceiver> updateReceivers =
+                GetComponentsInChildren<IModDisabledReceiver>(true);
+            foreach(var receiver in updateReceivers) { receiver.OnModDisabled(modId); }
         }
 
         public void AttemptRateMod(int modId, ModRatingValue ratingValue)
@@ -1415,49 +1393,53 @@ namespace ModIO.UI
                 ModRatingValue oldRating = this.GetModRating(modId);
 
                 // notify receivers
-                IEnumerable<IModRatingAddedReceiver> ratingReceivers = GetComponentsInChildren<IModRatingAddedReceiver>(true);
+                IEnumerable<IModRatingAddedReceiver> ratingReceivers =
+                    GetComponentsInChildren<IModRatingAddedReceiver>(true);
                 foreach(var receiver in ratingReceivers)
                 {
                     receiver.OnModRatingAdded(modId, ratingValue);
                 }
 
                 // send request
-                var ratingParameters = new API.AddModRatingParameters()
-                {
+                var ratingParameters = new API.AddModRatingParameters() {
                     ratingValue = ratingValue,
                 };
 
-                APIClient.AddModRating(modId, ratingParameters, (m) =>
-                {
-                    if(this != null)
-                    {
-                        ModBrowser._state.userRatings[modId] = ratingValue;
-                    }
-                },
-                (e) =>
-                {
-                    if(this == null) { return; }
+                APIClient.AddModRating(modId, ratingParameters,
+                                       (m) => {
+                                           if(this != null)
+                                           {
+                                               ModBrowser._state.userRatings[modId] = ratingValue;
+                                           }
+                                       },
+                                       (e) => {
+                                           if(this == null)
+                                           {
+                                               return;
+                                           }
 
-                    // NOTE(@jackson): This is workaround is due to the response of a repeat rating
-                    // request returning an error.
-                    if(e.webRequest.responseCode == 400)
-                    {
-                        ModBrowser._state.userRatings[modId] = ratingValue;
-                    }
-                    else
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                           // NOTE(@jackson): This is workaround is due to the
+                                           // response of a repeat rating request returning an
+                                           // error.
+                                           if(e.webRequest.responseCode == 400)
+                                           {
+                                               ModBrowser._state.userRatings[modId] = ratingValue;
+                                           }
+                                           else
+                                           {
+                                               MessageSystem.QueueMessage(
+                                                   MessageDisplayData.Type.Warning,
                                                    e.displayMessage);
 
-                        foreach(var receiver in ratingReceivers)
-                        {
-                            if(receiver != null)
-                            {
-                                receiver.OnModRatingAdded(modId, oldRating);
-                            }
-                        }
-                    }
-                });
+                                               foreach(var receiver in ratingReceivers)
+                                               {
+                                                   if(receiver != null)
+                                                   {
+                                                       receiver.OnModRatingAdded(modId, oldRating);
+                                                   }
+                                               }
+                                           }
+                                       });
             }
             else
             {
@@ -1478,29 +1460,29 @@ namespace ModIO.UI
         // ---------[ EVENTS ]---------
         private void OnModInstalled(ModfileIdPair idPair)
         {
-            if(this == null) { return; }
-
-            ModManager.GetModProfile(idPair.modId,
-            (p) =>
+            if(this == null)
             {
+                return;
+            }
+
+            ModManager.GetModProfile(idPair.modId, (p) => {
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
                                            p.name + " was successfully downloaded and installed.");
-            },
-            null);
+            }, null);
         }
 
         private void OnModfileDownloadFailed(ModfileIdPair idPair, WebRequestError error)
         {
-            if(this == null) { return; }
-
-            ModManager.GetModProfile(idPair.modId,
-            (p) =>
+            if(this == null)
             {
+                return;
+            }
+
+            ModManager.GetModProfile(idPair.modId, (p) => {
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                            p.name + " failed to download.\n"
-                                           + error.displayMessage);
-            },
-            null);
+                                               + error.displayMessage);
+            }, null);
         }
 
         // ---------[ OBSOLETE ]---------
@@ -1510,17 +1492,22 @@ namespace ModIO.UI
         [Obsolete("Use PluginSettings.REQUEST_LOGGING instead")]
         public bool debugAllAPIRequests
         {
-            get { return PluginSettings.REQUEST_LOGGING.logAllResponses; }
+            get {
+                return PluginSettings.REQUEST_LOGGING.logAllResponses;
+            }
         }
-        [Obsolete][HideInInspector]
-        public ExplorerView explorerView;
-        [Obsolete][HideInInspector]
+        [Obsolete] [HideInInspector] public ExplorerView explorerView;
+        [Obsolete]
+        [HideInInspector]
         public InspectorView inspectorView;
-        [Obsolete][HideInInspector]
+        [Obsolete]
+        [HideInInspector]
         public SubscriptionsView subscriptionsView;
-        [Obsolete][HideInInspector]
+        [Obsolete]
+        [HideInInspector]
         public LoginDialog loginDialog;
-        [Obsolete][HideInInspector]
+        [Obsolete]
+        [HideInInspector]
         public UserView loggedUserView;
 
         [Obsolete("Use AuthenticatedUserViewController.m_guestData instead.")]
@@ -1535,43 +1522,54 @@ namespace ModIO.UI
         }
 
         [Obsolete("Use ModProfileRequestManager.FetchModProfilePage() instead.")]
-        public void RequestExplorerPage(int pageIndex,
-                                        Action<RequestPage<ModProfile>> onSuccess,
+        public void RequestExplorerPage(int pageIndex, Action<RequestPage<ModProfile>> onSuccess,
                                         Action<WebRequestError> onError)
         {
             if(this.explorerView == null)
             {
-                if(onError != null) { onError(null); }
+                if(onError != null)
+                {
+                    onError(null);
+                }
             }
             else
             {
-                ModProfileRequestManager.instance.FetchModProfilePage(this.explorerView.GenerateRequestFilter(),
-                                                                      pageIndex * this.explorerView.itemsPerPage,
-                                                                      this.explorerView.itemsPerPage,
-                                                                      onSuccess, onError);
+                ModProfileRequestManager.instance.FetchModProfilePage(
+                    this.explorerView.GenerateRequestFilter(),
+                    pageIndex * this.explorerView.itemsPerPage, this.explorerView.itemsPerPage,
+                    onSuccess, onError);
             }
         }
 
         [Obsolete("Use ExplorerView.prevPageButton instead.")]
         public Button prevPageButton
         {
-            get { return explorerView.prevPageButton; }
-            set { explorerView.prevPageButton = value; }
+            get {
+                return explorerView.prevPageButton;
+            }
+            set {
+                explorerView.prevPageButton = value;
+            }
         }
-        [Obsolete("Use ExplorerView.nextPageButton instead.")]
-        public Button nextPageButton
+        [Obsolete("Use ExplorerView.nextPageButton instead.")] public Button nextPageButton
         {
-            get { return explorerView.nextPageButton; }
-            set { explorerView.nextPageButton = value; }
+            get {
+                return explorerView.nextPageButton;
+            }
+            set {
+                explorerView.nextPageButton = value;
+            }
         }
-        [Obsolete("Use ExporerView.isActiveIndicator instead.")]
-        public StateToggleDisplay explorerViewIndicator
+        [Obsolete("Use ExporerView.isActiveIndicator instead.")] public StateToggleDisplay
+            explorerViewIndicator
         {
-            get { return this.explorerView.isActiveIndicator; }
+            get {
+                return this.explorerView.isActiveIndicator;
+            }
         }
 
-        [Obsolete("Use ExplorerView.UpdatePageButtonInteractibility() instead.")]
-        public void UpdateExplorerViewPageButtonInteractibility()
+        [Obsolete("Use ExplorerView.UpdatePageButtonInteractibility() instead.")] public void
+        UpdateExplorerViewPageButtonInteractibility()
         {
             this.explorerView.UpdatePageButtonInteractibility();
         }
@@ -1606,12 +1604,14 @@ namespace ModIO.UI
         [Obsolete("Use SubscriptionView.isActiveIndicator instead")]
         public StateToggleDisplay subscriptionsViewIndicator
         {
-            get { return this.subscriptionsView.isActiveIndicator; }
+            get {
+                return this.subscriptionsView.isActiveIndicator;
+            }
         }
 
-        [Obsolete("Use SubscriptionsView.Refresh() instead.")]
-        public void RequestSubscribedModProfiles(Action<List<ModProfile>> onSuccess,
-                                                 Action<WebRequestError> onError)
+        [Obsolete("Use SubscriptionsView.Refresh() instead.")] public void
+        RequestSubscribedModProfiles(Action<List<ModProfile>> onSuccess,
+                                     Action<WebRequestError> onError)
         {
             subscriptionsView.Refresh();
         }

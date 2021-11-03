@@ -12,13 +12,21 @@ namespace ModIO
     }
     // ---------[ UNITY SERIALIZABLE FIELD CLASSES ]---------
     [System.Serializable]
-    public class EditableIntField : EditableField<int> {}
+    public class EditableIntField : EditableField<int>
+    {
+    }
     [System.Serializable]
-    public class EditableBoolField : EditableField<bool> {}
+    public class EditableBoolField : EditableField<bool>
+    {
+    }
     [System.Serializable]
-    public class EditableStringField : EditableField<string> {}
+    public class EditableStringField : EditableField<string>
+    {
+    }
 
     // ---------[ UNITY SERIALIZABLE ARRAY CLASSES ]---------
     [System.Serializable]
-    public class EditableStringArrayField : EditableArrayField<string>{}
+    public class EditableStringArrayField : EditableArrayField<string>
+    {
+    }
 }

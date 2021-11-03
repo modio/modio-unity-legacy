@@ -22,13 +22,19 @@ namespace ModIO.UI
         /// <summary>Event triggered if the toggled is clicked while off.</summary>
         public UnityEvent onClickedWhileOff = new UnityEvent();
 
-        [SerializeField] private RectTransform m_slideContent = null;
+        [SerializeField]
+        private RectTransform m_slideContent = null;
         [Tooltip("When enabled, the isOn value is not toggled via a click/submit action.")]
-        [SerializeField] private bool m_disableAutoToggle = false;
-        [SerializeField] private SlideAxis m_slideAxis = SlideAxis.LeftOffRightOn;
-        [SerializeField] private float m_slideDuration = 0.15f;
-        [Tooltip("Duration for which clicks are ignored after animating is completed. A negative value will allow clicking during the slide animation.")]
-        [SerializeField] private float m_reactivateDelay = 0f;
+        [SerializeField]
+        private bool m_disableAutoToggle = false;
+        [SerializeField]
+        private SlideAxis m_slideAxis = SlideAxis.LeftOffRightOn;
+        [SerializeField]
+        private float m_slideDuration = 0.15f;
+        [Tooltip(
+            "Duration for which clicks are ignored after animating is completed. A negative value will allow clicking during the slide animation.")]
+        [SerializeField]
+        private float m_reactivateDelay = 0f;
 
         // --- RUNTIME DATA ---
         /// <summary>Coroutine playing the slide animation.</summary>
@@ -40,15 +46,18 @@ namespace ModIO.UI
         /// <summary>Is this component currently clickable?</summary>
         private bool IsClickable
         {
-            get { return (this.m_reactivateDelay < 0f || !this.isAnimating); }
+            get {
+                return (this.m_reactivateDelay < 0f || !this.isAnimating);
+            }
         }
 
         // --- ACCESSORS ---
         public SlideAxis slideAxis
         {
-            get { return m_slideAxis; }
-            set
-            {
+            get {
+                return m_slideAxis;
+            }
+            set {
                 if(m_slideAxis != value)
                 {
                     m_slideAxis = value;
@@ -59,7 +68,9 @@ namespace ModIO.UI
 
         public bool isAnimating
         {
-            get { return m_animation != null; }
+            get {
+                return m_animation != null;
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -93,7 +104,10 @@ namespace ModIO.UI
         // ---------[ UI FUNCTIONALITY ]---------
         private void UpdateContentPosition(bool animate)
         {
-            if(this.m_slideContent == null) { return; }
+            if(this.m_slideContent == null)
+            {
+                return;
+            }
 
             // - Collect Positions -
             Vector2 startPos;
@@ -153,7 +167,8 @@ namespace ModIO.UI
 
             float elapsed = 0f;
             float distance = Vector2.Distance(startPos, targetPos);
-            float factoredDuration = (Vector2.Distance(currentPos, targetPos) / distance) * m_slideDuration;
+            float factoredDuration =
+                (Vector2.Distance(currentPos, targetPos) / distance) * m_slideDuration;
 
             while(elapsed < factoredDuration)
             {
@@ -192,7 +207,7 @@ namespace ModIO.UI
             Rect pDim = content.parent.GetComponent<RectTransform>().rect;
 
             // placement of offsetMax.x to right-align
-            float offsetPos = (1f-content.anchorMax.x) * pDim.width;
+            float offsetPos = (1f - content.anchorMax.x) * pDim.width;
 
             // offset -> pivot
             float pivotDiff = content.anchoredPosition.x - content.offsetMax.x;
@@ -220,7 +235,7 @@ namespace ModIO.UI
             Rect pDim = content.parent.GetComponent<RectTransform>().rect;
 
             // placement of offsetMax.y to top-align
-            float offsetPos = (1f-content.anchorMax.y) * pDim.height;
+            float offsetPos = (1f - content.anchorMax.y) * pDim.height;
 
             // offset -> pivot
             float pivotDiff = content.anchoredPosition.y - content.offsetMax.y;
@@ -233,8 +248,7 @@ namespace ModIO.UI
         /// <summary>Overrides click event.</summary>
         public override void OnPointerClick(PointerEventData eventData)
         {
-            if(eventData.button != PointerEventData.InputButton.Left
-               || !this.IsClickable)
+            if(eventData.button != PointerEventData.InputButton.Left || !this.IsClickable)
             {
                 return;
             }
@@ -257,7 +271,10 @@ namespace ModIO.UI
         /// <summary>Overrides submit event.</summary>
         public override void OnSubmit(BaseEventData eventData)
         {
-            if(!this.IsClickable) { return; }
+            if(!this.IsClickable)
+            {
+                return;
+            }
 
             if(this.isOn)
             {

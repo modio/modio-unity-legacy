@@ -8,7 +8,9 @@ namespace ModIO.UI
 {
     /// <summary>ViewController for displaying a single mod using a mod id.</summary>
     [RequireComponent(typeof(ModView))]
-    public class InspectorView : MonoBehaviour, IBrowserView, UnityEngine.EventSystems.ICancelHandler
+    public class InspectorView : MonoBehaviour,
+                                 IBrowserView,
+                                 UnityEngine.EventSystems.ICancelHandler
     {
         // ---------[ FIELDS ]---------
         /// <summary>Id of the currently displayed mod.</summary>
@@ -21,12 +23,10 @@ namespace ModIO.UI
         /// <summary>Id of the currently displayed mod.</summary>
         public int modId
         {
-            get
-            {
+            get {
                 return this.m_modId;
             }
-            set
-            {
+            set {
                 if(this.m_modId != value)
                 {
                     this.m_modId = value;
@@ -39,11 +39,8 @@ namespace ModIO.UI
                     if(this.m_modId != ModProfile.NULL_ID)
                     {
                         // profile
-                        ModManager.GetModProfile(this.m_modId,
-                        (p) =>
-                        {
-                            if(this != null
-                               && this.m_modId == value)
+                        ModManager.GetModProfile(this.m_modId, (p) => {
+                            if(this != null && this.m_modId == value)
                             {
                                 this.modView.profile = p;
 
@@ -56,8 +53,7 @@ namespace ModIO.UI
                                     this.modView.statistics = null;
                                 }
                             }
-                        },
-                        null);
+                        }, null);
                     }
                 }
             }
@@ -66,22 +62,43 @@ namespace ModIO.UI
         /// <summary>The ModView sibling component.</summary>
         public ModView modView
         {
-            get { return this.gameObject.GetComponent<ModView>(); }
+            get {
+                return this.gameObject.GetComponent<ModView>();
+            }
         }
 
         // --- IBrowserView Implementation ---
         /// <summary>Canvas Group.</summary>
         public CanvasGroup canvasGroup
-        { get { return this.gameObject.GetComponent<CanvasGroup>(); } }
+        {
+            get {
+                return this.gameObject.GetComponent<CanvasGroup>();
+            }
+        }
 
         /// <summary>Reset selection on hide.</summary>
-        bool IBrowserView.resetSelectionOnHide { get { return true; } }
+        bool IBrowserView.resetSelectionOnHide
+        {
+            get {
+                return true;
+            }
+        }
 
         /// <summary>Is the view a root view or window view?</summary>
-        bool IBrowserView.isRootView { get { return false; } }
+        bool IBrowserView.isRootView
+        {
+            get {
+                return false;
+            }
+        }
 
         /// <summary>The priority to focus the selectables.</summary>
-        List<Selectable> IBrowserView.onFocusPriority { get { return this.onFocusPriority; } }
+        List<Selectable> IBrowserView.onFocusPriority
+        {
+            get {
+                return this.onFocusPriority;
+            }
+        }
 
         // ---------[ UI Functionality ]---------
         /// <summary>Closes this view.</summary>
@@ -97,20 +114,26 @@ namespace ModIO.UI
         }
 
         // ---------[ OBSOLETE ]---------
-        [Obsolete("Use InspectorView.highlightedImage instead.")][HideInInspector]
+        [Obsolete("Use InspectorView.highlightedImage instead.")]
+        [HideInInspector]
         public ImageDisplay selectedMediaPreview;
-        [Obsolete("No longer supported. Try an ObjectActiverSetter component instead.")][HideInInspector]
+        [Obsolete("No longer supported. Try an ObjectActiverSetter component instead.")]
+        [HideInInspector]
         public GameObject loadingDisplay;
 
-        [Obsolete("Use a ModReleaseHistoryView instead.")][HideInInspector]
+        [Obsolete("Use a ModReleaseHistoryView instead.")]
+        [HideInInspector]
         public GameObject versionHistoryItemPrefab;
-        [Obsolete("Use ModfileView.emptyChangelogText instead.")][HideInInspector]
+        [Obsolete("Use ModfileView.emptyChangelogText instead.")]
+        [HideInInspector]
         public string missingVersionChangelogText;
 
-        [Obsolete("Use a ModReleaseHistoryView instead.")][HideInInspector]
+        [Obsolete("Use a ModReleaseHistoryView instead.")]
+        [HideInInspector]
         public RectTransform versionHistoryContainer;
 
-        [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")][HideInInspector]
+        [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
+        [HideInInspector]
         public ModProfile profile;
 
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
@@ -176,8 +199,8 @@ namespace ModIO.UI
 
         [Obsolete("Set the modId value and/or use Refresh() instead.")]
         public void DisplayMod(ModProfile profile, ModStatistics statistics,
-                               IEnumerable<ModTagCategory> tagCategories,
-                               bool isModSubscribed, bool isModEnabled)
+                               IEnumerable<ModTagCategory> tagCategories, bool isModSubscribed,
+                               bool isModEnabled)
         {
             Debug.Assert(profile != null);
             this.modId = profile.id;

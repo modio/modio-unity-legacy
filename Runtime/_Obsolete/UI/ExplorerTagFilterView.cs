@@ -32,15 +32,17 @@ namespace ModIO.UI
         /// <summary>Tags to display as selected.</summary>
         public string[] selectedTags
         {
-            get { return m_selectedTags.ToArray(); }
-            set
-            {
-                if(value == null) { value = new string[0]; }
+            get {
+                return m_selectedTags.ToArray();
+            }
+            set {
+                if(value == null)
+                {
+                    value = new string[0];
+                }
 
                 bool isSame = (this.m_selectedTags.Count == value.Length);
-                for(int i = 0;
-                    isSame && i < value.Length;
-                    ++i)
+                for(int i = 0; isSame && i < value.Length; ++i)
                 {
                     isSame = (this.m_selectedTags[i] == value[i]);
                 }
@@ -64,20 +66,18 @@ namespace ModIO.UI
             ModTagContainer tagContainer = tagCategoryPrefab.GetComponent<ModTagContainer>();
             Debug.Assert(tagContainer != null,
                          "[mod.io] ModTagFilterViews require the TagCategoryPrefab to have a "
-                         + "ModTagContainer component. (Any other TagCollectionDisplay type "
-                         + "is incompatible.)");
+                             + "ModTagContainer component. (Any other TagCollectionDisplay type "
+                             + "is incompatible.)");
 
             Debug.Assert(tagContainer.tagDisplayPrefab != null);
 
             Debug.Assert(tagContainer.tagDisplayPrefab.GetComponent<Toggle>() != null,
                          "[mod.io] ModTagFilterViews require the TagDisplayPrefab in the "
-                         + "FilterView.tagCategoryPrefab to have a Toggle Component.");
+                             + "FilterView.tagCategoryPrefab to have a Toggle Component.");
 
             // init tag selection
             this.view.onTagFilterUpdated += (t) =>
-            {
-                this.selectedTags = t;
-            };
+            { this.selectedTags = t; };
 
             var viewFilter = this.view.GetTagFilter();
             if(viewFilter == null)
@@ -125,8 +125,7 @@ namespace ModIO.UI
             // create
             foreach(ModTagCategory category in m_tagCategories)
             {
-                GameObject categoryGO = CreateCategoryDisplayInstance(category,
-                                                                      tagCategoryPrefab,
+                GameObject categoryGO = CreateCategoryDisplayInstance(category, tagCategoryPrefab,
                                                                       tagCategoryContainer);
 
                 categoryGO.GetComponent<ModTagContainer>().tagClicked += TagClickHandler;
@@ -159,12 +158,10 @@ namespace ModIO.UI
         }
 
         /// <summary>Creates the display elements for the given ModTagCategory.</summary>
-        private GameObject CreateCategoryDisplayInstance(ModTagCategory category,
-                                                         GameObject prefab,
+        private GameObject CreateCategoryDisplayInstance(ModTagCategory category, GameObject prefab,
                                                          RectTransform container)
         {
-            GameObject displayGO = GameObject.Instantiate(prefab,
-                                                          container);
+            GameObject displayGO = GameObject.Instantiate(prefab, container);
             displayGO.name = category.name;
 
             ModTagCategoryDisplay display = displayGO.GetComponent<ModTagCategoryDisplay>();
@@ -195,8 +192,7 @@ namespace ModIO.UI
         {
             Debug.Assert(gameProfile != null);
 
-            if(Application.isPlaying
-               && this != null
+            if(Application.isPlaying && this != null
                && this.m_tagCategories != gameProfile.tagCategories)
             {
                 var tagCategories = gameProfile.tagCategories;

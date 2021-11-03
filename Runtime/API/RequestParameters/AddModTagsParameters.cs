@@ -9,7 +9,9 @@ namespace ModIO.API
         // can add any number.
         public string[] tagNames
         {
-            set { this.SetStringArrayValue("tags[]", value); }
+            set {
+                this.SetStringArrayValue("tags[]", value);
+            }
         }
     }
 }

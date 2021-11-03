@@ -19,7 +19,13 @@ namespace ModIO
         public string url;
 
         // ---------[ INTERFACE IMPLEMENTATION ]---------
-        public string GetFileName() { return this.fileName; }
-        public string GetURL()      { return this.url; }
+        public string GetFileName()
+        {
+            return this.fileName;
+        }
+        public string GetURL()
+        {
+            return this.url;
+        }
     }
 }

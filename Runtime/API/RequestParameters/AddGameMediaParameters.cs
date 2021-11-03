@@ -9,8 +9,7 @@ namespace ModIO.API
         // three thumbnails with the dimensions of 320x180, 640x360 and 1280x720.
         public BinaryUpload logo
         {
-            set
-            {
+            set {
                 this.SetBinaryData("logo", value.fileName, value.data);
             }
         }
@@ -21,8 +20,7 @@ namespace ModIO.API
         // three thumbnails with the dimensions of 64x64, 128x128 and 256x256.
         public BinaryUpload icon
         {
-            set
-            {
+            set {
                 this.SetBinaryData("icon", value.fileName, value.data);
             }
         }
@@ -32,8 +30,7 @@ namespace ModIO.API
         // works on a dark background is recommended.
         public BinaryUpload headerImage
         {
-            set
-            {
+            set {
                 this.SetBinaryData("header", value.fileName, value.data);
             }
         }
