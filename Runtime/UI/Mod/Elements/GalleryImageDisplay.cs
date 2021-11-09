@@ -9,7 +9,9 @@ namespace ModIO.UI
         // ---------[ NESTED DATA-TYPES ]---------
         /// <summary>Event for notifying that the texture has changed.</summary>
         [System.Serializable]
-        public class TextureChangedEvent : UnityEngine.Events.UnityEvent<Texture2D> {}
+        public class TextureChangedEvent : UnityEngine.Events.UnityEvent<Texture2D>
+        {
+        }
 
         // ---------[ FIELDS ]---------
         /// <summary>Image component used to display the gallery image.</summary>
@@ -30,11 +32,19 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         /// <summary>Current modId for the displayed image.</summary>
         public int ModId
-        { get { return this.m_modId;    } }
+        {
+            get {
+                return this.m_modId;
+            }
+        }
 
         /// <summary>Locator for the displayed image.</summary>
         public GalleryImageLocator Locator
-        { get { return this.m_locator;  } }
+        {
+            get {
+                return this.m_locator;
+            }
+        }
 
         // ---------[ UI FUNCTIONALITY ]---------
         /// <summary>Displays a Mod Gallery Image.</summary>
@@ -63,10 +73,8 @@ namespace ModIO.UI
                         fallbackDelegate = displayDelegate;
                     }
 
-                    ImageRequestManager.instance.RequestModGalleryImage(modId, locator, this.imageSize,
-                                                                        displayDelegate,
-                                                                        fallbackDelegate,
-                                                                        null);
+                    ImageRequestManager.instance.RequestModGalleryImage(
+                        modId, locator, this.imageSize, displayDelegate, fallbackDelegate, null);
                 }
             }
         }
@@ -74,9 +82,7 @@ namespace ModIO.UI
         /// <summary>Internal function for applying the texture.</summary>
         protected virtual void ApplyTexture(GalleryImageLocator locator, Texture2D texture)
         {
-            if(this != null
-               && texture != null
-               && this.m_locator == locator)
+            if(this != null && texture != null && this.m_locator == locator)
             {
                 this.image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
                 this.image.enabled = true;

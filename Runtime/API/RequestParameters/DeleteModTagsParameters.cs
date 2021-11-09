@@ -6,7 +6,9 @@ namespace ModIO.API
         // An array of tags to delete.
         public string[] tagNames
         {
-            set { this.SetStringArrayValue("tags[]", value); }
+            set {
+                this.SetStringArrayValue("tags[]", value);
+            }
         }
     }
 }

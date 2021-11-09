@@ -14,9 +14,7 @@ namespace ModIO.EditorCode
             Debug.Assert(arrayProperty.arrayElementType.Equals("string"));
 
             var retVal = new string[arrayProperty.arraySize];
-            for(int i = 0;
-                i < arrayProperty.arraySize;
-                ++i)
+            for(int i = 0; i < arrayProperty.arraySize; ++i)
             {
                 retVal[i] = arrayProperty.GetArrayElementAtIndex(i).stringValue;
             }
@@ -30,9 +28,7 @@ namespace ModIO.EditorCode
             Debug.Assert(arrayProperty.arrayElementType.Equals("string"));
 
             arrayProperty.arraySize = value.Length;
-            for(int i = 0;
-                i < value.Length;
-                ++i)
+            for(int i = 0; i < value.Length; ++i)
             {
                 arrayProperty.GetArrayElementAtIndex(i).stringValue = value[i];
             }
@@ -57,18 +53,16 @@ namespace ModIO.EditorCode
 
     public static class EditorGUILayoutExtensions
     {
-        public static void ArrayPropertyField(SerializedProperty arrayProperty,
-                                              string arrayLabel,
+        public static void ArrayPropertyField(SerializedProperty arrayProperty, string arrayLabel,
                                               ref bool isExpanded)
         {
             CustomLayoutArrayPropertyField(arrayProperty, arrayLabel, ref isExpanded,
                                            (i, p) => EditorGUILayout.PropertyField(p));
         }
 
-        public static void CustomLayoutArrayPropertyField(SerializedProperty arrayProperty,
-                                                          string arrayLabel,
-                                                          ref bool isExpanded,
-                                                          Action<int, SerializedProperty> customLayoutFunction)
+        public static void CustomLayoutArrayPropertyField(
+            SerializedProperty arrayProperty, string arrayLabel, ref bool isExpanded,
+            Action<int, SerializedProperty> customLayoutFunction)
         {
             isExpanded = EditorGUILayout.Foldout(isExpanded, arrayLabel, true);
 
@@ -79,9 +73,10 @@ namespace ModIO.EditorCode
                 EditorGUILayout.PropertyField(arrayProperty.FindPropertyRelative("Array.size"),
                                               new GUIContent("Size"));
 
-                for (int i = 0; i < arrayProperty.arraySize; ++i)
+                for(int i = 0; i < arrayProperty.arraySize; ++i)
                 {
-                    SerializedProperty prop = arrayProperty.FindPropertyRelative("Array.data[" + i + "]");
+                    SerializedProperty prop =
+                        arrayProperty.FindPropertyRelative("Array.data[" + i + "]");
                     customLayoutFunction(i, prop);
                 }
 
@@ -99,41 +94,39 @@ namespace ModIO.EditorCode
             }
 
             EditorGUILayout.BeginHorizontal();
-                if(label != null && label != GUIContent.none)
-                {
-                    EditorGUILayout.PrefixLabel(label);
-                }
+            if(label != null && label != GUIContent.none)
+            {
+                EditorGUILayout.PrefixLabel(label);
+            }
 
-                if(Event.current.type == EventType.Layout)
-                {
-                    EditorGUILayout.TextField(path, "");
-                }
-                else
-                {
-                    doBrowse = GUILayout.Button(path, GUI.skin.textField);
-                }
+            if(Event.current.type == EventType.Layout)
+            {
+                EditorGUILayout.TextField(path, "");
+            }
+            else
+            {
+                doBrowse = GUILayout.Button(path, GUI.skin.textField);
+            }
             EditorGUILayout.EndHorizontal();
 
             return doBrowse;
         }
 
-        private static GUILayoutOption[] buttonLayout = new GUILayoutOption[]{ GUILayout.Width(EditorGUIUtility.singleLineHeight), GUILayout.Height(EditorGUIUtility.singleLineHeight) };
+        private static GUILayoutOption[] buttonLayout =
+            new GUILayoutOption[] { GUILayout.Width(EditorGUIUtility.singleLineHeight),
+                                    GUILayout.Height(EditorGUIUtility.singleLineHeight) };
         public static bool UndoButton(bool isEnabled = true)
         {
-            using (new EditorGUI.DisabledScope(!isEnabled))
+            using(new EditorGUI.DisabledScope(!isEnabled))
             {
-                return GUILayout.Button(EditorImages.UndoButton,
-                                        GUI.skin.label,
-                                        buttonLayout);
+                return GUILayout.Button(EditorImages.UndoButton, GUI.skin.label, buttonLayout);
             }
         }
         public static bool ClearButton(bool isEnabled = true)
         {
-            using (new EditorGUI.DisabledScope(!isEnabled))
+            using(new EditorGUI.DisabledScope(!isEnabled))
             {
-                return GUILayout.Button(EditorImages.ClearButton,
-                                        GUI.skin.label,
-                                        buttonLayout);
+                return GUILayout.Button(EditorImages.ClearButton, GUI.skin.label, buttonLayout);
             }
         }
 
@@ -145,4 +138,3 @@ namespace ModIO.EditorCode
     }
 }
 #endif
-

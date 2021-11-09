@@ -6,7 +6,8 @@ using Path = System.IO.Path;
 
 namespace ModIO
 {
-    /// <summary>A wrapper for the DotNetZip library that matches the ICompressionImpl interface.</summary>
+    /// <summary>A wrapper for the DotNetZip library that matches the ICompressionImpl
+    /// interface.</summary>
     public class DotNetZipCompressionImpl : ICompressionImpl
     {
         // ---------[ Interface ]---------
@@ -32,7 +33,7 @@ namespace ModIO
 
             try
             {
-                using (var zip = Ionic.Zip.ZipFile.Read(archivePath))
+                using(var zip = Ionic.Zip.ZipFile.Read(archivePath))
                 {
                     zip.ExtractAll(targetDirectory);
 
@@ -42,16 +43,15 @@ namespace ModIO
             catch(Exception e)
             {
                 Debug.LogWarning("[mod.io] Unable to extract archive to target directory."
-                                 + "\nArchive: " + archivePath
-                                 + "\nTarget: " + targetDirectory
-                                 + "\n\n"
-                                 + Utility.GenerateExceptionDebugString(e));
+                                 + "\nArchive: " + archivePath + "\nTarget: " + targetDirectory
+                                 + "\n\n" + Utility.GenerateExceptionDebugString(e));
             }
 
             return success;
         }
 
-        /// <summary>Compresses the contents of a file collection into a new output archive.</summary>
+        /// <summary>Compresses the contents of a file collection into a new output
+        /// archive.</summary>
         public bool CompressFileCollection(string rootDirectory,
                                            IEnumerable<string> filePathCollection,
                                            string targetFilePath)
@@ -102,8 +102,7 @@ namespace ModIO
             {
                 Debug.LogWarning("[mod.io] Unable to compress file collection to archive."
                                  + "\nLast Attempted File: " + lastFilePath
-                                 + "\nOutput: " + targetFilePath
-                                 + "\n\n"
+                                 + "\nOutput: " + targetFilePath + "\n\n"
                                  + Utility.GenerateExceptionDebugString(e));
             }
 
@@ -142,9 +141,7 @@ namespace ModIO
             catch(Exception e)
             {
                 Debug.LogWarning("[mod.io] Unable to compress file to archive."
-                                 + "\nFile: " + filePath
-                                 + "\nOutput: " + targetFilePath
-                                 + "\n\n"
+                                 + "\nFile: " + filePath + "\nOutput: " + targetFilePath + "\n\n"
                                  + Utility.GenerateExceptionDebugString(e));
             }
 

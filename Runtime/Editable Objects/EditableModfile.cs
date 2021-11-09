@@ -4,9 +4,9 @@ namespace ModIO
     public class EditableModfile
     {
         // ---------[ FIELDS ]---------
-        public EditableStringField version        = new EditableStringField();
-        public EditableStringField changelog      = new EditableStringField();
-        public EditableStringField metadataBlob   = new EditableStringField();
+        public EditableStringField version = new EditableStringField();
+        public EditableStringField changelog = new EditableStringField();
+        public EditableStringField metadataBlob = new EditableStringField();
 
         // ---------[ VALUE DUPLICATION ]---------
         public static EditableModfile CreateFromModfile(Modfile modfile)

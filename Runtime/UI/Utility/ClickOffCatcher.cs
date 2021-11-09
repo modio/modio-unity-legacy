@@ -52,8 +52,7 @@ namespace ModIO.UI
 
         private void OnDisable()
         {
-            if(constructOnEnable
-               && m_blocker != null)
+            if(constructOnEnable && m_blocker != null)
             {
                 GameObject.Destroy(m_blocker.gameObject);
 

@@ -1,5 +1,5 @@
 #if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
-    #define MODIO_ENABLE_VARIABLE_PATHS
+#define MODIO_ENABLE_VARIABLE_PATHS
 #endif
 
 using Path = System.IO.Path;
@@ -8,12 +8,15 @@ using UnityEngine;
 
 namespace ModIO
 {
-    /// <summary>Stores the settings used by various classes that are unique to the game/app.</summary>
+    /// <summary>Stores the settings used by various classes that are unique to the
+    /// game/app.</summary>
     public class PluginSettings : ScriptableObject, ISerializationCallbackReceiver
     {
         // ---------[ NESTED CLASSES ]---------
         /// <summary>Attribute for denoting a field as containing directory variables.</summary>
-        public class VariableDirectoryAttribute : PropertyAttribute {}
+        public class VariableDirectoryAttribute : PropertyAttribute
+        {
+        }
 
         /// <summary>Request logging options.</summary>
         [System.Serializable]
@@ -102,8 +105,12 @@ namespace ModIO
             [System.Obsolete("Use requestLogging.logAllResponses instead.")]
             public bool logAllRequests
             {
-                get { return this.requestLogging.logAllResponses; }
-                set { this.requestLogging.logAllResponses = value; }
+                get {
+                    return this.requestLogging.logAllResponses;
+                }
+                set {
+                    this.requestLogging.logAllResponses = value;
+                }
             }
         }
 
@@ -120,22 +127,22 @@ namespace ModIO
         /// <summary>The values that the plugin should use.</summary>
         public static Data data
         {
-            get
-            {
+            get {
                 if(!PluginSettings._loaded)
                 {
-                    PluginSettings._dataInstance = PluginSettings.LoadDataFromAsset(PluginSettings.FILE_PATH);
+                    PluginSettings._dataInstance =
+                        PluginSettings.LoadDataFromAsset(PluginSettings.FILE_PATH);
 
-                    #if UNITY_EDITOR
+#if UNITY_EDITOR
                     {
                         // If Application isn't playing, we reload every time
                         PluginSettings._loaded = Application.isPlaying;
                     }
-                    #else
-                        PluginSettings._loaded = true;
-                    #endif // UNITY_EDITOR
+#else
+                    PluginSettings._loaded = true;
+#endif // UNITY_EDITOR
 
-                    #if DEBUG
+#if DEBUG
                     if(Application.isPlaying)
                     {
                         string errorMessage = null;
@@ -143,71 +150,84 @@ namespace ModIO
                         // check config
                         if(string.IsNullOrEmpty(PluginSettings._dataInstance.apiURL))
                         {
-                            errorMessage = ("[mod.io] API URL is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
+                            errorMessage =
+                                ("[mod.io] API URL is missing from the Plugin Settings.\n"
+                                 + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                 + " item before the mod.io Unity Plugin can be used.");
                         }
                         else if(PluginSettings._dataInstance.gameId == GameProfile.NULL_ID)
                         {
-                            errorMessage = ("[mod.io] Game ID is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
+                            errorMessage =
+                                ("[mod.io] Game ID is missing from the Plugin Settings.\n"
+                                 + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                 + " item before the mod.io Unity Plugin can be used.");
                         }
                         else if(string.IsNullOrEmpty(PluginSettings._dataInstance.gameAPIKey))
                         {
-                            errorMessage = ("[mod.io] Game API Key is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
+                            errorMessage =
+                                ("[mod.io] Game API Key is missing from the Plugin Settings.\n"
+                                 + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                 + " item before the mod.io Unity Plugin can be used.");
                         }
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.installationDirectory))
+                        else if(string.IsNullOrEmpty(
+                                    PluginSettings._dataInstance.installationDirectory))
                         {
-                            errorMessage = ("[mod.io] Installation Directory is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
+                            errorMessage =
+                                ("[mod.io] Installation Directory is missing from the Plugin Settings.\n"
+                                 + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                 + " item before the mod.io Unity Plugin can be used.");
                         }
                         else if(string.IsNullOrEmpty(PluginSettings._dataInstance.cacheDirectory))
                         {
-                            errorMessage = ("[mod.io] Cache Directory is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
+                            errorMessage =
+                                ("[mod.io] Cache Directory is missing from the Plugin Settings.\n"
+                                 + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                 + " item before the mod.io Unity Plugin can be used.");
                         }
                         else if(string.IsNullOrEmpty(PluginSettings._dataInstance.userDirectory))
                         {
-                            errorMessage = ("[mod.io] User Directory is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
+                            errorMessage =
+                                ("[mod.io] User Directory is missing from the Plugin Settings.\n"
+                                 + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                 + " item before the mod.io Unity Plugin can be used.");
                         }
-                        #if UNITY_EDITOR
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.installationDirectoryEditor))
+#if UNITY_EDITOR
+                        else if(string.IsNullOrEmpty(
+                                    PluginSettings._dataInstance.installationDirectoryEditor))
                         {
-                            errorMessage = ("[mod.io] Installation Directory (Editor) is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
+                            errorMessage =
+                                ("[mod.io] Installation Directory (Editor) is missing from the Plugin Settings.\n"
+                                 + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                 + " item before the mod.io Unity Plugin can be used.");
                         }
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.cacheDirectoryEditor))
+                        else if(string.IsNullOrEmpty(
+                                    PluginSettings._dataInstance.cacheDirectoryEditor))
                         {
-                            errorMessage = ("[mod.io] Cache Directory (Editor) is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
+                            errorMessage =
+                                ("[mod.io] Cache Directory (Editor) is missing from the Plugin Settings.\n"
+                                 + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                 + " item before the mod.io Unity Plugin can be used.");
                         }
-                        else if(string.IsNullOrEmpty(PluginSettings._dataInstance.userDirectoryEditor))
+                        else if(string.IsNullOrEmpty(
+                                    PluginSettings._dataInstance.userDirectoryEditor))
                         {
-                            errorMessage = ("[mod.io] User Directory (Editor) is missing from the Plugin Settings.\n"
-                                           + "This must be configured by selecting the mod.io > Edit Settings menu"
-                                           + " item before the mod.io Unity Plugin can be used.");
+                            errorMessage =
+                                ("[mod.io] User Directory (Editor) is missing from the Plugin Settings.\n"
+                                 + "This must be configured by selecting the mod.io > Edit Settings menu"
+                                 + " item before the mod.io Unity Plugin can be used.");
                         }
-                        #endif
+#endif
 
                         if(errorMessage != null)
                         {
-                            #if UNITY_EDITOR
-                                PluginSettings.FocusAsset();
-                            #endif // UNITY_EDITOR
+#if UNITY_EDITOR
+                            PluginSettings.FocusAsset();
+#endif // UNITY_EDITOR
 
                             Debug.LogError(errorMessage);
                         }
                     }
-                    #endif // DEBUG
+#endif // DEBUG
                 }
 
                 return PluginSettings._dataInstance;
@@ -217,35 +237,44 @@ namespace ModIO
         // ---------[ FIELDS ]---------
         /// <summary>Settings data.</summary>
         [SerializeField]
-        #pragma warning disable 0649
+#pragma warning disable 0649
         private Data m_data;
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         // --- Accessors ---
         public static string API_URL
         {
-            get { return PluginSettings.data.apiURL; }
+            get {
+                return PluginSettings.data.apiURL;
+            }
         }
         public static int GAME_ID
         {
-            get { return PluginSettings.data.gameId; }
+            get {
+                return PluginSettings.data.gameId;
+            }
         }
         public static string GAME_API_KEY
         {
-            get { return PluginSettings.data.gameAPIKey; }
+            get {
+                return PluginSettings.data.gameAPIKey;
+            }
         }
         public static RequestLoggingOptions REQUEST_LOGGING
         {
-            get { return PluginSettings.data.requestLogging; }
+            get {
+                return PluginSettings.data.requestLogging;
+            }
         }
         public static UserPortal USER_PORTAL
         {
-            get { return PluginSettings.data.userPortal; }
+            get {
+                return PluginSettings.data.userPortal;
+            }
         }
         public static uint CACHE_SIZE_BYTES
         {
-            get
-            {
+            get {
                 if(PluginSettings.data.requestCacheSizeKB < 0)
                 {
                     return uint.MaxValue;
@@ -272,67 +301,66 @@ namespace ModIO
             {
                 settings = wrapper.m_data;
 
-                // - Path variable replacement -
-                #if MODIO_ENABLE_VARIABLE_PATHS && !UNITY_EDITOR
+// - Path variable replacement -
+#if MODIO_ENABLE_VARIABLE_PATHS && !UNITY_EDITOR
 
-                    // cachedir
-                    if(settings.cacheDirectory != null)
-                    {
-                        settings.cacheDirectory = ReplaceDirectoryVariables(settings.cacheDirectory,
-                                                                            settings.gameId);
-                    }
+                // cachedir
+                if(settings.cacheDirectory != null)
+                {
+                    settings.cacheDirectory =
+                        ReplaceDirectoryVariables(settings.cacheDirectory, settings.gameId);
+                }
 
-                    // installdir
-                    if(settings.installationDirectory != null)
-                    {
-                        settings.installationDirectory = ReplaceDirectoryVariables(settings.installationDirectory,
-                                                                                   settings.gameId);
-                    }
+                // installdir
+                if(settings.installationDirectory != null)
+                {
+                    settings.installationDirectory =
+                        ReplaceDirectoryVariables(settings.installationDirectory, settings.gameId);
+                }
 
-                    // userdir
-                    if(settings.userDirectory != null)
-                    {
-                        settings.userDirectory = ReplaceDirectoryVariables(settings.userDirectory,
-                                                                           settings.gameId);
-                    }
+                // userdir
+                if(settings.userDirectory != null)
+                {
+                    settings.userDirectory =
+                        ReplaceDirectoryVariables(settings.userDirectory, settings.gameId);
+                }
 
-                    Debug.Log("[mod.io] PluginSettings variable directories resolved to:"
-                              + "\n.cacheDirectory=" + settings.cacheDirectory
-                              + "\n.installationDirectory=" + settings.installationDirectory
-                              + "\n.userDirectory=" + settings.userDirectory);
+                Debug.Log("[mod.io] PluginSettings variable directories resolved to:"
+                          + "\n.cacheDirectory=" + settings.cacheDirectory
+                          + "\n.installationDirectory=" + settings.installationDirectory
+                          + "\n.userDirectory=" + settings.userDirectory);
 
-                #endif // MODIO_ENABLE_VARIABLE_PATHS && !UNITY_EDITOR
+#endif // MODIO_ENABLE_VARIABLE_PATHS && !UNITY_EDITOR
 
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
 
-                    // cachedir
-                    if(settings.cacheDirectoryEditor != null)
-                    {
-                        settings.cacheDirectoryEditor = ReplaceDirectoryVariables(settings.cacheDirectoryEditor,
-                                                                                  settings.gameId);
-                    }
+                // cachedir
+                if(settings.cacheDirectoryEditor != null)
+                {
+                    settings.cacheDirectoryEditor =
+                        ReplaceDirectoryVariables(settings.cacheDirectoryEditor, settings.gameId);
+                }
 
-                    // installdir
-                    if(settings.installationDirectoryEditor != null)
-                    {
-                        settings.installationDirectoryEditor = ReplaceDirectoryVariables(settings.installationDirectoryEditor,
-                                                                                         settings.gameId);
-                    }
+                // installdir
+                if(settings.installationDirectoryEditor != null)
+                {
+                    settings.installationDirectoryEditor = ReplaceDirectoryVariables(
+                        settings.installationDirectoryEditor, settings.gameId);
+                }
 
-                    // userdir
-                    if(settings.userDirectoryEditor != null)
-                    {
-                        settings.userDirectoryEditor = ReplaceDirectoryVariables(settings.userDirectoryEditor,
-                                                                                 settings.gameId);
-                    }
+                // userdir
+                if(settings.userDirectoryEditor != null)
+                {
+                    settings.userDirectoryEditor =
+                        ReplaceDirectoryVariables(settings.userDirectoryEditor, settings.gameId);
+                }
 
-                    Debug.Log("[mod.io] PluginSettings variable directories resolved to:"
-                              + "\n.cacheDirectoryEditor=" + settings.cacheDirectoryEditor
-                              + "\n.installationDirectoryEditor=" + settings.installationDirectoryEditor
-                              + "\n.userDirectoryEditor=" + settings.userDirectoryEditor);
+                Debug.Log("[mod.io] PluginSettings variable directories resolved to:"
+                          + "\n.cacheDirectoryEditor=" + settings.cacheDirectoryEditor
+                          + "\n.installationDirectoryEditor=" + settings.installationDirectoryEditor
+                          + "\n.userDirectoryEditor=" + settings.userDirectoryEditor);
 
-                #endif // UNITY_EDITOR
-
+#endif // UNITY_EDITOR
             }
 
             return settings;
@@ -345,31 +373,32 @@ namespace ModIO
             string app_persistentDataPath = Application.persistentDataPath;
             if(IOUtilities.PathEndsWithDirectorySeparator(app_persistentDataPath))
             {
-                app_persistentDataPath = app_persistentDataPath.Remove(app_persistentDataPath.Length-1);
+                app_persistentDataPath =
+                    app_persistentDataPath.Remove(app_persistentDataPath.Length - 1);
             }
             string app_dataPath = Application.dataPath;
             if(IOUtilities.PathEndsWithDirectorySeparator(app_dataPath))
             {
-                app_dataPath = app_dataPath.Remove(app_dataPath.Length-1);
+                app_dataPath = app_dataPath.Remove(app_dataPath.Length - 1);
             }
             string app_temporaryCachePath = Application.temporaryCachePath;
             if(IOUtilities.PathEndsWithDirectorySeparator(app_temporaryCachePath))
             {
-                app_temporaryCachePath = app_temporaryCachePath.Remove(app_temporaryCachePath.Length-1);
+                app_temporaryCachePath =
+                    app_temporaryCachePath.Remove(app_temporaryCachePath.Length - 1);
             }
 
             // straight replaces
-            directory = (directory
-                         .Replace("$PERSISTENT_DATA_PATH$", app_persistentDataPath)
-                         .Replace("$DATA_PATH$", app_dataPath)
-                         .Replace("$TEMPORARY_CACHE_PATH$", app_temporaryCachePath)
-                         .Replace("$BUILD_GUID$", Application.buildGUID)
-                         .Replace("$COMPANY_NAME$", Application.companyName)
-                         .Replace("$PRODUCT_NAME$", Application.productName)
-                         .Replace("$APPLICATION_IDENTIFIER", Application.identifier)
-                         .Replace("$GAME_ID$", gameId.ToString())
-                         .Replace("$CURRENT_DIRECTORY$", System.IO.Directory.GetCurrentDirectory())
-                         );
+            directory =
+                (directory.Replace("$PERSISTENT_DATA_PATH$", app_persistentDataPath)
+                     .Replace("$DATA_PATH$", app_dataPath)
+                     .Replace("$TEMPORARY_CACHE_PATH$", app_temporaryCachePath)
+                     .Replace("$BUILD_GUID$", Application.buildGUID)
+                     .Replace("$COMPANY_NAME$", Application.companyName)
+                     .Replace("$PRODUCT_NAME$", Application.productName)
+                     .Replace("$APPLICATION_IDENTIFIER$", Application.identifier)
+                     .Replace("$GAME_ID$", gameId.ToString())
+                     .Replace("$CURRENT_DIRECTORY$", System.IO.Directory.GetCurrentDirectory()));
 
             return directory;
         }
@@ -390,17 +419,19 @@ namespace ModIO
         }
 
         // ---------[ ISerializationCallbackReceiver ]---------
-        /// <summary>Implement this method to receive a callback after Unity deserializes your object.</summary>
+        /// <summary>Implement this method to receive a callback after Unity deserializes your
+        /// object.</summary>
         public void OnAfterDeserialize()
         {
             this.m_data = PluginSettings.UpdateVersionedValues(this.m_data.version, this.m_data);
         }
 
-        /// <summary>Implement this method to receive a callback before Unity serializes your object.</summary>
+        /// <summary>Implement this method to receive a callback before Unity serializes your
+        /// object.</summary>
         public void OnBeforeSerialize() {}
 
-        // ---------[ EDITOR CODE ]---------
-        #if UNITY_EDITOR
+// ---------[ EDITOR CODE ]---------
+#if UNITY_EDITOR
         /// <summary>Locates the PluginSettings asset used at runtime.</summary>
         [UnityEditor.MenuItem("Tools/mod.io/Edit Settings", false)]
         public static void FocusAsset()
@@ -425,8 +456,7 @@ namespace ModIO
 
             // non-constant defaults
             data.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
-            data.requestLogging = new RequestLoggingOptions()
-            {
+            data.requestLogging = new RequestLoggingOptions() {
                 errorsAsWarnings = true,
                 logAllResponses = false,
                 logOnSend = false,
@@ -442,8 +472,7 @@ namespace ModIO
         }
 
         /// <summary>Sets/saves the settings for the runtime instance.</summary>
-        public static PluginSettings SaveToAsset(string path,
-                                                 PluginSettings.Data data)
+        public static PluginSettings SaveToAsset(string path, PluginSettings.Data data)
         {
             string assetPath = IOUtilities.CombinePath("Assets", "Resources", path + ".asset");
 
@@ -451,12 +480,21 @@ namespace ModIO
             string assetFolder = Path.GetDirectoryName(assetPath);
             System.IO.Directory.CreateDirectory(assetFolder);
 
-            // create asset
-            PluginSettings settings = ScriptableObject.CreateInstance<PluginSettings>();
+            // load/create asset
+            PluginSettings settings =
+                UnityEditor.AssetDatabase.LoadAssetAtPath<PluginSettings>(assetPath);
+
+            if(settings == null)
+            {
+                settings = ScriptableObject.CreateInstance<PluginSettings>();
+                UnityEditor.AssetDatabase.CreateAsset(settings, assetPath);
+            }
+
+            // update settings
             settings.m_data = data;
+            UnityEditor.EditorUtility.SetDirty(settings);
 
             // save
-            UnityEditor.AssetDatabase.CreateAsset(settings, assetPath);
             UnityEditor.AssetDatabase.SaveAssets();
             UnityEditor.AssetDatabase.Refresh();
 
@@ -471,32 +509,39 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Creates the asset instance that the plugin will use.</summary>
-        [System.Obsolete("Use PluginSettings.GenerateDefaultData() and PluginSettings.SetRuntimeData() instead.")]
+        [System.Obsolete(
+            "Use PluginSettings.GenerateDefaultData() and PluginSettings.SetRuntimeData() instead.")]
         private static PluginSettings InitializeAsset()
         {
             PluginSettings.Data data = PluginSettings.GenerateDefaultData();
             return PluginSettings.SetRuntimeData(data);
         }
 
-        #endif // UNITY_EDITOR
+#endif // UNITY_EDITOR
 
         // ---------[ Obsolete ]---------
         [System.Obsolete("Use DataStorage.INSTALLATION_DIRECTORY instead.")]
         public static string INSTALLATION_DIRECTORY
         {
-            get { return DataStorage.INSTALLATION_DIRECTORY; }
+            get {
+                return DataStorage.INSTALLATION_DIRECTORY;
+            }
         }
 
-        [System.Obsolete("Use DataStorage.CACHE_DIRECTORY instead.")]
-        public static string CACHE_DIRECTORY
+        [System.Obsolete(
+            "Use DataStorage.CACHE_DIRECTORY instead.")] public static string CACHE_DIRECTORY
         {
-            get { return DataStorage.CACHE_DIRECTORY; }
+            get {
+                return DataStorage.CACHE_DIRECTORY;
+            }
         }
 
-        [System.Obsolete("Use UserDataStorage.USER_DIRECTORY instead.")]
-        public static string USER_DIRECTORY
+        [System.Obsolete(
+            "Use UserDataStorage.USER_DIRECTORY instead.")] public static string USER_DIRECTORY
         {
-            get { return UserDataStorage.USER_DIRECTORY; }
+            get {
+                return UserDataStorage.USER_DIRECTORY;
+            }
         }
     }
 }

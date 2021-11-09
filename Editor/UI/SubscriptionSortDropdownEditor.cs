@@ -16,11 +16,11 @@ namespace ModIO.UI.EditorCode
         private static void LoadStaticData()
         {
             // load guicontent
-            List<GUIContent> content = new List<GUIContent>(SubscriptionSortDropdownController.subscriptionSortOptions.Count);
+            List<GUIContent> content = new List<GUIContent>(
+                SubscriptionSortDropdownController.subscriptionSortOptions.Count);
             foreach(var kvp in SubscriptionSortDropdownController.subscriptionSortOptions)
             {
-                content.Add(new GUIContent()
-                {
+                content.Add(new GUIContent() {
                     text = kvp.Key,
                 });
             }
@@ -38,9 +38,7 @@ namespace ModIO.UI.EditorCode
             string currentValue = property.stringValue;
             int currentSelectionIndex = -1;
 
-            for(int i = 0;
-                i < popupOptions.Length && currentSelectionIndex < 0;
-                ++i)
+            for(int i = 0; i < popupOptions.Length && currentSelectionIndex < 0; ++i)
             {
                 if(popupOptions[i].text == currentValue)
                 {
@@ -53,7 +51,8 @@ namespace ModIO.UI.EditorCode
                 currentSelectionIndex = 0;
             }
 
-            int newSelectionIndex = EditorGUI.Popup(position, label, currentSelectionIndex, popupOptions);
+            int newSelectionIndex =
+                EditorGUI.Popup(position, label, currentSelectionIndex, popupOptions);
 
             if(newSelectionIndex != currentSelectionIndex)
             {

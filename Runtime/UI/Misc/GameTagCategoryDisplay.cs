@@ -53,14 +53,10 @@ namespace ModIO.UI
         /// <summary>Tag Display Items.</summary>
         public IEnumerable<TagContainerItem> tagItems
         {
-            get
-            {
+            get {
                 foreach(CategoryItem c in this.m_itemInstances)
                 {
-                    foreach(TagContainerItem t in c.tagInstances)
-                    {
-                        yield return t;
-                    }
+                    foreach(TagContainerItem t in c.tagInstances) { yield return t; }
                 }
             }
         }
@@ -69,21 +65,22 @@ namespace ModIO.UI
         /// <summary>Initialize template.</summary>
         protected virtual void Awake()
         {
-            // check template
-            #if DEBUG
+// check template
+#if DEBUG
             string message;
             if(!GameTagCategoryDisplay.HasValidTemplate(this, out message))
             {
                 Debug.LogError("[mod.io] " + message, this);
                 return;
             }
-            #endif
+#endif
 
             // Hide template
             this.template.root.gameObject.SetActive(false);
 
             // Check for category name duplication
-            if(this.template.tagTemplate.categoryName.displayComponent == this.template.categoryLabel.displayComponent)
+            if(this.template.tagTemplate.categoryName.displayComponent
+               == this.template.categoryLabel.displayComponent)
             {
                 this.template.tagTemplate.categoryName.SetTextDisplayComponent(null);
             }
@@ -94,9 +91,9 @@ namespace ModIO.UI
             {
                 this.m_itemTemplate = this.template.root.gameObject.AddComponent<CategoryItem>();
                 this.m_itemTemplate.label = this.template.categoryLabel;
-                this.m_itemTemplate.tagContainer = this.template.tagTemplate.transform.parent as RectTransform;
-                this.m_itemTemplate.tagInstances = new TagContainerItem[1]
-                {
+                this.m_itemTemplate.tagContainer =
+                    this.template.tagTemplate.transform.parent as RectTransform;
+                this.m_itemTemplate.tagInstances = new TagContainerItem[1] {
                     this.template.tagTemplate,
                 };
             }
@@ -105,13 +102,11 @@ namespace ModIO.UI
             this.m_container = this.template.root.parent as RectTransform;
 
             // Clear any instantiated categories
-            List<CategoryItem> itemInstances = new List<CategoryItem>(this.m_container.GetComponentsInChildren<CategoryItem>(true));
+            List<CategoryItem> itemInstances = new List<CategoryItem>(
+                this.m_container.GetComponentsInChildren<CategoryItem>(true));
             itemInstances.Remove(this.m_itemTemplate);
 
-            foreach(CategoryItem item in itemInstances)
-            {
-                GameObject.Destroy(item.gameObject);
-            }
+            foreach(CategoryItem item in itemInstances) { GameObject.Destroy(item.gameObject); }
         }
 
         /// <summary>Ensure the displays are accurate.</summary>
@@ -136,9 +131,7 @@ namespace ModIO.UI
                 List<ModTagCategory> categories = new List<ModTagCategory>();
                 foreach(ModTagCategory category in tagCategories)
                 {
-                    if(category != null
-                       && category.tags != null
-                       && category.tags.Length > 0
+                    if(category != null && category.tags != null && category.tags.Length > 0
                        && (displayHidden || !category.isHidden))
                     {
                         categories.Add(category);
@@ -153,9 +146,8 @@ namespace ModIO.UI
                 int categoryCount = this.m_tagCategories.Length;
 
                 // create/destroy category displays
-                UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate,
-                                             "Tag Category", categoryCount,
-                                             ref this.m_itemInstances);
+                UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate, "Tag Category",
+                                             categoryCount, ref this.m_itemInstances);
 
                 // set category labels
                 if(this.template.categoryLabel.displayComponent != null)
@@ -173,11 +165,9 @@ namespace ModIO.UI
                     CategoryItem categoryItem = this.m_itemInstances[cat_i];
 
                     // create/destroy
-                    UIUtilities.SetInstanceCount(categoryItem.tagContainer,
-                                                 this.template.tagTemplate,
-                                                 "Tag",
-                                                 category.tags.Length,
-                                                 ref categoryItem.tagInstances);
+                    UIUtilities.SetInstanceCount(
+                        categoryItem.tagContainer, this.template.tagTemplate, "Tag",
+                        category.tags.Length, ref categoryItem.tagInstances);
 
                     // set category name
                     if(this.template.tagTemplate.categoryName.displayComponent != null)
@@ -234,7 +224,7 @@ namespace ModIO.UI
             }
             // template.root is child of Component
             else if(!display.template.root.IsChildOf(display.transform)
-               || display.template.root == display.transform)
+                    || display.template.root == display.transform)
             {
                 helpMessage = ("This Game Tag Category Display has an invalid template."
                                + "\nThe template root must be a child of this object.");
@@ -242,8 +232,10 @@ namespace ModIO.UI
             }
             // template.category is child of, or attached to template.root
             else if(display.template.categoryLabel.displayComponent != null
-                    && !display.template.categoryLabel.displayComponent.transform.IsChildOf(display.template.root)
-                    && display.template.categoryLabel.displayComponent.transform != display.template.root)
+                    && !display.template.categoryLabel.displayComponent.transform.IsChildOf(
+                        display.template.root)
+                    && display.template.categoryLabel.displayComponent.transform
+                           != display.template.root)
             {
                 helpMessage = ("This Game Tag Category Display has an invalid template."
                                + "\nThe category label must be a child of, or attached to"
@@ -260,8 +252,10 @@ namespace ModIO.UI
             }
             // template.category is not in template.tag hierarchy
             else if(display.template.categoryLabel.displayComponent != null
-                    && (display.template.categoryLabel.displayComponent.transform.IsChildOf(display.template.tagTemplate.transform)
-                        || display.template.categoryLabel.displayComponent.transform == display.template.tagTemplate.transform))
+                    && (display.template.categoryLabel.displayComponent.transform.IsChildOf(
+                            display.template.tagTemplate.transform)
+                        || display.template.categoryLabel.displayComponent.transform
+                               == display.template.tagTemplate.transform))
             {
                 helpMessage = ("This Game Tag Category Display has an invalid template."
                                + "\nThe category label cannot be a child of, or attached to the"

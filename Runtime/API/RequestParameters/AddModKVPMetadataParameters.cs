@@ -18,8 +18,7 @@ namespace ModIO.API
         /// </remarks>
         public string[] metadata
         {
-            set
-            {
+            set {
                 this.SetStringArrayValue("metadata[]", value);
             }
         }
@@ -39,6 +38,5 @@ namespace ModIO.API
             }
             return apiStrings;
         }
-
     }
 }

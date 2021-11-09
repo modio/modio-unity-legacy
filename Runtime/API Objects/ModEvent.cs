@@ -41,10 +41,10 @@ namespace ModIO
 
 
         // ---------[ API DESERIALIZATION ]---------
-        private const string APIOBJECT_VALUESTRING_MODAVAILABLE     = "MOD_AVAILABLE";
-        private const string APIOBJECT_VALUESTRING_MODUNAVAILABLE   = "MOD_UNAVAILABLE";
-        private const string APIOBJECT_VALUESTRING_MODEDITED        = "MOD_EDITED";
-        private const string APIOBJECT_VALUESTRING_MODFILECHANGED   = "MODFILE_CHANGED";
+        private const string APIOBJECT_VALUESTRING_MODAVAILABLE = "MOD_AVAILABLE";
+        private const string APIOBJECT_VALUESTRING_MODUNAVAILABLE = "MOD_UNAVAILABLE";
+        private const string APIOBJECT_VALUESTRING_MODEDITED = "MOD_EDITED";
+        private const string APIOBJECT_VALUESTRING_MODFILECHANGED = "MODFILE_CHANGED";
 
         /// <summary>
         /// An optional event_type field, which is only deserialized from API responses
@@ -55,7 +55,10 @@ namespace ModIO
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            if (string.IsNullOrEmpty(this._eventTypeString)) { return; }
+            if(string.IsNullOrEmpty(this._eventTypeString))
+            {
+                return;
+            }
 
             switch(this._eventTypeString.ToUpper())
             {

@@ -26,24 +26,26 @@ namespace ModIO
             }
         }
 
-        public static bool operator >  (SimpleVersion operand1, SimpleVersion operand2)
+        // clang-format off
+        public static bool operator > (SimpleVersion operand1, SimpleVersion operand2)
         {
-           return operand1.CompareTo(operand2) == 1;
+            return operand1.CompareTo(operand2) == 1;
         }
 
-        public static bool operator <  (SimpleVersion operand1, SimpleVersion operand2)
+        public static bool operator < (SimpleVersion operand1, SimpleVersion operand2)
         {
-           return operand1.CompareTo(operand2) == -1;
+            return operand1.CompareTo(operand2) == -1;
         }
 
-        public static bool operator >=  (SimpleVersion operand1, SimpleVersion operand2)
+        public static bool operator >= (SimpleVersion operand1, SimpleVersion operand2)
         {
-           return operand1.CompareTo(operand2) >= 0;
+            return operand1.CompareTo(operand2) >= 0;
         }
 
-        public static bool operator <=  (SimpleVersion operand1, SimpleVersion operand2)
+        public static bool operator <= (SimpleVersion operand1, SimpleVersion operand2)
         {
-           return operand1.CompareTo(operand2) <= 0;
+            return operand1.CompareTo(operand2) <= 0;
         }
+        // clang-format on
     }
 }

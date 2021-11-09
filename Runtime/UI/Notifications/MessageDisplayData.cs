@@ -9,7 +9,7 @@ namespace ModIO.UI
             Success,
             Warning,
             Error,
-        };
+        }
 
         public Type type;
         public string content;

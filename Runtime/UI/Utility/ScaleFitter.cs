@@ -4,11 +4,11 @@ using UnityEngine.EventSystems;
 
 namespace ModIO.UI
 {
-    #if UNITY_2018_3_OR_NEWER
+#if UNITY_2018_3_OR_NEWER
     [ExecuteAlways]
-    #else
+#else
     [ExecuteInEditMode]
-    #endif
+#endif
     [DisallowMultipleComponent]
     [RequireComponent(typeof(RectTransform))]
     /// <summary>Scales a RectTransform to fit its parent.</summary>
@@ -21,16 +21,20 @@ namespace ModIO.UI
             /// <summary>Effectively disables the scaling.</summary>
             Disabled,
 
-            /// <summary>Maintains the aspect ratio, scaling to fill the parent width-wise.</summary>
+            /// <summary>Maintains the aspect ratio, scaling to fill the parent
+            /// width-wise.</summary>
             WidthControlsHeight,
 
-            /// <summary>Maintains the aspect ratio, scaling to fill the parent height-wise.</summary>
+            /// <summary>Maintains the aspect ratio, scaling to fill the parent
+            /// height-wise.</summary>
             HeightControlsWidth,
 
-            /// <summary>Maintains the aspect ratio, scaling to the largest size that fits the parent.</summary>
+            /// <summary>Maintains the aspect ratio, scaling to the largest size that fits the
+            /// parent.</summary>
             FitInParent,
 
-            /// <summary>Maintains the aspect ratio, scaling to size necessary to envelope the parent.</summary>
+            /// <summary>Maintains the aspect ratio, scaling to size necessary to envelope the
+            /// parent.</summary>
             EnvelopeParent,
 
             /// <summary>Matches the size of the parent, ignoring the aspect ratio.</summary>
@@ -39,10 +43,12 @@ namespace ModIO.UI
 
         // ---------[ FIELDS ]---------
         /// <summary>The method of scaling used.</summary>
-        [SerializeField] private ScaleMode m_scaleMode = ScaleMode.Disabled;
+        [SerializeField]
+        private ScaleMode m_scaleMode = ScaleMode.Disabled;
 
         /// <summary>RectTransform component sibling.</summary>
-        [System.NonSerialized] private RectTransform m_rect;
+        [System.NonSerialized]
+        private RectTransform m_rect;
 
         /// <summary>DrivenRectTransformTracker</summary>
         private DrivenRectTransformTracker m_tracker;
@@ -52,9 +58,10 @@ namespace ModIO.UI
         /// <summary>The method of scaling used.</summary>
         public virtual ScaleMode scaleMode
         {
-            get { return m_scaleMode; }
-            set
-            {
+            get {
+                return m_scaleMode;
+            }
+            set {
                 if(m_scaleMode != value)
                 {
                     m_scaleMode = value;
@@ -66,9 +73,8 @@ namespace ModIO.UI
         /// <summary>RectTransform component sibling.</summary>
         protected RectTransform rectTransform
         {
-            get
-            {
-                if (m_rect == null)
+            get {
+                if(m_rect == null)
                     m_rect = GetComponent<RectTransform>();
                 return m_rect;
             }
@@ -78,7 +84,10 @@ namespace ModIO.UI
         protected virtual Vector2 GetParentSize()
         {
             RectTransform parent = rectTransform.parent as RectTransform;
-            if (!parent) { return Vector2.zero; }
+            if(!parent)
+            {
+                return Vector2.zero;
+            }
 
             return parent.rect.size;
         }
@@ -115,8 +124,7 @@ namespace ModIO.UI
                 rectTransform.localScale = new Vector3(1f, 1f, rectTransform.localScale.z);
             }
 
-            if (!IsActive()
-                || m_scaleMode == ScaleMode.Disabled)
+            if(!IsActive() || m_scaleMode == ScaleMode.Disabled)
             {
                 return;
             }
@@ -138,8 +146,7 @@ namespace ModIO.UI
                 {
                     scaleMode = ScaleMode.Disabled;
                 }
-                else if(scaleMode == ScaleMode.FitInParent
-                        || scaleMode == ScaleMode.EnvelopeParent)
+                else if(scaleMode == ScaleMode.FitInParent || scaleMode == ScaleMode.EnvelopeParent)
                 {
                     scaleMode = ScaleMode.HeightControlsWidth;
                 }
@@ -151,8 +158,7 @@ namespace ModIO.UI
                 {
                     scaleMode = ScaleMode.Disabled;
                 }
-                else if(scaleMode == ScaleMode.FitInParent
-                        || scaleMode == ScaleMode.EnvelopeParent)
+                else if(scaleMode == ScaleMode.FitInParent || scaleMode == ScaleMode.EnvelopeParent)
                 {
                     scaleMode = ScaleMode.WidthControlsHeight;
                 }
@@ -175,8 +181,8 @@ namespace ModIO.UI
             // apply scaling
             switch(calculationScaleMode)
             {
-                // case ScaleMode.Disabled:
-                // No modifications necessary
+                    // case ScaleMode.Disabled:
+                    // No modifications necessary
 
                 case ScaleMode.WidthControlsHeight:
                 {
@@ -192,14 +198,14 @@ namespace ModIO.UI
                 }
                 case ScaleMode.FitInParent:
                 {
-                    xScale = yScale = Mathf.Min(parentSize.x / thisSize.x,
-                                                parentSize.y / thisSize.y);
+                    xScale = yScale =
+                        Mathf.Min(parentSize.x / thisSize.x, parentSize.y / thisSize.y);
                     break;
                 }
                 case ScaleMode.EnvelopeParent:
                 {
-                    xScale = yScale = Mathf.Max(parentSize.x / thisSize.x,
-                                                parentSize.y / thisSize.y);
+                    xScale = yScale =
+                        Mathf.Max(parentSize.x / thisSize.x, parentSize.y / thisSize.y);
                     break;
                 }
                 case ScaleMode.Stretch:
@@ -219,25 +225,21 @@ namespace ModIO.UI
         {
             // apply scale
             m_tracker.Add(this, rectTransform,
-                          DrivenTransformProperties.ScaleX
-                          | DrivenTransformProperties.ScaleY);
+                          DrivenTransformProperties.ScaleX | DrivenTransformProperties.ScaleY);
 
             rectTransform.localScale = calculcatedLocalScale;
 
             // control anchors
-            if(m_scaleMode == ScaleMode.FitInParent
-               || m_scaleMode == ScaleMode.EnvelopeParent
+            if(m_scaleMode == ScaleMode.FitInParent || m_scaleMode == ScaleMode.EnvelopeParent
                || m_scaleMode == ScaleMode.Stretch)
             {
                 m_tracker.Add(this, rectTransform,
                               DrivenTransformProperties.Anchors
-                              | DrivenTransformProperties.AnchoredPosition
-                              | DrivenTransformProperties.Pivot);
+                                  | DrivenTransformProperties.AnchoredPosition
+                                  | DrivenTransformProperties.Pivot);
 
-                rectTransform.pivot
-                    = rectTransform.anchorMin
-                    = rectTransform.anchorMax
-                    = new Vector2(0.5f, 0.5f);
+                rectTransform.pivot = rectTransform.anchorMin = rectTransform.anchorMax =
+                    new Vector2(0.5f, 0.5f);
 
                 rectTransform.anchoredPosition = Vector2.zero;
             }
@@ -257,7 +259,7 @@ namespace ModIO.UI
             // needs not call UpdateRectScale();
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         protected override void OnValidate()
         {
             UnityEditor.EditorApplication.delayCall += () =>
@@ -268,6 +270,6 @@ namespace ModIO.UI
                 }
             };
         }
-        #endif
+#endif
     }
 }

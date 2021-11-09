@@ -1,5 +1,5 @@
 #if UNITY_XBOXONE || UNITY_PS4 || UNITY_WII
-    #define DISABLE_MOUSE_MODE
+#define DISABLE_MOUSE_MODE
 #endif
 
 using System.Collections.Generic;
@@ -22,11 +22,11 @@ namespace ModIO.UI
         /// <summary>Singleton instance.</summary>
         public static NavigationManager instance
         {
-            get
-            {
+            get {
                 if(NavigationManager._instance == null)
                 {
-                    NavigationManager._instance = UIUtilities.FindComponentInAllScenes<NavigationManager>(true);
+                    NavigationManager._instance =
+                        UIUtilities.FindComponentInAllScenes<NavigationManager>(true);
 
                     if(NavigationManager._instance == null)
                     {
@@ -47,7 +47,8 @@ namespace ModIO.UI
         public bool isMouseMode = true;
 
         /// <summary>Selections to remember for when a view is refocused.</summary>
-        private Dictionary<IBrowserView, GameObject> m_lastViewSelection = new Dictionary<IBrowserView, GameObject>();
+        private Dictionary<IBrowserView, GameObject> m_lastViewSelection =
+            new Dictionary<IBrowserView, GameObject>();
 
         /// <summary>Currently hovered selectable.</summary>
         private Selectable m_currentHoverSelectable = null;
@@ -62,7 +63,7 @@ namespace ModIO.UI
             {
                 NavigationManager._instance = this;
             }
-            #if DEBUG
+#if DEBUG
             else if(NavigationManager._instance != this)
             {
                 Debug.LogWarning("[mod.io] Second instance of a NavigationManager"
@@ -71,11 +72,11 @@ namespace ModIO.UI
                                  + " component should be active at a time.");
                 this.enabled = false;
             }
-            #endif
+#endif
 
-            #if DISABLE_MOUSE_MODE
-                this.isMouseMode = false;
-            #endif
+#if DISABLE_MOUSE_MODE
+            this.isMouseMode = false;
+#endif
         }
 
         /// <summary>Asserts that an EventManager exists.</summary>
@@ -83,8 +84,10 @@ namespace ModIO.UI
         {
             if(EventSystem.current == null)
             {
-                Debug.LogError("[mod.io] NavigationManager cannot be enabled without an active EventSystem."
-                               + "\nAs such, the ModBrowser UI will not work as intended.", this);
+                Debug.LogError(
+                    "[mod.io] NavigationManager cannot be enabled without an active EventSystem."
+                        + "\nAs such, the ModBrowser UI will not work as intended.",
+                    this);
 
                 this.enabled = false;
             }
@@ -101,7 +104,10 @@ namespace ModIO.UI
         /// <summary>Checks whether the input method needs to be switched.</summary>
         private void Update()
         {
-            if(ViewManager.instance.currentFocus == null) { return; }
+            if(ViewManager.instance.currentFocus == null)
+            {
+                return;
+            }
 
             UpdateInputMethod();
             ProcessViewInputs(ViewManager.instance.currentFocus);
@@ -110,16 +116,13 @@ namespace ModIO.UI
         /// <summary>Updates the input method as needed.</summary>
         public void UpdateInputMethod()
         {
-            bool controllerInput = (Input.GetAxis("Horizontal") != 0f
-                                    || Input.GetAxis("Vertical") != 0f
-                                    || Input.GetButton("Submit")
-                                    || Input.GetButton("Cancel"));
+            bool controllerInput =
+                (Input.GetAxis("Horizontal") != 0f || Input.GetAxis("Vertical") != 0f
+                 || Input.GetButton("Submit") || Input.GetButton("Cancel"));
 
-            bool mouseInput = (Input.GetAxis("Mouse X") != 0
-                               || Input.GetAxis("Mouse Y") != 0
-                               || Input.GetMouseButton(0)
-                               || Input.GetMouseButton(1)
-                               || Input.GetMouseButton(2));
+            bool mouseInput =
+                (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0
+                 || Input.GetMouseButton(0) || Input.GetMouseButton(1) || Input.GetMouseButton(2));
 
             // controllerMode needs to be set
             if(controllerInput && this.isMouseMode)
@@ -162,20 +165,21 @@ namespace ModIO.UI
                 // process button bindings
                 foreach(ViewControlBindings.ButtonBinding buttonBinding in bindings.buttonBindings)
                 {
-                    #if UNITY_EDITOR
-                        try
-                        {
-                            Input.GetButton(buttonBinding.inputName);
-                        }
-                        catch(System.ArgumentException e)
-                        {
-                            Debug.LogWarning("[mod.io] The ViewControlBindings for " + view.gameObject.name
-                                             + " contain a button not defined in the Input Manager.\n"
-                                             + e.Message,
-                                             view.gameObject);
-                            continue;
-                        }
-                    #endif
+#if UNITY_EDITOR
+                    try
+                    {
+                        Input.GetButton(buttonBinding.inputName);
+                    }
+                    catch(System.ArgumentException e)
+                    {
+                        Debug.LogWarning(
+                            "[mod.io] The ViewControlBindings for " + view.gameObject.name
+                                + " contain a button not defined in the Input Manager.\n"
+                                + e.Message,
+                            view.gameObject);
+                        continue;
+                    }
+#endif
 
                     var condition = ViewControlBindings.ButtonTriggerCondition.OnDown;
                     if((buttonBinding.condition & condition) == condition
@@ -227,20 +231,21 @@ namespace ModIO.UI
                 // process axis bindings
                 foreach(ViewControlBindings.AxisBinding axisBinding in bindings.axisBindings)
                 {
-                    #if UNITY_EDITOR
-                        try
-                        {
-                            Input.GetAxis(axisBinding.inputName);
-                        }
-                        catch(System.ArgumentException e)
-                        {
-                            Debug.LogWarning("[mod.io] The ViewControlBindings for " + view.gameObject.name
-                                             + " contain an axis not defined in the Input Manager.\n"
-                                             + e.Message,
-                                             view.gameObject);
-                            continue;
-                        }
-                    #endif
+#if UNITY_EDITOR
+                    try
+                    {
+                        Input.GetAxis(axisBinding.inputName);
+                    }
+                    catch(System.ArgumentException e)
+                    {
+                        Debug.LogWarning(
+                            "[mod.io] The ViewControlBindings for " + view.gameObject.name
+                                + " contain an axis not defined in the Input Manager.\n"
+                                + e.Message,
+                            view.gameObject);
+                        continue;
+                    }
+#endif
 
                     // get values
                     float axisValue = Input.GetAxisRaw(axisBinding.inputName);
@@ -261,43 +266,37 @@ namespace ModIO.UI
 
 
                     var condition = ViewControlBindings.AxisTriggerCondition.BecameGreaterThan;
-                    if((axisBinding.condition & condition) == condition
-                       && isGreater && !wasGreater)
+                    if((axisBinding.condition & condition) == condition && isGreater && !wasGreater)
                     {
                         axisBinding.actions.Invoke(axisValue);
                     }
 
                     condition = ViewControlBindings.AxisTriggerCondition.BecameLessThan;
-                    if((axisBinding.condition & condition) == condition
-                       && isLess && !wasLess)
+                    if((axisBinding.condition & condition) == condition && isLess && !wasLess)
                     {
                         axisBinding.actions.Invoke(axisValue);
                     }
 
                     condition = ViewControlBindings.AxisTriggerCondition.BecameEqualTo;
-                    if((axisBinding.condition & condition) == condition
-                       && isEqual && !wasEqual)
+                    if((axisBinding.condition & condition) == condition && isEqual && !wasEqual)
                     {
                         axisBinding.actions.Invoke(axisValue);
                     }
 
                     condition = ViewControlBindings.AxisTriggerCondition.IsGreaterThan;
-                    if((axisBinding.condition & condition) == condition
-                       && isGreater)
+                    if((axisBinding.condition & condition) == condition && isGreater)
                     {
                         axisBinding.actions.Invoke(axisValue);
                     }
 
                     condition = ViewControlBindings.AxisTriggerCondition.IsLessThan;
-                    if((axisBinding.condition & condition) == condition
-                       && isLess)
+                    if((axisBinding.condition & condition) == condition && isLess)
                     {
                         axisBinding.actions.Invoke(axisValue);
                     }
 
                     condition = ViewControlBindings.AxisTriggerCondition.IsEqualTo;
-                    if((axisBinding.condition & condition) == condition
-                       && isEqual)
+                    if((axisBinding.condition & condition) == condition && isEqual)
                     {
                         axisBinding.actions.Invoke(axisValue);
                     }
@@ -309,7 +308,10 @@ namespace ModIO.UI
         private void LateUpdate()
         {
             IBrowserView currentView = ViewManager.instance.currentFocus;
-            if(currentView == null) { return; }
+            if(currentView == null)
+            {
+                return;
+            }
 
             GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
 
@@ -434,8 +436,7 @@ namespace ModIO.UI
         /// <summary>Returns the object that mouse pointer is currently hovering over.</summary>
         public static Selectable GetHoveredSelectable()
         {
-            PointerEventData pointerData = new PointerEventData(EventSystem.current)
-            {
+            PointerEventData pointerData = new PointerEventData(EventSystem.current) {
                 pointerId = 0,
             };
             pointerData.position = Input.mousePosition;
@@ -461,8 +462,7 @@ namespace ModIO.UI
                 {
                     Selectable s = t.GetComponent<Selectable>();
 
-                    if(s != null
-                       && s.IsActive())
+                    if(s != null && s.IsActive())
                     {
                         return s;
                     }
@@ -477,12 +477,13 @@ namespace ModIO.UI
         /// <summary>Checks if a selection object is valid.</summary>
         private static bool IsValidSelection(GameObject selectionObject)
         {
-            if(selectionObject == null) { return false; }
+            if(selectionObject == null)
+            {
+                return false;
+            }
 
             Selectable sel = selectionObject.GetComponent<Selectable>();
-            return (selectionObject.activeInHierarchy
-                    && sel != null
-                    && sel.interactable
+            return (selectionObject.activeInHierarchy && sel != null && sel.interactable
                     && sel.IsActive());
         }
     }

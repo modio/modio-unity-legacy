@@ -10,14 +10,13 @@ namespace ModIO
     public class SystemIOWrapper : IPlatformIO, IUserDataIO, IUserDataIO<string>, IUserDataIO<int>
     {
         // ---------[ Initialization ]---------
-        public SystemIOWrapper() : this(PluginSettings.data.installationDirectory,
-                                        PluginSettings.data.cacheDirectory,
-                                        PluginSettings.data.userDirectory)
-        {}
+        public SystemIOWrapper()
+            : this(PluginSettings.data.installationDirectory, PluginSettings.data.cacheDirectory,
+                   PluginSettings.data.userDirectory)
+        {
+        }
 
-        protected SystemIOWrapper(string installDir,
-                                  string cacheDir,
-                                  string rootUserDir)
+        protected SystemIOWrapper(string installDir, string cacheDir, string rootUserDir)
         {
             this.InstallationDirectory = installDir;
             this.CacheDirectory = cacheDir;
@@ -36,8 +35,7 @@ namespace ModIO
 
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
-        void IPlatformIO.ReadFile(string path,
-                                  PlatformIOCallbacks.ReadFileCallback callback)
+        void IPlatformIO.ReadFile(string path, PlatformIOCallbacks.ReadFileCallback callback)
         {
             byte[] data = null;
             bool success = this.ReadFile(path, out data);
@@ -62,8 +60,7 @@ namespace ModIO
 
         // --- File Management ---
         /// <summary>Deletes a file.</summary>
-        void IPlatformIO.DeleteFile(string path,
-                                    PlatformIOCallbacks.DeleteFileCallback callback)
+        void IPlatformIO.DeleteFile(string path, PlatformIOCallbacks.DeleteFileCallback callback)
         {
             bool success = this.DeleteFile(path);
 
@@ -196,9 +193,7 @@ namespace ModIO
         /// <summary>Initializes the storage system for the defaul user.</summary>
         public virtual void InitializeForDefaultUser(Action<bool> callback)
         {
-            this.SetActiveUser(null,
-            (userId, success) =>
-            {
+            this.SetActiveUser(null, (userId, success) => {
                 if(callback != null)
                 {
                     callback.Invoke(success);
@@ -207,7 +202,8 @@ namespace ModIO
         }
 
         /// <summary>Initializes the storage system for the given user.</summary>
-        public virtual void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
+        public virtual void SetActiveUser(
+            string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
         {
             this.UserDirectory = this.GenerateActiveUserDirectory(platformUserId);
 
@@ -219,7 +215,8 @@ namespace ModIO
         }
 
         /// <summary>Initializes the storage system for the given user.</summary>
-        public virtual void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback)
+        public virtual void SetActiveUser(int platformUserId,
+                                          UserDataIOCallbacks.SetActiveUserCallback<int> callback)
         {
             this.UserDirectory = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
 
@@ -245,16 +242,21 @@ namespace ModIO
         }
 
         /// <summary>Deletes all of the active user's data.</summary>
-        void IUserDataIO.ClearActiveUserData(UserDataIOCallbacks.ClearActiveUserDataCallback callback)
+        void IUserDataIO.ClearActiveUserData(
+            UserDataIOCallbacks.ClearActiveUserDataCallback callback)
         {
             bool success = this.DeleteDirectory(this.UserDirectory);
 
-            if(callback != null) { callback.Invoke(success); }
+            if(callback != null)
+            {
+                callback.Invoke(success);
+            }
         }
 
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
-        void IUserDataIO.ReadFile(string relativePath, UserDataIOCallbacks.ReadFileCallback callback)
+        void IUserDataIO.ReadFile(string relativePath,
+                                  UserDataIOCallbacks.ReadFileCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
             Debug.Assert(callback != null);
@@ -270,7 +272,8 @@ namespace ModIO
         }
 
         /// <summary>Writes a file.</summary>
-        void IUserDataIO.WriteFile(string relativePath, byte[] data, UserDataIOCallbacks.WriteFileCallback callback)
+        void IUserDataIO.WriteFile(string relativePath, byte[] data,
+                                   UserDataIOCallbacks.WriteFileCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
             Debug.Assert(data != null);
@@ -278,19 +281,26 @@ namespace ModIO
             string path = IOUtilities.CombinePath(this.UserDirectory, relativePath);
             bool success = this.WriteFile(path, data);
 
-            if(callback != null) { callback.Invoke(relativePath, success); }
+            if(callback != null)
+            {
+                callback.Invoke(relativePath, success);
+            }
         }
 
         // --- File Management ---
         /// <summary>Deletes a file.</summary>
-        void IUserDataIO.DeleteFile(string relativePath, UserDataIOCallbacks.DeleteFileCallback callback)
+        void IUserDataIO.DeleteFile(string relativePath,
+                                    UserDataIOCallbacks.DeleteFileCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(relativePath));
 
             string path = IOUtilities.CombinePath(this.UserDirectory, relativePath);
             bool success = this.DeleteFile(path);
 
-            if(callback != null) { callback.Invoke(relativePath, success); }
+            if(callback != null)
+            {
+                callback.Invoke(relativePath, success);
+            }
         }
 
         // ---------[ File I/O Functionality ]---------
@@ -313,8 +323,7 @@ namespace ModIO
             catch(Exception e)
             {
                 string warningInfo = ("[mod.io] Failed to read file.\nFile: " + path + "\n\n");
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
+                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
                 data = null;
                 return false;
@@ -337,8 +346,7 @@ namespace ModIO
             catch(Exception e)
             {
                 string warningInfo = ("[mod.io] Failed to write file.\nFile: " + path + "\n\n");
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
+                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
                 return false;
             }
@@ -396,10 +404,8 @@ namespace ModIO
             }
             catch(Exception e)
             {
-                string warningInfo = ("Failed to move file."
-                                      + "\nSource File: " + source
-                                      + "\nDestination: " + destination
-                                      + "\n\n");
+                string warningInfo = ("Failed to move file." + "\nSource File: " + source
+                                      + "\nDestination: " + destination + "\n\n");
                 Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
                 return false;
@@ -419,7 +425,10 @@ namespace ModIO
         {
             Debug.Assert(!String.IsNullOrEmpty(path));
 
-            if(!File.Exists(path)) { return -1; }
+            if(!File.Exists(path))
+            {
+                return -1;
+            }
 
             try
             {
@@ -444,7 +453,10 @@ namespace ModIO
             byteCount = -1;
             md5Hash = null;
 
-            if(!File.Exists(path)) { return false; }
+            if(!File.Exists(path))
+            {
+                return false;
+            }
 
             // get byteCount
             try
@@ -463,9 +475,9 @@ namespace ModIO
             // get hash
             try
             {
-                using (var md5 = System.Security.Cryptography.MD5.Create())
+                using(var md5 = System.Security.Cryptography.MD5.Create())
                 {
-                    using (var stream = File.OpenRead(path))
+                    using(var stream = File.OpenRead(path))
                     {
                         var hash = md5.ComputeHash(stream);
                         md5Hash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
@@ -474,7 +486,8 @@ namespace ModIO
             }
             catch(Exception e)
             {
-                string warningInfo = ("[mod.io] Failed to calculate file hash.\nFile: " + path + "\n\n");
+                string warningInfo =
+                    ("[mod.io] Failed to calculate file hash.\nFile: " + path + "\n\n");
                 Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
                 md5Hash = null;
@@ -486,15 +499,18 @@ namespace ModIO
         }
 
         /// <summary>Gets the files at a location.</summary>
-        public virtual IList<string> GetFiles(string path, string nameFilter, bool recurseSubdirectories)
+        public virtual IList<string> GetFiles(string path, string nameFilter,
+                                              bool recurseSubdirectories)
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
 
-            if(!Directory.Exists(path)) { return null; }
+            if(!Directory.Exists(path))
+            {
+                return null;
+            }
 
-            var searchOption = (recurseSubdirectories
-                                ? SearchOption.AllDirectories
-                                : SearchOption.TopDirectoryOnly);
+            var searchOption = (recurseSubdirectories ? SearchOption.AllDirectories
+                                                      : SearchOption.TopDirectoryOnly);
 
             if(nameFilter == null)
             {
@@ -518,7 +534,8 @@ namespace ModIO
             }
             catch(Exception e)
             {
-                string warningInfo = ("[mod.io] Failed to create directory.\nDirectory: " + path + "\n\n");
+                string warningInfo =
+                    ("[mod.io] Failed to create directory.\nDirectory: " + path + "\n\n");
                 Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
                 return true;
@@ -541,7 +558,8 @@ namespace ModIO
             }
             catch(Exception e)
             {
-                string warningInfo = ("[mod.io] Failed to delete directory.\nDirectory: " + path + "\n\n");
+                string warningInfo =
+                    ("[mod.io] Failed to delete directory.\nDirectory: " + path + "\n\n");
                 Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
                 return false;
@@ -562,10 +580,9 @@ namespace ModIO
             }
             catch(Exception e)
             {
-                string warningInfo = ("[mod.io] Failed to move directory."
-                                      + "\nSource Directory: " + source
-                                      + "\nDestination: " + destination
-                                      + "\n\n" + Utility.GenerateExceptionDebugString(e));
+                string warningInfo = ("[mod.io] Failed to move directory." + "\nSource Directory: "
+                                      + source + "\nDestination: " + destination + "\n\n"
+                                      + Utility.GenerateExceptionDebugString(e));
                 Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
                 return false;
@@ -585,7 +602,10 @@ namespace ModIO
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
 
-            if(!Directory.Exists(path)) { return null; }
+            if(!Directory.Exists(path))
+            {
+                return null;
+            }
 
             try
             {
@@ -593,10 +613,10 @@ namespace ModIO
             }
             catch(Exception e)
             {
-                string warningInfo = ("[mod.io] Failed to get directories.\nDirectory: " + path + "\n\n");
+                string warningInfo =
+                    ("[mod.io] Failed to get directories.\nDirectory: " + path + "\n\n");
 
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
+                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
                 return null;
             }

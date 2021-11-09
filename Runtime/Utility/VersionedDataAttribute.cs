@@ -1,6 +1,7 @@
 ﻿namespace ModIO
 {
-    /// <summary>Attribute for determining the version of and default value for a given field.</summary>
+    /// <summary>Attribute for determining the version of and default value for a given
+    /// field.</summary>
     public class VersionedDataAttribute : System.Attribute
     {
         // ---------[ Fields ]---------
@@ -20,7 +21,7 @@
         // ---------[ Utility ]---------
         /// <summary>Creates an updated version of the data structure passed.</summary>
         public static T UpdateStructFields<T>(int dataVersion, T dataValues)
-        where T : struct
+            where T : struct
         {
             // set up data
             T updatedValues = dataValues;
@@ -31,9 +32,9 @@
             foreach(var field in fieldList)
             {
                 // check for the VersionedDataAttribute attribute
-                var attributeList = field.GetCustomAttributes(typeof(VersionedDataAttribute), false);
-                if(attributeList != null
-                   && attributeList.Length == 1)
+                var attributeList =
+                    field.GetCustomAttributes(typeof(VersionedDataAttribute), false);
+                if(attributeList != null && attributeList.Length == 1)
                 {
                     // set the default value if attribute is newer than the dataVersion
                     VersionedDataAttribute dataAttribute = (VersionedDataAttribute)attributeList[0];

@@ -2,31 +2,29 @@ using Newtonsoft.Json;
 
 namespace ModIO
 {
-    /// <summary>[Obsolete] A singleton struct that is referenced by multiple classes for user authentication.</summary>
+    /// <summary>[Obsolete] A singleton struct that is referenced by multiple classes for user
+    /// authentication.</summary>
     [System.Obsolete("Replaced by LocalUser.")]
     [System.Serializable]
     public struct UserAuthenticationData
     {
         // ---------[ CONSTANTS ]---------
         /// <summary>An instance of UserAuthenticationData with zeroed fields.</summary>
-        public static readonly UserAuthenticationData NONE = new UserAuthenticationData()
-        {
-            userId = UserProfile.NULL_ID,
-            token = null,
-            wasTokenRejected = false,
-            steamTicket = null,
-            gogTicket = null,
+        public static readonly UserAuthenticationData NONE = new UserAuthenticationData() {
+            userId = UserProfile.NULL_ID, token = null,     wasTokenRejected = false,
+            steamTicket = null,           gogTicket = null,
         };
 
         /// <summary>Location of the settings file.</summary>
-        public static readonly string FILE_LOCATION = IOUtilities.CombinePath(DataStorage.CACHE_DIRECTORY,
-                                                                              "user.data");
+        public static readonly string FILE_LOCATION =
+            IOUtilities.CombinePath(DataStorage.CACHE_DIRECTORY, "user.data");
 
         // ---------[ FIELDS ]---------
         /// <summary>User Id associated with the stored OAuthToken.</summary>
         public int userId;
 
-        /// <summary>User authentication token to send with API requests identifying the user.</summary>
+        /// <summary>User authentication token to send with API requests identifying the
+        /// user.</summary>
         public string token;
 
         /// <summary>A flag to indicate that the auth token has been rejected.</summary>
@@ -41,14 +39,17 @@ namespace ModIO
         // --- ACCESSORS ---
         [JsonIgnore]
         public bool IsTokenValid
-        { get { return !this.wasTokenRejected && !string.IsNullOrEmpty(this.token); } }
+        {
+            get {
+                return !this.wasTokenRejected && !string.IsNullOrEmpty(this.token);
+            }
+        }
 
         // ---------[ SINGLETON ]---------
         /// <summary>Singleton instance to be used as the current/active data.</summary>
         public static UserAuthenticationData instance
         {
-            get
-            {
+            get {
                 LocalUser userData = LocalUser.instance;
                 UserProfile p = userData.profile;
                 string steamTicket = null;
@@ -69,8 +70,7 @@ namespace ModIO
                     break;
                 }
 
-                UserAuthenticationData data = new UserAuthenticationData()
-                {
+                UserAuthenticationData data = new UserAuthenticationData() {
                     userId = (p == null ? UserProfile.NULL_ID : p.id),
                     token = userData.oAuthToken,
                     wasTokenRejected = userData.wasTokenRejected,
@@ -80,14 +80,12 @@ namespace ModIO
 
                 return data;
             }
-            set
-            {
+            set {
                 // get existing values
                 LocalUser userData = LocalUser.instance;
 
                 // profile data
-                if(userData.profile == null
-                   || userData.profile.id != value.userId)
+                if(userData.profile == null || userData.profile.id != value.userId)
                 {
                     if(value.userId == UserProfile.NULL_ID)
                     {
@@ -95,8 +93,7 @@ namespace ModIO
                     }
                     else
                     {
-                        userData.profile = new UserProfile()
-                        {
+                        userData.profile = new UserProfile() {
                             id = value.userId,
                         };
                     }
@@ -107,8 +104,7 @@ namespace ModIO
                 userData.wasTokenRejected = value.wasTokenRejected;
 
                 // externalAuthData
-                var externalAuth = new ExternalAuthenticationData()
-                {
+                var externalAuth = new ExternalAuthenticationData() {
                     ticket = null,
                     provider = ExternalAuthenticationProvider.None,
                 };

@@ -5,11 +5,14 @@ namespace ModIO.UI
 {
     /// <summary>Passes events to another object.</summary>
     public class EventPasser : MonoBehaviour,
-        IMoveHandler,
-        IPointerDownHandler, IPointerUpHandler,
-        IPointerEnterHandler, IPointerExitHandler,
-        IPointerClickHandler,
-        ISubmitHandler, ICancelHandler
+                               IMoveHandler,
+                               IPointerDownHandler,
+                               IPointerUpHandler,
+                               IPointerEnterHandler,
+                               IPointerExitHandler,
+                               IPointerClickHandler,
+                               ISubmitHandler,
+                               ICancelHandler
     {
         // ---------[ Fields ]---------
         /// <summary>Target object to pass the data to.</summary>
@@ -36,8 +39,7 @@ namespace ModIO.UI
         /// <summary>OnMove implementation to pass the event to the target object.</summary>
         public void OnMove(AxisEventData eventData)
         {
-            if(this.target != null
-               && this.onMove)
+            if(this.target != null && this.onMove)
             {
                 foreach(var targetComponent in this.target.gameObject.GetComponents<IMoveHandler>())
                 {
@@ -52,10 +54,10 @@ namespace ModIO.UI
         /// <summary>OnPointerDown implementation to pass the event to the target object.</summary>
         public void OnPointerDown(PointerEventData eventData)
         {
-            if(this.target != null
-               && this.onPointerDown)
+            if(this.target != null && this.onPointerDown)
             {
-                foreach(var targetComponent in this.target.gameObject.GetComponents<IPointerDownHandler>())
+                foreach(var targetComponent in this.target.gameObject
+                            .GetComponents<IPointerDownHandler>())
                 {
                     if(targetComponent != null
                        && ((MonoBehaviour)targetComponent).isActiveAndEnabled)
@@ -68,10 +70,10 @@ namespace ModIO.UI
         /// <summary>OnPointerUp implementation to pass the event to the target object.</summary>
         public void OnPointerUp(PointerEventData eventData)
         {
-            if(this.target != null
-               && this.onPointerUp)
+            if(this.target != null && this.onPointerUp)
             {
-                foreach(var targetComponent in this.target.gameObject.GetComponents<IPointerUpHandler>())
+                foreach(var targetComponent in this.target.gameObject
+                            .GetComponents<IPointerUpHandler>())
                 {
                     if(targetComponent != null
                        && ((MonoBehaviour)targetComponent).isActiveAndEnabled)
@@ -84,10 +86,10 @@ namespace ModIO.UI
         /// <summary>OnPointerEnter implementation to pass the event to the target object.</summary>
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if(this.target != null
-               && this.onPointerEnter)
+            if(this.target != null && this.onPointerEnter)
             {
-                foreach(var targetComponent in this.target.gameObject.GetComponents<IPointerEnterHandler>())
+                foreach(var targetComponent in this.target.gameObject
+                            .GetComponents<IPointerEnterHandler>())
                 {
                     if(targetComponent != null
                        && ((MonoBehaviour)targetComponent).isActiveAndEnabled)
@@ -100,10 +102,10 @@ namespace ModIO.UI
         /// <summary>OnPointerExit implementation to pass the event to the target object.</summary>
         public void OnPointerExit(PointerEventData eventData)
         {
-            if(this.target != null
-               && this.onPointerExit)
+            if(this.target != null && this.onPointerExit)
             {
-                foreach(var targetComponent in this.target.gameObject.GetComponents<IPointerExitHandler>())
+                foreach(var targetComponent in this.target.gameObject
+                            .GetComponents<IPointerExitHandler>())
                 {
                     if(targetComponent != null
                        && ((MonoBehaviour)targetComponent).isActiveAndEnabled)
@@ -116,10 +118,10 @@ namespace ModIO.UI
         /// <summary>OnPointerClick implementation to pass the event to the target object.</summary>
         public void OnPointerClick(PointerEventData eventData)
         {
-            if(this.target != null
-               && this.onPointerClick)
+            if(this.target != null && this.onPointerClick)
             {
-                foreach(var targetComponent in this.target.gameObject.GetComponents<IPointerClickHandler>())
+                foreach(var targetComponent in this.target.gameObject
+                            .GetComponents<IPointerClickHandler>())
                 {
                     if(targetComponent != null
                        && ((MonoBehaviour)targetComponent).isActiveAndEnabled)
@@ -132,10 +134,10 @@ namespace ModIO.UI
         /// <summary>OnSubmit implementation to pass the event to the target object.</summary>
         public void OnSubmit(BaseEventData eventData)
         {
-            if(this.target != null
-               && this.onSubmit)
+            if(this.target != null && this.onSubmit)
             {
-                foreach(var targetComponent in this.target.gameObject.GetComponents<ISubmitHandler>())
+                foreach(var targetComponent in this.target.gameObject
+                            .GetComponents<ISubmitHandler>())
                 {
                     if(targetComponent != null
                        && ((MonoBehaviour)targetComponent).isActiveAndEnabled)
@@ -148,10 +150,10 @@ namespace ModIO.UI
         /// <summary>OnCancel implementation to pass the event to the target object.</summary>
         public void OnCancel(BaseEventData eventData)
         {
-            if(this.target != null
-               && this.onCancel)
+            if(this.target != null && this.onCancel)
             {
-                foreach(var targetComponent in this.target.gameObject.GetComponents<ICancelHandler>())
+                foreach(var targetComponent in this.target.gameObject
+                            .GetComponents<ICancelHandler>())
                 {
                     if(targetComponent != null
                        && ((MonoBehaviour)targetComponent).isActiveAndEnabled)
@@ -161,6 +163,5 @@ namespace ModIO.UI
                 }
             }
         }
-
     }
 }

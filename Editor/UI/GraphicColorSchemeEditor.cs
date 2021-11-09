@@ -19,7 +19,8 @@ namespace ModIO.UI.EditorCode
             if(apply)
             {
                 // Apply to receivers
-                GraphicColorApplicator[] applicators = Object.FindObjectsOfType<GraphicColorApplicator>();
+                GraphicColorApplicator[] applicators =
+                    Object.FindObjectsOfType<GraphicColorApplicator>();
                 foreach(GraphicColorApplicator gca in applicators)
                 {
                     gca.UpdateColorScheme_withUndo();

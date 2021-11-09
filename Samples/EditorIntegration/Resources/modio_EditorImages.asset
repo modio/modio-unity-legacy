@@ -3,13 +3,14 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 75078a786ed0042dfb61271c8a1dc536, type: 3}
-  m_Name: _EditorImages [mod.io]
+  m_Name: modio_EditorImages
   m_EditorClassIdentifier: 
   undoButton: {fileID: 2800000, guid: 346c833a80c7a40848b34e8ed77960a6, type: 3}
   clearButton: {fileID: 2800000, guid: fd44998136e8441e1b346812c2cbe16b, type: 3}

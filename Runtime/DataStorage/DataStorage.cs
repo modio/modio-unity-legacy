@@ -14,42 +14,42 @@ namespace ModIO
         /// <summary>Loads the platform I/O behaviour.</summary>
         static DataStorage()
         {
-            // Selects the platform appropriate functions
-            #if UNITY_EDITOR
-                DataStorage.PLATFORM_IO = new SystemIOWrapper_Editor();
-            #else
-                DataStorage.PLATFORM_IO = new SystemIOWrapper();
-            #endif
+// Selects the platform appropriate functions
+#if UNITY_EDITOR
+            DataStorage.PLATFORM_IO = new SystemIOWrapper_Editor();
+#else
+            DataStorage.PLATFORM_IO = new SystemIOWrapper();
+#endif
 
-            #if DEBUG
+#if DEBUG
 
-                // NOTE(@jackson): Due to hardcoded directory names the following configuration of
-                // directories causes errors during the mod installation process.
+            // NOTE(@jackson): Due to hardcoded directory names the following configuration of
+            // directories causes errors during the mod installation process.
 
-                const string modCacheDir = "mods";
+            const string modCacheDir = "mods";
 
-                string cacheDirNoSep = DataStorage.PLATFORM_IO.CacheDirectory;
-                if(IOUtilities.PathEndsWithDirectorySeparator(cacheDirNoSep))
-                {
-                    cacheDirNoSep = cacheDirNoSep.Substring(0, cacheDirNoSep.Length-1);
-                }
+            string cacheDirNoSep = DataStorage.PLATFORM_IO.CacheDirectory;
+            if(IOUtilities.PathEndsWithDirectorySeparator(cacheDirNoSep))
+            {
+                cacheDirNoSep = cacheDirNoSep.Substring(0, cacheDirNoSep.Length - 1);
+            }
 
-                string installDirNoSep = DataStorage.PLATFORM_IO.InstallationDirectory;
-                if(IOUtilities.PathEndsWithDirectorySeparator(installDirNoSep))
-                {
-                    installDirNoSep = installDirNoSep.Substring(0, installDirNoSep.Length-1);
-                }
+            string installDirNoSep = DataStorage.PLATFORM_IO.InstallationDirectory;
+            if(IOUtilities.PathEndsWithDirectorySeparator(installDirNoSep))
+            {
+                installDirNoSep = installDirNoSep.Substring(0, installDirNoSep.Length - 1);
+            }
 
-                if(System.IO.Path.GetDirectoryName(installDirNoSep) == cacheDirNoSep
-                   && installDirNoSep.Substring(cacheDirNoSep.Length+1) == modCacheDir)
-                {
-                    Debug.LogError("[mod.io] The installation directory cannot be a directory named"
-                                   + " 'mods' and a child of the cache directory as this will cause"
-                                   + " issues during the installation process."
-                                   + "\nPlease change the values in your PluginSettings.");
-                }
+            if(System.IO.Path.GetDirectoryName(installDirNoSep) == cacheDirNoSep
+               && installDirNoSep.Substring(cacheDirNoSep.Length + 1) == modCacheDir)
+            {
+                Debug.LogError("[mod.io] The installation directory cannot be a directory named"
+                               + " 'mods' and a child of the cache directory as this will cause"
+                               + " issues during the installation process."
+                               + "\nPlease change the values in your PluginSettings.");
+            }
 
-            #endif
+#endif
         }
 
         // ---------[ Data Management Interface ]---------
@@ -57,13 +57,17 @@ namespace ModIO
         /// <summary>Directory to use for mod installations</summary>
         public static string INSTALLATION_DIRECTORY
         {
-            get { return DataStorage.PLATFORM_IO.InstallationDirectory; }
+            get {
+                return DataStorage.PLATFORM_IO.InstallationDirectory;
+            }
         }
 
         /// <summary>Directory to use for cached server data</summary>
         public static string CACHE_DIRECTORY
         {
-            get { return DataStorage.PLATFORM_IO.CacheDirectory; }
+            get {
+                return DataStorage.PLATFORM_IO.CacheDirectory;
+            }
         }
 
         // ------ File I/O ------
@@ -78,8 +82,7 @@ namespace ModIO
         {
             Debug.Assert(onComplete != null);
 
-            DataStorage.PLATFORM_IO.ReadFile(path, (p, success, data) =>
-            {
+            DataStorage.PLATFORM_IO.ReadFile(path, (p, success, data) => {
                 T jsonObject;
 
                 if(success)
@@ -121,8 +124,9 @@ namespace ModIO
             }
             else
             {
-                Debug.LogWarning("[mod.io] Failed create JSON representation of object before writing file."
-                                 + "\nFile: " + path + "\n\n");
+                Debug.LogWarning(
+                    "[mod.io] Failed create JSON representation of object before writing file."
+                    + "\nFile: " + path + "\n\n");
 
                 if(onComplete != null)
                 {
@@ -177,7 +181,8 @@ namespace ModIO
         }
 
         /// <summary>Moves a directory.</summary>
-        public static void MoveDirectory(string source, string destination, MoveDirectoryCallback onComplete)
+        public static void MoveDirectory(string source, string destination,
+                                         MoveDirectoryCallback onComplete)
         {
             DataStorage.PLATFORM_IO.MoveDirectory(source, destination, onComplete);
         }

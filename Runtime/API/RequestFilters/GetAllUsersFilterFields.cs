@@ -4,7 +4,8 @@ namespace ModIO.API
     {
         // (integer) Unique id of the user.
         public const string id = "id";
-        // (string)  Path for the user on mod.io. For example: https://mod.io/members/username-id-here Usually a simplified version of their username.
+        // (string)  Path for the user on mod.io. For example:
+        // https://mod.io/members/username-id-here Usually a simplified version of their username.
         public const string nameId = "name_id";
         // (integer) Unix timestamp of date the user was last online.
         public const string dateOnline = "date_online";

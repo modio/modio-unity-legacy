@@ -20,8 +20,9 @@ namespace ModIO.UI
         {
             this.scrollRect = this.GetComponent<ScrollRect>();
 
-            Debug.Assert(this.scrollRect != null,
-                         "[mod.io] This component requires a ScrollRect sibling component to function.");
+            Debug.Assert(
+                this.scrollRect != null,
+                "[mod.io] This component requires a ScrollRect sibling component to function.");
         }
 
         // ---------[ Functionality ]---------

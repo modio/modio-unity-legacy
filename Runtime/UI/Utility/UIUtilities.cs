@@ -9,8 +9,7 @@ namespace ModIO.UI
     {
         public static Sprite CreateSpriteFromTexture(Texture2D texture)
         {
-            return Sprite.Create(texture,
-                                 new Rect(0.0f, 0.0f, texture.width, texture.height),
+            return Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height),
                                  Vector2.zero);
         }
 
@@ -22,7 +21,8 @@ namespace ModIO.UI
             }
         }
 
-        /// <summary>Counts the cells that will fit in within the RectTransform of the given grid</summary>
+        /// <summary>Counts the cells that will fit in within the RectTransform of the given
+        /// grid</summary>
         public static int CalculateGridCellCount(GridLayoutGroup gridLayout)
         {
             Debug.Assert(gridLayout != null);
@@ -30,14 +30,10 @@ namespace ModIO.UI
             // calculate dimensions
             RectTransform transform = gridLayout.GetComponent<RectTransform>();
             Vector2 gridDisplayDimensions = new Vector2();
-            gridDisplayDimensions.x = (transform.rect.width
-                                       - gridLayout.padding.left
-                                       - gridLayout.padding.right
-                                       + gridLayout.spacing.x);
-            gridDisplayDimensions.y = (transform.rect.height
-                                       - gridLayout.padding.top
-                                       - gridLayout.padding.bottom
-                                       + gridLayout.spacing.y);
+            gridDisplayDimensions.x = (transform.rect.width - gridLayout.padding.left
+                                       - gridLayout.padding.right + gridLayout.spacing.x);
+            gridDisplayDimensions.y = (transform.rect.height - gridLayout.padding.top
+                                       - gridLayout.padding.bottom + gridLayout.spacing.y);
 
             // calculate cell count
             int columnCount = 0;
@@ -45,7 +41,6 @@ namespace ModIO.UI
             {
                 columnCount = (int)Mathf.Floor(gridDisplayDimensions.x
                                                / (gridLayout.cellSize.x + gridLayout.spacing.x));
-
             }
             int rowCount = 0;
             if((gridLayout.cellSize.y + gridLayout.spacing.y) > 0f)
@@ -80,7 +75,7 @@ namespace ModIO.UI
 
             int cellCountX = 1;
 
-            if (gridLayout.cellSize.x + gridLayout.spacing.x <= 0)
+            if(gridLayout.cellSize.x + gridLayout.spacing.x <= 0)
             {
                 cellCountX = int.MaxValue;
             }
@@ -89,11 +84,12 @@ namespace ModIO.UI
                 float gridWidth = width - gridLayout.padding.horizontal + 0.001f;
                 float colWidth = gridLayout.cellSize.x + gridLayout.spacing.x;
 
-                cellCountX = Mathf.Max(1, Mathf.FloorToInt((gridWidth+gridLayout.spacing.x) / colWidth));
+                cellCountX =
+                    Mathf.Max(1, Mathf.FloorToInt((gridWidth + gridLayout.spacing.x) / colWidth));
             }
 
-            if (gridLayout.constraint == GridLayoutGroup.Constraint.FixedColumnCount
-                && cellCountX > gridLayout.constraintCount)
+            if(gridLayout.constraint == GridLayoutGroup.Constraint.FixedColumnCount
+               && cellCountX > gridLayout.constraintCount)
             {
                 cellCountX = gridLayout.constraintCount;
             }
@@ -103,25 +99,24 @@ namespace ModIO.UI
 
         /// <summary>Finds the first instance of a component in any loaded scenes.</summary>
         public static T FindComponentInAllScenes<T>(bool includeInactive)
-        where T : Behaviour
+            where T : Behaviour
         {
             foreach(T component in Resources.FindObjectsOfTypeAll<T>())
             {
                 if(component.hideFlags == HideFlags.NotEditable
-                    || component.hideFlags == HideFlags.HideAndDontSave)
+                   || component.hideFlags == HideFlags.HideAndDontSave)
                 {
                     continue;
                 }
 
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
                 if(UnityEditor.EditorUtility.IsPersistent(component.transform.root.gameObject))
                 {
                     continue;
                 }
-                #endif
+#endif
 
-                if(includeInactive
-                   || component.isActiveAndEnabled)
+                if(includeInactive || component.isActiveAndEnabled)
                 {
                     return component;
                 }
@@ -132,28 +127,26 @@ namespace ModIO.UI
 
         /// <summary>Finds the instances of a component in any loaded scenes.</summary>
         public static List<T> FindComponentsInAllScenes<T>(bool includeInactive)
-        where T : Behaviour
+            where T : Behaviour
         {
-
             List<T> sceneComponents = new List<T>();
 
             foreach(T component in Resources.FindObjectsOfTypeAll<T>())
             {
                 if(component.hideFlags == HideFlags.NotEditable
-                    || component.hideFlags == HideFlags.HideAndDontSave)
+                   || component.hideFlags == HideFlags.HideAndDontSave)
                 {
                     continue;
                 }
 
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
                 if(UnityEditor.EditorUtility.IsPersistent(component.transform.root.gameObject))
                 {
                     continue;
                 }
-                #endif
+#endif
 
-                if(includeInactive
-                   || component.isActiveAndEnabled)
+                if(includeInactive || component.isActiveAndEnabled)
                 {
                     sceneComponents.Add(component);
                 }
@@ -162,21 +155,32 @@ namespace ModIO.UI
             return sceneComponents;
         }
 
-        /// <summary>Explicitly links a collection of selectable components as a grid (or list).</summary>
-        public static void SetExplicitGridNavigation(IList<Selectable> selectables, int columnCount,
-                                                     EdgeCellNavigationMode horizontalNavigationStyle,
-                                                     EdgeCellNavigationMode verticalNavigationStyle)
+        /// <summary>Explicitly links a collection of selectable components as a grid (or
+        /// list).</summary>
+        public static void SetExplicitGridNavigation(
+            IList<Selectable> selectables, int columnCount,
+            EdgeCellNavigationMode horizontalNavigationStyle,
+            EdgeCellNavigationMode verticalNavigationStyle)
         {
             Debug.Assert(selectables != null);
 
-            if(selectables == null || selectables.Count == 0) { return; }
+            if(selectables == null || selectables.Count == 0)
+            {
+                return;
+            }
 
             // assert valid columnCount
-            if(columnCount < 1) { columnCount = 1; }
-            if(columnCount > selectables.Count) { columnCount = selectables.Count; }
+            if(columnCount < 1)
+            {
+                columnCount = 1;
+            }
+            if(columnCount > selectables.Count)
+            {
+                columnCount = selectables.Count;
+            }
 
             // as int-division rounds toward zero, this ensures rounding-up.
-            int rowCount = (selectables.Count + columnCount -1) / columnCount;
+            int rowCount = (selectables.Count + columnCount - 1) / columnCount;
 
             // set grid index formula
             Func<int, int> getCol = (gridIndex) => gridIndex % columnCount;
@@ -196,18 +200,18 @@ namespace ModIO.UI
                     getWrapLeftCell = (gridIndex) =>
                     {
                         int row = getRow(gridIndex);
-                        int targetCellCol = columnCount-1;
+                        int targetCellCol = columnCount - 1;
 
                         while(getGridIndex(targetCellCol, row) > selectables.Count)
                         {
-                            #if DEBUG
-                                if(targetCellCol < 0)
-                                {
-                                    Debug.LogError("[mod.io] Something went wrong while calculating"
-                                                   + " grid navigation. targetCellCol < 0.");
-                                    return null;
-                                }
-                            #endif
+#if DEBUG
+                            if(targetCellCol < 0)
+                            {
+                                Debug.LogError("[mod.io] Something went wrong while calculating"
+                                               + " grid navigation. targetCellCol < 0.");
+                                return null;
+                            }
+#endif
                             --targetCellCol;
                         }
 
@@ -227,20 +231,23 @@ namespace ModIO.UI
                     getWrapLeftCell = (gridIndex) =>
                     {
                         int row = getRow(gridIndex) - 1;
-                        if(row < 0) { row = rowCount-1; }
+                        if(row < 0)
+                        {
+                            row = rowCount - 1;
+                        }
 
-                        int targetCellCol = columnCount-1;
+                        int targetCellCol = columnCount - 1;
 
                         while(getGridIndex(targetCellCol, row) > selectables.Count)
                         {
-                            #if DEBUG
-                                if(targetCellCol < 0)
-                                {
-                                    Debug.LogError("[mod.io] Something went wrong while calculating"
-                                                   + " grid navigation. targetCellCol < 0.");
-                                    return null;
-                                }
-                            #endif
+#if DEBUG
+                            if(targetCellCol < 0)
+                            {
+                                Debug.LogError("[mod.io] Something went wrong while calculating"
+                                               + " grid navigation. targetCellCol < 0.");
+                                return null;
+                            }
+#endif
                             --targetCellCol;
                         }
 
@@ -250,7 +257,10 @@ namespace ModIO.UI
                     getWrapRightCell = (gridIndex) =>
                     {
                         int row = getRow(gridIndex) + 1;
-                        if(row >= rowCount) { row = 0; }
+                        if(row >= rowCount)
+                        {
+                            row = 0;
+                        }
 
                         return selectables[getGridIndex(0, row)];
                     };
@@ -265,18 +275,18 @@ namespace ModIO.UI
                     getWrapUpCell = (gridIndex) =>
                     {
                         int col = getCol(gridIndex);
-                        int targetRow = rowCount-1;
+                        int targetRow = rowCount - 1;
 
                         while(getGridIndex(col, targetRow) > selectables.Count)
                         {
-                            #if DEBUG
-                                if(targetRow < 0)
-                                {
-                                    Debug.LogError("[mod.io] Something went wrong while calculating"
-                                                   + " grid navigation. targetRow < 0.");
-                                    return null;
-                                }
-                            #endif
+#if DEBUG
+                            if(targetRow < 0)
+                            {
+                                Debug.LogError("[mod.io] Something went wrong while calculating"
+                                               + " grid navigation. targetRow < 0.");
+                                return null;
+                            }
+#endif
                             --targetRow;
                         }
 
@@ -295,21 +305,24 @@ namespace ModIO.UI
                 {
                     getWrapUpCell = (gridIndex) =>
                     {
-                        int col = getCol(gridIndex)-1;
-                        if(col < 0) { col = columnCount-1; }
+                        int col = getCol(gridIndex) - 1;
+                        if(col < 0)
+                        {
+                            col = columnCount - 1;
+                        }
 
-                        int targetRow = rowCount-1;
+                        int targetRow = rowCount - 1;
 
                         while(getGridIndex(col, targetRow) > selectables.Count)
                         {
-                            #if DEBUG
-                                if(targetRow < 0)
-                                {
-                                    Debug.LogError("[mod.io] Something went wrong while calculating"
-                                                   + " grid navigation. targetRow < 0.");
-                                    return null;
-                                }
-                            #endif
+#if DEBUG
+                            if(targetRow < 0)
+                            {
+                                Debug.LogError("[mod.io] Something went wrong while calculating"
+                                               + " grid navigation. targetRow < 0.");
+                                return null;
+                            }
+#endif
                             --targetRow;
                         }
 
@@ -318,8 +331,11 @@ namespace ModIO.UI
 
                     getWrapDownCell = (gridIndex) =>
                     {
-                        int col = getCol(gridIndex)+1;
-                        if(col >= columnCount) { col = 0; }
+                        int col = getCol(gridIndex) + 1;
+                        if(col >= columnCount)
+                        {
+                            col = 0;
+                        }
 
                         return selectables[getGridIndex(col, 0)];
                     };
@@ -332,8 +348,7 @@ namespace ModIO.UI
             for(int gridIndex = 0; gridIndex < selectables.Count; ++gridIndex)
             {
                 Selectable currentItem = selectables[gridIndex];
-                Navigation nav = new Navigation()
-                {
+                Navigation nav = new Navigation() {
                     mode = Navigation.Mode.Explicit,
                 };
 
@@ -343,7 +358,7 @@ namespace ModIO.UI
                 // left
                 if(col > 0)
                 {
-                    nav.selectOnLeft = selectables[gridIndex-1];
+                    nav.selectOnLeft = selectables[gridIndex - 1];
                 }
                 else
                 {
@@ -351,9 +366,9 @@ namespace ModIO.UI
                 }
 
                 // right
-                if(col < columnCount-1 && gridIndex < selectables.Count-1)
+                if(col < columnCount - 1 && gridIndex < selectables.Count - 1)
                 {
-                    nav.selectOnRight = selectables[gridIndex+1];
+                    nav.selectOnRight = selectables[gridIndex + 1];
                 }
                 else
                 {
@@ -363,7 +378,7 @@ namespace ModIO.UI
                 // up
                 if(row > 0)
                 {
-                    nav.selectOnUp = selectables[getGridIndex(col, row-1)];
+                    nav.selectOnUp = selectables[getGridIndex(col, row - 1)];
                 }
                 else
                 {
@@ -371,9 +386,9 @@ namespace ModIO.UI
                 }
 
                 // down
-                if(row < rowCount-1)
+                if(row < rowCount - 1)
                 {
-                    nav.selectOnDown = selectables[getGridIndex(col, row+1)];
+                    nav.selectOnDown = selectables[getGridIndex(col, row + 1)];
                 }
                 else
                 {
@@ -385,10 +400,10 @@ namespace ModIO.UI
         }
 
         /// <summary>Creates/Destroys a number of GameObject instances as necessary.</summary>
-        public static void SetInstanceCount<T>(Transform container, T template,
-                                               string instanceName, int instanceCount,
-                                               ref T[] instanceArray, bool reactivateAll = false)
-        where T : MonoBehaviour
+        public static void SetInstanceCount<T>(Transform container, T template, string instanceName,
+                                               int instanceCount, ref T[] instanceArray,
+                                               bool reactivateAll = false)
+            where T : MonoBehaviour
         {
             if(instanceArray == null)
             {
@@ -402,17 +417,13 @@ namespace ModIO.UI
                 T[] newInstanceArray = new T[instanceCount];
 
                 // copy existing
-                for(int i = 0;
-                    i < instanceArray.Length && i < instanceCount;
-                    ++i)
+                for(int i = 0; i < instanceArray.Length && i < instanceCount; ++i)
                 {
                     newInstanceArray[i] = instanceArray[i];
                 }
 
                 // create new
-                for(int i = instanceArray.Length;
-                    i < instanceCount;
-                    ++i)
+                for(int i = instanceArray.Length; i < instanceCount; ++i)
                 {
                     GameObject displayGO = GameObject.Instantiate(template.gameObject);
                     displayGO.name = instanceName + " [" + i.ToString("00") + "]";
@@ -423,9 +434,7 @@ namespace ModIO.UI
                 }
 
                 // destroy excess
-                for(int i = instanceCount;
-                    i < instanceArray.Length;
-                    ++i)
+                for(int i = instanceCount; i < instanceArray.Length; ++i)
                 {
                     GameObject.Destroy(instanceArray[i].gameObject);
                 }
@@ -446,10 +455,11 @@ namespace ModIO.UI
         }
 
         // ---------[ OBSOLETE ]---------
-        /// <summary>[Obsolete] Finds the first instance of a component in the active scene.</summary>
+        /// <summary>[Obsolete] Finds the first instance of a component in the active
+        /// scene.</summary>
         [Obsolete("Use UIUtilities.FindComponentInAllScenes() instead.")]
         public static T FindComponentInScene<T>(bool includeInactive)
-        where T : class
+            where T : class
         {
             /*
              * JC (2019-09-07): UIs are sometimes managed in their own scenes
@@ -465,8 +475,7 @@ namespace ModIO.UI
 
             foreach(var root in rootObjects)
             {
-                if(includeInactive
-                   || root.activeInHierarchy)
+                if(includeInactive || root.activeInHierarchy)
                 {
                     foundComponent = root.GetComponent<T>();
                     if(foundComponent != null)
@@ -488,7 +497,7 @@ namespace ModIO.UI
         /// <summary>[Obsolete] Finds components within the active scene.</summary>
         [Obsolete("Use UIUtilities.FindComponentsInLoadedScenes() instead.")]
         public static List<T> FindComponentsInScene<T>(bool includeInactive)
-        where T : class
+            where T : class
         {
             // JC (2019-09-07): See comment above (FindComponentInScene).
             var activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
@@ -497,8 +506,7 @@ namespace ModIO.UI
 
             foreach(var root in rootObjects)
             {
-                if(includeInactive
-                   || root.activeInHierarchy)
+                if(includeInactive || root.activeInHierarchy)
                 {
                     retVal.AddRange(root.GetComponents<T>());
                     retVal.AddRange(root.GetComponentsInChildren<T>(includeInactive));
@@ -508,7 +516,8 @@ namespace ModIO.UI
             return retVal;
         }
 
-        /// <summary>Counts the cells that will fit in within the RectTransform of the given grid.</summary>
+        /// <summary>Counts the cells that will fit in within the RectTransform of the given
+        /// grid.</summary>
         [Obsolete("Renamed to CalculateGridCellCount.")]
         public static int CountVisibleGridCells(GridLayoutGroup gridLayout)
         {

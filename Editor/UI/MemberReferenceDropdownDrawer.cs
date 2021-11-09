@@ -36,18 +36,18 @@ namespace ModIO.UI.EditorCode
             // Generate Display Values
             if(this.displayValues == null)
             {
-                MemberReference.DropdownDisplayAttribute dropdownAttribute
-                    = (MemberReference.DropdownDisplayAttribute)attribute;
+                MemberReference.DropdownDisplayAttribute dropdownAttribute =
+                    (MemberReference.DropdownDisplayAttribute)attribute;
 
 
                 Debug.Assert(dropdownAttribute != null);
 
                 // Generate member info
-                FieldInfo[] rootFields
-                    = dropdownAttribute.objectType.GetFields(BindingFlags.Instance | BindingFlags.Public);
+                FieldInfo[] rootFields = dropdownAttribute.objectType.GetFields(
+                    BindingFlags.Instance | BindingFlags.Public);
 
-                PropertyInfo[] rootProperties
-                    = dropdownAttribute.objectType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+                PropertyInfo[] rootProperties = dropdownAttribute.objectType.GetProperties(
+                    BindingFlags.Instance | BindingFlags.Public);
 
                 string[] membersToIgnore = dropdownAttribute.membersToIgnore;
                 if(membersToIgnore == null)
@@ -55,12 +55,10 @@ namespace ModIO.UI.EditorCode
                     membersToIgnore = new string[0];
                 }
 
-                List<MemberInfoPath> memberPaths = GenerateMemberInfoPathList(rootFields,
-                                                                              rootProperties,
-                                                                              membersToIgnore,
-                                                                              dropdownAttribute.displayEnumerables,
-                                                                              dropdownAttribute.displayNested,
-                                                                              string.Empty);
+                List<MemberInfoPath> memberPaths =
+                    GenerateMemberInfoPathList(rootFields, rootProperties, membersToIgnore,
+                                               dropdownAttribute.displayEnumerables,
+                                               dropdownAttribute.displayNested, string.Empty);
 
                 // generate strings
                 List<string> displayNames = new List<string>(memberPaths.Count);
@@ -87,7 +85,10 @@ namespace ModIO.UI.EditorCode
             {
                 ++selectedIndex;
 
-                if(selection == memberPath) { break; }
+                if(selection == memberPath)
+                {
+                    break;
+                }
             }
 
             if(selectedIndex > this.displayValues.Length)
@@ -95,18 +96,16 @@ namespace ModIO.UI.EditorCode
                 selectedIndex = 0;
             }
 
-            selectedIndex = EditorGUI.Popup(position, "Member Path", selectedIndex, this.displayValues);
+            selectedIndex =
+                EditorGUI.Popup(position, "Member Path", selectedIndex, this.displayValues);
             memberPathProperty.stringValue = this.displayValues[selectedIndex];
         }
 
         // ---------[ UTILITY ]---------
         /// <summary>Generates the MemberInfoPath data for the given MemberInfo.</summary>
-        private static List<MemberInfoPath> GenerateMemberInfoPathList(FieldInfo[] fieldInfoArray,
-                                                                       PropertyInfo[] propertyInfoArray,
-                                                                       string[] membersToIgnore,
-                                                                       bool displayEnumerables,
-                                                                       bool displayNested,
-                                                                       string pathPrefix)
+        private static List<MemberInfoPath> GenerateMemberInfoPathList(
+            FieldInfo[] fieldInfoArray, PropertyInfo[] propertyInfoArray, string[] membersToIgnore,
+            bool displayEnumerables, bool displayNested, string pathPrefix)
         {
             List<MemberInfoPath> retVal = new List<MemberInfoPath>();
             List<MemberInfoPath> nested = new List<MemberInfoPath>();
@@ -140,8 +139,7 @@ namespace ModIO.UI.EditorCode
                 }
 
                 // add to list
-                MemberInfoPath mip = new MemberInfoPath()
-                {
+                MemberInfoPath mip = new MemberInfoPath() {
                     pathPrefix = pathPrefix,
                     memberType = field.FieldType,
                     info = field,
@@ -149,9 +147,7 @@ namespace ModIO.UI.EditorCode
                 retVal.Add(mip);
 
                 // add nested?
-                if(displayNested
-                   && field.FieldType.IsClass
-                   && field.FieldType != typeof(string))
+                if(displayNested && field.FieldType.IsClass && field.FieldType != typeof(string))
                 {
                     nested.Add(mip);
                 }
@@ -185,8 +181,7 @@ namespace ModIO.UI.EditorCode
                 }
 
                 // add to list
-                MemberInfoPath mip = new MemberInfoPath()
-                {
+                MemberInfoPath mip = new MemberInfoPath() {
                     pathPrefix = pathPrefix,
                     memberType = property.PropertyType,
                     info = property,
@@ -194,8 +189,7 @@ namespace ModIO.UI.EditorCode
                 retVal.Add(mip);
 
                 // add nested?
-                if(displayNested
-                   && property.PropertyType.IsClass
+                if(displayNested && property.PropertyType.IsClass
                    && property.PropertyType != typeof(string))
                 {
                     nested.Add(mip);
@@ -207,17 +201,14 @@ namespace ModIO.UI.EditorCode
             {
                 string prefix = pathPrefix + nestedInfo.info.Name + ".";
 
-                FieldInfo[] nestedFields
-                    = nestedInfo.memberType.GetFields(BindingFlags.Instance | BindingFlags.Public);
-                PropertyInfo[] nestedProperties
-                    = nestedInfo.memberType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+                FieldInfo[] nestedFields =
+                    nestedInfo.memberType.GetFields(BindingFlags.Instance | BindingFlags.Public);
+                PropertyInfo[] nestedProperties = nestedInfo.memberType.GetProperties(
+                    BindingFlags.Instance | BindingFlags.Public);
 
-                retVal.AddRange(GenerateMemberInfoPathList(nestedFields,
-                                                           nestedProperties,
-                                                           membersToIgnore,
-                                                           displayEnumerables,
-                                                           displayNested,
-                                                           prefix));
+                retVal.AddRange(GenerateMemberInfoPathList(nestedFields, nestedProperties,
+                                                           membersToIgnore, displayEnumerables,
+                                                           displayNested, prefix));
             }
 
             return retVal;
@@ -226,7 +217,10 @@ namespace ModIO.UI.EditorCode
         /// <summary>Determins if a type is Enumerable.</summary>
         private static bool IsTypeEnumerable(Type objectType)
         {
-            if(objectType == typeof(string)) { return false; }
+            if(objectType == typeof(string))
+            {
+                return false;
+            }
 
             foreach(Type i in objectType.GetInterfaces())
             {
@@ -239,7 +233,6 @@ namespace ModIO.UI.EditorCode
 
             return false;
         }
-
     }
 
 }

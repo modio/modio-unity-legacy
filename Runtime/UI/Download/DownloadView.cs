@@ -11,13 +11,15 @@ namespace ModIO.UI
         // ---------[ NESTED DATA-TYPES ]---------
         /// <summary>Event for notifying listeners of a change to the download info.</summary>
         [Serializable]
-        public class DownloadInfoUpdatedEvent : UnityEngine.Events.UnityEvent<FileDownloadInfo> {}
+        public class DownloadInfoUpdatedEvent : UnityEngine.Events.UnityEvent<FileDownloadInfo>
+        {
+        }
 
         // ---------[ CONSTANTS ]---------
         /// <summary>Interval between download speed updates.</summary>
-        public const float  DOWNLOAD_SPEED_UPDATE_INTERVAL = 0.5f;
+        public const float DOWNLOAD_SPEED_UPDATE_INTERVAL = 0.5f;
         /// <summary>Delay before hiding the game object (if enabled).</summary>
-        public const float  HIDE_DELAY_SECONDS = 1.5f;
+        public const float HIDE_DELAY_SECONDS = 1.5f;
 
         // ---------[ FIELDS ]---------
         /// <summary>Download Info.</summary>
@@ -43,7 +45,9 @@ namespace ModIO.UI
         /// <summary>Download Info.</summary>
         public FileDownloadInfo downloadInfo
         {
-            get { return this.m_downloadInfo; }
+            get {
+                return this.m_downloadInfo;
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -54,22 +58,24 @@ namespace ModIO.UI
 
         protected virtual void Start()
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             DownloadView[] nested = this.gameObject.GetComponentsInChildren<DownloadView>(true);
             if(nested.Length > 1)
             {
-                Debug.LogError("[mod.io] Nesting DownloadViews is currently not supported due to the"
-                               + " way IDownloadViewElement component parenting works."
-                               + "\nThe nested DownloadViews must be removed to allow DownloadView functionality."
-                               + "\nthis=" + this.gameObject.name
-                               + "\nnested=" + nested[1].gameObject.name,
-                               this);
+                Debug.LogError(
+                    "[mod.io] Nesting DownloadViews is currently not supported due to the"
+                        + " way IDownloadViewElement component parenting works."
+                        + "\nThe nested DownloadViews must be removed to allow DownloadView functionality."
+                        + "\nthis=" + this.gameObject.name
+                        + "\nnested=" + nested[1].gameObject.name,
+                    this);
                 return;
             }
-            #endif
+#endif
 
             // assign download view elements to this
-            var downloadViewElements = this.gameObject.GetComponentsInChildren<IDownloadViewElement>(true);
+            var downloadViewElements =
+                this.gameObject.GetComponentsInChildren<IDownloadViewElement>(true);
             foreach(IDownloadViewElement viewElement in downloadViewElements)
             {
                 viewElement.SetDownloadView(this);
@@ -111,7 +117,10 @@ namespace ModIO.UI
         public void SetModView(ModView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -186,9 +195,7 @@ namespace ModIO.UI
             float lastSpeedUpdate = Time.unscaledTime;
 
             // loop while downloading
-            while(this != null
-                  && this.m_downloadInfo != null
-                  && this.onDownloadInfoUpdated != null
+            while(this != null && this.m_downloadInfo != null && this.onDownloadInfoUpdated != null
                   && !this.m_downloadInfo.isDone)
             {
                 float now = Time.unscaledTime;
@@ -213,7 +220,8 @@ namespace ModIO.UI
 
         // ---------[ EVENTS ]---------
         /// <summary>Initializes the component display.</summary>
-        protected virtual void OnDownloadStarted(ModfileIdPair idPair, FileDownloadInfo downloadInfo)
+        protected virtual void OnDownloadStarted(ModfileIdPair idPair,
+                                                 FileDownloadInfo downloadInfo)
         {
             if(this.m_modId == idPair.modId)
             {

@@ -24,7 +24,9 @@ namespace ModIO.UI
         /// <summary>Accessor for the modfile container.</summary>
         public ModfileContainer container
         {
-            get { return this.gameObject.GetComponent<ModfileContainer>(); }
+            get {
+                return this.gameObject.GetComponent<ModfileContainer>();
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -37,7 +39,10 @@ namespace ModIO.UI
         public void SetModView(ModView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -79,8 +84,7 @@ namespace ModIO.UI
         {
             this.m_modId = modId;
 
-            if(this.isActiveAndEnabled
-               && modId != this.m_requestedModId)
+            if(this.isActiveAndEnabled && modId != this.m_requestedModId)
             {
                 this.m_requestedModId = modId;
 
@@ -94,30 +98,24 @@ namespace ModIO.UI
                 container.DisplayModfiles(null);
 
                 // pagination
-                var pagination = new APIPaginationParameters()
-                {
+                var pagination = new APIPaginationParameters() {
                     offset = 0,
                     limit = itemCount,
                 };
 
                 // filter
-                RequestFilter filter = new RequestFilter()
-                {
+                RequestFilter filter = new RequestFilter() {
                     sortFieldName = ModIO.API.GetAllModfilesFilterFields.dateAdded,
                     isSortAscending = !this.reverseChronological,
                 };
 
                 // fetch
-                APIClient.GetAllModfiles(modId, filter, pagination,
-                                         (r) =>
-                                         {
-                                            if(this != null
-                                               && modId == this.m_modId)
-                                            {
-                                                this.container.DisplayModfiles(r.items);
-                                            }
-                                         },
-                                         null);
+                APIClient.GetAllModfiles(modId, filter, pagination, (r) => {
+                    if(this != null && modId == this.m_modId)
+                    {
+                        this.container.DisplayModfiles(r.items);
+                    }
+                }, null);
             }
         }
     }

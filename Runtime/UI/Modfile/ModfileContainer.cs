@@ -8,7 +8,8 @@ namespace ModIO.UI
     public class ModfileContainer : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
-        /// <summary>Template to duplicate for the purpose of displaying the gallery images.</summary>
+        /// <summary>Template to duplicate for the purpose of displaying the gallery
+        /// images.</summary>
         public RectTransform containerTemplate = null;
 
         /// <summary>Should the template be disabled if empty?</summary>
@@ -41,9 +42,10 @@ namespace ModIO.UI
         /// <summary>Limit of mod views that can be displayed in this container.</summary>
         public int itemLimit
         {
-            get { return this.m_itemLimit; }
-            set
-            {
+            get {
+                return this.m_itemLimit;
+            }
+            set {
                 if(this.m_itemLimit != value)
                 {
                     this.m_itemLimit = value;
@@ -61,7 +63,9 @@ namespace ModIO.UI
         /// <summary>Profiles currently being displayed.</summary>
         public Modfile[] modfiles
         {
-            get { return this.m_modfiles; }
+            get {
+                return this.m_modfiles;
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -73,15 +77,15 @@ namespace ModIO.UI
         /// <summary>Initialize template.</summary>
         protected virtual void Start()
         {
-            // check template
-            #if DEBUG
+// check template
+#if DEBUG
             string message;
             if(!ModfileContainer.HasValidTemplate(this, out message))
             {
                 Debug.LogError("[mod.io] " + message, this);
                 return;
             }
-            #endif
+#endif
 
             // get template vars
             Transform templateParent = this.containerTemplate.parent;
@@ -90,15 +94,17 @@ namespace ModIO.UI
             this.m_itemTemplate = this.containerTemplate.GetComponentInChildren<ModfileView>(true);
 
             // duplication protection
-            bool isInstantiated = (templateParent.childCount > templateInstance_index
-                                   && templateParent.GetChild(templateInstance_index).gameObject.name == templateInstance_name);
+            bool isInstantiated =
+                (templateParent.childCount > templateInstance_index
+                 && templateParent.GetChild(templateInstance_index).gameObject.name
+                        == templateInstance_name);
             if(isInstantiated)
             {
                 this.m_templateClone = templateParent.GetChild(templateInstance_index).gameObject;
-                ModfileView[] viewInstances = this.m_templateClone.GetComponentsInChildren<ModfileView>(true);
+                ModfileView[] viewInstances =
+                    this.m_templateClone.GetComponentsInChildren<ModfileView>(true);
 
-                if(viewInstances == null
-                   || viewInstances.Length == 0)
+                if(viewInstances == null || viewInstances.Length == 0)
                 {
                     isInstantiated = false;
                     GameObject.Destroy(this.m_templateClone);
@@ -116,11 +122,13 @@ namespace ModIO.UI
 
             if(!isInstantiated)
             {
-                this.m_templateClone = GameObject.Instantiate(this.containerTemplate.gameObject, templateParent);
+                this.m_templateClone =
+                    GameObject.Instantiate(this.containerTemplate.gameObject, templateParent);
                 this.m_templateClone.transform.SetSiblingIndex(templateInstance_index);
                 this.m_templateClone.name = templateInstance_name;
 
-                ModfileView viewInstance = this.m_templateClone.GetComponentInChildren<ModfileView>(true);
+                ModfileView viewInstance =
+                    this.m_templateClone.GetComponentInChildren<ModfileView>(true);
                 this.m_container = (RectTransform)viewInstance.transform.parent;
                 GameObject.Destroy(viewInstance.gameObject);
 
@@ -150,33 +158,26 @@ namespace ModIO.UI
                 }
 
                 this.m_modfiles = new Modfile[modfileCount];
-                for(int i = 0; i < modfileCount; ++i)
-                {
-                    this.m_modfiles[i] = modfiles[i];
-                }
+                for(int i = 0; i < modfileCount; ++i) { this.m_modfiles[i] = modfiles[i]; }
             }
 
             // display
             if(this.m_itemTemplate != null)
             {
                 // set instance count
-                int itemCount = this.m_modfiles.Length;;
-                if(this.m_itemLimit >= 0
-                   && this.m_itemLimit < itemCount)
+                int itemCount = this.m_modfiles.Length;
+                ;
+                if(this.m_itemLimit >= 0 && this.m_itemLimit < itemCount)
                 {
                     itemCount = this.m_itemLimit;
                 }
 
                 // set view count
-                UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate,
-                                             "Modfile View", itemCount,
-                                             ref this.m_views);
+                UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate, "Modfile View",
+                                             itemCount, ref this.m_views);
 
                 // display data
-                for(int i = 0; i < itemCount; ++i)
-                {
-                    this.m_views[i].modfile = this.m_modfiles[i];
-                }
+                for(int i = 0; i < itemCount; ++i) { this.m_views[i].modfile = this.m_modfiles[i]; }
 
                 // hide if necessary
                 this.m_templateClone.SetActive(itemCount > 0 || !this.hideIfEmpty);
@@ -195,8 +196,7 @@ namespace ModIO.UI
             // null check
             if(container.containerTemplate == null)
             {
-                helpMessage = ("Invalid template:"
-                               + " The container template is unassigned.");
+                helpMessage = ("Invalid template:" + " The container template is unassigned.");
                 isValid = false;
             }
             // containerTemplate is child of Component
@@ -208,17 +208,21 @@ namespace ModIO.UI
                 isValid = false;
             }
             // ModfileView is found under containerTemplate
-            else if((itemTemplate = container.containerTemplate.gameObject.GetComponentInChildren<ModfileView>()) == null)
+            else if((itemTemplate = container.containerTemplate.gameObject
+                                        .GetComponentInChildren<ModfileView>())
+                    == null)
             {
-                helpMessage = ("Invalid template:"
-                               + " No ModfileView component found in the children of the container template.");
+                helpMessage =
+                    ("Invalid template:"
+                     + " No ModfileView component found in the children of the container template.");
                 isValid = false;
             }
             // ModfileView is on same gameObject as containerTemplate
             else if(itemTemplate.transform == container.containerTemplate)
             {
-                helpMessage = ("Invalid template:"
-                               + " The ModfileView component cannot share a GameObject with the container template.");
+                helpMessage =
+                    ("Invalid template:"
+                     + " The ModfileView component cannot share a GameObject with the container template.");
                 isValid = false;
             }
 

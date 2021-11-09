@@ -6,5 +6,5 @@ namespace ModIO
         NoToken,
         ValidToken,
         RejectedToken,
-    };
+    }
 }

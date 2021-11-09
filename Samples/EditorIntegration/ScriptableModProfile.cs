@@ -12,19 +12,20 @@ namespace ModIO.EditorCode
     [CreateAssetMenu(fileName = "New Mod Profile", menuName = "ModIO/Create Mod Profile")]
     public class ScriptableModProfile : ScriptableObject
     {
-        // ---------[ MENU ITEM ]---------
-        #if UNITY_EDITOR
+// ---------[ MENU ITEM ]---------
+#if UNITY_EDITOR
         [MenuItem("Tools/mod.io/Create Mod Profile")]
         public static void CreateAssetInstance()
         {
             ScriptableModProfile asset = ScriptableObject.CreateInstance<ScriptableModProfile>();
 
-            int profileCount
-            = Directory.GetFiles(Application.dataPath, "NewModProfile*.asset", System.IO.SearchOption.TopDirectoryOnly).Length;
+            int profileCount = Directory
+                                   .GetFiles(Application.dataPath, "NewModProfile*.asset",
+                                             System.IO.SearchOption.TopDirectoryOnly)
+                                   .Length;
 
-            string fileNameAddition = (profileCount > 0
-                                       ? " (" + profileCount.ToString() + ")"
-                                       : "");
+            string fileNameAddition =
+                (profileCount > 0 ? " (" + profileCount.ToString() + ")" : "");
 
             AssetDatabase.CreateAsset(asset, "Assets/NewModProfile" + fileNameAddition + ".asset");
             AssetDatabase.SaveAssets();
@@ -33,7 +34,7 @@ namespace ModIO.EditorCode
 
             Selection.activeObject = asset;
         }
-        #endif
+#endif
 
         // ---------[ CONSTANTS ]---------
         public const int UNINITIALIZED_MOD_ID = -1;

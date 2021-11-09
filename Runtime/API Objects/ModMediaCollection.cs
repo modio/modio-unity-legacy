@@ -27,11 +27,11 @@ namespace ModIO
         [JsonProperty("images")]
         public GalleryImageLocator[] galleryImageLocators;
 
-        #if SEPARATE_GIF_IMAGES
+#if SEPARATE_GIF_IMAGES
         /// <summary>Array of gallery images that are in the GIF-format.</summary>
         [JsonProperty("gif_images")]
         public GalleryImageLocator[] galleryGIFLocators;
-        #endif
+#endif
 
         // ---------[ ACCESSORS ]---------
         public GalleryImageLocator GetGalleryImageWithFileName(string fileName)
@@ -46,12 +46,11 @@ namespace ModIO
             return null;
         }
 
-        #if SEPARATE_GIF_IMAGES
+#if SEPARATE_GIF_IMAGES
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            if(this.galleryGIFLocators == null
-               && this.galleryImageLocators != null)
+            if(this.galleryGIFLocators == null && this.galleryImageLocators != null)
             {
                 List<GalleryImageLocator> gifLocators = new List<GalleryImageLocator>();
                 List<GalleryImageLocator> galleryLocators = new List<GalleryImageLocator>();
@@ -73,6 +72,6 @@ namespace ModIO
                 this.galleryGIFLocators = gifLocators.ToArray();
             }
         }
-        #endif
+#endif
     }
 }

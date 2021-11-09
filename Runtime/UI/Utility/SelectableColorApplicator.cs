@@ -3,11 +3,11 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    #if UNITY_2018_3_OR_NEWER
+#if UNITY_2018_3_OR_NEWER
     [ExecuteAlways]
-    #else
+#else
     [ExecuteInEditMode]
-    #endif
+#endif
 
     [RequireComponent(typeof(Selectable))]
     public class SelectableColorApplicator : MonoBehaviour
@@ -16,7 +16,11 @@ namespace ModIO.UI
         public SelectableColorScheme scheme = null;
 
         private Selectable selectable
-        { get { return this.gameObject.GetComponent<Selectable>(); } }
+        {
+            get {
+                return this.gameObject.GetComponent<Selectable>();
+            }
+        }
 
         private void Start()
         {
@@ -44,8 +48,7 @@ namespace ModIO.UI
             }
 
             Toggle toggle = selectable as Toggle;
-            if(toggle != null
-               && toggle.graphic != null)
+            if(toggle != null && toggle.graphic != null)
             {
                 toggle.graphic.color = scheme.toggleColor;
             }
@@ -54,7 +57,7 @@ namespace ModIO.UI
             selectable.colors = scheme.functionalColors;
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         public void UpdateColorScheme_withUndo()
         {
             if(selectable == null || scheme == null)
@@ -79,8 +82,7 @@ namespace ModIO.UI
             }
 
             Toggle toggle = selectable as Toggle;
-            if(toggle != null
-               && toggle.graphic != null)
+            if(toggle != null && toggle.graphic != null)
             {
                 UnityEditor.Undo.RecordObject(toggle, "Applied Color Scheme");
             }
@@ -98,6 +100,6 @@ namespace ModIO.UI
                 }
             };
         }
-        #endif
+#endif
     }
 }

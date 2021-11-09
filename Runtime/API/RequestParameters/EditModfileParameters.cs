@@ -6,8 +6,7 @@ namespace ModIO.API
         // Version of the file release.
         public string version
         {
-            set
-            {
+            set {
                 this.SetStringValue("version", value);
             }
         }
@@ -15,8 +14,7 @@ namespace ModIO.API
         // Changelog of this release.
         public string changelog
         {
-            set
-            {
+            set {
                 this.SetStringValue("changelog", value);
             }
         }
@@ -28,8 +26,7 @@ namespace ModIO.API
         // for this mod.
         public bool isActiveBuild
         {
-            set
-            {
+            set {
                 this.SetStringValue("active", value);
             }
         }
@@ -38,8 +35,7 @@ namespace ModIO.API
         // of the game this file is compatible with.
         public string metadataBlob
         {
-            set
-            {
+            set {
                 this.SetStringValue("metadata_blob", value);
             }
         }

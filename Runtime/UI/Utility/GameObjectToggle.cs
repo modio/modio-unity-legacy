@@ -16,12 +16,10 @@ namespace ModIO.UI
         // --- ACCESSSORS ---
         public override bool isOn
         {
-            get
-            {
+            get {
                 return m_isOn;
             }
-            set
-            {
+            set {
                 if(m_isOn != value)
                 {
                     m_isOn = value;
@@ -48,16 +46,15 @@ namespace ModIO.UI
             UpdateDisplay();
         }
 
-        // ---------[ EVENTS ]---------
-        #if UNITY_EDITOR
+// ---------[ EVENTS ]---------
+#if UNITY_EDITOR
         private void OnValidate()
         {
-            if(Application.isPlaying
-               && this != null)
+            if(Application.isPlaying && this != null)
             {
                 UpdateDisplay();
             }
         }
-        #endif
+#endif
     }
 }

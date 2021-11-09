@@ -17,7 +17,10 @@ namespace ModIO.UI
             // init
             List<string> unmatchedTags = new List<string>(tagNames);
 
-            if(unmatchedTags.Count == 0) { return new ModTagDisplayData[0]; }
+            if(unmatchedTags.Count == 0)
+            {
+                return new ModTagDisplayData[0];
+            }
 
             if(categories == null)
             {
@@ -32,14 +35,13 @@ namespace ModIO.UI
                 {
                     if(unmatchedTags.Contains(categoryTag))
                     {
-                        ModTagDisplayData newTag = new ModTagDisplayData()
-                        {
+                        ModTagDisplayData newTag = new ModTagDisplayData() {
                             tagName = categoryTag,
                             categoryName = category.name,
                         };
                         tags.Add(newTag);
 
-                        while(unmatchedTags.Remove(categoryTag)){}
+                        while(unmatchedTags.Remove(categoryTag)) {}
 
                         if(unmatchedTags.Count == 0)
                         {
@@ -51,8 +53,7 @@ namespace ModIO.UI
 
             foreach(string tag in unmatchedTags)
             {
-                ModTagDisplayData newTag = new ModTagDisplayData()
-                {
+                ModTagDisplayData newTag = new ModTagDisplayData() {
                     tagName = tag,
                     categoryName = null,
                 };

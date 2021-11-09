@@ -11,10 +11,9 @@ namespace ModIO.EditorCode
     {
         public static bool ConfirmLogOut(string username)
         {
-            return EditorUtility.DisplayDialog("Confirm mod.io account logout",
-                                               "Do you wish to log out of the account \'" + username + "\'?",
-                                               "Log Out",
-                                               "Cancel");
+            return EditorUtility.DisplayDialog(
+                "Confirm mod.io account logout",
+                "Do you wish to log out of the account \'" + username + "\'?", "Log Out", "Cancel");
         }
     }
 }

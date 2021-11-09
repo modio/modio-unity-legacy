@@ -20,14 +20,16 @@ namespace ModIO.UI
         public GameObject loadingOverlay;
 
         [Header("Display Data")]
-        [SerializeField] private ModTagDisplayData m_data = new ModTagDisplayData();
+        [SerializeField]
+        private ModTagDisplayData m_data = new ModTagDisplayData();
 
         // --- ACCESSORS ---
         public override ModTagDisplayData data
         {
-            get { return m_data; }
-            set
-            {
+            get {
+                return m_data;
+            }
+            set {
                 m_data = value;
                 PresentData();
             }
@@ -46,9 +48,8 @@ namespace ModIO.UI
 
             if(categoryDisplay != null)
             {
-                categoryDisplay.text = (capitalizeCategory
-                                        ? m_data.categoryName.ToUpper()
-                                        : m_data.categoryName);
+                categoryDisplay.text =
+                    (capitalizeCategory ? m_data.categoryName.ToUpper() : m_data.categoryName);
             }
 
             if(loadingOverlay != null)
@@ -74,12 +75,9 @@ namespace ModIO.UI
         }
         public override void DisplayModTag(string tagName, string categoryName)
         {
-            ModTagDisplayData newData = new ModTagDisplayData()
-            {
+            ModTagDisplayData newData = new ModTagDisplayData() {
                 tagName = tagName,
-                categoryName = (categoryName == null
-                                ? string.Empty
-                                : categoryName),
+                categoryName = (categoryName == null ? string.Empty : categoryName),
             };
             m_data = newData;
 
@@ -109,7 +107,7 @@ namespace ModIO.UI
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void OnValidate()
         {
             UnityEditor.EditorApplication.delayCall += () =>
@@ -120,6 +118,6 @@ namespace ModIO.UI
                 }
             };
         }
-        #endif
+#endif
     }
 }

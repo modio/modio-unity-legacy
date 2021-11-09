@@ -15,7 +15,10 @@ namespace ModIO.UI
         public void SetDownloadView(DownloadView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -49,11 +52,9 @@ namespace ModIO.UI
                 {
                     p = 1f;
                 }
-                else if(download.request != null
-                        && download.fileSize > 0)
+                else if(download.request != null && download.fileSize > 0)
                 {
-                    p = ((float)download.request.downloadedBytes
-                         / (float)download.fileSize);
+                    p = ((float)download.request.downloadedBytes / (float)download.fileSize);
                 }
             }
 

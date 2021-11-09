@@ -7,8 +7,7 @@ namespace ModIO.API
         /// name with 'Easy', 'Medium' and 'Hard' as the tag values.
         public string name
         {
-            set
-            {
+            set {
                 this.SetStringValue("name", value);
             }
         }
@@ -17,19 +16,18 @@ namespace ModIO.API
         // multiple tags (checkbox).
         public bool isMultiTagCategory
         {
-            set
-            {
-                this.SetStringValue("type", (value == true
-                                             ? ModTagCategory.APIOBJECT_VALUESTRING_ISMULTITAG
-                                             : ModTagCategory.APIOBJECT_VALUESTRING_ISSINGLETAG));
+            set {
+                this.SetStringValue("type",
+                                    (value == true
+                                         ? ModTagCategory.APIOBJECT_VALUESTRING_ISMULTITAG
+                                         : ModTagCategory.APIOBJECT_VALUESTRING_ISSINGLETAG));
             }
         }
 
         // [REQUIRED] Array of tags mod creators can choose to apply to their profiles.
         public string[] tags
         {
-            set
-            {
+            set {
                 this.SetStringArrayValue("tags[]", value);
             }
         }
@@ -39,8 +37,7 @@ namespace ModIO.API
         // Metadata Key Value Pairs for more arbitary data.
         public bool isHidden
         {
-            set
-            {
+            set {
                 this.SetStringValue("hidden", value.ToString());
             }
         }

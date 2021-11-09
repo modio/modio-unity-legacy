@@ -81,7 +81,10 @@ namespace ModIO
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            if(this._apiRatingValue == null ) { return; }
+            if(this._apiRatingValue == null)
+            {
+                return;
+            }
 
             this.ratingValue = ModRating.ConvertIntToEnum((int)this._apiRatingValue);
         }

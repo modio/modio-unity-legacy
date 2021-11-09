@@ -29,15 +29,19 @@ namespace ModIO.UI.EditorCode
             }
             if(GUILayout.Button("Insert URL for Production API"))
             {
-                apiURLProperty.stringValue = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
+                apiURLProperty.stringValue =
+                    APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
             }
             EditorGUILayout.EndHorizontal();
 
             serializedObject.ApplyModifiedProperties();
 
 
-            bool isProductionAPIURL =   (apiURLProperty.stringValue == APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION);
-            bool isTestAPIURL =         (apiURLProperty.stringValue == APIClient.API_URL_TESTSERVER + APIClient.API_VERSION);
+            bool isProductionAPIURL =
+                (apiURLProperty.stringValue
+                 == APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION);
+            bool isTestAPIURL = (apiURLProperty.stringValue
+                                 == APIClient.API_URL_TESTSERVER + APIClient.API_VERSION);
 
             using(new EditorGUI.DisabledScope(!isProductionAPIURL && !isTestAPIURL))
             {

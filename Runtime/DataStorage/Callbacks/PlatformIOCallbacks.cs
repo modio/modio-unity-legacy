@@ -24,7 +24,8 @@ namespace ModIO.PlatformIOCallbacks
     public delegate void GetFileExistsCallback(string path, bool doesExist);
 
     /// <summary>Delegate for GetFileSizeAndHash callback.</summary>
-    public delegate void GetFileSizeAndHashCallback(string path, bool success, Int64 byteCount, string md5Hash);
+    public delegate void GetFileSizeAndHashCallback(string path, bool success, Int64 byteCount,
+                                                    string md5Hash);
 
     /// <summary>Delegate for GetFiles callback.</summary>
     public delegate void GetFilesCallback(string path, bool success, IList<string> fileList);
@@ -43,5 +44,6 @@ namespace ModIO.PlatformIOCallbacks
     public delegate void GetDirectoryExistsCallback(string path, bool success);
 
     /// <summary>Delegate for GetDirectories callback.</summary>
-    public delegate void GetDirectoriesCallback(string path, bool success, IList<string> directoryList);
+    public delegate void GetDirectoriesCallback(string path, bool success,
+                                                IList<string> directoryList);
 }

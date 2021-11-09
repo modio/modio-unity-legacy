@@ -74,8 +74,6 @@ namespace ModIO.UI.EditorCode
             EditorGUILayout.PropertyField(this.m_OnValueChangedProperty);
 
             serializedObject.ApplyModifiedProperties();
-
-
         }
     }
 }

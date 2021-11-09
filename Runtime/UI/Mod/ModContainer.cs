@@ -49,9 +49,10 @@ namespace ModIO.UI
         /// <summary>Limit of mod views that can be displayed in this container.</summary>
         public int itemLimit
         {
-            get { return this.m_itemLimit; }
-            set
-            {
+            get {
+                return this.m_itemLimit;
+            }
+            set {
                 if(this.m_itemLimit != value)
                 {
                     this.m_itemLimit = value;
@@ -69,7 +70,9 @@ namespace ModIO.UI
         /// <summary>Profiles currently being displayed.</summary>
         public ModProfile[] modProfiles
         {
-            get { return this.m_modProfiles; }
+            get {
+                return this.m_modProfiles;
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -81,15 +84,15 @@ namespace ModIO.UI
         /// <summary>Initialize template.</summary>
         protected virtual void Start()
         {
-            // check template
-            #if DEBUG
+// check template
+#if DEBUG
             string message;
             if(!ModContainer.HasValidTemplate(this, out message))
             {
                 Debug.LogError("[mod.io] " + message, this);
                 return;
             }
-            #endif
+#endif
 
             // get template vars
             Transform templateParent = this.containerTemplate.parent;
@@ -105,15 +108,17 @@ namespace ModIO.UI
             }
 
             // duplication protection
-            bool isInstantiated = (templateParent.childCount > templateInstance_index
-                                   && templateParent.GetChild(templateInstance_index).gameObject.name == templateInstance_name);
+            bool isInstantiated =
+                (templateParent.childCount > templateInstance_index
+                 && templateParent.GetChild(templateInstance_index).gameObject.name
+                        == templateInstance_name);
             if(isInstantiated)
             {
                 this.m_templateClone = templateParent.GetChild(templateInstance_index).gameObject;
-                ModView[] viewInstances = this.m_templateClone.GetComponentsInChildren<ModView>(true);
+                ModView[] viewInstances =
+                    this.m_templateClone.GetComponentsInChildren<ModView>(true);
 
-                if(viewInstances == null
-                   || viewInstances.Length == 0)
+                if(viewInstances == null || viewInstances.Length == 0)
                 {
                     isInstantiated = false;
                     GameObject.Destroy(this.m_templateClone);
@@ -122,16 +127,14 @@ namespace ModIO.UI
                 {
                     this.m_container = (RectTransform)viewInstances[0].transform.parent;
 
-                    foreach(ModView view in viewInstances)
-                    {
-                        GameObject.Destroy(view.gameObject);
-                    }
+                    foreach(ModView view in viewInstances) { GameObject.Destroy(view.gameObject); }
                 }
             }
 
             if(!isInstantiated)
             {
-                this.m_templateClone = GameObject.Instantiate(this.containerTemplate.gameObject, templateParent);
+                this.m_templateClone =
+                    GameObject.Instantiate(this.containerTemplate.gameObject, templateParent);
                 this.m_templateClone.transform.SetSiblingIndex(templateInstance_index);
                 this.m_templateClone.name = templateInstance_name;
 
@@ -156,14 +159,12 @@ namespace ModIO.UI
         public virtual void DisplayMods(IList<ModProfile> profiles, IList<ModStatistics> statistics)
         {
             // assert validity
-            if(profiles != null
-               && statistics != null
-               && profiles.Count != statistics.Count)
+            if(profiles != null && statistics != null && profiles.Count != statistics.Count)
             {
                 Debug.LogWarning("[mod.io] Cannot display a collection of profiles"
-                                 + " and statistics where the counts are not equal."
-                                 + "\n profiles.Count = " + profiles.Count.ToString()
-                                 + "\n statistics.Count = " + statistics.Count.ToString(),
+                                     + " and statistics where the counts are not equal."
+                                     + "\n profiles.Count = " + profiles.Count.ToString()
+                                     + "\n statistics.Count = " + statistics.Count.ToString(),
                                  this);
 
                 statistics = null;
@@ -183,18 +184,12 @@ namespace ModIO.UI
             if(this.m_modProfiles != profiles)
             {
                 this.m_modProfiles = new ModProfile[itemCount];
-                for(int i = 0; i < itemCount; ++i)
-                {
-                    this.m_modProfiles[i] = profiles[i];
-                }
+                for(int i = 0; i < itemCount; ++i) { this.m_modProfiles[i] = profiles[i]; }
             }
             if(this.m_modStatistics != statistics)
             {
                 this.m_modStatistics = new ModStatistics[itemCount];
-                for(int i = 0; i < itemCount; ++i)
-                {
-                    this.m_modStatistics[i] = statistics[i];
-                }
+                for(int i = 0; i < itemCount; ++i) { this.m_modStatistics[i] = statistics[i]; }
             }
 
             // display
@@ -214,9 +209,8 @@ namespace ModIO.UI
                     }
                 }
 
-                UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate,
-                                             "Mod View", viewCount,
-                                             ref this.m_views, true);
+                UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate, "Mod View",
+                                             viewCount, ref this.m_views, true);
 
 
                 // -- set view visibility --
@@ -224,9 +218,7 @@ namespace ModIO.UI
                 {
                     int visibleCount = itemCount;
 
-                    for(int i = 0;
-                        i < visibleCount;
-                        ++i)
+                    for(int i = 0; i < visibleCount; ++i)
                     {
                         CanvasGroup c = this.m_views[i].GetComponent<CanvasGroup>();
                         c.alpha = 1f;
@@ -234,9 +226,7 @@ namespace ModIO.UI
                         c.blocksRaycasts = true;
                     }
 
-                    for(int i = visibleCount;
-                        i < viewCount;
-                        ++i)
+                    for(int i = visibleCount; i < viewCount; ++i)
                     {
                         CanvasGroup c = this.m_views[i].GetComponent<CanvasGroup>();
                         c.alpha = 0f;
@@ -248,19 +238,14 @@ namespace ModIO.UI
                 // display data
                 if(this.m_modProfiles != null)
                 {
-                    for(int i = 0;
-                        i < this.m_modProfiles.Length && i < viewCount;
-                        ++i)
+                    for(int i = 0; i < this.m_modProfiles.Length && i < viewCount; ++i)
                     {
                         this.m_views[i].profile = this.m_modProfiles[i];
                     }
-
                 }
                 if(this.m_modStatistics != null)
                 {
-                    for(int i = 0;
-                        i < this.m_modStatistics.Length && i < viewCount;
-                        ++i)
+                    for(int i = 0; i < this.m_modStatistics.Length && i < viewCount; ++i)
                     {
                         this.m_views[i].statistics = this.m_modStatistics[i];
                     }
@@ -276,8 +261,7 @@ namespace ModIO.UI
         public List<ModView> GetModViews()
         {
             List<ModView> retVal = null;
-            if(this.m_fillToLimit
-               && this.m_views != null)
+            if(this.m_fillToLimit && this.m_views != null)
             {
                 retVal = new List<ModView>();
 
@@ -308,8 +292,7 @@ namespace ModIO.UI
             // null check
             if(container.containerTemplate == null)
             {
-                helpMessage = ("Invalid template:"
-                               + " The container template is unassigned.");
+                helpMessage = ("Invalid template:" + " The container template is unassigned.");
                 isValid = false;
             }
             // containerTemplate is child of Component
@@ -321,17 +304,21 @@ namespace ModIO.UI
                 isValid = false;
             }
             // ModView is found under containerTemplate
-            else if((itemTemplate = container.containerTemplate.gameObject.GetComponentInChildren<ModView>()) == null)
+            else if((itemTemplate =
+                         container.containerTemplate.gameObject.GetComponentInChildren<ModView>())
+                    == null)
             {
-                helpMessage = ("Invalid template:"
-                               + " No ModView component found in the children of the container template.");
+                helpMessage =
+                    ("Invalid template:"
+                     + " No ModView component found in the children of the container template.");
                 isValid = false;
             }
             // ModView is on same gameObject as containerTemplate
             else if(itemTemplate.transform == container.containerTemplate)
             {
-                helpMessage = ("Invalid template:"
-                               + " The ModView component cannot share a GameObject with the container template.");
+                helpMessage =
+                    ("Invalid template:"
+                     + " The ModView component cannot share a GameObject with the container template.");
                 isValid = false;
             }
 

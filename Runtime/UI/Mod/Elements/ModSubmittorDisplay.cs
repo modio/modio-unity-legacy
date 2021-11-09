@@ -2,7 +2,8 @@ using UnityEngine;
 
 namespace ModIO.UI
 {
-    /// <summary>A display component that pairs a UserView with a ModView to display the submittor.</summary>
+    /// <summary>A display component that pairs a UserView with a ModView to display the
+    /// submittor.</summary>
     [RequireComponent(typeof(UserView))]
     public class ModSubmittorDisplay : MonoBehaviour, IModViewElement
     {
@@ -16,7 +17,10 @@ namespace ModIO.UI
         public void SetModView(ModView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)

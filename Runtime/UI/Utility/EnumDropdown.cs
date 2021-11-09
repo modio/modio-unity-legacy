@@ -7,7 +7,7 @@ namespace ModIO.UI
 {
     /// <summary>Binds the values of an enum to a Dropdown control.</summary>
     public class EnumDropdown<TEnum> : EnumDropdownBase
-    where TEnum : struct, IConvertible
+        where TEnum : struct, IConvertible
     {
         // ---------[ Functionality ]---------
         /// <summary>Returns the selected value of the dropdown as an enum representation.</summary>
@@ -69,8 +69,7 @@ namespace ModIO.UI
         /// <summary>Gets the enum-selection pair for the given selection index.</summary>
         public bool TryGetPairForSelection(int selectionIndex, out EnumSelectionPair result)
         {
-            if(this.enumSelectionPairings != null
-               && this.enumSelectionPairings.Length > 0)
+            if(this.enumSelectionPairings != null && this.enumSelectionPairings.Length > 0)
             {
                 foreach(var pair in this.enumSelectionPairings)
                 {
@@ -82,15 +81,14 @@ namespace ModIO.UI
                 }
             }
 
-            result = new EnumSelectionPair(){ selectionIndex = -1, enumValue = -1 };
+            result = new EnumSelectionPair() { selectionIndex = -1, enumValue = -1 };
             return false;
         }
 
         /// <summary>Gets the enum-selection pair for the given enum value.</summary>
         public bool TryGetPairForEnum(int enumValue, out EnumSelectionPair result)
         {
-            if(this.enumSelectionPairings != null
-               && this.enumSelectionPairings.Length > 0)
+            if(this.enumSelectionPairings != null && this.enumSelectionPairings.Length > 0)
             {
                 foreach(var pair in this.enumSelectionPairings)
                 {
@@ -102,7 +100,7 @@ namespace ModIO.UI
                 }
             }
 
-            result = new EnumSelectionPair(){ selectionIndex = -1, enumValue = -1 };
+            result = new EnumSelectionPair() { selectionIndex = -1, enumValue = -1 };
             return false;
         }
     }

@@ -35,8 +35,8 @@ namespace ModIO
         public string[] tags;
 
         // ---------[ API DESERIALIZATION ]---------
-        public const string APIOBJECT_VALUESTRING_ISSINGLETAG   = "DROPDOWN";
-        public const string APIOBJECT_VALUESTRING_ISMULTITAG    = "CHECKBOXES";
+        public const string APIOBJECT_VALUESTRING_ISSINGLETAG = "DROPDOWN";
+        public const string APIOBJECT_VALUESTRING_ISMULTITAG = "CHECKBOXES";
 
         /// <summary>
         /// An optional type field, which is only deserialized from API responses
@@ -47,9 +47,13 @@ namespace ModIO
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            if (string.IsNullOrEmpty(this._typeString)) { return; }
+            if(string.IsNullOrEmpty(this._typeString))
+            {
+                return;
+            }
 
-            this.isMultiTagCategory = APIOBJECT_VALUESTRING_ISMULTITAG.Equals(this._typeString.ToUpper());
+            this.isMultiTagCategory =
+                APIOBJECT_VALUESTRING_ISMULTITAG.Equals(this._typeString.ToUpper());
             this._typeString = null;
         }
     }

@@ -9,7 +9,8 @@ namespace ModIO
     public static class UserAccountManagement
     {
         // ---------[ MOD COLLECTION MANAGEMENT ]---------
-        /// <summary>Add a mod to the subscribed list and modifies the queued actions accordingly.</summary>
+        /// <summary>Add a mod to the subscribed list and modifies the queued actions
+        /// accordingly.</summary>
         public static void SubscribeToMod(int modId)
         {
             // add sub to list
@@ -19,8 +20,8 @@ namespace ModIO
             }
 
             // check queues
-            bool unsubQueued =  LocalUser.QueuedUnsubscribes.Contains(modId);
-            bool subQueued =    LocalUser.QueuedSubscribes.Contains(modId);
+            bool unsubQueued = LocalUser.QueuedUnsubscribes.Contains(modId);
+            bool subQueued = LocalUser.QueuedSubscribes.Contains(modId);
 
             // add to/remove from queues
             if(unsubQueued)
@@ -36,15 +37,16 @@ namespace ModIO
             LocalUser.Save();
         }
 
-        /// <summary>Removes a mod from the subscribed list and modifies the queued actions accordingly.</summary>
+        /// <summary>Removes a mod from the subscribed list and modifies the queued actions
+        /// accordingly.</summary>
         public static void UnsubscribeFromMod(int modId)
         {
             // remove sub from list
             LocalUser.SubscribedModIds.Remove(modId);
 
             // check queues
-            bool unsubQueued =  LocalUser.QueuedUnsubscribes.Contains(modId);
-            bool subQueued =    LocalUser.QueuedSubscribes.Contains(modId);
+            bool unsubQueued = LocalUser.QueuedUnsubscribes.Contains(modId);
+            bool subQueued = LocalUser.QueuedSubscribes.Contains(modId);
 
             // add to/remove from queues
             if(subQueued)
@@ -61,11 +63,11 @@ namespace ModIO
         }
 
         /// <summary>Pushes queued subscribe actions to the server.</summary>
-        public static void PushSubscriptionChanges(Action onCompletedNoErrors,
-                                                   Action<List<WebRequestError>> onCompletedWithErrors)
+        public static void PushSubscriptionChanges(
+            Action onCompletedNoErrors, Action<List<WebRequestError>> onCompletedWithErrors)
         {
-            int responsesPending = (LocalUser.QueuedSubscribes.Count
-                                    + LocalUser.QueuedUnsubscribes.Count);
+            int responsesPending =
+                (LocalUser.QueuedSubscribes.Count + LocalUser.QueuedUnsubscribes.Count);
 
             // early outs
             if(LocalUser.AuthenticationState == AuthenticationState.NoToken
@@ -83,10 +85,8 @@ namespace ModIO
             string userToken = LocalUser.OAuthToken;
             List<WebRequestError> errors = new List<WebRequestError>();
 
-            List<int> subscribesPushed
-                = new List<int>(LocalUser.QueuedSubscribes.Count);
-            List<int> unsubscribesPushed
-                = new List<int>(LocalUser.QueuedUnsubscribes.Count);
+            List<int> subscribesPushed = new List<int>(LocalUser.QueuedSubscribes.Count);
+            List<int> unsubscribesPushed = new List<int>(LocalUser.QueuedUnsubscribes.Count);
 
             // callback
             Action onRequestCompleted = () =>
@@ -107,13 +107,11 @@ namespace ModIO
                         LocalUser.Save();
                     }
 
-                    if(errors.Count == 0
-                       && onCompletedNoErrors != null)
+                    if(errors.Count == 0 && onCompletedNoErrors != null)
                     {
                         onCompletedNoErrors();
                     }
-                    else if(errors.Count > 0
-                            && onCompletedWithErrors != null)
+                    else if(errors.Count > 0 && onCompletedWithErrors != null)
                     {
                         onCompletedWithErrors(errors);
                     }
@@ -124,69 +122,63 @@ namespace ModIO
             foreach(int modId in LocalUser.QueuedSubscribes)
             {
                 APIClient.SubscribeToMod(modId,
-                (p) =>
-                {
-                    subscribesPushed.Add(modId);
+                                         (p) => {
+                                             subscribesPushed.Add(modId);
 
-                    --responsesPending;
-                    onRequestCompleted();
-                },
-                (e) =>
-                {
-                    // Error for "Mod is already subscribed"
-                    if(e.webRequest.responseCode == 400)
-                    {
-                        subscribesPushed.Add(modId);
-                    }
-                    // Error for "Mod is unavailable"
-                    else if(e.webRequest.responseCode == 404)
-                    {
-                        subscribesPushed.Add(modId);
-                    }
-                    // Error for real
-                    else
-                    {
-                        errors.Add(e);
-                    }
+                                             --responsesPending;
+                                             onRequestCompleted();
+                                         },
+                                         (e) => {
+                                             // Error for "Mod is already subscribed"
+                                             if(e.webRequest.responseCode == 400)
+                                             {
+                                                 subscribesPushed.Add(modId);
+                                             }
+                                             // Error for "Mod is unavailable"
+                                             else if(e.webRequest.responseCode == 404)
+                                             {
+                                                 subscribesPushed.Add(modId);
+                                             }
+                                             // Error for real
+                                             else
+                                             {
+                                                 errors.Add(e);
+                                             }
 
-                    --responsesPending;
-                    onRequestCompleted();
-                });
+                                             --responsesPending;
+                                             onRequestCompleted();
+                                         });
             }
             foreach(int modId in LocalUser.QueuedUnsubscribes)
             {
-                APIClient.UnsubscribeFromMod(modId,
-                () =>
-                {
-                    --responsesPending;
-                    unsubscribesPushed.Remove(modId);
+                APIClient.UnsubscribeFromMod(
+                    modId,
+                    () => {
+                        --responsesPending;
+                        unsubscribesPushed.Add(modId);
 
-                    onRequestCompleted();
-                },
-                (e) =>
-                {
+                        onRequestCompleted();
+                    },
+                    (e) => {
+                        // Error for "Mod is already subscribed"
+                        if(e.webRequest != null && e.webRequest.responseCode == 400)
+                        {
+                            unsubscribesPushed.Add(modId);
+                        }
+                        // Error for "Mod is unavailable"
+                        else if(e.webRequest != null && e.webRequest.responseCode == 404)
+                        {
+                            unsubscribesPushed.Add(modId);
+                        }
+                        // Error for real
+                        else
+                        {
+                            errors.Add(e);
+                        }
 
-                    // Error for "Mod is already subscribed"
-                    if(e.webRequest != null
-                       && e.webRequest.responseCode == 400)
-                    {
-                        unsubscribesPushed.Remove(modId);
-                    }
-                    // Error for "Mod is unavailable"
-                    else if(e.webRequest != null
-                            && e.webRequest.responseCode == 404)
-                    {
-                        unsubscribesPushed.Remove(modId);
-                    }
-                    // Error for real
-                    else
-                    {
-                        errors.Add(e);
-                    }
-
-                    --responsesPending;
-                    onRequestCompleted();
-                });
+                        --responsesPending;
+                        onRequestCompleted();
+                    });
             }
         }
 
@@ -213,8 +205,7 @@ namespace ModIO
             subscriptionFilter.AddFieldFilter(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
                                               new EqualToFilter<int>(PluginSettings.GAME_ID));
 
-            APIPaginationParameters pagination = new APIPaginationParameters()
-            {
+            APIPaginationParameters pagination = new APIPaginationParameters() {
                 limit = APIPaginationParameters.LIMIT_MAX,
                 offset = 0,
             };
@@ -226,38 +217,35 @@ namespace ModIO
 
             getNextPage = () =>
             {
-                APIClient.GetUserSubscriptions(subscriptionFilter, pagination,
-                (response) =>
-                {
-                    onPageReceived(response);
+                APIClient.GetUserSubscriptions(
+                    subscriptionFilter, pagination,
+                    (response) => {
+                        onPageReceived(response);
 
-                    // check if all pages received
-                    if(response != null
-                       && response.items != null
-                       && response.items.Length > 0
-                       && response.resultTotal > response.size + response.resultOffset)
-                    {
-                        pagination.offset = response.resultOffset + response.size;
-
-                        getNextPage();
-                    }
-                    else
-                    {
-                        onAllPagesReceived();
-
-                        if(onSuccess != null)
+                        // check if all pages received
+                        if(response != null && response.items != null && response.items.Length > 0
+                           && response.resultTotal > response.size + response.resultOffset)
                         {
-                            onSuccess(remoteOnlySubscriptions);
+                            pagination.offset = response.resultOffset + response.size;
+
+                            getNextPage();
                         }
-                    }
-                },
-                (e) =>
-                {
-                    if(onError != null)
-                    {
-                        onError(e);
-                    }
-                });
+                        else
+                        {
+                            onAllPagesReceived();
+
+                            if(onSuccess != null)
+                            {
+                                onSuccess(remoteOnlySubscriptions);
+                            }
+                        }
+                    },
+                    (e) => {
+                        if(onError != null)
+                        {
+                            onError(e);
+                        }
+                    });
             };
 
 
@@ -279,13 +267,13 @@ namespace ModIO
                     return;
                 }
 
-                List<int> localOnlySubs
-                = new List<int>(LocalUser.SubscribedModIds);
+                List<int> localOnlySubs = new List<int>(LocalUser.SubscribedModIds);
 
-                // NOTE(@jackson): Unsub actions *should not* be found in activeUser.subscribedModIds
+                // NOTE(@jackson): Unsub actions *should not* be found in
+                // activeUser.subscribedModIds
                 foreach(int modId in LocalUser.QueuedUnsubscribes)
                 {
-                    #if DEBUG
+#if DEBUG
                     if(localOnlySubs.Contains(modId))
                     {
                         Debug.LogWarning("[mod.io] A locally subscribed mod was found in the"
@@ -296,7 +284,7 @@ namespace ModIO
                                          + " UserAccountManagement.UnsubscribeFromMod() to handle"
                                          + " this automatically.");
                     }
-                    #endif
+#endif
 
                     localOnlySubs.Remove(modId);
                 }
@@ -358,8 +346,7 @@ namespace ModIO
         {
             if(LocalUser.AuthenticationState != AuthenticationState.NoToken)
             {
-                APIClient.GetAuthenticatedUser((p) =>
-                {
+                APIClient.GetAuthenticatedUser((p) => {
                     LocalUser.Profile = p;
                     LocalUser.Save();
 
@@ -367,8 +354,7 @@ namespace ModIO
                     {
                         onSuccess(p);
                     }
-                },
-                onError);
+                }, onError);
             }
             else if(onSuccess != null)
             {
@@ -381,15 +367,13 @@ namespace ModIO
                                                         Action<UserProfile> onSuccess,
                                                         Action<WebRequestError> onError)
         {
-            APIClient.GetOAuthToken(securityCode, (t) =>
-            {
+            APIClient.GetOAuthToken(securityCode, (t) => {
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
                 LocalUser.Save();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
-            },
-            onError);
+            }, onError);
         }
 
         /// <summary>Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
@@ -401,9 +385,8 @@ namespace ModIO
                                                                    Action<WebRequestError> onError)
         {
             string encodedTicket = Utility.EncodeEncryptedAppTicket(pTicket, pcbTicket);
-            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket,
-                                                                          hasUserAcceptedTerms,
-                                                                          onSuccess, onError);
+            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(
+                encodedTicket, hasUserAcceptedTerms, onSuccess, onError);
         }
 
         /// <summary>Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
@@ -414,10 +397,10 @@ namespace ModIO
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
-            string encodedTicket = Utility.EncodeEncryptedAppTicket(authTicketData, (uint)authTicketData.Length);
-            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket,
-                                                                          hasUserAcceptedTerms,
-                                                                          onSuccess, onError);
+            string encodedTicket =
+                Utility.EncodeEncryptedAppTicket(authTicketData, (uint)authTicketData.Length);
+            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(
+                encodedTicket, hasUserAcceptedTerms, onSuccess, onError);
         }
 
 
@@ -427,21 +410,18 @@ namespace ModIO
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
-            LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
-            {
+            LocalUser.ExternalAuthentication = new ExternalAuthenticationData() {
                 ticket = encodedTicket,
                 portal = UserPortal.Steam,
             };
 
-            APIClient.RequestSteamAuthentication(encodedTicket, hasUserAcceptedTerms, (t) =>
-            {
+            APIClient.RequestSteamAuthentication(encodedTicket, hasUserAcceptedTerms, (t) => {
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
                 LocalUser.Save();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
-            },
-            onError);
+            }, onError);
         }
 
         /// <summary>Attempts to authenticate a user using a GOG Encrypted App Ticket.</summary>
@@ -451,9 +431,8 @@ namespace ModIO
                                                                  Action<WebRequestError> onError)
         {
             string encodedTicket = Utility.EncodeEncryptedAppTicket(data, dataSize);
-            UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(encodedTicket,
-                                                                        hasUserAcceptedTerms,
-                                                                        onSuccess, onError);
+            UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(
+                encodedTicket, hasUserAcceptedTerms, onSuccess, onError);
         }
 
         /// <summary>Attempts to authenticate a user using a GOG Encrypted App Ticket.</summary>
@@ -462,46 +441,37 @@ namespace ModIO
                                                                  Action<UserProfile> onSuccess,
                                                                  Action<WebRequestError> onError)
         {
-            LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
-            {
+            LocalUser.ExternalAuthentication = new ExternalAuthenticationData() {
                 ticket = encodedTicket,
                 portal = UserPortal.Steam,
             };
 
-            APIClient.RequestGOGAuthentication(encodedTicket, hasUserAcceptedTerms,
-            (t) =>
-            {
+            APIClient.RequestGOGAuthentication(encodedTicket, hasUserAcceptedTerms, (t) => {
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
                 LocalUser.Save();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
-            },
-            onError);
+            }, onError);
         }
 
         /// <summary>Attempts to authenticate a user using an itch.io JWT Token.</summary>
-        public static void AuthenticateWithItchIOToken(string jwtToken,
-                                                       bool hasUserAcceptedTerms,
+        public static void AuthenticateWithItchIOToken(string jwtToken, bool hasUserAcceptedTerms,
                                                        Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
         {
-            LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
-            {
+            LocalUser.ExternalAuthentication = new ExternalAuthenticationData() {
                 ticket = jwtToken,
                 portal = UserPortal.itchio,
             };
 
-            APIClient.RequestItchIOAuthentication(jwtToken, hasUserAcceptedTerms,
-            (t) =>
-            {
+            APIClient.RequestItchIOAuthentication(jwtToken, hasUserAcceptedTerms, (t) => {
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
                 LocalUser.Save();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
-            },
-            onError);
+            }, onError);
         }
 
         /// <summary>Attempts to authenticate a user using Oculus Rift user data.</summary>
@@ -512,27 +482,25 @@ namespace ModIO
                                                               Action<UserProfile> onSuccess,
                                                               Action<WebRequestError> onError)
         {
-            LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
-            {
+            LocalUser.ExternalAuthentication = new ExternalAuthenticationData() {
                 portal = UserPortal.Oculus,
                 ticket = oculusUserAccessToken,
-                additionalData = new Dictionary<string, string>()
-                {
-                    { ExternalAuthenticationData.OculusRiftKeys.NONCE, oculusUserNonce },
-                    { ExternalAuthenticationData.OculusRiftKeys.USER_ID, oculusUserId.ToString() },
-                },
+                additionalData =
+                    new Dictionary<string, string>() {
+                        { ExternalAuthenticationData.OculusRiftKeys.NONCE, oculusUserNonce },
+                        { ExternalAuthenticationData.OculusRiftKeys.USER_ID,
+                          oculusUserId.ToString() },
+                    },
             };
 
-            APIClient.RequestOculusRiftAuthentication(oculusUserNonce, oculusUserId, oculusUserAccessToken, hasUserAcceptedTerms,
-            (t) =>
-            {
-                LocalUser.OAuthToken = t;
-                LocalUser.WasTokenRejected = false;
-                LocalUser.Save();
+            APIClient.RequestOculusRiftAuthentication(
+                oculusUserNonce, oculusUserId, oculusUserAccessToken, hasUserAcceptedTerms, (t) => {
+                    LocalUser.OAuthToken = t;
+                    LocalUser.WasTokenRejected = false;
+                    LocalUser.Save();
 
-                UserAccountManagement.UpdateUserProfile(onSuccess, onError);
-            },
-            onError);
+                    UserAccountManagement.UpdateUserProfile(onSuccess, onError);
+                }, onError);
         }
 
         /// <summary>Attempts to authenticate a user using Xbox Live credentials.</summary>
@@ -541,22 +509,19 @@ namespace ModIO
                                                          Action<UserProfile> onSuccess,
                                                          Action<WebRequestError> onError)
         {
-            LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
-            {
+            LocalUser.ExternalAuthentication = new ExternalAuthenticationData() {
                 ticket = xboxLiveUserToken,
                 portal = UserPortal.XboxLive,
             };
 
-            APIClient.RequestXboxLiveAuthentication(xboxLiveUserToken, hasUserAcceptedTerms,
-            (t) =>
-            {
-                LocalUser.OAuthToken = t;
-                LocalUser.WasTokenRejected = false;
-                LocalUser.Save();
+            APIClient.RequestXboxLiveAuthentication(
+                xboxLiveUserToken, hasUserAcceptedTerms, (t) => {
+                    LocalUser.OAuthToken = t;
+                    LocalUser.WasTokenRejected = false;
+                    LocalUser.Save();
 
-                UserAccountManagement.UpdateUserProfile(onSuccess, onError);
-            },
-            onError);
+                    UserAccountManagement.UpdateUserProfile(onSuccess, onError);
+                }, onError);
         }
 
         /// <summary>Attempts to reauthenticate using the stored external auth ticket.</summary>
@@ -585,28 +550,22 @@ namespace ModIO
             {
                 case UserPortal.Steam:
                 {
-                    APIClient.RequestSteamAuthentication(authData.ticket,
-                                                         hasUserAcceptedTerms,
-                                                         onSuccessWrapper,
-                                                         onError);
+                    APIClient.RequestSteamAuthentication(authData.ticket, hasUserAcceptedTerms,
+                                                         onSuccessWrapper, onError);
                 }
                 break;
 
                 case UserPortal.GOG:
                 {
-                    APIClient.RequestGOGAuthentication(authData.ticket,
-                                                       hasUserAcceptedTerms,
-                                                       onSuccessWrapper,
-                                                       onError);
+                    APIClient.RequestGOGAuthentication(authData.ticket, hasUserAcceptedTerms,
+                                                       onSuccessWrapper, onError);
                 }
                 break;
 
                 case UserPortal.itchio:
                 {
-                    APIClient.RequestItchIOAuthentication(authData.ticket,
-                                                          hasUserAcceptedTerms,
-                                                          onSuccessWrapper,
-                                                          onError);
+                    APIClient.RequestItchIOAuthentication(authData.ticket, hasUserAcceptedTerms,
+                                                          onSuccessWrapper, onError);
                 }
                 break;
 
@@ -622,12 +581,14 @@ namespace ModIO
                     {
                         errorMessage = "The user id and nonce are missing.";
                     }
-                    else if(!authData.additionalData.TryGetValue(ExternalAuthenticationData.OculusRiftKeys.NONCE, out nonce)
+                    else if(!authData.additionalData.TryGetValue(
+                                ExternalAuthenticationData.OculusRiftKeys.NONCE, out nonce)
                             || string.IsNullOrEmpty(nonce))
                     {
                         errorMessage = "The nonce is missing.";
                     }
-                    else if(!authData.additionalData.TryGetValue(ExternalAuthenticationData.OculusRiftKeys.USER_ID, out userIdString)
+                    else if(!authData.additionalData.TryGetValue(
+                                ExternalAuthenticationData.OculusRiftKeys.USER_ID, out userIdString)
                             || string.IsNullOrEmpty(userIdString))
                     {
                         errorMessage = "The user id is missing.";
@@ -639,8 +600,9 @@ namespace ModIO
 
                     if(errorMessage != null)
                     {
-                        Debug.LogWarning("[mod.io] Unable to authenticate using stored Oculus Rift user data.\n"
-                                         + errorMessage);
+                        Debug.LogWarning(
+                            "[mod.io] Unable to authenticate using stored Oculus Rift user data.\n"
+                            + errorMessage);
 
                         if(onError != null)
                         {
@@ -652,20 +614,16 @@ namespace ModIO
                     }
                     else
                     {
-                        APIClient.RequestOculusRiftAuthentication(nonce, userId, token,
-                                                                  hasUserAcceptedTerms,
-                                                                  onSuccessWrapper,
-                                                                  onError);
+                        APIClient.RequestOculusRiftAuthentication(
+                            nonce, userId, token, hasUserAcceptedTerms, onSuccessWrapper, onError);
                     }
                 }
                 break;
 
                 case UserPortal.XboxLive:
                 {
-                    APIClient.RequestXboxLiveAuthentication(authData.ticket,
-                                                            hasUserAcceptedTerms,
-                                                            onSuccessWrapper,
-                                                            onError);
+                    APIClient.RequestXboxLiveAuthentication(authData.ticket, hasUserAcceptedTerms,
+                                                            onSuccessWrapper, onError);
                 }
                 break;
 
@@ -677,38 +635,39 @@ namespace ModIO
         }
 
         // ---------[ Obsolete ]---------
-        /// <summary>[Obsolete] Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
+        /// <summary>[Obsolete] Attempts to authenticate a user using a Steam Encrypted App
+        /// Ticket.</summary>
         [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
         public static void AuthenticateWithSteamEncryptedAppTicket(byte[] pTicket, uint pcbTicket,
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
-            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(pTicket, pcbTicket,
-                                                                          false,
+            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(pTicket, pcbTicket, false,
                                                                           onSuccess, onError);
         }
-        /// <summary>[Obsolete] Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
+        /// <summary>[Obsolete] Attempts to authenticate a user using a Steam Encrypted App
+        /// Ticket.</summary>
         [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
         public static void AuthenticateWithSteamEncryptedAppTicket(byte[] authTicketData,
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
-            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(authTicketData,
-                                                                          false,
+            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(authTicketData, false,
                                                                           onSuccess, onError);
         }
-        /// <summary>[Obsolete] Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
+        /// <summary>[Obsolete] Attempts to authenticate a user using a Steam Encrypted App
+        /// Ticket.</summary>
         [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
         public static void AuthenticateWithSteamEncryptedAppTicket(string encodedTicket,
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
-            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket,
-                                                                          false,
+            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket, false,
                                                                           onSuccess, onError);
         }
 
-        /// <summary>[Obsolete] Attempts to authenticate a user using a GOG Encrypted App Ticket.</summary>
+        /// <summary>[Obsolete] Attempts to authenticate a user using a GOG Encrypted App
+        /// Ticket.</summary>
         [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
         public static void AuthenticateWithGOGEncryptedAppTicket(byte[] data, uint dataSize,
                                                                  Action<UserProfile> onSuccess,
@@ -718,7 +677,8 @@ namespace ModIO
                                                                         onSuccess, onError);
         }
 
-        /// <summary>[Obsolete] Attempts to authenticate a user using a GOG Encrypted App Ticket.</summary>
+        /// <summary>[Obsolete] Attempts to authenticate a user using a GOG Encrypted App
+        /// Ticket.</summary>
         [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
         public static void AuthenticateWithGOGEncryptedAppTicket(string encodedTicket,
                                                                  Action<UserProfile> onSuccess,
@@ -728,17 +688,18 @@ namespace ModIO
                                                                         onSuccess, onError);
         }
 
-        /// <summary>[Obsolete] Attempts to authenticate a user using an itch.io JWT Token.</summary>
+        /// <summary>[Obsolete] Attempts to authenticate a user using an itch.io JWT
+        /// Token.</summary>
         [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
         public static void AuthenticateWithItchIOToken(string jwtToken,
                                                        Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
         {
-            UserAccountManagement.AuthenticateWithItchIOToken(jwtToken, false,
-                                                              onSuccess, onError);
+            UserAccountManagement.AuthenticateWithItchIOToken(jwtToken, false, onSuccess, onError);
         }
 
-        /// <summary>[Obsolete] Attempts to authenticate a user using Oculus Rift user data.</summary>
+        /// <summary>[Obsolete] Attempts to authenticate a user using Oculus Rift user
+        /// data.</summary>
         [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
         public static void AuthenticateWithOculusRiftUserData(string oculusUserNonce,
                                                               int oculusUserId,
@@ -746,29 +707,29 @@ namespace ModIO
                                                               Action<UserProfile> onSuccess,
                                                               Action<WebRequestError> onError)
         {
-            UserAccountManagement.AuthenticateWithOculusRiftUserData(oculusUserNonce, oculusUserId,
-                                                                     oculusUserAccessToken,
-                                                                     false,
-                                                                     onSuccess, onError);
+            UserAccountManagement.AuthenticateWithOculusRiftUserData(
+                oculusUserNonce, oculusUserId, oculusUserAccessToken, false, onSuccess, onError);
         }
 
-        /// <summary>[Obsolete] Attempts to authenticate a user using Xbox Live credentials.</summary>
+        /// <summary>[Obsolete] Attempts to authenticate a user using Xbox Live
+        /// credentials.</summary>
         [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
         public static void AuthenticateWithXboxLiveToken(string xboxLiveUserToken,
                                                          Action<UserProfile> onSuccess,
                                                          Action<WebRequestError> onError)
         {
-            UserAccountManagement.AuthenticateWithXboxLiveToken(xboxLiveUserToken, false,
-                                                                onSuccess, onError);
+            UserAccountManagement.AuthenticateWithXboxLiveToken(xboxLiveUserToken, false, onSuccess,
+                                                                onError);
         }
 
-        /// <summary>[Obsolete] Attempts to reauthenticate using the stored external auth ticket.</summary>
+        /// <summary>[Obsolete] Attempts to reauthenticate using the stored external auth
+        /// ticket.</summary>
         [Obsolete("Now requires the hasUserAcceptedTerms flag to be provided.")]
         public static void ReauthenticateWithStoredExternalAuthData(Action<UserProfile> onSuccess,
                                                                     Action<WebRequestError> onError)
         {
-            UserAccountManagement.ReauthenticateWithStoredExternalAuthData(false,
-                                                                           onSuccess, onError);
+            UserAccountManagement.ReauthenticateWithStoredExternalAuthData(false, onSuccess,
+                                                                           onError);
         }
     }
 }

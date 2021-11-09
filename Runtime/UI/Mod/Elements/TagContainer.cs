@@ -41,29 +41,33 @@ namespace ModIO.UI
         {
             this.containerTemplate.gameObject.SetActive(false);
 
-            // check template
-            #if DEBUG
+// check template
+#if DEBUG
             string message;
             if(!TagContainer.HasValidTemplate(this, out message))
             {
                 Debug.LogError("[mod.io] " + message, this);
                 return;
             }
-            #endif
+#endif
 
             // get template vars
             Transform templateParent = this.containerTemplate.parent;
             string templateInstance_name = this.containerTemplate.gameObject.name + " (Instance)";
             int templateInstance_index = this.containerTemplate.GetSiblingIndex() + 1;
-            this.m_itemTemplate = this.containerTemplate.GetComponentInChildren<TagContainerItem>(true);
+            this.m_itemTemplate =
+                this.containerTemplate.GetComponentInChildren<TagContainerItem>(true);
 
             // check if instantiated
-            bool isInstantiated = (templateParent.childCount > templateInstance_index
-                                   && templateParent.GetChild(templateInstance_index).gameObject.name == templateInstance_name);
+            bool isInstantiated =
+                (templateParent.childCount > templateInstance_index
+                 && templateParent.GetChild(templateInstance_index).gameObject.name
+                        == templateInstance_name);
             if(isInstantiated)
             {
                 this.m_templateClone = templateParent.GetChild(templateInstance_index).gameObject;
-                TagContainerItem[] itemInstances = this.m_templateClone.GetComponentsInChildren<TagContainerItem>(true);
+                TagContainerItem[] itemInstances =
+                    this.m_templateClone.GetComponentsInChildren<TagContainerItem>(true);
 
                 if(itemInstances == null || itemInstances.Length == 0)
                 {
@@ -84,11 +88,13 @@ namespace ModIO.UI
             // instantiate
             if(!isInstantiated)
             {
-                this.m_templateClone = GameObject.Instantiate(this.containerTemplate.gameObject, templateParent);
+                this.m_templateClone =
+                    GameObject.Instantiate(this.containerTemplate.gameObject, templateParent);
                 this.m_templateClone.transform.SetSiblingIndex(templateInstance_index);
                 this.m_templateClone.name = templateInstance_name;
 
-                TagContainerItem itemInstance = this.m_templateClone.GetComponentInChildren<TagContainerItem>(true);
+                TagContainerItem itemInstance =
+                    this.m_templateClone.GetComponentInChildren<TagContainerItem>(true);
                 this.m_container = (RectTransform)itemInstance.transform.parent;
 
                 GameObject.Destroy(itemInstance.gameObject);
@@ -109,7 +115,10 @@ namespace ModIO.UI
         public void SetModView(ModView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_view == view)
+            {
+                return;
+            }
 
             // unhook
             if(this.m_view != null)
@@ -158,10 +167,7 @@ namespace ModIO.UI
 
                 // copy tags
                 List<string> newTagList = new List<string>();
-                foreach(string tagName in tags)
-                {
-                    newTagList.Add(tagName);
-                }
+                foreach(string tagName in tags) { newTagList.Add(tagName); }
                 this.m_tags = newTagList.ToArray();
             }
 
@@ -169,17 +175,14 @@ namespace ModIO.UI
             if(this.m_itemTemplate != null)
             {
                 int tagCount = this.m_tags.Length;
-                UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate,
-                                             "Tag", tagCount,
+                UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate, "Tag", tagCount,
                                              ref this.m_displays);
 
                 // display categories?
                 if(m_itemTemplate.categoryName.displayComponent != null
                    && this.m_tagCategoryMap.Count > 0)
                 {
-                    for(int i = 0;
-                        i < tagCount;
-                        ++i)
+                    for(int i = 0; i < tagCount; ++i)
                     {
                         string categoryName;
                         if(this.m_tagCategoryMap.TryGetValue(this.m_tags[i], out categoryName))
@@ -190,9 +193,7 @@ namespace ModIO.UI
                 }
 
                 // display tag names
-                for(int i = 0;
-                    i < tagCount;
-                    ++i)
+                for(int i = 0; i < tagCount; ++i)
                 {
                     this.m_displays[i].tagName.text = this.m_tags[i];
                 }
@@ -208,8 +209,7 @@ namespace ModIO.UI
         {
             // get length
             int categoryCount = 0;
-            if(gameProfile != null
-               && gameProfile.tagCategories != null)
+            if(gameProfile != null && gameProfile.tagCategories != null)
             {
                 categoryCount = gameProfile.tagCategories.Length;
             }
@@ -249,7 +249,8 @@ namespace ModIO.UI
                 isValid = false;
             }
 
-            TagContainerItem itemTemplate = container.containerTemplate.GetComponentInChildren<TagContainerItem>(true);
+            TagContainerItem itemTemplate =
+                container.containerTemplate.GetComponentInChildren<TagContainerItem>(true);
             if(itemTemplate == null
                || container.containerTemplate.gameObject == itemTemplate.gameObject)
             {

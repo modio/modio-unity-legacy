@@ -8,7 +8,8 @@ using Debug = UnityEngine.Debug;
 #pragma warning disable 0618 // Obsolete Detection
 namespace ModIO
 {
-    /// <summary>Performs the operations necessary to update data from older versions of the plugin.</summary>
+    /// <summary>Performs the operations necessary to update data from older versions of the
+    /// plugin.</summary>
     public static class DataUpdater
     {
         /// <summary>Runs the update functionality depending on the lastRunVersion.</summary>
@@ -24,16 +25,17 @@ namespace ModIO
         [System.Serializable]
         private struct GenericJSONObject
         {
-            #pragma warning disable 0649 // Never assigned to
+#pragma warning disable 0649 // Never assigned to
 
             [JsonExtensionData]
             public IDictionary<string, JToken> data;
 
-            #pragma warning restore 0649 // Never assigned to
+#pragma warning restore 0649 // Never assigned to
         }
 
         // ---------[ 2019 ]---------
-        /// <summary>Moves the data from the UserAuthenticationData and ModManager caches to UserAccountManagement.</summary>
+        /// <summary>Moves the data from the UserAuthenticationData and ModManager caches to
+        /// UserAccountManagement.</summary>
         private static void Update_2_0_to_2_1_UserData()
         {
             Debug.Log("[mod.io] Attempting 2.0->2.1 UserData update.");
@@ -45,9 +47,8 @@ namespace ModIO
 
             if(fileData != null && fileData.Length > 0)
             {
-                Debug.Log("[mod.io] Aborting UserData update. FileExists: \'"
-                          + LocalUser.FILENAME + "\' ["
-                          + ValueFormatting.ByteCount(fileData.Length, null) + "]");
+                Debug.Log("[mod.io] Aborting UserData update. FileExists: \'" + LocalUser.FILENAME
+                          + "\' [" + ValueFormatting.ByteCount(fileData.Length, null) + "]");
             }
 
             // update
@@ -62,16 +63,12 @@ namespace ModIO
             {
                 int[] modIds = null;
 
-                if(DataUpdater.TryGetArrayField(dataWrapper,
-                                                "subscribedModIds",
-                                                out modIds))
+                if(DataUpdater.TryGetArrayField(dataWrapper, "subscribedModIds", out modIds))
                 {
                     userData.subscribedModIds = new List<int>(modIds);
                 }
 
-                if(DataUpdater.TryGetArrayField(dataWrapper,
-                                                "enabledModIds",
-                                                out modIds))
+                if(DataUpdater.TryGetArrayField(dataWrapper, "enabledModIds", out modIds))
                 {
                     userData.enabledModIds = new List<int>(modIds);
                 }
@@ -85,16 +82,12 @@ namespace ModIO
             {
                 List<int> modIds = null;
 
-                if(DataUpdater.TryGetArrayField(dataWrapper,
-                                                "queuedSubscribes",
-                                                out modIds))
+                if(DataUpdater.TryGetArrayField(dataWrapper, "queuedSubscribes", out modIds))
                 {
                     userData.queuedSubscribes = new List<int>(modIds);
                 }
 
-                if(DataUpdater.TryGetArrayField(dataWrapper,
-                                                "queuedUnsubscribes",
-                                                out modIds))
+                if(DataUpdater.TryGetArrayField(dataWrapper, "queuedUnsubscribes", out modIds))
                 {
                     userData.queuedUnsubscribes = new List<int>(modIds);
                 }
@@ -128,7 +121,8 @@ namespace ModIO
                     userData.wasTokenRejected = (bool)dataWrapper.data["wasTokenRejected"];
                 }
 
-                // NOTE(@jackson): External Authentication is no longer saved to disk and is thus ignored.
+                // NOTE(@jackson): External Authentication is no longer saved to disk and is thus
+                // ignored.
 
                 IOUtilities.DeleteFile(filePath);
             }
@@ -143,8 +137,7 @@ namespace ModIO
 
         // ---------[ UTILITY ]---------
         /// <summary>Attempts to fetch an array-type field from the data-wrapper object.</summary>
-        private static bool TryGetArrayField<T>(GenericJSONObject jsonObject,
-                                                string fieldName,
+        private static bool TryGetArrayField<T>(GenericJSONObject jsonObject, string fieldName,
                                                 out T fieldData)
         {
             fieldData = default(T);

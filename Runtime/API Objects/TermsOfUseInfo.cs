@@ -33,7 +33,8 @@ namespace ModIO
         [JsonProperty("plaintext")]
         public string terms;
 
-        /// <summary>Terms of use the user needs to agree to in order to authenticate. (HTML)</summary>
+        /// <summary>Terms of use the user needs to agree to in order to authenticate.
+        /// (HTML)</summary>
         [JsonProperty("html")]
         public string terms_HTML;
 
@@ -50,10 +51,10 @@ namespace ModIO
         public Dictionary<string, LinkData> links;
 
         // ---------[ API DESERIALIZATION ]---------
-        private const string APIOBJECT_LINKKEY_WEBSITE  = "website";
-        private const string APIOBJECT_LINKKEY_TERMS    = "terms";
-        private const string APIOBJECT_LINKKEY_PRIVACY  = "privacy";
-        private const string APIOBJECT_LINKKEY_ACCOUNT  = "manage";
+        private const string APIOBJECT_LINKKEY_WEBSITE = "website";
+        private const string APIOBJECT_LINKKEY_TERMS = "terms";
+        private const string APIOBJECT_LINKKEY_PRIVACY = "privacy";
+        private const string APIOBJECT_LINKKEY_ACCOUNT = "manage";
 
         private struct ButtonInfo
         {
@@ -66,8 +67,7 @@ namespace ModIO
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            if(this.m_extensionData != null
-               && this.m_extensionData.Count > 0)
+            if(this.m_extensionData != null && this.m_extensionData.Count > 0)
             {
                 JToken infoToken;
                 if(this.m_extensionData.TryGetValue("buttons", out infoToken))

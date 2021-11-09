@@ -9,8 +9,7 @@ namespace ModIO.UI
         private static MessageSystem _instance;
         public static MessageSystem instance
         {
-            get
-            {
+            get {
                 if(_instance == null)
                 {
                     _instance = GameObject.FindObjectOfType<MessageSystem>();
@@ -19,9 +18,9 @@ namespace ModIO.UI
             }
         }
 
-        [Header("Settings")]
-        [Tooltip("Default base time to display a message (in seconds)")]
-        public float defaultBaseTime = 1.0f;
+        [Header("Settings")] [Tooltip(
+            "Default base time to display a message (in seconds)")] public float defaultBaseTime =
+            1.0f;
         [Tooltip("Additional time per character in the message (in seconds)")]
         public float defaultCharacterTime = 0.1f;
 
@@ -35,7 +34,8 @@ namespace ModIO.UI
         public List<MessageDisplayData> queuedMessages;
 
         // --- RUNTIME DATA ---
-        private Dictionary<MessageDisplayData.Type, MessageDisplay> m_typeDialogMap = new Dictionary<MessageDisplayData.Type, MessageDisplay>();
+        private Dictionary<MessageDisplayData.Type, MessageDisplay> m_typeDialogMap =
+            new Dictionary<MessageDisplayData.Type, MessageDisplay>();
         private Coroutine m_displayRoutine = null;
 
         // ---------[ INITIALIZATION ]---------
@@ -115,14 +115,16 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        public static void QueueMessage(MessageDisplayData.Type messageType,
-                                        string messageContent,
+        public static void QueueMessage(MessageDisplayData.Type messageType, string messageContent,
                                         float displayDuration = 0f)
         {
             Debug.Assert(!System.String.IsNullOrEmpty(messageContent));
 
             // early out
-            if(instance == null) { return; }
+            if(instance == null)
+            {
+                return;
+            }
 
             // check for default duration
             if(displayDuration <= 0f)
@@ -132,8 +134,7 @@ namespace ModIO.UI
             }
 
             // queue message
-            MessageDisplayData newMessage = new MessageDisplayData()
-            {
+            MessageDisplayData newMessage = new MessageDisplayData() {
                 type = messageType,
                 content = messageContent,
                 displayDuration = displayDuration,
@@ -141,11 +142,11 @@ namespace ModIO.UI
 
             instance.queuedMessages.Add(newMessage);
 
-            if(Application.isPlaying
-               && instance.isActiveAndEnabled
+            if(Application.isPlaying && instance.isActiveAndEnabled
                && instance.m_displayRoutine == null)
             {
-                instance.m_displayRoutine = instance.StartCoroutine(instance.DisplayNextMessageRoutine());
+                instance.m_displayRoutine =
+                    instance.StartCoroutine(instance.DisplayNextMessageRoutine());
             }
         }
 
@@ -169,9 +170,8 @@ namespace ModIO.UI
 
                     while(animTimer < anim.duration)
                     {
-                        rectTransform.anchoredPosition = Vector2.Lerp(origin + anim.offset,
-                                                                      origin,
-                                                                      animTimer / anim.duration);
+                        rectTransform.anchoredPosition =
+                            Vector2.Lerp(origin + anim.offset, origin, animTimer / anim.duration);
 
                         yield return null;
 
@@ -183,8 +183,7 @@ namespace ModIO.UI
 
                 float displayTimer = 0f;
                 m_cancelCurrentMessage = false;
-                while(displayTimer < message.displayDuration
-                      && !m_cancelCurrentMessage)
+                while(displayTimer < message.displayDuration && !m_cancelCurrentMessage)
                 {
                     yield return null;
 
@@ -197,9 +196,8 @@ namespace ModIO.UI
 
                     while(animTimer < anim.duration)
                     {
-                        rectTransform.anchoredPosition = Vector2.Lerp(origin,
-                                                                      origin + anim.offset,
-                                                                      animTimer / anim.duration);
+                        rectTransform.anchoredPosition =
+                            Vector2.Lerp(origin, origin + anim.offset, animTimer / anim.duration);
 
                         yield return null;
 
@@ -215,9 +213,7 @@ namespace ModIO.UI
             queuedMessages.Remove(message);
             m_displayRoutine = null;
 
-            if(Application.isPlaying
-               && this != null
-               && this.isActiveAndEnabled
+            if(Application.isPlaying && this != null && this.isActiveAndEnabled
                && queuedMessages.Count > 0)
             {
                 m_displayRoutine = StartCoroutine(DisplayNextMessageRoutine());
