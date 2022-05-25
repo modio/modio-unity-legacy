@@ -1510,8 +1510,40 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
+        
+        // ---------[ MUTE ENDPOINTS ]---------
+        /// <summary>
+        /// Submits a request to mute the specified user for the current authenticated user
+        /// </summary>
+        /// <remarks>The current session must have a valid authenticated user in order for this request to succeed</remarks>
+        public static void MuteUser(int userIdToMute,
+                                        Action<APIMessage> successCallback,
+                                        Action<WebRequestError> errorCallback)
+        {
+            string endpointURL = PluginSettings.API_URL + $"/users/{userIdToMute}/mute";
 
+            UnityWebRequest webRequest = APIClient.GeneratePostRequest(
+                endpointURL, null, null);
 
+            APIClient.SendRequest(webRequest, successCallback, errorCallback);
+        }
+        
+        /// <summary>
+        /// Submits a request to un-mute the specified user for the current authenticated user
+        /// </summary>
+        /// <remarks>The current session must have a valid authenticated user in order for this request to succeed</remarks>
+        public static void UnmuteUser(int userIdToUnmute,
+                                    Action<APIMessage> successCallback,
+                                    Action<WebRequestError> errorCallback)
+        {
+            string endpointURL = PluginSettings.API_URL + $"/users/{userIdToUnmute}/mute";
+
+            UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(
+                endpointURL, null);
+
+            APIClient.SendRequest(webRequest, successCallback, errorCallback);
+        }
+        
         // ---------[ ME ENDPOINTS ]---------
         /// <summary>Fetches the user profile for the authenticated user.</summary>
         public static void GetAuthenticatedUser(Action<UserProfile> successCallback,
