@@ -1631,6 +1631,19 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
+        /// <summary>Fetches the creators muted by the current user.</summary>
+        public static void GetMutedUsers(RequestFilter filter, APIPaginationParameters pagination,
+                                         Action<RequestPage<UserProfile>> successCallback,
+                                         Action<WebRequestError> errorCallback)
+        {
+            string endpointURL = PluginSettings.API_URL + @"/me/users/muted";
+
+            UnityWebRequest webRequest = APIClient.GenerateGetRequest(
+                endpointURL, filter.GenerateFilterString(), pagination);
+
+            APIClient.SendRequest(webRequest, successCallback, errorCallback);
+        }
+
         // ---------[ Obsolete ]---------
         /// <summary>[Obsolete] Generates the web request for a mod.io Authentication
         /// request.</summary>
