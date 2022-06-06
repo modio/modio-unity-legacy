@@ -1524,7 +1524,17 @@ namespace ModIO
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL, null, null);
 
-            APIClient.SendRequest(webRequest, successCallback, errorCallback);
+            // clear cache on success
+            Action successWrapper = () =>
+            {
+                RequestCache.Clear();
+                if(successCallback != null)
+                {
+                    successCallback.Invoke();
+                }
+            };
+
+            APIClient.SendRequest(webRequest, successWrapper, errorCallback);
         }
 
         /// <summary>
@@ -1539,7 +1549,17 @@ namespace ModIO
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(endpointURL, null);
 
-            APIClient.SendRequest(webRequest, successCallback, errorCallback);
+            // clear cache on success
+            Action successWrapper = () =>
+            {
+                RequestCache.Clear();
+                if(successCallback != null)
+                {
+                    successCallback.Invoke();
+                }
+            };
+
+            APIClient.SendRequest(webRequest, successWrapper, errorCallback);
         }
 
         // ---------[ ME ENDPOINTS ]---------
