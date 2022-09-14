@@ -1,9 +1,9 @@
 ## NOTE: This codebase is now deprecated.
+The latest version of the mod.io Unreal Plugin can be found at https://github.com/modio/modio-unity.
 
-We are currently developing the next version of the mod.io Unity Plugin which will be publicly available in Q2 2022. For early access to the closed alpha, please contact us at [developers@mod.io] with details about your product including target platforms.
+<a href="https://mod.io"><img src="https://mod.io/images/branding/modio-logo-bluedark.svg" alt="mod.io" width="360" align="right"/></a>
+# Unity Plugin
 
-<a href="https://mod.io"><img src="https://static.mod.io/v1/images/branding/modio-color-dark.svg" alt="mod.io" width="360" align="right"/></a>
-# Unity Engine Plugin
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/modio/modio-unity/blob/master/LICENSE)
 [![Discord](https://img.shields.io/discord/389039439487434752.svg?label=Discord&logo=discord&color=7289DA&labelColor=2C2F33)](https://discord.mod.io)
 [![Master docs](https://img.shields.io/badge/docs-master-green.svg)](https://github.com/modio/modio-unity/wiki)
